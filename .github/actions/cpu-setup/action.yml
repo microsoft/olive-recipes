@@ -1,0 +1,44 @@
+name: Olive Examples CI | Setup Composite Workflow for CPU runs
+description: "Composite action to setup environment for CPU workflows"
+
+inputs:
+  shell:
+    description: "Shell to use."
+    required: true
+    type: choice
+    options: [ "bash", "cmd" ]
+
+  python_version:
+    description: "Python version to use."
+    required: true
+
+  requirements_file:
+    description: "Name/Path of the requirement's file."
+    required: true
+
+  hf_cache_key:
+    description: "Huggingface cache key to use."
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+  - name: Setup python
+    uses: actions/setup-python@v5
+    with:
+      python-version: ${{ inputs.python_version }}
+      cache: 'pip'
+      cache-dependency-path: |
+        requirements.txt
+        ${{ inputs.requirements_file }}
+
+  - name: Install requirements
+    if: ${{ inputs.requirements_file }}
+    shell: ${{ inputs.shell }}
+    run: python -m pip install -r ${{ inputs.requirements_file }}
+
+  - name: Setup HF Cache
+    uses: actions/cache@v4
+    with:
+        path: ${{ env.HF_HOME }}
+        key: ${{ inputs.hf_cache_key }}

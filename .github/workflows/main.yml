@@ -1,0 +1,132 @@
+name: main
+description: "CI workflow for Olive Examples"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+  pull_request:
+
+env:
+  PYTHON_VERSION: "3.10"
+  HF_HOME: ${{ github.workspace }}/.cache/huggingface
+  HUGGING_FACE_HUB_TOKEN: ${{ secrets.HUGGING_FACE_HUB_TOKEN }}
+
+jobs:
+  generate-matrix:
+    runs-on: ubuntu-latest
+    outputs:
+      ubuntu-cpu-matrix: ${{ steps.ubuntu-gen-cpu-matrix.outputs.ubuntu_cpu_matrix }}
+      ubuntu-cuda-matrix: ${{ steps.ubuntu-gen-cuda-matrix.outputs.ubuntu_cuda_matrix }}
+      windows-cpu-matrix: ${{ steps.windows-gen-cpu-matrix.outputs.windows_cpu_matrix }}
+      windows-cuda-matrix: ${{ steps.windows-gen-cuda-matrix.outputs.windows_cuda_matrix }}
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+
+    - name: Setup python
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+
+    - name: Scan & generate matrix (Ubuntu + CPU)
+      id: ubuntu-gen-cpu-matrix
+      run: |
+        matrix=$(python .github/scripts/generate_matrix.py . ubuntu cpu)
+        echo "ubuntu_cpu_matrix=$matrix" >> $GITHUB_OUTPUT
+
+    - name: Scan & generate matrix (Ubuntu + CUDA)
+      id: ubuntu-gen-cuda-matrix
+      run: |
+        matrix=$(python .github/scripts/generate_matrix.py . ubuntu cuda)
+        echo "ubuntu_cuda_matrix=$matrix" >> $GITHUB_OUTPUT
+
+    - name: Scan & generate matrix (Windows + CPU)
+      id: windows-gen-cpu-matrix
+      run: |
+        matrix=$(python .github/scripts/generate_matrix.py . windows cpu)
+        echo "windows_cpu_matrix=$matrix" >> $GITHUB_OUTPUT
+
+    - name: Scan & generate matrix (Windows + CUDA)
+      id: windows-gen-cuda-matrix
+      run: |
+        matrix=$(python .github/scripts/generate_matrix.py . windows cuda)
+        echo "windows_cuda_matrix=$matrix" >> $GITHUB_OUTPUT
+
+  ubuntu-cpu-examples:
+    needs: generate-matrix
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.generate-matrix.outputs.ubuntu-cpu-matrix) }}
+    name: ${{ matrix.name }}
+    runs-on: [ self-hosted, 1ES.Pool=olive-github-ubuntu2204-cpu ]
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+
+    - name: Setup Environment
+      uses: ./.github/actions/cpu-setup
+      with:
+        shell: bash
+        python_version: ${{ env.PYTHON_VERSION }}
+        hf_cache_key: ${{ runner.os }}-${{ matrix.name }}-hf-cache
+        requirements_file: ${{ matrix.cwd }}/${{ matrix.requirements_file }}
+
+    - name: Run Command
+      working-directory: ${{ github.workspace }}/${{ matrix.cwd }}
+      run: ${{ matrix.command }}
+
+  ubuntu-cuda-examples:
+    needs: generate-matrix
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.generate-matrix.outputs.ubuntu-cuda-matrix) }}
+    name: ${{ matrix.name }}
+    runs-on: [ self-hosted, 1ES.Pool=olive-github-ubuntu2204-cuda-A10 ]
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+
+    - name: Setup Environment
+      uses: ./.github/actions/cuda-setup
+      with:
+        shell: bash
+        python_version: ${{ env.PYTHON_VERSION }}
+        hf_cache_key: ${{ runner.os }}-${{ matrix.name }}-hf-cache
+        requirements_file: ${{ matrix.cwd }}/${{ matrix.requirements_file }}
+
+    - name: Run Command
+      working-directory: ${{ github.workspace }}/${{ matrix.cwd }}
+      run: ${{ matrix.command }}
+
+  windows-cpu-examples:
+    needs: generate-matrix
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.generate-matrix.outputs.windows-cpu-matrix) }}
+    name: ${{ matrix.name }}
+    runs-on: [ self-hosted, 1ES.Pool=olive-github-win2022-cpu ]
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+
+    - name: Setup Environment
+      uses: ./.github/actions/cpu-setup
+      with:
+        shell: cmd
+        python_version: ${{ env.PYTHON_VERSION }}
+        hf_cache_key: ${{ runner.os }}-${{ matrix.name }}-hf-cache
+        requirements_file: ${{ matrix.cwd }}/${{ matrix.requirements_file }}
+
+    - name: Run Command
+      working-directory: ${{ github.workspace }}/${{ matrix.cwd }}
+      run: ${{ matrix.command }}
