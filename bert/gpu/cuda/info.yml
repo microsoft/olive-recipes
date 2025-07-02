@@ -1,0 +1,7 @@
+arch: bert
+ptq.json:
+  device: gpu
+  ep: cuda
+keywords:
+  bert
+  gpu
