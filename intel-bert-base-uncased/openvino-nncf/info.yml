@@ -1,0 +1,6 @@
+keywords:
+  ai-tk, FL
+ep:
+  OpenVINOExecutionProvider
+quantization:
+  NNCF

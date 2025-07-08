@@ -2,6 +2,18 @@
 
 We're always looking for your help to improve the product (bug fixes, new features, documentation, etc).
 
+## Repository organizations
+- Each model has its own top level folder.
+- Each model folder has LICENSE, README.md and recipe folders.
+- Each model can have multiple recipes.
+- There are no guidelines on the recipe folder name as long as they are unique.
+- Each recipe folder should have requirements.txt
+- Each recipe folder should have info.yml providing more scritable info about the recipe. The keywords in info.yml could be used identify the scenario where the recipe is used; for example AI TK, FL, Olive CI/CD etc., The info.yml could also optionally list olive features used by the recipe, quantization technique, ep etc.,
+- A recipe folder could have CODEOWNERS file to identify contributor who is volunteering to keep the recipe upto date.
+- Each recipe folder should have all the necessary files and scripts needed for the recipe.
+- One recipe could target one or more accelerator or precision. It is up to the CODEOWNERS of the recipe.
+- There are no guidelines on the subfolder structure within the recipe folder. 
+
 ## Coding conventions and standards
 
 ### Testing and Code Coverage

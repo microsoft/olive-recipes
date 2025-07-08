@@ -1,0 +1,9 @@
+[
+    {
+        "name": "ptq",
+        "os": "ubuntu",
+        "device": "cpu",
+        "requirements_file": "requirements.txt",
+        "command": "python -m olive run --config ptq.json"
+    }
+]

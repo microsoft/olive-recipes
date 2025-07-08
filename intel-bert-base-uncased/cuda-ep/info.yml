@@ -1,0 +1,9 @@
+keywords:
+  olive-ci
+olive-features:
+  search
+  HfModel
+ep:
+  CUDAExecutionProvider
+quantization:
+  OnnxStaticQuantization

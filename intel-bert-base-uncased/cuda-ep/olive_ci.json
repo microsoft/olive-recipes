@@ -1,0 +1,9 @@
+[
+    {
+        "name": "cuda-ep-bert",
+        "os": "ubuntu",
+        "device": "cuda",
+        "requirements_file": "requirements.txt",
+        "command": "python -m olive run --config cuda/ptq.json"
+    }
+]

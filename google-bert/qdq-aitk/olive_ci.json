@@ -1,0 +1,16 @@
+[
+    {
+        "name": "ptq-qdq",
+        "os": "ubuntu",
+        "device": "cuda",
+        "requirements_file": "requirements.txt",
+        "command": "python -m olive run --config qdq.json"
+    },
+    {
+        "name": "ptq-qdq=trttx",
+        "os": "ubuntu",
+        "device": "cuda",
+        "requirements_file": "requirements.txt",
+        "command": "python -m olive run --config trttx.json"
+    }
+]

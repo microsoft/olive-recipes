@@ -1,5 +1,0 @@
-arch: bert
-ptq.json:
-  device: cpu
-keywords:
-  cpu
