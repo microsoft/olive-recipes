@@ -1,4 +1,4 @@
-name: Olive Examples CI | Setup Composite Workflow for CUDA runs
+name: Olive Recipes CI | Setup Composite Workflow for CUDA runs
 description: "Composite action to setup environment for CUDA workflows"
 
 inputs:

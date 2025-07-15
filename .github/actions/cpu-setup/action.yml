@@ -1,4 +1,4 @@
-name: Olive Examples CI | Setup Composite Workflow for CPU runs
+name: Olive Recipes CI | Setup Composite Workflow for CPU runs
 description: "Composite action to setup environment for CPU workflows"
 
 inputs:

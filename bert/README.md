@@ -1,5 +1,5 @@
 # BERT Optimization
-This folder contains examples of BERT optimization using different workflows.
+This folder contains recipe for BERT optimization using different workflows.
 
 - QDQ: [Int8 Quantization with QDQ format](#bert-quantization-qdq)
 - CPU: [Optimization with PTQ for model from HF/AML](#bert-optimization-with-ptq-on-cpu)

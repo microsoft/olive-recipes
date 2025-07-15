@@ -5,10 +5,10 @@
     <img alt="olive" src="images/olive-black-text.png" height="100" style="max-width: 100%;">
   </picture>
 
-## Olive Examples For AI Model Optimization Toolkit Using ONNX Runtime
+## Olive Recipes For AI Model Optimization Toolkit Using ONNX Runtime
 </div>
 
-This repository compliments [Olive](https://github.com/microsoft/Olive), the AI model optimization toolkit, and includes examples demonstrating its extensive features and use cases. Users of Olive can use these examples as a reference to either optimize publicly available AI models or to optimize their own proprietary models.
+This repository compliments [Olive](https://github.com/microsoft/Olive), the AI model optimization toolkit, and includes recipes demonstrating its extensive features and use cases. Users of Olive can use these recipes as a reference to either optimize publicly available AI models or to optimize their own proprietary models.
 
 ## Learn more
 - [Olive Github Repository](https://github.com/microsoft/Olive)

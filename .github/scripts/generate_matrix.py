@@ -22,7 +22,7 @@ dirpath = Path(sys.argv[1])
 os = sys.argv[2]
 device = sys.argv[3]
 
-examples = []
+recipes = []
 for filepath in dirpath.rglob("olive_ci.json"):
     with filepath.open() as strm:
         for config in json.load(strm):
@@ -35,8 +35,8 @@ for filepath in dirpath.rglob("olive_ci.json"):
                     if key not in config:
                         config[key] = value
 
-                examples.append(config)
+                recipes.append(config)
 
-matrix = {"include": examples}
+matrix = {"include": recipes}
 output = json.dumps(matrix)
 print(output)

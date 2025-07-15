@@ -1,5 +1,5 @@
 name: main
-description: "CI workflow for Olive Examples"
+description: "CI workflow for Olive Recipes"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -59,7 +59,7 @@ jobs:
         matrix=$(python .github/scripts/generate_matrix.py . windows cuda)
         echo "windows_cuda_matrix=$matrix" >> $GITHUB_OUTPUT
 
-  ubuntu-cpu-examples:
+  ubuntu-cpu-recipes:
     needs: generate-matrix
     strategy:
       fail-fast: false
@@ -83,7 +83,7 @@ jobs:
       working-directory: ${{ github.workspace }}/${{ matrix.cwd }}
       run: ${{ matrix.command }}
 
-  ubuntu-cuda-examples:
+  ubuntu-cuda-recipes:
     needs: generate-matrix
     strategy:
       fail-fast: false
@@ -107,7 +107,7 @@ jobs:
       working-directory: ${{ github.workspace }}/${{ matrix.cwd }}
       run: ${{ matrix.command }}
 
-  windows-cpu-examples:
+  windows-cpu-recipes:
     needs: generate-matrix
     strategy:
       fail-fast: false
