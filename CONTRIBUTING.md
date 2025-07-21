@@ -2,6 +2,43 @@
 
 We're always looking for your help to improve the product (bug fixes, new features, documentation, etc).
 
+## Repository Organization
+
+Repository is organized by "model's name" as root folder, with each folder containing recipes specific to it.
+Each sub-folder within the root folder of the model might be organized by whatever criteria (based on devices, ExecutionProvider, maintainer, or something entirely different) best suits the recipes maintainer.
+
+Each folder (and subsequent sub-folders), however, **are required to have a file named `info.yml`** that lists details about what that specific folder contains. This information file is not strictly structured expect that it be legal yaml file and contain a few required fields. An automation job scans these information file to collect and populate a table (viewable on repository's home page) for ease of navigation (and visibility) for users.
+
+## Core requirements for `info.yml`
+
+Each `info.yml` is unique to the folder it contains and, at the minimum, should contain the following information:
+
+NOTE: All information is case-sensitive.
+
+* arch [str]: Architecture of the model
+* recipes [Recipe[]]: A list of recipes (file names) in the parent folder. For each entry,
+  * name [str]: Name of the file
+  * eps: [str | str[]]: One or list of supported EPs
+  * devices: [str | str[]]: One or list of supported devices
+
+Beyond the required fields, the file can include any information relevant to the recipes maintainer.
+Here's an example of `info.yml` file for a bert model.
+```yaml
+arch: bert
+recipes:
+  - name: qdq.json
+    devices: cpu
+    eps: CPUExecutionProvider
+
+  - name: trtrtx.json
+    devices: gpu
+    eps: NvTensorRTRTXExecutionProvider
+
+  - name: vitis_ai.json
+    devices: cpu
+    eps: VitisAIExecutionProvider
+```
+
 ## Coding conventions and standards
 
 ### Testing and Code Coverage
