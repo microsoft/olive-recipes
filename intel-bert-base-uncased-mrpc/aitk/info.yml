@@ -5,6 +5,23 @@ ep:
     VitisAIExecutionProvider
     QNNExecutionProvider
     NvTensorRTRTXExecutionProvider
+device:
+    cpu
+    npu
+    gpu
+arch: bert
+files:
+    - file: "bert_qdq_qnn.json"
+      device: npu
+      ep: QNNExecutionProvider
+    - file: "bert_qdq_amd.json"
+      device: npu
+      ep: VitisAIExecutionProvider
+    - file: "bert_ov.json"
+      ep: VitisAIExecutionProvider
+    - file: "bert_trtrtx.json"
+      device: gpu
+      ep: NvTensorRTRTXExecutionProvider
 aitk:
     modelInfo:
         id: "huggingface/Intel/bert-base-uncased-mrpc"
