@@ -20,7 +20,7 @@ arch: bert
 ```
 
 The first part contains general information for all recipes, for example architecture, ep, and device.
-If not specified, we could gather them from the next part.
+If not specified, we could gather them from the second part.
 
 ## Per file information
 
