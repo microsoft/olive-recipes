@@ -17,26 +17,48 @@ NOTE: All information is case-sensitive.
 
 * arch [str]: Architecture of the model
 * recipes [Recipe[]]: A list of recipes (file names) in the parent folder. For each entry,
-  * name [str]: Name of the file
+  * name [str] [Optional]: Use this field to disambiguate recipes for the same device & EP. Uses `model_name` as default.
+  * file [str]: Filename of the recipe
   * eps: [str | str[]]: One or list of supported EPs
   * devices: [str | str[]]: One or list of supported devices
 
 Beyond the required fields, the file can include any information relevant to the recipes maintainer.
 Here's an example of `info.yml` file for a bert model.
+
 ```yaml
 arch: bert
 recipes:
-  - name: qdq.json
+  - name: intel-bert
+    file: qdq.json
     devices: cpu
     eps: CPUExecutionProvider
 
-  - name: trtrtx.json
+  - name: intel-bert
+    file: trtrtx.json
     devices: gpu
     eps: NvTensorRTRTXExecutionProvider
 
-  - name: vitis_ai.json
+  - name: intel-bert (VitisAI)
+    file: vitis_ai.json
     devices: cpu
     eps: VitisAIExecutionProvider
+```
+
+### AITK specific configuration
+
+`info.yml` can also include configuration used by AITK specific models. All relevant information should be rooted under the **aitk** node.
+
+```yaml
+aitk:
+  - modelInfo:
+    id: "huggingface/Intel/bert-base-uncased-mrpc"
+    version: 1
+
+  - workflows:
+    file: "bert_qdq_qnn.json"
+    file: "bert_qdq_amd.json"
+    file: "bert_ov.json"
+    file: "bert_trtrtx.json"
 ```
 
 ## Coding conventions and standards
@@ -57,7 +79,7 @@ Test the *behavior*, instead of the *implementation*. To make what a test is tes
 e.g. `test_method_x_raises_error_when_dims_is_not_a_sequence`
 
 ### Linting
-Ensure that the correct develop packages are installed by `pip install -r requirements-dev.txt`.
+Ensure that the correct development packages are installed by `pip install -r requirements-dev.txt`.
 
 This project uses [lintrunner](https://github.com/suo/lintrunner) for linting. It provides a consistent linting experience locally and in CI. You can initialize with
 

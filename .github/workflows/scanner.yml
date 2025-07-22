@@ -16,19 +16,25 @@ env:
 
 jobs:
   scan:
+    permissions:
+      contents: write
     runs-on: ubuntu-latest
 
     steps:
     - name: Checkout Code
       uses: actions/checkout@v4
+      with:
+          ref: ${{ github.head_ref }} # ref is required as GitHub Actions checks out in detached HEAD mode
 
     - name: Setup python
       uses: actions/setup-python@v5
       with:
         python-version: ${{ env.PYTHON_VERSION }}
 
-    - name: Run Scanner
-      run: python .github/scripts/model_scanner.py --dirpath . --verbose
+    - name: Install dependencies and run scanner
+      run: |
+        python -m pip install pyyaml
+        python .github/scripts/scanner.py --dirpath . --verbose
 
     - name: Check for Changes
       id: check_changes
