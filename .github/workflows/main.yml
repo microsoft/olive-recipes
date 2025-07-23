@@ -10,6 +10,8 @@ on:
   push:
     branches:
       - main
+    paths-ignore:
+      - '*'     # Exclude files in root directory from triggering a build
   pull_request:
 
 env:
