@@ -1,8 +1,8 @@
 <div align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="images/olive-white-text.png">
-    <source media="(prefers-color-scheme: light)" srcset="images/olive-black-text.png">
-    <img alt="olive" src="images/olive-black-text.png" height="100" style="max-width: 100%;">
+    <source media="(prefers-color-scheme: dark)" srcset=".assets/olive-white-text.png">
+    <source media="(prefers-color-scheme: light)" srcset=".assets/olive-black-text.png">
+    <img alt="olive" src=".assets/olive-black-text.png" height="100" style="max-width: 100%;">
   </picture>
 
 ## Olive Recipes For AI Model Optimization Toolkit
