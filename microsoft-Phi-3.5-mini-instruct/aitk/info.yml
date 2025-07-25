@@ -1,6 +1,6 @@
 keywords:
     aitk
-arch: llama
+arch: phi
 recipes:
     - file: "phi3_5_qnn_config.json"
       device: npu

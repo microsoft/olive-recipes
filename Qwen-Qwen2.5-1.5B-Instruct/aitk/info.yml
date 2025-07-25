@@ -1,6 +1,6 @@
 keywords:
     aitk
-arch: deepseek
+arch: qwen2
 recipes:
     - file: "qwen2_5_qnn_config.json"
       device: npu
