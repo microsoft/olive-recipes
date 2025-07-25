@@ -1,0 +1,3 @@
+# For a full requirements, see AITK
+datasets
+optimum
