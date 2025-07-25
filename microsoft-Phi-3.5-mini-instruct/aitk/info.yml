@@ -1,0 +1,20 @@
+keywords:
+    aitk
+arch: phi
+recipes:
+    - file: "phi3_5_qnn_config.json"
+      device: npu
+      ep: QNNExecutionProvider
+    - file: "phi3_5_vitis_ai_config.json"
+      device: npu
+      ep: VitisAIExecutionProvider
+    - file: "phi3_5_ov_config.json"
+      device: npu
+      ep: OpenVINOExecutionProvider
+    - file: "phi3_5_dml_config.json"
+      device: gpu
+      ep: DmlExecutionProvider
+aitk:
+    modelInfo:
+        id: "huggingface/microsoft/Phi-3.5-mini-instruct"
+        version: 1

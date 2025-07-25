@@ -1,0 +1,11 @@
+keywords:
+    aitk
+arch: mistral
+recipes:
+    - file: "mistral-7b-instruct-v0.3-ov.json.json"
+      device: gpu
+      ep: OpenVINOExecutionProvider
+aitk:
+    modelInfo:
+        id: "huggingface/mistralai/Mistral-7B-Instruct-v0.3"
+        version: 1

@@ -1,0 +1,11 @@
+keywords:
+    aitk
+arch: phi
+recipes:
+    - file: "phi4_ov_config.json"
+      device: npu
+      ep: OpenVINOExecutionProvider
+aitk:
+    modelInfo:
+        id: "huggingface/microsoft/Phi-4-mini-reasoning"
+        version: 1

@@ -1,0 +1,26 @@
+keywords:
+    aitk
+arch: clip
+recipes:
+    - file: "openai_clip_text_qnn.json"
+      device: npu
+      ep: QNNExecutionProvider
+    - file: "openai_clip_vision_qnn.json"
+      device: npu
+      ep: QNNExecutionProvider
+    - file: "openai_clip_qdq_amd.json"
+      device: npu
+      ep: VitisAIExecutionProvider
+    - file: "openai_clip_ov.json"
+      device: npu
+      ep: OpenVINOExecutionProvider
+    - file: "openai_clip_trtrtx.json"
+      device: gpu
+      ep: NvTensorRTRTXExecutionProvider
+    - file: "openai_clip_dml.json"
+      device: gpu
+      ep: DmlExecutionProvider
+aitk:
+    modelInfo:
+        id: "huggingface/openai/clip-vit-base-patch32"
+        version: 1

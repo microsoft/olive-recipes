@@ -1,0 +1,23 @@
+keywords:
+    aitk
+arch: resnet
+recipes:
+    - file: "resnet_qdq_qnn.json"
+      device: npu
+      ep: QNNExecutionProvider
+    - file: "resnet_qdq_amd.json"
+      device: npu
+      ep: VitisAIExecutionProvider
+    - file: "resnet_context_ov_static.json"
+      device: npu
+      ep: OpenVINOExecutionProvider
+    - file: "resnet_trtrtx.json"
+      device: gpu
+      ep: NvTensorRTRTXExecutionProvider
+    - file: "resnet_dml.json"
+      device: gpu
+      ep: DmlExecutionProvider
+aitk:
+    modelInfo:
+        id: "huggingface/microsoft/resnet-50"
+        version: 1

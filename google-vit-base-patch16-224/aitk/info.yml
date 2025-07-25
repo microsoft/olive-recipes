@@ -1,0 +1,23 @@
+keywords:
+    aitk
+arch: vit
+recipes:
+    - file: "vit-base-patch16-224_qdq_qnn.json"
+      device: npu
+      ep: QNNExecutionProvider
+    - file: "vit-base-patch16-224_qdq_amd.json"
+      device: npu
+      ep: VitisAIExecutionProvider
+    - file: "vit_base_patch16_224_context_ov_static.json"
+      device: npu
+      ep: OpenVINOExecutionProvider
+    - file: "vit-base-patch16-224_trtrtx.json"
+      device: gpu
+      ep: NvTensorRTRTXExecutionProvider
+    - file: "vit-base-patch16-224_dml.json"
+      device: gpu
+      ep: DmlExecutionProvider
+aitk:
+    modelInfo:
+        id: "huggingface/google/vit-base-patch16-224"
+        version: 1

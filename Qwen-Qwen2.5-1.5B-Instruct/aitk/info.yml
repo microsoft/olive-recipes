@@ -1,0 +1,20 @@
+keywords:
+    aitk
+arch: qwen2
+recipes:
+    - file: "qwen2_5_qnn_config.json"
+      device: npu
+      ep: QNNExecutionProvider
+    - file: "qwen2_5_vitis_ai_config.json"
+      device: npu
+      ep: VitisAIExecutionProvider
+    - file: "qwen2_5_ov_config.json"
+      device: npu
+      ep: OpenVINOExecutionProvider
+    - file: "qwen2_5_dml_config.json"
+      device: gpu
+      ep: DmlExecutionProvider
+aitk:
+    modelInfo:
+        id: "huggingface/Qwen/Qwen2.5-1.5B-Instruct"
+        version: 1

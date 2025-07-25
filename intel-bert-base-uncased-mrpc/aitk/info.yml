@@ -10,7 +10,7 @@ device:
     npu
     gpu
 arch: bert
-files:
+recipes:
     - file: "bert_qdq_qnn.json"
       device: npu
       ep: QNNExecutionProvider
@@ -18,10 +18,13 @@ files:
       device: npu
       ep: VitisAIExecutionProvider
     - file: "bert_ov.json"
-      ep: VitisAIExecutionProvider
+      ep: OpenVINOExecutionProvider
     - file: "bert_trtrtx.json"
       device: gpu
       ep: NvTensorRTRTXExecutionProvider
+    - file: "bert_dml.json"
+      device: gpu
+      ep: DmlExecutionProvider
 aitk:
     modelInfo:
         id: "huggingface/Intel/bert-base-uncased-mrpc"
@@ -31,3 +34,4 @@ aitk:
     - file: "bert_qdq_amd.json"
     - file: "bert_ov.json"
     - file: "bert_trtrtx.json"
+    - file: "bert_dml.json"

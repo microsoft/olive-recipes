@@ -1,0 +1,23 @@
+keywords:
+    aitk
+arch: bert
+recipes:
+    - file: "bert-base-multilingual-cased_qdq_qnn.json"
+      device: npu
+      ep: QNNExecutionProvider
+    - file: "bert-base-multilingual-cased_qdq_amd.json"
+      device: npu
+      ep: VitisAIExecutionProvider
+    - file: "bert-base-multilingual-cased_context_ov_static.json"
+      device: npu
+      ep: OpenVINOExecutionProvider
+    - file: "bert-base-multilingual-cased_trtrtx.json"
+      device: gpu
+      ep: NvTensorRTRTXExecutionProvider
+    - file: "bert-base-multilingual-cased_dml.json"
+      device: gpu
+      ep: DmlExecutionProvider
+aitk:
+    modelInfo:
+        id: "huggingface/google-bert/bert-base-multilingual-cased"
+        version: 1
