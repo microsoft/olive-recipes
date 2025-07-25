@@ -1,20 +1,20 @@
 keywords:
     aitk
-arch: deepseek
+arch: llama
 recipes:
-    - file: "deepseek_qnn_config.json"
+    - file: "llama3_2_qnn_config.json"
       device: npu
       ep: QNNExecutionProvider
-    - file: "deepseek_vitis_ai_config.json"
+    - file: "llama3_2_vitis_ai_config.json"
       device: npu
       ep: VitisAIExecutionProvider
-    - file: "deepseek_ov_config.json"
+    - file: "llama3_2_ov_config.json"
       device: npu
       ep: OpenVINOExecutionProvider
-    - file: "deepseek_dml_config.json"
+    - file: "llama3_2_dml_config.json"
       device: gpu
       ep: DmlExecutionProvider
 aitk:
     modelInfo:
-        id: "huggingface/deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B"
+        id: "huggingface/meta-llama/Llama-3.2-1B-Instruct"
         version: 1

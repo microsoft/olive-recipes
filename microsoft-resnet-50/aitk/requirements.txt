@@ -1,0 +1,4 @@
+olive-ai
+torchvision
+pillow
+requests
