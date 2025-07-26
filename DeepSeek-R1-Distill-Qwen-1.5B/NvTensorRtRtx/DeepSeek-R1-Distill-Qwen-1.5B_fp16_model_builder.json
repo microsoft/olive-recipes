@@ -1,0 +1,18 @@
+{
+    "input_model": {
+        "type": "HfModel",
+        "model_path": "deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B",
+        "task": "text-classification"
+    },
+    "systems": {
+        "local_system": {
+            "type": "LocalSystem",
+            "accelerators": [ { "device": "gpu", "execution_providers": [ "NvTensorRTRTXExecutionProvider" ] } ]
+        }
+    },
+    "engine": { "target": "local_system" },
+    "passes": {
+        "builder": { "type": "ModelBuilder", "precision": "fp16" }
+
+    }
+}

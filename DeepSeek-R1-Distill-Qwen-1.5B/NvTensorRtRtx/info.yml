@@ -1,0 +1,6 @@
+arch: qwen2
+recipes:
+  - name: DeepSeek_R1_1.5B_FP16_Model_Builder
+    file: DeepSeek-R1-Distill-Qwen-1.5B_fp16_model_builder.json
+    devices: gpu
+    eps: NvTensorRTRTXExecutionProvider

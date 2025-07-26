@@ -1,0 +1,6 @@
+arch: phi3
+recipes:
+  - name: Phi3.5_Mini_Instruct_NVMO_INT4_AWQ
+    file: Phi-3.5-mini-instruct_nvmo_int4_awq.json
+    devices: gpu
+    eps: NvTensorRTRTXExecutionProvider

@@ -1,0 +1,28 @@
+{
+    "input_model": {
+        "type": "HfModel",
+        "model_path": "meta-llama/Llama-3.2-1B-Instruct",
+        "task": "text-classification"
+    },
+    "systems": {
+        "local_system": {
+            "type": "LocalSystem",
+            "accelerators": [ { "device": "gpu", "execution_providers": [ "NvTensorRTRTXExecutionProvider" ] } ]
+        }
+    },
+    "engine": { "target": "local_system" },
+    "passes": {
+        "builder": { "type": "ModelBuilder", "precision": "fp16" },
+        "quantization": {
+            "type": "NVModelOptQuantization",
+            "algorithm": "awq",
+            "tokenizer_dir": "meta-llama/Llama-3.2-1B-Instruct",
+            "calibration_method": "awq_lite",
+            "calibration_params": {
+                 "add_position_ids": false
+            }
+        }
+    },
+    "log_severity_level": 0,
+    "output_dir": "output\\llama_3.2_1b_instruct"
+}
