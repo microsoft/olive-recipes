@@ -1,0 +1,11 @@
+keywords:
+    olive-ci
+ep:
+    CPUExecutionProvider
+    CUDAExecutionProvider
+device:
+    cpu
+    gpu
+name: intel-bert-base-uncased-mrpc
+recipes:
+features: search, evaluator, data-config

@@ -14,10 +14,12 @@ recipes:
     - file: "bert_qdq_qnn.json"
       device: npu
       ep: QNNExecutionProvider
-    - file: "bert_qdq_amd.json"
+    - name: intel-bert-base-uncased-mrpc (AMD)
+      file: "bert_qdq_amd.json"
       device: npu
       ep: VitisAIExecutionProvider
-    - file: "bert_ov.json"
+    - name: intel-bert-base-uncased-mrpc (ov)
+      file: "bert_ov.json"
       ep: OpenVINOExecutionProvider
     - file: "bert_trtrtx.json"
       device: gpu
