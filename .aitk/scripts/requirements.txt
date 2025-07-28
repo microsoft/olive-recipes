@@ -1,0 +1,3 @@
+pydash
+pydantic
+deepdiff

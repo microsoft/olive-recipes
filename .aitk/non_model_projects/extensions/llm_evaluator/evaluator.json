@@ -1,0 +1,33 @@
+{
+    "systems": {
+        "local_system": {
+            "type": "LocalSystem",
+            "accelerators": [
+                {
+                    "execution_providers": [
+                        "CPUExecutionProvider"
+                    ]
+                }
+            ]
+        }
+    },
+    "evaluators": {
+        "modelLab_llm_evaluator": {
+            "enabled": true,
+            "prompt_length": 16,
+            "generation_length": 64
+        }
+    },
+    "passes": {
+        "conversion": {
+            "type": "OnnxConversion",
+            "save_as_external_data": true
+        }
+    },
+    "host": "local_system",
+    "target": "local_system",
+    "evaluator": "modelLab_llm_evaluator",
+    "evaluate_input_model": false,
+    "output_dir": "model/nan",
+    "cache_dir": "cache"
+}

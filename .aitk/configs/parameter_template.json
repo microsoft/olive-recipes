@@ -1,0 +1,142 @@
+{
+    "ActivationType": {
+        "name": "Activation Type",
+        "tags": [
+            "ActivationType"
+        ],
+        "description": "Quantization data type of activation. ‘Int8’ for signed 8-bit integer, ‘UInt8’ for unsigned 8-bit integer etc.",
+        "descriptionLink": "https://onnxruntime.ai/docs/performance/model-optimizations/quantization.html",
+        "type": "enum",
+        "displayNames": [
+            "Int8",
+            "UInt8",
+            "Int16",
+            "UInt16"
+        ],
+        "displayType": "RadioGroup",
+        "values": [
+            "int8",
+            "uint8",
+            "int16",
+            "uint16"
+        ]
+    },
+    "WeightType": {
+        "name": "Weight Type",
+        "tags": [
+            "WeightType"
+        ],
+        "description": "Data type for quantizing weights. ‘Int8’ for signed 8-bit integer, ‘UInt8’ for unsigned 8-bit integer etc.",
+        "descriptionLink": "https://onnxruntime.ai/docs/performance/model-optimizations/quantization.html",
+        "type": "enum",
+        "displayNames": [
+            "Int8",
+            "UInt8",
+            "Int16",
+            "UInt16"
+        ],
+        "displayType": "RadioGroup",
+        "values": [
+            "int8",
+            "uint8",
+            "int16",
+            "uint16"
+        ]
+    },
+    "ActivationTypeIntel": {
+        "name": "Activation Type",
+        "tags": [
+            "ActivationType"
+        ],
+        "description": "Quantization data type of activation. ‘Int8’ for signed 8-bit integer, ‘UInt8’ for unsigned 8-bit integer etc.",
+        "descriptionLink": "https://onnxruntime.ai/docs/performance/model-optimizations/quantization.html",
+        "type": "enum",
+        "displayNames": [
+            "Int8"
+        ],
+        "displayType": "RadioGroup",
+        "values": [
+            "int8"
+        ]
+    },
+    "WeightTypeIntel": {
+        "name": "Weight Type",
+        "tags": [
+            "WeightType"
+        ],
+        "description": "Data type for quantizing weights. ‘Int8’ for signed 8-bit integer, ‘UInt8’ for unsigned 8-bit integer etc.",
+        "descriptionLink": "https://onnxruntime.ai/docs/performance/model-optimizations/quantization.html",
+        "type": "enum",
+        "displayNames": [
+            "Int8"
+        ],
+        "displayType": "RadioGroup",
+        "values": [
+            "int8"
+        ]
+    },
+    "EvaluationDataset": {
+        "name": "Evaluation Dataset",
+        "tags": [
+            "EvaluationDataset"
+        ],
+        "type": "enum"
+    },
+    "EvaluationDatasetSize": {
+        "name": "Evaluation Dataset Size",
+        "type": "int"
+    },
+    "EvaluationDatasetSplit": {
+        "name": "Evaluation Dataset Split",
+        "tags": [
+            "EvaluationDatasetSplit",
+            "DependsOnDataset"
+        ],
+        "type": "enum",
+        "values": [
+            "train",
+            "validation",
+            "test"
+        ]
+    },
+    "EvaluationDatasetSubset": {
+        "name": "Evaluation Dataset Subset",
+        "tags": [
+            "EvaluationDatasetSubset",
+            "DependsOnDataset"
+        ],
+        "type": "enum"
+    },
+    "QuantizationDataset": {
+        "name": "Quantization Dataset",
+        "tags": [
+            "QuantizationDataset"
+        ],
+        "type": "enum"
+    },
+    "QuantizationDatasetSize": {
+        "name": "Quantization Dataset Size",
+        "type": "int"
+    },
+    "QuantizationDatasetSplit": {
+        "name": "Quantization Dataset Split",
+        "tags": [
+            "QuantizationDatasetSplit",
+            "DependsOnDataset"
+        ],
+        "type": "enum",
+        "values": [
+            "train",
+            "validation",
+            "test"
+        ]
+    },
+    "QuantizationDatasetSubset": {
+        "name": "Quantization Dataset Subset",
+        "tags": [
+            "QuantizationDatasetSubset",
+            "DependsOnDataset"
+        ],
+        "type": "enum"
+    }
+}
