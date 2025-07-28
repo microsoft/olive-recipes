@@ -2,7 +2,7 @@ keywords:
     aitk
 arch: mistral
 recipes:
-    - file: "mistral-7b-instruct-v0.3-ov.json.json"
+    - file: "mistral-7b-instruct-v0.3-ov.json"
       device: gpu
       ep: OpenVINOExecutionProvider
 aitk:

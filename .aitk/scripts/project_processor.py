@@ -21,10 +21,12 @@ org_to_icon = {
 }
 
 
-def get_runtime(recipe: dict) -> RuntimeEnum:
-    ep = EPNames(recipe.get("ep"))
-    device = OliveDeviceTypes(recipe.get("device"))
-    return GlobalVars.GetRuntimeRPC(ep, device)
+def get_runtime(recipe: dict):
+    eps = recipe.get("eps", [recipe.get("ep")])
+    devices = recipe.get("devices", [recipe.get("device")])
+    for ep in eps:
+        for device in devices:
+            yield GlobalVars.GetRuntimeRPC(ep, device)
 
 
 def convert_yaml_to_model_info(root_dir: Path, yml_file: Path, yaml_object: dict) -> ModelInfo:
@@ -52,7 +54,7 @@ def convert_yaml_to_model_info(root_dir: Path, yml_file: Path, yaml_object: dict
     recipes = yaml_object.get("recipes", [])
     runtimes = set()
     for recipe in recipes:
-        runtimes.add(get_runtime(recipe))
+        runtimes.update(get_runtime(recipe))
     runtimes = [r for r in RuntimeEnum if r in runtimes]
     relative_path = str(yml_file.relative_to(root_dir))
     model_info = ModelInfo(
@@ -114,9 +116,11 @@ def project_processor():
             if not aitk:
                 print(f"aitk not found in {yml_file}")
                 continue
+        print(f"Process aitk for {yml_file}")
         modelList.models.append(convert_yaml_to_model_info(target_dir, yml_file, yaml_object))
         convert_yaml_to_project_config(yml_file, yaml_object)
 
+    modelList.models.sort(key=lambda x: (x.displayName.lower()))
     modelList.writeIfChanged()
 
 
