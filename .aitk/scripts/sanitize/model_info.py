@@ -12,6 +12,7 @@ from pydantic import BaseModel
 from .base import BaseModelClass
 from .constants import ArchitectureEnum, IconEnum
 from .utils import open_ex, printError, printProcess
+from ..model_lab import RuntimeEnum
 
 # This file is import by others
 # To avoid circular import issues, we should carefully manage imports
@@ -23,10 +24,11 @@ class ModelInfo(BaseModel):
     icon: IconEnum
     modelLink: str
     id: str
-    runtimes: List[str]  # Changed to List[str] to avoid forward reference issues
+    runtimes: List[RuntimeEnum]
     architecture: ArchitectureEnum
     version: int = -1
     extension: Optional[bool] = None
+    relativePath: Optional[str] = None
 
     def Check(self):
         if not self.displayName:

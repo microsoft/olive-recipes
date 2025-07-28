@@ -21,3 +21,4 @@ aitk:
     modelInfo:
         id: "huggingface/microsoft/resnet-50"
         version: 1
+        architecture: CNN
