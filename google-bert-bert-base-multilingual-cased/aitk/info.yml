@@ -9,7 +9,10 @@ recipes:
       device: npu
       ep: VitisAIExecutionProvider
     - file: "bert-base-multilingual-cased_context_ov_static.json"
-      device: npu
+      devices:
+        - npu
+        - cpu
+        - gpu
       ep: OpenVINOExecutionProvider
     - file: "bert-base-multilingual-cased_trtrtx.json"
       device: gpu

@@ -9,7 +9,10 @@ recipes:
       device: npu
       ep: VitisAIExecutionProvider
     - file: "qwen2_5_ov_config.json"
-      device: npu
+      devices:
+        - npu
+        - cpu
+        - gpu
       ep: OpenVINOExecutionProvider
     - file: "qwen2_5_dml_config.json"
       device: gpu

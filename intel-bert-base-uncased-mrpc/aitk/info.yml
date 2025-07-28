@@ -1,14 +1,5 @@
 keywords:
     aitk
-ep:
-    OpenVINOExecutionProvider
-    VitisAIExecutionProvider
-    QNNExecutionProvider
-    NvTensorRTRTXExecutionProvider
-device:
-    cpu
-    npu
-    gpu
 arch: bert
 recipes:
     - file: "bert_qdq_qnn.json"
@@ -20,6 +11,10 @@ recipes:
       ep: VitisAIExecutionProvider
     - name: intel-bert-base-uncased-mrpc (ov)
       file: "bert_ov.json"
+      devices:
+        - npu
+        - cpu
+        - gpu
       ep: OpenVINOExecutionProvider
     - file: "bert_trtrtx.json"
       device: gpu

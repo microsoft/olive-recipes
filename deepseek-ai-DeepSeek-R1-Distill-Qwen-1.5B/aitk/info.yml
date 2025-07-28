@@ -9,7 +9,10 @@ recipes:
       device: npu
       ep: VitisAIExecutionProvider
     - file: "deepseek_ov_config.json"
-      device: npu
+      devices:
+        - npu
+        - cpu
+        - gpu
       ep: OpenVINOExecutionProvider
     - file: "deepseek_dml_config.json"
       device: gpu

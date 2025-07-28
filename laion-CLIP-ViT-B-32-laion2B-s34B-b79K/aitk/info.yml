@@ -14,7 +14,10 @@ recipes:
       device: npu
       ep: VitisAIExecutionProvider
     - file: "laion_clip_ov.json"
-      device: npu
+      devices:
+        - npu
+        - cpu
+        - gpu
       ep: OpenVINOExecutionProvider
     - file: "laion_clip_trtrtx.json"
       device: gpu

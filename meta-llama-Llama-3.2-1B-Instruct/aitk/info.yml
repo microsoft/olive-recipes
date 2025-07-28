@@ -9,7 +9,10 @@ recipes:
       device: npu
       ep: VitisAIExecutionProvider
     - file: "llama3_2_ov_config.json"
-      device: npu
+      devices:
+        - npu
+        - cpu
+        - gpu
       ep: OpenVINOExecutionProvider
     - file: "llama3_2_dml_config.json"
       device: gpu

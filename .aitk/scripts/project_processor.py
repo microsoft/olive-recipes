@@ -11,6 +11,13 @@ org_to_icon = {
     "Intel": IconEnum.Intel,
     "google-bert": IconEnum.Gemini,
     "openai": IconEnum.OpenAI,
+    "laion": IconEnum.laion,
+    "microsoft": IconEnum.Microsoft,
+    "google": IconEnum.Gemini,
+    "deepseek-ai": IconEnum.DeepSeek,
+    "Qwen": IconEnum.qwen,
+    "meta-llama": IconEnum.Meta,
+    "mistralai": IconEnum.mistralai,
 }
 
 
@@ -24,20 +31,22 @@ def convert_yaml_to_model_info(root_dir: Path, yml_file: Path, yaml_object: dict
     """
     Convert a YAML object to a ModelInfo instance.
     """
-    id = yaml_object.get("id")
-    version = yaml_object.get("version", 1)
+    aitk = yaml_object.get("aitk", {})
+    modelInfo = aitk.get("modelInfo", {})
+    id = modelInfo.get("id")
+    version = modelInfo.get("version", 1)
     if not id:
         raise ValueError(f"Model ID is required in {yml_file}")
     if not isinstance(version, int) or version <= 0:
         raise ValueError(f"Model version must be a positive integer in {yml_file}")
     id_segs = id.split("/")
 
-    display_name = yaml_object.get("displayName", "/".join(id_segs[1:]))
-    icon = yaml_object.get("icon", org_to_icon.get(id_segs[1]))
+    display_name = modelInfo.get("displayName", "/".join(id_segs[1:]))
+    icon = modelInfo.get("icon", org_to_icon.get(id_segs[1]))
     if icon is str:
         icon = IconEnum(icon)
-    model_link = yaml_object.get("modelLink", "/".join(["https://huggingface.co"] + id_segs[1:]))
-    architecture = yaml_object.get("architecture", ArchitectureEnum.Transformer)
+    model_link = modelInfo.get("modelLink", "/".join(["https://huggingface.co"] + id_segs[1:]))
+    architecture = modelInfo.get("architecture", ArchitectureEnum.Transformer)
     if architecture is str:
         architecture = ArchitectureEnum(architecture)
     recipes = yaml_object.get("recipes", [])
@@ -70,10 +79,15 @@ def convert_yaml_to_project_config(yml_file: Path, yaml_object: dict) -> ModelPr
                 templateName=file[:-5] if file and file.endswith(".json") else file,
             )
         )
+    aitk = yaml_object.get("aitk", {})
+    modelInfo = aitk.get("modelInfo", {})
+    id = modelInfo.get("id")
+    version = modelInfo.get("version", 1)
     result = ModelProjectConfig(
         workflows=items,
         modelInfo=ModelInfoProject(
-            id=yaml_object.get("id", ""),
+            id=id,
+            version=version,
         ),
     )
     result._file = str(yml_file.parent / "model_project.config")
@@ -82,12 +96,12 @@ def convert_yaml_to_project_config(yml_file: Path, yaml_object: dict) -> ModelPr
 
 
 def project_processor():
-    target_dir = Path(__file__).parent.parent
+    target_dir = Path(__file__).parent.parent.parent
 
-    modelList = ModelList.Read(str(target_dir / "configs" / "model_list.json"))
+    modelList = ModelList.Read(str(target_dir / ".aitk" / "configs" / "model_list.json"))
     modelList.models.clear()
 
-    for yml_file in target_dir.rglob("*.yml"):
+    for yml_file in target_dir.rglob("info.yml"):
         # read yml file as yaml object
         with yml_file.open("r", encoding="utf-8") as file:
             try:
@@ -96,9 +110,9 @@ def project_processor():
             except yaml.YAMLError as e:
                 print(f"Error reading {yml_file}: {e}")
                 continue
-            keywords = yaml_object.get("keywords", [])
-            if not keywords or "aitk" not in keywords:
-                print(f"aitk keyword not found in {yml_file}")
+            aitk = yaml_object.get("aitk", [])
+            if not aitk:
+                print(f"aitk not found in {yml_file}")
                 continue
         modelList.models.append(convert_yaml_to_model_info(target_dir, yml_file, yaml_object))
         convert_yaml_to_project_config(yml_file, yaml_object)
