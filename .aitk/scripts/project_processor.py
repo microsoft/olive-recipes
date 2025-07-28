@@ -1,11 +1,11 @@
 from pathlib import Path
 
 import yaml
-from .sanitize.model_info import ModelList, ModelInfo
-from .sanitize.constants import IconEnum, ArchitectureEnum, EPNames, OliveDeviceTypes
-from.sanitize.utils import GlobalVars
-from .sanitize.project_config import ModelInfoProject, WorkflowItem, ModelProjectConfig
-from .model_lab import RuntimeEnum
+from model_lab import RuntimeEnum
+from sanitize.constants import ArchitectureEnum, EPNames, IconEnum, OliveDeviceTypes
+from sanitize.model_info import ModelInfo, ModelList
+from sanitize.project_config import ModelInfoProject, ModelProjectConfig, WorkflowItem
+from sanitize.utils import GlobalVars
 
 org_to_icon = {
     "Intel": IconEnum.Intel,
@@ -31,7 +31,6 @@ def convert_yaml_to_model_info(root_dir: Path, yml_file: Path, yaml_object: dict
     if not isinstance(version, int) or version <= 0:
         raise ValueError(f"Model version must be a positive integer in {yml_file}")
     id_segs = id.split("/")
-
 
     display_name = yaml_object.get("displayName", "/".join(id_segs[1:]))
     icon = yaml_object.get("icon", org_to_icon.get(id_segs[1]))
@@ -101,13 +100,11 @@ def project_processor():
             if not keywords or "aitk" not in keywords:
                 print(f"aitk keyword not found in {yml_file}")
                 continue
-        modelList.models.append(
-            convert_yaml_to_model_info(target_dir, yml_file, yaml_object)
-        )
+        modelList.models.append(convert_yaml_to_model_info(target_dir, yml_file, yaml_object))
         convert_yaml_to_project_config(yml_file, yaml_object)
 
     modelList.writeIfChanged()
-        
+
 
 if __name__ == "__main__":
     project_processor()

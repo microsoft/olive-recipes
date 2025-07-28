@@ -4,15 +4,14 @@ Model information and model list classes
 
 from __future__ import annotations
 
-import os
 from typing import Dict, List, Optional
 
+from model_lab import RuntimeEnum
 from pydantic import BaseModel
 
 from .base import BaseModelClass
 from .constants import ArchitectureEnum, IconEnum
 from .utils import open_ex, printError, printProcess
-from ..model_lab import RuntimeEnum
 
 # This file is import by others
 # To avoid circular import issues, we should carefully manage imports
@@ -58,8 +57,7 @@ class ModelList(BaseModelClass):
     DatasetSubset: Dict[str, List[str]]
 
     @staticmethod
-    def Read(scriptFolder: str):
-        modelListFile = os.path.join(scriptFolder, "model_list.json")
+    def Read(modelListFile: str):
         printProcess(modelListFile)
         with open_ex(modelListFile, "r") as file:
             modelListContent = file.read()

@@ -13,7 +13,7 @@ from pathlib import Path
 from .constants import EPNames
 from .copy_config import CopyConfig
 from .file_validation import check_case, process_gitignore, readCheckIpynb, readCheckOliveConfig
-from .model_info import ModelInfo, ModelList
+from .model_info import ModelList
 from .model_parameter import ModelParameter
 from .parameters import readCheckParameterTemplate
 from .project_config import ModelInfoProject, ModelProjectConfig
@@ -40,7 +40,7 @@ def main():
     configDir = str(Path(os.path.dirname(os.path.dirname(os.path.dirname(__file__)))).resolve(strict=False))
 
     # get model list
-    modelList = ModelList.Read(configDir)
+    modelList = ModelList.Read(os.path.join(configDir, "model_list.json"))
     # check parameter template
     parameterTemplate = readCheckParameterTemplate(os.path.join(configDir, "parameter_template.json"))
 
