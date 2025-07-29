@@ -49,4 +49,4 @@ if __name__ == "__main__":
     # Auto-format scripts before running sanitize
     auto_format_scripts()
     project_processor()
-    # run_main()
+    run_main()

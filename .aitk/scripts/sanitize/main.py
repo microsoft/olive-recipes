@@ -20,8 +20,8 @@ from .project_config import ModelInfoProject, ModelProjectConfig
 from .utils import GlobalVars, open_ex, printError, printWarning
 
 
-def shouldCheckModel(configDir: str, model: ModelInfo) -> str | None:
-    modelDir = os.path.join(configDir, model.id)
+def shouldCheckModel(rootDir: str, configDir: str, model: ModelInfo) -> str | None:
+    modelDir = os.path.join(rootDir, model.relativePath) if model.relativePath else os.path.join(configDir, model.id)
     # If we have folder, we also check it
     if model.status == ModelStatusEnum.Ready or os.path.exists(modelDir):
         return modelDir
@@ -43,9 +43,8 @@ def main():
     GlobalVars.olivePath = args.olive
 
     # need to resolve due to d:\ vs D:\
-    # Now main.py is in sanitize/ folder, so we need to go up three levels:
-    # sanitize/main.py -> scripts/ -> model_lab_configs/
-    configDir = str(Path(os.path.dirname(os.path.dirname(os.path.dirname(__file__)))).resolve(strict=False))
+    rootDir = Path(__file__).parent.parent.parent.parent.resolve(strict=False)
+    configDir = str((rootDir / ".aitk" / "configs").resolve(strict=False))
 
     # get model list
     modelList = ModelList.Read(configDir)
@@ -54,7 +53,7 @@ def main():
 
     # check each model
     for model in modelList.allModels():
-        modelDir = shouldCheckModel(configDir, model)
+        modelDir = shouldCheckModel(str(rootDir), configDir, model)
         if modelDir:
             if not check_case(Path(modelDir)):
                 printError(
@@ -62,19 +61,13 @@ def main():
                 )
 
             # get all versions
-            allVersions = [int(name) for name in os.listdir(modelDir) if os.path.isdir(os.path.join(modelDir, name))]
-            allVersions.sort()
-            model.version = allVersions[-1]
-            # check if version is continuous
-            if allVersions[0] != 1 or allVersions[-1] != len(allVersions):
-                printError(f"{modelDir} has wrong versions {allVersions}")
-
+            allVersions = [model.version]
             # process each version
             for version in allVersions:
                 # deep copy model for version usage
                 modelInVersion = copy.deepcopy(model)
                 modelInVersion.version = version
-                modelVerDir = os.path.join(modelDir, str(version))
+                modelVerDir = modelDir if model.relativePath else os.path.join(modelDir, str(version))
 
                 # process copy
                 copyConfigFile = os.path.join(modelVerDir, "_copy.json.config")
@@ -86,7 +79,7 @@ def main():
 
                 # get model space config
                 modelSpaceConfig = ModelProjectConfig.Read(os.path.join(modelVerDir, "model_project.config"))
-                modelSpaceConfig.modelInfo.version = int(os.path.basename(modelVerDir))
+                modelSpaceConfig.modelInfo.version = version
 
                 # check md
                 mdFile = os.path.join(modelVerDir, "README.md")

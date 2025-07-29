@@ -2,7 +2,7 @@ from pathlib import Path
 
 import yaml
 from model_lab import RuntimeEnum
-from sanitize.constants import ArchitectureEnum, EPNames, IconEnum, OliveDeviceTypes
+from sanitize.constants import ArchitectureEnum, IconEnum, ModelStatusEnum
 from sanitize.model_info import ModelInfo, ModelList
 from sanitize.project_config import ModelInfoProject, ModelProjectConfig, WorkflowItem
 from sanitize.utils import GlobalVars
@@ -44,13 +44,10 @@ def convert_yaml_to_model_info(root_dir: Path, yml_file: Path, yaml_object: dict
     id_segs = id.split("/")
 
     display_name = modelInfo.get("displayName", "/".join(id_segs[1:]))
-    icon = modelInfo.get("icon", org_to_icon.get(id_segs[1]))
-    if icon is str:
-        icon = IconEnum(icon)
+    icon = IconEnum(modelInfo.get("icon", org_to_icon.get(id_segs[1])))
     model_link = modelInfo.get("modelLink", "/".join(["https://huggingface.co"] + id_segs[1:]))
-    architecture = modelInfo.get("architecture", ArchitectureEnum.Transformer)
-    if architecture is str:
-        architecture = ArchitectureEnum(architecture)
+    architecture = ArchitectureEnum(modelInfo.get("architecture", ArchitectureEnum.Transformer))
+    status = ModelStatusEnum(modelInfo.get("status", ModelStatusEnum.Ready))
     recipes = yaml_object.get("recipes", [])
     runtimes = set()
     for recipe in recipes:
@@ -64,6 +61,7 @@ def convert_yaml_to_model_info(root_dir: Path, yml_file: Path, yaml_object: dict
         id=id,
         runtimes=runtimes,
         architecture=architecture,
+        status=status,
         version=version,
         relativePath=relative_path,
     )
@@ -98,12 +96,12 @@ def convert_yaml_to_project_config(yml_file: Path, yaml_object: dict) -> ModelPr
 
 
 def project_processor():
-    target_dir = Path(__file__).parent.parent.parent
+    root_dir = Path(__file__).parent.parent.parent
 
-    modelList = ModelList.Read(str(target_dir / ".aitk" / "configs" / "model_list.json"))
+    modelList = ModelList.Read(str(root_dir / ".aitk" / "configs"))
     modelList.models.clear()
 
-    for yml_file in target_dir.rglob("info.yml"):
+    for yml_file in root_dir.rglob("info.yml"):
         # read yml file as yaml object
         with yml_file.open("r", encoding="utf-8") as file:
             try:
@@ -117,10 +115,10 @@ def project_processor():
                 print(f"aitk not found in {yml_file}")
                 continue
         print(f"Process aitk for {yml_file}")
-        modelList.models.append(convert_yaml_to_model_info(target_dir, yml_file, yaml_object))
+        modelList.models.append(convert_yaml_to_model_info(root_dir, yml_file, yaml_object))
         convert_yaml_to_project_config(yml_file, yaml_object)
 
-    modelList.models.sort(key=lambda x: (x.displayName.lower()))
+    modelList.models.sort(key=lambda x: (x.GetSortKey()))
     modelList.writeIfChanged()
 
 

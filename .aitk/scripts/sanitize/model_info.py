@@ -72,7 +72,8 @@ class ModelList(BaseModelClass):
     DatasetSubset: Dict[str, List[str]]
 
     @staticmethod
-    def Read(modelListFile: str):
+    def Read(scriptFolder: str):
+        modelListFile = os.path.join(scriptFolder, "model_list.json")
         printProcess(modelListFile)
         with open_ex(modelListFile, "r") as file:
             modelListContent = file.read()
