@@ -10,14 +10,22 @@ import os
 import subprocess
 from pathlib import Path
 
-from .constants import EPNames
+from .constants import EPNames, ModelStatusEnum
 from .copy_config import CopyConfig
 from .file_validation import check_case, process_gitignore, readCheckIpynb, readCheckOliveConfig
-from .model_info import ModelList
+from .model_info import ModelInfo, ModelList
 from .model_parameter import ModelParameter
 from .parameters import readCheckParameterTemplate
 from .project_config import ModelInfoProject, ModelProjectConfig
 from .utils import GlobalVars, open_ex, printError, printWarning
+
+
+def shouldCheckModel(configDir: str, model: ModelInfo) -> str | None:
+    modelDir = os.path.join(configDir, model.id)
+    # If we have folder, we also check it
+    if model.status == ModelStatusEnum.Ready or os.path.exists(modelDir):
+        return modelDir
+    return None
 
 
 def main():
@@ -40,13 +48,13 @@ def main():
     configDir = str(Path(os.path.dirname(os.path.dirname(os.path.dirname(__file__)))).resolve(strict=False))
 
     # get model list
-    modelList = ModelList.Read(os.path.join(configDir, "model_list.json"))
+    modelList = ModelList.Read(configDir)
     # check parameter template
     parameterTemplate = readCheckParameterTemplate(os.path.join(configDir, "parameter_template.json"))
 
     # check each model
     for model in modelList.allModels():
-        modelDir = os.path.join(configDir, model.id)
+        modelDir = shouldCheckModel(configDir, model)
         if modelDir:
             if not check_case(Path(modelDir)):
                 printError(

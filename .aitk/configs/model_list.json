@@ -15,7 +15,7 @@
             ],
             "architecture": "Transformer",
             "version": 1,
-            "relativePath": "deepseek-ai-DeepSeek-R1-Distill-Qwen-1.5B\\aitk\\info.yml"
+            "relativePath": "deepseek-ai-DeepSeek-R1-Distill-Qwen-1.5B\\aitk"
         },
         {
             "displayName": "google-bert/bert-base-multilingual-cased",
@@ -33,7 +33,7 @@
             ],
             "architecture": "Transformer",
             "version": 1,
-            "relativePath": "google-bert-bert-base-multilingual-cased\\aitk\\info.yml"
+            "relativePath": "google-bert-bert-base-multilingual-cased\\aitk"
         },
         {
             "displayName": "google/vit-base-patch16-224",
@@ -51,7 +51,7 @@
             ],
             "architecture": "Transformer",
             "version": 1,
-            "relativePath": "google-vit-base-patch16-224\\aitk\\info.yml"
+            "relativePath": "google-vit-base-patch16-224\\aitk"
         },
         {
             "displayName": "Intel/bert-base-uncased-mrpc",
@@ -69,7 +69,7 @@
             ],
             "architecture": "Transformer",
             "version": 1,
-            "relativePath": "intel-bert-base-uncased-mrpc\\aitk\\info.yml"
+            "relativePath": "intel-bert-base-uncased-mrpc\\aitk"
         },
         {
             "displayName": "laion/CLIP-ViT-B-32-laion2B-s34B-b79K",
@@ -87,7 +87,7 @@
             ],
             "architecture": "Transformer",
             "version": 1,
-            "relativePath": "laion-CLIP-ViT-B-32-laion2B-s34B-b79K\\aitk\\info.yml"
+            "relativePath": "laion-CLIP-ViT-B-32-laion2B-s34B-b79K\\aitk"
         },
         {
             "displayName": "meta-llama/Llama-3.2-1B-Instruct",
@@ -104,7 +104,7 @@
             ],
             "architecture": "Transformer",
             "version": 1,
-            "relativePath": "meta-llama-Llama-3.2-1B-Instruct\\aitk\\info.yml"
+            "relativePath": "meta-llama-Llama-3.2-1B-Instruct\\aitk"
         },
         {
             "displayName": "microsoft/Phi-3.5-mini-instruct",
@@ -121,7 +121,7 @@
             ],
             "architecture": "Transformer",
             "version": 1,
-            "relativePath": "microsoft-Phi-3.5-mini-instruct\\aitk\\info.yml"
+            "relativePath": "microsoft-Phi-3.5-mini-instruct\\aitk"
         },
         {
             "displayName": "microsoft/Phi-4-mini-reasoning",
@@ -133,7 +133,7 @@
             ],
             "architecture": "Transformer",
             "version": 1,
-            "relativePath": "microsoft-Phi-4-mini-reasoning\\aitk\\info.yml"
+            "relativePath": "microsoft-Phi-4-mini-reasoning\\aitk"
         },
         {
             "displayName": "Microsoft/ResNet-50",
@@ -151,7 +151,7 @@
             ],
             "architecture": "CNN",
             "version": 1,
-            "relativePath": "microsoft-resnet-50\\aitk\\info.yml"
+            "relativePath": "microsoft-resnet-50\\aitk"
         },
         {
             "displayName": "mistralai/Mistral-7B-Instruct-v0.3",
@@ -163,7 +163,7 @@
             ],
             "architecture": "Transformer",
             "version": 1,
-            "relativePath": "mistralai-Mistral-7B-Instruct-v0.3\\aitk\\info.yml"
+            "relativePath": "mistralai-Mistral-7B-Instruct-v0.3\\aitk"
         },
         {
             "displayName": "openai/clip-vit-base-patch16",
@@ -181,7 +181,7 @@
             ],
             "architecture": "Transformer",
             "version": 1,
-            "relativePath": "openai-clip-vit-base-patch16\\aitk\\info.yml"
+            "relativePath": "openai-clip-vit-base-patch16\\aitk"
         },
         {
             "displayName": "openai/clip-vit-base-patch32",
@@ -199,7 +199,7 @@
             ],
             "architecture": "Transformer",
             "version": 1,
-            "relativePath": "openai-clip-vit-base-patch32\\aitk\\info.yml"
+            "relativePath": "openai-clip-vit-base-patch32\\aitk"
         },
         {
             "displayName": "Qwen/Qwen2.5-1.5B-Instruct",
@@ -216,7 +216,7 @@
             ],
             "architecture": "Transformer",
             "version": 1,
-            "relativePath": "Qwen-Qwen2.5-1.5B-Instruct\\aitk\\info.yml"
+            "relativePath": "Qwen-Qwen2.5-1.5B-Instruct\\aitk"
         }
     ],
     "template_models": [
