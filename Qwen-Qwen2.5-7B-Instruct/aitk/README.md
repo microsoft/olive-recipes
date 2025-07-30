@@ -8,5 +8,3 @@ This repository demonstrates the optimization of the [Qwen2.5-7B-Instruct](https
 
 #### **Run Console-Based Chat Interface**
 Execute the provided `inference_sample.ipynb` notebook.
-
-
