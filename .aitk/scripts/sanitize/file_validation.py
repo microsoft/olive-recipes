@@ -199,3 +199,37 @@ def readCheckIpynb(ipynbFile: str, modelItems: dict[str, ModelParameter]):
             printError(f"{ipynbFile} has no runtime for it!")
         return True
     return False
+
+
+def readCheckRequirements(requirementsFile: str):
+    """
+    Check requirements.txt file
+    """
+    if not os.path.exists(requirementsFile):
+        printWarning(f"{requirementsFile} not exists.")
+        return
+
+    GlobalVars.requirementsCheck.append(requirementsFile)
+    with open_ex(requirementsFile, "r") as file:
+        requirementsContent: str = file.read()
+    requirementsLines = requirementsContent.splitlines()
+
+    oldContents = []
+    newContents = [
+        "# This file will be installed together with AITK runtime requirements",
+        "# For the full requirements, see AITK",
+    ]
+    ready = False
+    if len(requirementsLines) >= len(newContents):
+        ready = True
+        for i in range(len(newContents)):
+            if requirementsLines[i] != newContents[i]:
+                ready = False
+                break
+    if not ready:
+        requirementsLines = [line for line in requirementsLines if line not in oldContents]
+        requirementsLines = newContents + requirementsLines
+    newContent = "\n".join(requirementsLines) + "\n"
+    if requirementsContent != newContent:
+        with open_ex(requirementsFile, "w") as file:
+            file.write(newContent)

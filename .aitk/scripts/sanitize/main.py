@@ -12,7 +12,7 @@ from pathlib import Path
 
 from .constants import EPNames, ModelStatusEnum
 from .copy_config import CopyConfig
-from .file_validation import check_case, process_gitignore, readCheckIpynb, readCheckOliveConfig
+from .file_validation import check_case, process_gitignore, readCheckIpynb, readCheckOliveConfig, readCheckRequirements
 from .model_info import ModelInfo, ModelList
 from .model_parameter import ModelParameter
 from .parameters import readCheckParameterTemplate
@@ -88,8 +88,7 @@ def main():
                 # check requirement.txt
                 if not model.extension:
                     requirementFile = os.path.join(modelVerDir, "requirements.txt")
-                    if not os.path.exists(requirementFile):
-                        printWarning(f"{requirementFile} not exists.")
+                    readCheckRequirements(requirementFile)
 
                 # copy .gitignore
                 if not model.extension:

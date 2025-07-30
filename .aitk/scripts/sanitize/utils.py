@@ -27,6 +27,7 @@ class GlobalVars:
     extensionCheck = 0
     # Should align with number of LLM models
     inferenceModelCheck = []
+    requirementsCheck = []
 
     olivePath = None
     oliveCheck = 0
