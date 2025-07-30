@@ -1,0 +1,12 @@
+keywords:
+    aitk
+arch: deepseek
+recipes:
+    - file: "deepseek_ov_config.json"
+      devices:
+        - gpu
+      ep: OpenVINOExecutionProvider
+aitk:
+    modelInfo:
+        id: "huggingface/deepseek-ai/DeepSeek-R1-Distill-Qwen-7B"
+        version: 1
