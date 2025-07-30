@@ -157,6 +157,19 @@
             "relativePath": "microsoft-Phi-3.5-mini-instruct\\aitk"
         },
         {
+            "displayName": "microsoft/Phi-4-mini-instruct",
+            "icon": "ms",
+            "modelLink": "https://huggingface.co/microsoft/Phi-4-mini-instruct",
+            "id": "huggingface/microsoft/Phi-4-mini-instruct",
+            "runtimes": [
+                "IntelGPU"
+            ],
+            "architecture": "Transformer",
+            "status": "Ready",
+            "version": 1,
+            "relativePath": "microsoft-Phi-4-mini-instruct\\aitk"
+        },
+        {
             "displayName": "microsoft/Phi-4-mini-reasoning",
             "icon": "ms",
             "modelLink": "https://huggingface.co/microsoft/Phi-4-mini-reasoning",
@@ -170,6 +183,36 @@
             "status": "Ready",
             "version": 1,
             "relativePath": "microsoft-Phi-4-mini-reasoning\\aitk"
+        },
+        {
+            "displayName": "microsoft/Phi-4-reasoning",
+            "icon": "ms",
+            "modelLink": "https://huggingface.co/microsoft/Phi-4-reasoning",
+            "id": "huggingface/microsoft/Phi-4-reasoning",
+            "runtimes": [
+                "IntelCPU",
+                "IntelGPU",
+                "IntelNPU"
+            ],
+            "architecture": "Transformer",
+            "status": "Ready",
+            "version": 1,
+            "relativePath": "microsoft-Phi-4-reasoning\\aitk"
+        },
+        {
+            "displayName": "microsoft/Phi-4-reasoning-plus",
+            "icon": "ms",
+            "modelLink": "https://huggingface.co/microsoft/Phi-4-reasoning-plus",
+            "id": "huggingface/microsoft/Phi-4-reasoning-plus",
+            "runtimes": [
+                "IntelCPU",
+                "IntelGPU",
+                "IntelNPU"
+            ],
+            "architecture": "Transformer",
+            "status": "Ready",
+            "version": 1,
+            "relativePath": "microsoft-Phi-4-reasoning-plus\\aitk"
         },
         {
             "displayName": "Microsoft/ResNet-50",
