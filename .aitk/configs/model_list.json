@@ -19,6 +19,32 @@
             "relativePath": "deepseek-ai-DeepSeek-R1-Distill-Qwen-1.5B\\aitk"
         },
         {
+            "displayName": "deepseek-ai/DeepSeek-R1-Distill-Qwen-7B",
+            "icon": "DeepSeek",
+            "modelLink": "https://huggingface.co/deepseek-ai/DeepSeek-R1-Distill-Qwen-7B",
+            "id": "huggingface/deepseek-ai/DeepSeek-R1-Distill-Qwen-7B",
+            "runtimes": [
+                "IntelGPU"
+            ],
+            "architecture": "Transformer",
+            "status": "Ready",
+            "version": 1,
+            "relativePath": "deepseek-ai-DeepSeek-R1-Distill-Qwen-7B\\aitk"
+        },
+        {
+            "displayName": "deepseek-ai/DeepSeek-R1-Distill-Qwen-14B",
+            "icon": "DeepSeek",
+            "modelLink": "https://huggingface.co/deepseek-ai/DeepSeek-R1-Distill-Qwen-14B",
+            "id": "huggingface/deepseek-ai/DeepSeek-R1-Distill-Qwen-14B",
+            "runtimes": [
+                "IntelGPU"
+            ],
+            "architecture": "Transformer",
+            "status": "Ready",
+            "version": 1,
+            "relativePath": "deepseek-ai-DeepSeek-R1-Distill-Qwen-14B\\aitk"
+        },
+        {
             "displayName": "google-bert/bert-base-multilingual-cased",
             "icon": "gemini",
             "modelLink": "https://huggingface.co/google-bert/bert-base-multilingual-cased",
@@ -216,6 +242,19 @@
             "relativePath": "openai-clip-vit-base-patch32\\aitk"
         },
         {
+            "displayName": "Qwen/Qwen2.5-0.5B-Instruct",
+            "icon": "qwen",
+            "modelLink": "https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct",
+            "id": "huggingface/Qwen/Qwen2.5-0.5B-Instruct",
+            "runtimes": [
+                "IntelGPU"
+            ],
+            "architecture": "Transformer",
+            "status": "Ready",
+            "version": 1,
+            "relativePath": "Qwen-Qwen2.5-0.5B-Instruct\\aitk"
+        },
+        {
             "displayName": "Qwen/Qwen2.5-1.5B-Instruct",
             "icon": "qwen",
             "modelLink": "https://huggingface.co/Qwen/Qwen2.5-1.5B-Instruct",
@@ -232,6 +271,110 @@
             "status": "Ready",
             "version": 1,
             "relativePath": "Qwen-Qwen2.5-1.5B-Instruct\\aitk"
+        },
+        {
+            "displayName": "Qwen/Qwen2.5-3B-Instruct",
+            "icon": "qwen",
+            "modelLink": "https://huggingface.co/Qwen/Qwen2.5-3B-Instruct",
+            "id": "huggingface/Qwen/Qwen2.5-3B-Instruct",
+            "runtimes": [
+                "IntelGPU"
+            ],
+            "architecture": "Transformer",
+            "status": "Ready",
+            "version": 1,
+            "relativePath": "Qwen-Qwen2.5-3B-Instruct\\aitk"
+        },
+        {
+            "displayName": "Qwen/Qwen2.5-7B-Instruct",
+            "icon": "qwen",
+            "modelLink": "https://huggingface.co/Qwen/Qwen2.5-7B-Instruct",
+            "id": "huggingface/Qwen/Qwen2.5-7B-Instruct",
+            "runtimes": [
+                "IntelGPU"
+            ],
+            "architecture": "Transformer",
+            "status": "Ready",
+            "version": 1,
+            "relativePath": "Qwen-Qwen2.5-7B-Instruct\\aitk"
+        },
+        {
+            "displayName": "Qwen/Qwen2.5-14B-Instruct",
+            "icon": "qwen",
+            "modelLink": "https://huggingface.co/Qwen/Qwen2.5-14B-Instruct",
+            "id": "huggingface/Qwen/Qwen2.5-14B-Instruct",
+            "runtimes": [
+                "IntelGPU"
+            ],
+            "architecture": "Transformer",
+            "status": "Ready",
+            "version": 1,
+            "relativePath": "Qwen-Qwen2.5-14B-Instruct\\aitk"
+        },
+        {
+            "displayName": "Qwen/Qwen2.5-Coder-0.5B-Instruct",
+            "icon": "qwen",
+            "modelLink": "https://huggingface.co/Qwen/Qwen2.5-Coder-0.5B-Instruct",
+            "id": "huggingface/Qwen/Qwen2.5-Coder-0.5B-Instruct",
+            "runtimes": [
+                "IntelGPU"
+            ],
+            "architecture": "Transformer",
+            "status": "Ready",
+            "version": 1,
+            "relativePath": "Qwen-Qwen2.5-Coder-0.5B-Instruct\\aitk"
+        },
+        {
+            "displayName": "Qwen/Qwen2.5-Coder-1.5B-Instruct",
+            "icon": "qwen",
+            "modelLink": "https://huggingface.co/Qwen/Qwen2.5-Coder-1.5B-Instruct",
+            "id": "huggingface/Qwen/Qwen2.5-Coder-1.5B-Instruct",
+            "runtimes": [
+                "IntelGPU"
+            ],
+            "architecture": "Transformer",
+            "status": "Ready",
+            "version": 1,
+            "relativePath": "Qwen-Qwen2.5-Coder-1.5B-Instruct\\aitk"
+        },
+        {
+            "displayName": "Qwen/Qwen2.5-Coder-3B-Instruct",
+            "icon": "qwen",
+            "modelLink": "https://huggingface.co/Qwen/Qwen2.5-Coder-3B-Instruct",
+            "id": "huggingface/Qwen/Qwen2.5-Coder-3B-Instruct",
+            "runtimes": [
+                "IntelGPU"
+            ],
+            "architecture": "Transformer",
+            "status": "Ready",
+            "version": 1,
+            "relativePath": "Qwen-Qwen2.5-Coder-3B-Instruct\\aitk"
+        },
+        {
+            "displayName": "Qwen/Qwen2.5-Coder-7B-Instruct",
+            "icon": "qwen",
+            "modelLink": "https://huggingface.co/Qwen/Qwen2.5-Coder-7B-Instruct",
+            "id": "huggingface/Qwen/Qwen2.5-Coder-7B-Instruct",
+            "runtimes": [
+                "IntelGPU"
+            ],
+            "architecture": "Transformer",
+            "status": "Ready",
+            "version": 1,
+            "relativePath": "Qwen-Qwen2.5-Coder-7B-Instruct\\aitk"
+        },
+        {
+            "displayName": "Qwen/Qwen2.5-Coder-14B-Instruct",
+            "icon": "qwen",
+            "modelLink": "https://huggingface.co/Qwen/Qwen2.5-Coder-14B-Instruct",
+            "id": "huggingface/Qwen/Qwen2.5-Coder-14B-Instruct",
+            "runtimes": [
+                "IntelGPU"
+            ],
+            "architecture": "Transformer",
+            "status": "Ready",
+            "version": 1,
+            "relativePath": "Qwen-Qwen2.5-Coder-14B-Instruct\\aitk"
         }
     ],
     "template_models": [
