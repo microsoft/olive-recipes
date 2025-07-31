@@ -2,4 +2,5 @@
 *    @microsoft/olivedevteam
 
 # skylight owns aitk
-aitk/ @xieofxie @microsoft/olivedevteam
+aitk/ @microsoft/skylight-dev-team @microsoft/olivedevteam
+.aitk/ @microsoft/skylight-dev-team @microsoft/olivedevteam
