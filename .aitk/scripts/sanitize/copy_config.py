@@ -5,29 +5,40 @@ Copy configuration classes
 import json
 import os
 import shutil
-from typing import Any, List, Union
+from typing import Any, List, Optional, Union
 
 import pydash
 from pydantic import BaseModel
 
+from .base import BaseModelClass
 from .constants import ReplaceTypeEnum
-from .utils import open_ex, printError, printInfo
+from .utils import open_ex, printError, printInfo, printProcess
 
 
 class Replacement(BaseModel):
     find: str
     replace: Union[str, Any]
-    type: ReplaceTypeEnum = ReplaceTypeEnum.String
+    type: Optional[ReplaceTypeEnum] = None
 
 
 class Copy(BaseModel):
     src: str
     dst: str
-    replacements: List[Replacement] = []
+    replacements: Optional[List[Replacement]] = None
 
 
-class CopyConfig(BaseModel):
+class CopyConfig(BaseModelClass):
     copies: List[Copy] = []
+
+    @staticmethod
+    def Read(copyConfigFile: str):
+        printProcess(copyConfigFile)
+        with open_ex(copyConfigFile, "r") as file:
+            copyConfigContent = file.read()
+        copyConfig = CopyConfig.model_validate_json(copyConfigContent, strict=True)
+        copyConfig._file = copyConfigFile
+        copyConfig._fileContent = copyConfigContent
+        return copyConfig
 
     def process(self, modelVerDir: str):
         if not self.copies:
@@ -40,7 +51,9 @@ class CopyConfig(BaseModel):
                 continue
             shutil.copy(src, dst)
             if copy.replacements:
-                stringReplacements = [repl for repl in copy.replacements if repl.type == ReplaceTypeEnum.String]
+                stringReplacements = [
+                    repl for repl in copy.replacements if repl.type == None or repl.type == ReplaceTypeEnum.String
+                ]
                 if stringReplacements:
                     with open_ex(dst, "r") as file:
                         content = file.read()

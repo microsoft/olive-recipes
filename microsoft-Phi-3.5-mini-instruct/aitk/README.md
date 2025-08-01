@@ -7,6 +7,8 @@ This repository demonstrates the optimization of the [Microsoft Phi-3.5 Mini Ins
    + This process extends the QDQ flow and compiling specifically for **Qualcomm NPUs**
 - OpenVINO for Intel NPU
    + This process uses OpenVINO specific passes like `OpenVINOOptimumConversion`, `OpenVINOIoUpdate` and `OpenVINOEncapsulation`
+- DML for general GPU
+   + This process uses AutoAWQ and ModelBuilder
 
 ## **QDQ Model with 4-bit Weights & 16-bit Activations**
 

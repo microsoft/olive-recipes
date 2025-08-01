@@ -1,0 +1,12 @@
+keywords:
+    aitk
+arch: qwen2
+recipes:
+    - file: "qwen2_5_ov_config.json"
+      devices:
+        - gpu
+      ep: OpenVINOExecutionProvider
+aitk:
+    modelInfo:
+        id: "huggingface/Qwen/Qwen2.5-14B-Instruct"
+        version: 1

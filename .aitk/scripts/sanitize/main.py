@@ -12,12 +12,12 @@ from pathlib import Path
 
 from .constants import EPNames, ModelStatusEnum
 from .copy_config import CopyConfig
-from .file_validation import check_case, process_gitignore, readCheckIpynb, readCheckOliveConfig
+from .file_validation import check_case, process_gitignore, readCheckIpynb, readCheckOliveConfig, readCheckRequirements
 from .model_info import ModelInfo, ModelList
 from .model_parameter import ModelParameter
 from .parameters import readCheckParameterTemplate
 from .project_config import ModelInfoProject, ModelProjectConfig
-from .utils import GlobalVars, open_ex, printError, printWarning
+from .utils import GlobalVars, printError, printWarning
 
 
 def shouldCheckModel(rootDir: str, configDir: str, model: ModelInfo) -> str | None:
@@ -72,10 +72,9 @@ def main():
                 # process copy
                 copyConfigFile = os.path.join(modelVerDir, "_copy.json.config")
                 if os.path.exists(copyConfigFile):
-                    with open_ex(copyConfigFile, "r") as file:
-                        copyConfigContent = file.read()
-                    copyConfig = CopyConfig.model_validate_json(copyConfigContent, strict=True)
+                    copyConfig = CopyConfig.Read(copyConfigFile)
                     copyConfig.process(modelVerDir)
+                    copyConfig.writeIfChanged()
 
                 # get model space config
                 modelSpaceConfig = ModelProjectConfig.Read(os.path.join(modelVerDir, "model_project.config"))
@@ -89,8 +88,7 @@ def main():
                 # check requirement.txt
                 if not model.extension:
                     requirementFile = os.path.join(modelVerDir, "requirements.txt")
-                    if not os.path.exists(requirementFile):
-                        printWarning(f"{requirementFile} not exists.")
+                    readCheckRequirements(requirementFile)
 
                 # copy .gitignore
                 if not model.extension:
