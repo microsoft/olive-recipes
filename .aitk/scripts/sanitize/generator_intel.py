@@ -5,10 +5,8 @@ from .model_parameter import ModelParameter
 
 
 def generator_intel(recipe, folder: Path):
+    intel_runtime_values: list[str] = recipe.get("devices", [recipe.get("device")])
     aitk = recipe.get("aitk", {})
-    intel_runtime_values: list[str] = aitk.get("intelRuntimeValues", [])
-    if not intel_runtime_values:
-        return None
     file = recipe.get("file")
 
     name = f"Convert to Intel {"/".join([runtime.upper() for runtime in intel_runtime_values])}"
@@ -16,6 +14,8 @@ def generator_intel(recipe, folder: Path):
     addCpu = False
     oliveFile = aitk.get("oliveFile")
 
+    sections = []
+    
     parameter = ModelParameter(
         name=name,
         isLLM=isLLM,

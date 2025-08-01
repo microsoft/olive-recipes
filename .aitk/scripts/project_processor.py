@@ -82,7 +82,9 @@ def convert_yaml_to_project_config(yml_file: Path, yaml_object: dict) -> ModelPr
         )
         aitk = recipe.get("aitk", {})
         if aitk:
-            generator_intel(recipe, yml_file.parent)
+            intel_auto = aitk.get("intelAuto", False)
+            if intel_auto:
+                generator_intel(recipe, yml_file.parent)
     aitk = yaml_object.get("aitk", {})
     modelInfo = aitk.get("modelInfo", {})
     id = modelInfo.get("id")

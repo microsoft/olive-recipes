@@ -3,8 +3,15 @@ keywords:
 arch: phi
 recipes:
     - file: "phi4_ov_config.json"
-      device: npu
+      devices:
+          - cpu
+          - gpu 
+          - npu
       ep: OpenVINOExecutionProvider
+      aitk:
+          isLLM: true
+          intelAuto: true
+          oliveFile: "phi4/openvino/phi_4_mini_reasoning/Phi-4-mini-reasoning_context_ov_dynamic_sym_gs128_bkp_int8_sym.json"
 aitk:
     modelInfo:
         id: "huggingface/microsoft/Phi-4-mini-reasoning"

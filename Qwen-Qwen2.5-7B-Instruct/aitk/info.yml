@@ -8,8 +8,7 @@ recipes:
       ep: OpenVINOExecutionProvider
       aitk:
           isLLM: true
-          intelRuntimeValues:
-              - gpu
+          intelAuto: true
           oliveFile: "qwen2_5/openvino/Qwen2.5-7B-Instruct-gpu-context-dy.json"
 aitk:
     modelInfo:
