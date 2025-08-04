@@ -54,3 +54,10 @@ olive run --config Llama3.2-1B-Instruct_nvmo_int4_awq.json
 ### Recipe details
 
 The olive recipe `Llama3.2-1B-Instruct_nvmo_int4_awq.json` has 2 passes: (a) `ModelBuilder` and (b) `NVModelOptQuantization`. The `ModelBuilder` pass is used to generate the FP16 model for `NvTensorRTRTXExecutionProvider` (aka `NvTensorRtRtx` EP). Subsequently, the `NVModelOptQuantization` pass performs INT4 AWQ quantization to produce the 4-bit optimized model. In the quantization pass, execution-providers from the available/installed onnxruntime execution-providers is used for calibration. The field `calibration_providers` can be used to select any specific execution provider for calibration (assuming it is available/installed).
+
+- Note that while using NvTensorRTRTXExecutionProvider for INT4 AWQ quantization, profile (min/max/opt ranges) of shapes of the model-inputs is created internally using the details from the model's config (e.g. config.json in HuggingFace model card). This input-shapes-profile is used during onnxruntime session creation. Make sure that config.json is available in the model-directory if `tokenizer_dir` is a model path (instead of model-name).
+
+### Troubleshoot
+
+In case of any issue related to quantization using TensorRT Model Optimizer toolkit, refer its [FAQs](https://nvidia.github.io/TensorRT-Model-Optimizer/support/2_faqs.html) for potential help or suggestions.
+

@@ -10,9 +10,11 @@ on:
   push:
     branches:
       - main
-    paths-ignore:
-      - '*'     # Exclude files in root directory from triggering a build
+    paths:
+      - '**/olive_ci.json'  # Run this workflow only when Olive CI files are modified
   pull_request:
+    paths:
+      - '**/olive_ci.json'  # Run this workflow only when Olive CI files are modified
 
 env:
   PYTHON_VERSION: "3.10"

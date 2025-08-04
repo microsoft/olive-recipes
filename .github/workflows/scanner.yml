@@ -13,6 +13,7 @@ on:
 
 env:
   PYTHON_VERSION: "3.10"
+  GHA_PR_BRANCH: "gha/update-$${{ github.run_id }}"
 
 jobs:
   scan:
@@ -47,11 +48,12 @@ jobs:
           echo "::set-output name=has_changes::false"
         fi
 
-    - name: Commit and push changes
+    - name: Create a new branch for the PR
       if: steps.check_changes.outputs.has_changes == 'true'
       run: |
         git config --global user.name "${{ github.actor }}"
         git config --global user.email "${{ github.actor }}@users.noreply.github.com"
+        git checkout -b "${{ env.GHA_PR_BRANCH }}"
         git add README.md
-        git commit -m "Update README.md"
-        git push
+        git commit -m "[Scanner]: Ran scanner and update README.md"
+        git push origin "${{ env.GHA_PR_BRANCH }}"
