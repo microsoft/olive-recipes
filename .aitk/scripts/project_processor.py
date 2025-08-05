@@ -119,7 +119,8 @@ def project_processor():
                 continue
             aitk = yaml_object.get("aitk", [])
             if not aitk:
-                print(f"aitk not found in {yml_file}")
+                if yml_file.parent.name == "aitk":
+                    raise KeyError(f"aitk not found in {yml_file}")
                 continue
         print(f"Process aitk for {yml_file}")
         modelList.models.append(convert_yaml_to_model_info(root_dir, yml_file, yaml_object))
