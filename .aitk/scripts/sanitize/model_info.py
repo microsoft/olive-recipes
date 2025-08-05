@@ -30,9 +30,9 @@ class ModelInfo(BaseModel):
     runtimes: List[RuntimeEnum]
     architecture: ArchitectureEnum
     status: ModelStatusEnum = ModelStatusEnum.Hide
+    relativePath: Optional[str] = None
     version: int = -1
     extension: Optional[bool] = None
-    relativePath: Optional[str] = None
 
     def Check(self):
         if self.status == ModelStatusEnum.Hide:
