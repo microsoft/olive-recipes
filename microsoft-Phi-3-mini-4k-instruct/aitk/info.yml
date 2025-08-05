@@ -6,6 +6,8 @@ recipes:
       devices:
         - gpu
       ep: OpenVINOExecutionProvider
+      aitk:
+          oliveFile: "phi3/openvino/Phi-3-mini-4k-instruct-gpu-context-ov-dy.json"
 aitk:
     modelInfo:
         id: "huggingface/microsoft/Phi-3-mini-4k-instruct"
