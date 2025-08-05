@@ -13,7 +13,7 @@ from pydantic import BaseModel
 
 from .base import BaseModelClass
 from .constants import ArchitectureEnum, IconEnum, ModelStatusEnum
-from .utils import open_ex, printError, printProcess
+from .utils import GlobalVars, open_ex, printError, printProcess
 
 # This file is import by others
 # To avoid circular import issues, we should carefully manage imports
@@ -30,9 +30,9 @@ class ModelInfo(BaseModel):
     runtimes: List[RuntimeEnum]
     architecture: ArchitectureEnum
     status: ModelStatusEnum = ModelStatusEnum.Hide
+    relativePath: Optional[str] = None
     version: int = -1
     extension: Optional[bool] = None
-    relativePath: Optional[str] = None
 
     def Check(self):
         if self.status == ModelStatusEnum.Hide:
@@ -70,6 +70,8 @@ class ModelList(BaseModelClass):
     # - custom config could provide a combined list for new datasets
     DatasetSplit: Dict[str, List[str]]
     DatasetSubset: Dict[str, List[str]]
+    DisplayNameToRuntimeRPC: Dict[str, RuntimeEnum] = {}
+    RuntimeToDisplayName: Dict[RuntimeEnum, str] = {}
 
     @staticmethod
     def Read(scriptFolder: str):
@@ -93,12 +95,17 @@ class ModelList(BaseModelClass):
         for i, model in enumerate(self.allModels()):
             if not model.Check():
                 printError(f"{self._file} model {i} has error")
+        self.SetupConstants()
         self.writeIfChanged()
 
         self.CheckDataset(self.LoginRequiredDatasets, "LoginRequiredDatasets")
         self.CheckDataset(self.DatasetSplit.keys(), "DatasetSplit")
         self.CheckDataset(self.DatasetSubset.keys(), "DatasetSubset")
         self.CheckModel(self.LoginRequiredModelIds, "LoginRequiredModelIds")
+
+    def SetupConstants(self):
+        self.RuntimeToDisplayName = GlobalVars.RuntimeToDisplayName
+        self.DisplayNameToRuntimeRPC = {v: k for k, v in self.RuntimeToDisplayName.items()}
 
     def CheckDataset(self, datasetKeys, name: str):
         for key in datasetKeys:
