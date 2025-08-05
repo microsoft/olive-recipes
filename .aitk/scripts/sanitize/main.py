@@ -19,7 +19,7 @@ from .model_info import ModelInfo, ModelList
 from .model_parameter import ModelParameter
 from .parameters import readCheckParameterTemplate
 from .project_config import ModelInfoProject, ModelProjectConfig
-from .utils import GlobalVars, printError, printWarning
+from .utils import GlobalVars, open_ex, printError, printWarning
 
 
 def shouldCheckModel(rootDir: str, configDir: str, model: ModelInfo) -> str | None:
