@@ -1,6 +1,19 @@
 {
     "models": [
         {
+            "displayName": "deepseek-ai/DeepSeek-R1-Distill-Llama-8B",
+            "icon": "DeepSeek",
+            "modelLink": "https://huggingface.co/deepseek-ai/DeepSeek-R1-Distill-Llama-8B",
+            "id": "huggingface/deepseek-ai/DeepSeek-R1-Distill-Llama-8B",
+            "runtimes": [
+                "IntelGPU"
+            ],
+            "architecture": "Transformer",
+            "status": "Ready",
+            "version": 1,
+            "relativePath": "deepseek-ai-DeepSeek-R1-Distill-Llama-8B\\aitk"
+        },
+        {
             "displayName": "deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B",
             "icon": "DeepSeek",
             "modelLink": "https://huggingface.co/deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B",
@@ -137,6 +150,32 @@
             "status": "Ready",
             "version": 1,
             "relativePath": "meta-llama-Llama-3.2-1B-Instruct\\aitk"
+        },
+        {
+            "displayName": "microsoft/Phi-3-mini-128k-instruct",
+            "icon": "ms",
+            "modelLink": "https://huggingface.co/microsoft/Phi-3-mini-128k-instruct",
+            "id": "huggingface/microsoft/Phi-3-mini-128k-instruct",
+            "runtimes": [
+                "IntelGPU"
+            ],
+            "architecture": "Transformer",
+            "status": "Ready",
+            "version": 1,
+            "relativePath": "microsoft-Phi-3-mini-128k-instruct\\aitk"
+        },
+        {
+            "displayName": "microsoft/Phi-3-mini-4k-instruct",
+            "icon": "ms",
+            "modelLink": "https://huggingface.co/microsoft/Phi-3-mini-4k-instruct",
+            "id": "huggingface/microsoft/Phi-3-mini-4k-instruct",
+            "runtimes": [
+                "IntelGPU"
+            ],
+            "architecture": "Transformer",
+            "status": "Ready",
+            "version": 1,
+            "relativePath": "microsoft-Phi-3-mini-4k-instruct\\aitk"
         },
         {
             "displayName": "microsoft/Phi-3.5-mini-instruct",
@@ -487,5 +526,29 @@
         "nlphuji/flickr30k": [],
         "imagenet-1k": [],
         "timm/mini-imagenet": []
+    },
+    "DisplayNameToRuntimeRPC": {
+        "CPU": "CPU",
+        "Qualcomm NPU": "QNN",
+        "Intel Any": "IntelAny",
+        "Intel CPU": "IntelCPU",
+        "Intel NPU": "IntelNPU",
+        "Intel GPU": "IntelGPU",
+        "AMD NPU": "AMDNPU",
+        "NVIDIA GPU": "NvidiaGPU",
+        "NVIDIA TensorRT for RTX": "NvidiaTRTRTX",
+        "DirectML": "DML"
+    },
+    "RuntimeToDisplayName": {
+        "CPU": "CPU",
+        "QNN": "Qualcomm NPU",
+        "IntelAny": "Intel Any",
+        "IntelCPU": "Intel CPU",
+        "IntelNPU": "Intel NPU",
+        "IntelGPU": "Intel GPU",
+        "AMDNPU": "AMD NPU",
+        "NvidiaGPU": "NVIDIA GPU",
+        "NvidiaTRTRTX": "NVIDIA TensorRT for RTX",
+        "DML": "DirectML"
     }
 }

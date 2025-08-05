@@ -6,10 +6,12 @@ from __future__ import annotations
 
 import argparse
 import copy
+import json
 import os
 import subprocess
 from pathlib import Path
 
+from .base import BaseModelClass
 from .constants import EPNames, ModelStatusEnum
 from .copy_config import CopyConfig
 from .file_validation import check_case, process_gitignore, readCheckIpynb, readCheckOliveConfig, readCheckRequirements
@@ -17,7 +19,7 @@ from .model_info import ModelInfo, ModelList
 from .model_parameter import ModelParameter
 from .parameters import readCheckParameterTemplate
 from .project_config import ModelInfoProject, ModelProjectConfig
-from .utils import GlobalVars, printError, printWarning
+from .utils import GlobalVars, open_ex, printError, printWarning
 
 
 def shouldCheckModel(rootDir: str, configDir: str, model: ModelInfo) -> str | None:
@@ -157,10 +159,18 @@ def main():
                 if hasLLM:
                     # check inference_model.json
                     inferenceModelFile = os.path.join(modelVerDir, "inference_model.json")
-                    GlobalVars.inferenceModelCheck.append(inferenceModelFile)
                     if not os.path.exists(inferenceModelFile):
                         printWarning(f"{inferenceModelFile} not exists.")
-
+                    else:
+                        GlobalVars.inferenceModelCheck.append(inferenceModelFile)
+                        with open_ex(inferenceModelFile, "r") as file:
+                            fileContent = file.read()
+                            inferenceModelData = json.loads(fileContent)
+                        tmpModelName = modelInVersion.id.split("/")[-1]
+                        inferenceModelData["Name"] = tmpModelName
+                        # Write back to file
+                        newContent = json.dumps(inferenceModelData, indent=4, ensure_ascii=False)
+                        BaseModelClass.writeJsonIfChanged(newContent, inferenceModelFile, fileContent)
     modelList.Check()
 
     if GlobalVars.olivePath:
