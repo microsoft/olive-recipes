@@ -501,7 +501,7 @@
             ],
             "architecture": "Others",
             "status": "Ready",
-            "relativePath": ".aitk\\non_model_projects\\templates\\empty",
+            "relativePath": ".aitk/non_model_projects/templates/empty",
             "version": 1
         },
         {
@@ -514,7 +514,7 @@
             ],
             "architecture": "Others",
             "status": "Hide",
-            "relativePath": ".aitk\\non_model_projects\\extensions\\llm_evaluator",
+            "relativePath": ".aitk/non_model_projects/extensions/llm_evaluator",
             "version": 1,
             "extension": true
         }
