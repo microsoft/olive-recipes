@@ -1,0 +1,20 @@
+keywords:
+    aitk
+arch: bert
+recipes:
+    - file: "bge-small-en-v1.5_qdq_qnn.json"
+      device: npu
+      ep: QNNExecutionProvider
+    - file: "bge-small-en-v1.5_qdq_amd.json"
+      device: npu
+      ep: VitisAIExecutionProvider
+    - file: "bge-small-en-v1.5_context_ov_static.json"
+      devices:
+        - npu
+        - cpu
+        - gpu
+      ep: OpenVINOExecutionProvider
+aitk:
+    modelInfo:
+        id: "huggingface/BAAI/bge-small-en-v1.5"
+        version: 1
