@@ -338,6 +338,8 @@
             "icon": "qwen",
             "modelLink": "https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct",
             "id": "huggingface/Qwen/Qwen2.5-0.5B-Instruct",
+            "groupId": "huggingface/Qwen/Qwen2.5-1.5B-Instruct",
+            "groupItemName": "0.5B",
             "runtimes": [
                 "IntelGPU"
             ],
