@@ -74,6 +74,9 @@ def convert_yaml_to_model_info(root_dir: Path, yml_file: Path, yaml_object: dict
 
 
 def convert_yaml_to_project_config(yml_file: Path, yaml_object: dict) -> ModelProjectConfig:
+    aitk = yaml_object.get("aitk", {})
+    modelInfo = aitk.get("modelInfo", {})
+    id = modelInfo.get("id")
     recipes = yaml_object.get("recipes", [])
     items = []
     for recipe in recipes:
@@ -85,11 +88,7 @@ def convert_yaml_to_project_config(yml_file: Path, yaml_object: dict) -> ModelPr
             )
         )
         if recipe.get("ep") == EPNames.OpenVINOExecutionProvider.value:
-            generator_intel(recipe, yml_file.parent)
-                
-    aitk = yaml_object.get("aitk", {})
-    modelInfo = aitk.get("modelInfo", {})
-    id = modelInfo.get("id")
+            generator_intel(id, recipe, yml_file.parent)
     version = modelInfo.get("version", 1)
     result = ModelProjectConfig(
         workflows=items,

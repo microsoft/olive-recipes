@@ -37,18 +37,27 @@ def generate_quantization_config(folder: Path, file: str) -> Optional[Section]:
     return None
 
 
+def isLLM_by_id(id: str) -> bool:
+    check_list = [
+        "deepseek-ai/DeepSeek",
+        "meta-llama/Llama",
+        "microsoft/Phi",
+        "mistralai/Mistral",
+        "Qwen/Qwen"
+    ]
+    return any(check in id for check in check_list)
 
-def generator_intel(recipe, folder: Path):
+
+def generator_intel(id: str, recipe, folder: Path):
     aitk = recipe.get("aitk", {})
     auto = aitk.get("auto", True)
-    isLLM = aitk.get("isLLM", False)
+    isLLM = aitk.get("isLLM", isLLM_by_id(id))
     if not auto or not isLLM:
         return
     intel_runtime_values: list[str] = recipe.get("devices", [recipe.get("device")])
     file = recipe.get("file")
 
     name = f"Convert to Intel {"/".join([runtime.upper() for runtime in intel_runtime_values])}"
-    isLLM = aitk.get("isLLM", False)
     addCpu = False
     oliveFile = aitk.get("oliveFile")
 
