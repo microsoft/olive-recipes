@@ -47,6 +47,6 @@ if __name__ == "__main__":
         GlobalVars.verbose = True
 
     # Auto-format scripts before running sanitize
-    if "-f" in sys.argv: auto_format_scripts()
+    if "--format_scripts" in sys.argv: auto_format_scripts()
     project_processor()
     run_main()
