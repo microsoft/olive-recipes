@@ -21,3 +21,5 @@ aitk:
     modelInfo:
         id: "huggingface/deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B"
         version: 1
+        groupId: "huggingface/deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B"
+        groupItemName: "1.5B"
