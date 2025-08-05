@@ -10,10 +10,13 @@ recipes:
       ep: VitisAIExecutionProvider
     - file: "deepseek_ov_config.json"
       devices:
-        - npu
         - cpu
         - gpu
+        - npu
       ep: OpenVINOExecutionProvider
+      aitk:
+          oliveFile: "deepseek/openvino/DeepSeek-R1-Distill-Qwen-1.5B_context_ov_dynamic_sym_gs128_bkp_int8_sym_r1.json"
+          isLLM: true
     - file: "deepseek_dml_config.json"
       device: gpu
       ep: DmlExecutionProvider

@@ -6,6 +6,9 @@ recipes:
       devices:
         - gpu
       ep: OpenVINOExecutionProvider
+      aitk:
+          oliveFile: "deepseek/openvino/DeepSeek-R1-Distill-Llama-8B-gpu-context-ov-dy-gs128-r1.json"
+          isLLM: true
 aitk:
     modelInfo:
         id: "huggingface/deepseek-ai/DeepSeek-R1-Distill-Llama-8B"

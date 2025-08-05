@@ -2,7 +2,7 @@ from pathlib import Path
 
 import yaml
 from model_lab import RuntimeEnum
-from sanitize.constants import ArchitectureEnum, IconEnum, ModelStatusEnum
+from sanitize.constants import ArchitectureEnum, IconEnum, ModelStatusEnum, EPNames
 from sanitize.generator_intel import generator_intel
 from sanitize.model_info import ModelInfo, ModelList
 from sanitize.project_config import ModelInfoProject, ModelProjectConfig, WorkflowItem
@@ -84,11 +84,9 @@ def convert_yaml_to_project_config(yml_file: Path, yaml_object: dict) -> ModelPr
                 templateName=file[:-5] if file and file.endswith(".json") else file,
             )
         )
-        aitk = recipe.get("aitk", {})
-        if aitk:
-            intel_auto = aitk.get("intelAuto", False)
-            if intel_auto:
-                generator_intel(recipe, yml_file.parent)
+        if recipe.get("ep") == EPNames.OpenVINOExecutionProvider.value:
+            generator_intel(recipe, yml_file.parent)
+                
     aitk = yaml_object.get("aitk", {})
     modelInfo = aitk.get("modelInfo", {})
     id = modelInfo.get("id")
