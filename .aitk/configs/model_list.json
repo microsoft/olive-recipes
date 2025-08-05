@@ -9,8 +9,8 @@
                 "IntelGPU"
             ],
             "architecture": "Transformer",
-            "status": "Ready",
-            "relativePath": "deepseek-ai-DeepSeek-R1-Distill-Llama-8B\\aitk",
+            "status": "Hide",
+            "relativePath": "deepseek-ai-DeepSeek-R1-Distill-Llama-8B/aitk",
             "version": 1
         },
         {
@@ -30,7 +30,7 @@
             ],
             "architecture": "Transformer",
             "status": "Ready",
-            "relativePath": "deepseek-ai-DeepSeek-R1-Distill-Qwen-1.5B\\aitk",
+            "relativePath": "deepseek-ai-DeepSeek-R1-Distill-Qwen-1.5B/aitk",
             "version": 1
         },
         {
@@ -45,7 +45,7 @@
             ],
             "architecture": "Transformer",
             "status": "Ready",
-            "relativePath": "deepseek-ai-DeepSeek-R1-Distill-Qwen-7B\\aitk",
+            "relativePath": "deepseek-ai-DeepSeek-R1-Distill-Qwen-7B/aitk",
             "version": 1
         },
         {
@@ -60,7 +60,7 @@
             ],
             "architecture": "Transformer",
             "status": "Ready",
-            "relativePath": "deepseek-ai-DeepSeek-R1-Distill-Qwen-14B\\aitk",
+            "relativePath": "deepseek-ai-DeepSeek-R1-Distill-Qwen-14B/aitk",
             "version": 1
         },
         {
@@ -79,7 +79,7 @@
             ],
             "architecture": "Transformer",
             "status": "Ready",
-            "relativePath": "google-bert-bert-base-multilingual-cased\\aitk",
+            "relativePath": "google-bert-bert-base-multilingual-cased/aitk",
             "version": 1
         },
         {
@@ -98,7 +98,7 @@
             ],
             "architecture": "Transformer",
             "status": "Ready",
-            "relativePath": "google-vit-base-patch16-224\\aitk",
+            "relativePath": "google-vit-base-patch16-224/aitk",
             "version": 1
         },
         {
@@ -117,7 +117,7 @@
             ],
             "architecture": "Transformer",
             "status": "Ready",
-            "relativePath": "intel-bert-base-uncased-mrpc\\aitk",
+            "relativePath": "intel-bert-base-uncased-mrpc/aitk",
             "version": 1
         },
         {
@@ -136,7 +136,7 @@
             ],
             "architecture": "Transformer",
             "status": "Ready",
-            "relativePath": "laion-CLIP-ViT-B-32-laion2B-s34B-b79K\\aitk",
+            "relativePath": "laion-CLIP-ViT-B-32-laion2B-s34B-b79K/aitk",
             "version": 1
         },
         {
@@ -154,7 +154,7 @@
             ],
             "architecture": "Transformer",
             "status": "Ready",
-            "relativePath": "meta-llama-Llama-3.2-1B-Instruct\\aitk",
+            "relativePath": "meta-llama-Llama-3.2-1B-Instruct/aitk",
             "version": 1
         },
         {
@@ -169,7 +169,7 @@
             ],
             "architecture": "Transformer",
             "status": "Ready",
-            "relativePath": "microsoft-Phi-3-mini-128k-instruct\\aitk",
+            "relativePath": "microsoft-Phi-3-mini-128k-instruct/aitk",
             "version": 1
         },
         {
@@ -184,7 +184,7 @@
             ],
             "architecture": "Transformer",
             "status": "Ready",
-            "relativePath": "microsoft-Phi-3-mini-4k-instruct\\aitk",
+            "relativePath": "microsoft-Phi-3-mini-4k-instruct/aitk",
             "version": 1
         },
         {
@@ -202,7 +202,7 @@
             ],
             "architecture": "Transformer",
             "status": "Ready",
-            "relativePath": "microsoft-Phi-3.5-mini-instruct\\aitk",
+            "relativePath": "microsoft-Phi-3.5-mini-instruct/aitk",
             "version": 1
         },
         {
@@ -215,7 +215,7 @@
             ],
             "architecture": "Transformer",
             "status": "Ready",
-            "relativePath": "microsoft-Phi-4-mini-instruct\\aitk",
+            "relativePath": "microsoft-Phi-4-mini-instruct/aitk",
             "version": 1
         },
         {
@@ -230,7 +230,7 @@
             ],
             "architecture": "Transformer",
             "status": "Ready",
-            "relativePath": "microsoft-Phi-4-mini-reasoning\\aitk",
+            "relativePath": "microsoft-Phi-4-mini-reasoning/aitk",
             "version": 1
         },
         {
@@ -245,7 +245,7 @@
             ],
             "architecture": "Transformer",
             "status": "Ready",
-            "relativePath": "microsoft-Phi-4-reasoning\\aitk",
+            "relativePath": "microsoft-Phi-4-reasoning/aitk",
             "version": 1
         },
         {
@@ -260,7 +260,7 @@
             ],
             "architecture": "Transformer",
             "status": "Ready",
-            "relativePath": "microsoft-Phi-4-reasoning-plus\\aitk",
+            "relativePath": "microsoft-Phi-4-reasoning-plus/aitk",
             "version": 1
         },
         {
@@ -279,7 +279,7 @@
             ],
             "architecture": "CNN",
             "status": "Ready",
-            "relativePath": "microsoft-resnet-50\\aitk",
+            "relativePath": "microsoft-resnet-50/aitk",
             "version": 1
         },
         {
@@ -292,7 +292,7 @@
             ],
             "architecture": "Transformer",
             "status": "Ready",
-            "relativePath": "mistralai-Mistral-7B-Instruct-v0.3\\aitk",
+            "relativePath": "mistralai-Mistral-7B-Instruct-v0.3/aitk",
             "version": 1
         },
         {
@@ -311,7 +311,7 @@
             ],
             "architecture": "Transformer",
             "status": "Ready",
-            "relativePath": "openai-clip-vit-base-patch16\\aitk",
+            "relativePath": "openai-clip-vit-base-patch16/aitk",
             "version": 1
         },
         {
@@ -330,7 +330,7 @@
             ],
             "architecture": "Transformer",
             "status": "Ready",
-            "relativePath": "openai-clip-vit-base-patch32\\aitk",
+            "relativePath": "openai-clip-vit-base-patch32/aitk",
             "version": 1
         },
         {
@@ -345,7 +345,7 @@
             ],
             "architecture": "Transformer",
             "status": "Ready",
-            "relativePath": "Qwen-Qwen2.5-0.5B-Instruct\\aitk",
+            "relativePath": "Qwen-Qwen2.5-0.5B-Instruct/aitk",
             "version": 1
         },
         {
@@ -365,7 +365,7 @@
             ],
             "architecture": "Transformer",
             "status": "Ready",
-            "relativePath": "Qwen-Qwen2.5-1.5B-Instruct\\aitk",
+            "relativePath": "Qwen-Qwen2.5-1.5B-Instruct/aitk",
             "version": 1
         },
         {
@@ -380,7 +380,7 @@
             ],
             "architecture": "Transformer",
             "status": "Ready",
-            "relativePath": "Qwen-Qwen2.5-3B-Instruct\\aitk",
+            "relativePath": "Qwen-Qwen2.5-3B-Instruct/aitk",
             "version": 1
         },
         {
@@ -395,7 +395,7 @@
             ],
             "architecture": "Transformer",
             "status": "Ready",
-            "relativePath": "Qwen-Qwen2.5-7B-Instruct\\aitk",
+            "relativePath": "Qwen-Qwen2.5-7B-Instruct/aitk",
             "version": 1
         },
         {
@@ -410,7 +410,7 @@
             ],
             "architecture": "Transformer",
             "status": "Ready",
-            "relativePath": "Qwen-Qwen2.5-14B-Instruct\\aitk",
+            "relativePath": "Qwen-Qwen2.5-14B-Instruct/aitk",
             "version": 1
         },
         {
@@ -425,7 +425,7 @@
             ],
             "architecture": "Transformer",
             "status": "Ready",
-            "relativePath": "Qwen-Qwen2.5-Coder-0.5B-Instruct\\aitk",
+            "relativePath": "Qwen-Qwen2.5-Coder-0.5B-Instruct/aitk",
             "version": 1
         },
         {
@@ -440,7 +440,7 @@
             ],
             "architecture": "Transformer",
             "status": "Ready",
-            "relativePath": "Qwen-Qwen2.5-Coder-1.5B-Instruct\\aitk",
+            "relativePath": "Qwen-Qwen2.5-Coder-1.5B-Instruct/aitk",
             "version": 1
         },
         {
@@ -455,7 +455,7 @@
             ],
             "architecture": "Transformer",
             "status": "Ready",
-            "relativePath": "Qwen-Qwen2.5-Coder-3B-Instruct\\aitk",
+            "relativePath": "Qwen-Qwen2.5-Coder-3B-Instruct/aitk",
             "version": 1
         },
         {
@@ -470,7 +470,7 @@
             ],
             "architecture": "Transformer",
             "status": "Ready",
-            "relativePath": "Qwen-Qwen2.5-Coder-7B-Instruct\\aitk",
+            "relativePath": "Qwen-Qwen2.5-Coder-7B-Instruct/aitk",
             "version": 1
         },
         {
@@ -485,7 +485,7 @@
             ],
             "architecture": "Transformer",
             "status": "Ready",
-            "relativePath": "Qwen-Qwen2.5-Coder-14B-Instruct\\aitk",
+            "relativePath": "Qwen-Qwen2.5-Coder-14B-Instruct/aitk",
             "version": 1
         }
     ],

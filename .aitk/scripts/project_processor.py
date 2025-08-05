@@ -53,7 +53,7 @@ def convert_yaml_to_model_info(root_dir: Path, yml_file: Path, yaml_object: dict
     for recipe in recipes:
         runtimes.update(get_runtime(recipe))
     runtimes = [r for r in RuntimeEnum if r in runtimes]
-    relative_path = str(yml_file.parent.relative_to(root_dir))
+    relative_path = str(yml_file.parent.relative_to(root_dir)).replace("\\", "/")
     groupId = modelInfo.get("groupId", None)
     groupItemName = modelInfo.get("groupItemName", None)
     model_info = ModelInfo(

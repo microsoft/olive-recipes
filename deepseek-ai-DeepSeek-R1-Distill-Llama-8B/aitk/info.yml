@@ -10,3 +10,4 @@ aitk:
     modelInfo:
         id: "huggingface/deepseek-ai/DeepSeek-R1-Distill-Llama-8B"
         version: 1
+        status: Hide
