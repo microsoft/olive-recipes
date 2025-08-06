@@ -4,3 +4,4 @@ recipes:
     file: DeepSeek-R1-Distill-Qwen-7B_quark_vitisai_llm.json
     devices: npu
     eps: VitisAIExecutionProvider
+    
