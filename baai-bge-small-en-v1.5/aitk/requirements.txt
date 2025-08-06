@@ -1,0 +1,5 @@
+olive-ai
+datasets
+optimum
+mteb
+polars-lts-cpu
