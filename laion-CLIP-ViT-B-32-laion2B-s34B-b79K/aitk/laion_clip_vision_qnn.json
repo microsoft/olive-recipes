@@ -2,7 +2,6 @@
     "input_model": {
         "type": "PytorchModel",
         "model_path": "laion/CLIP-ViT-B-32-laion2B-s34B-b79K",
-        "generative": false,
         "io_config": {
             "input_names": [
                 "pixel_values"
