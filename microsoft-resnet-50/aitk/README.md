@@ -4,6 +4,7 @@ This folder contains examples of ResNet optimization using different workflows.
 
 - QDQ for Qualcomm NPU / AMD NPU
 - OpenVINO for Intel NPU
+- Float downcasting for NVIDIA TRT for RTX GPU / DML for general GPU
 
 ## QDQ for Qualcomm NPU / AMD NPU
 

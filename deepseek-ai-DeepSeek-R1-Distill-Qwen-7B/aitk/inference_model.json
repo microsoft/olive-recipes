@@ -1,31 +1,31 @@
 {
-  "Name": "DeepSeek-R1-Distill-Qwen-",
-  "PromptTemplate": {
-    "assistant": "{Content}",
-    "prompt": "<｜User｜>{Content}<｜Assistant｜><think>"
-  },
-  "ParameterSchema": {
-    "enabled": [
-      {
-        "name": "max_tokens",
-        "default": 512
-      },
-      {
-        "name": "temperature",
-        "default": 0.6
-      },
-      {
-        "name": "top_p",
-        "default": 0.9
-      },
-      {
-        "name": "top_k",
-        "default": 5
-      },
-      {
-        "name": "random_seed",
-        "default": 5687
-      }
-    ]
-  }
+    "Name": "DeepSeek-R1-Distill-Qwen-7B",
+    "PromptTemplate": {
+        "assistant": "{Content}",
+        "prompt": "<｜User｜>{Content}<｜Assistant｜><think>"
+    },
+    "ParameterSchema": {
+        "enabled": [
+            {
+                "name": "max_tokens",
+                "default": 512
+            },
+            {
+                "name": "temperature",
+                "default": 0.6
+            },
+            {
+                "name": "top_p",
+                "default": 0.9
+            },
+            {
+                "name": "top_k",
+                "default": 5
+            },
+            {
+                "name": "random_seed",
+                "default": 5687
+            }
+        ]
+    }
 }

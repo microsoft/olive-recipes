@@ -2,7 +2,8 @@ from pathlib import Path
 
 import yaml
 from model_lab import RuntimeEnum
-from sanitize.constants import ArchitectureEnum, IconEnum, ModelStatusEnum
+from sanitize.constants import ArchitectureEnum, EPNames, IconEnum, ModelStatusEnum
+from sanitize.generator_intel import generator_intel
 from sanitize.model_info import ModelInfo, ModelList
 from sanitize.project_config import ModelInfoProject, ModelProjectConfig, WorkflowItem
 from sanitize.utils import GlobalVars
@@ -53,7 +54,9 @@ def convert_yaml_to_model_info(root_dir: Path, yml_file: Path, yaml_object: dict
     for recipe in recipes:
         runtimes.update(get_runtime(recipe))
     runtimes = [r for r in RuntimeEnum if r in runtimes]
-    relative_path = str(yml_file.parent.relative_to(root_dir))
+    relative_path = str(yml_file.parent.relative_to(root_dir)).replace("\\", "/")
+    groupId = modelInfo.get("groupId", None)
+    groupItemName = modelInfo.get("groupItemName", None)
     model_info = ModelInfo(
         displayName=display_name,
         icon=icon,
@@ -64,11 +67,16 @@ def convert_yaml_to_model_info(root_dir: Path, yml_file: Path, yaml_object: dict
         status=status,
         version=version,
         relativePath=relative_path,
+        groupId=groupId,
+        groupItemName=groupItemName,
     )
     return model_info
 
 
 def convert_yaml_to_project_config(yml_file: Path, yaml_object: dict) -> ModelProjectConfig:
+    aitk = yaml_object.get("aitk", {})
+    modelInfo = aitk.get("modelInfo", {})
+    id = modelInfo.get("id")
     recipes = yaml_object.get("recipes", [])
     items = []
     for recipe in recipes:
@@ -79,9 +87,8 @@ def convert_yaml_to_project_config(yml_file: Path, yaml_object: dict) -> ModelPr
                 templateName=file[:-5] if file and file.endswith(".json") else file,
             )
         )
-    aitk = yaml_object.get("aitk", {})
-    modelInfo = aitk.get("modelInfo", {})
-    id = modelInfo.get("id")
+        if recipe.get("ep") == EPNames.OpenVINOExecutionProvider.value:
+            generator_intel(id, recipe, yml_file.parent)
     version = modelInfo.get("version", 1)
     result = ModelProjectConfig(
         workflows=items,
@@ -112,7 +119,8 @@ def project_processor():
                 continue
             aitk = yaml_object.get("aitk", [])
             if not aitk:
-                print(f"aitk not found in {yml_file}")
+                if yml_file.parent.name == "aitk":
+                    raise KeyError(f"aitk not found in {yml_file}")
                 continue
         print(f"Process aitk for {yml_file}")
         modelList.models.append(convert_yaml_to_model_info(root_dir, yml_file, yaml_object))

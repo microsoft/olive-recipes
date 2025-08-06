@@ -4,8 +4,9 @@ This folder contains examples of BERT optimization using different workflows.
 
 - QDQ for Qualcomm NPU / AMD NPU
 - OpenVINO for Intel NPU
+- Float downcasting for NVIDIA TRT for RTX GPU / DML for general GPU
 
-## BERT Quantization QDQ
+## QDQ for Qualcomm NPU / AMD NPU
 
 This workflow quantizes the model. It performs the pipeline:
 - *HF Model-> ONNX Model ->Quantized Onnx Model*

@@ -210,9 +210,9 @@ class ModelParameter(BaseModelClass):
     addCpu: Optional[bool] = None
     addAmdNpu: Optional[ADMNPUConfig] = None
 
-    runtime: Parameter
+    runtime: Optional[Parameter] = None
     runtimeInConversion: Optional[Parameter] = None
-    sections: List[Section]
+    sections: List[Section] = []
 
     @staticmethod
     def Read(parameterFile: str):
@@ -235,14 +235,10 @@ class ModelParameter(BaseModelClass):
     def Check(self, templates: Dict[str, Parameter], oliveJson: Any, modelList: ModelList):
         GlobalVars.configCheck.append(self._file)
 
-        if not self.sections:
-            printError(f"{self._file} should have sections")
-            return
-
         if not self.checkDebugInfo(oliveJson):
             return
 
-        if self.sections[0].phase == PhaseTypeEnum.Conversion:
+        if self.sections and self.sections[0].phase == PhaseTypeEnum.Conversion:
             self.sections = self.sections[1:]
         self.sections.insert(
             0,
@@ -422,7 +418,7 @@ class ModelParameter(BaseModelClass):
         self.writeIfChanged()
 
     def TryToRemoveReuseCacheInRuntimeAction(self, oliveJson: Any):
-        if not self.runtime.values:
+        if not self.runtime or not self.runtime.values:
             printError(f"{self._file} runtime values is empty, cannot remove reuse_cache")
             return
         # Find all passes that have reuse_cache field
