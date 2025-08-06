@@ -57,13 +57,14 @@ if __name__ == "__main__":
     if args.restore:
         if os.path.exists(templateFileOrigin):
             if os.path.exists(templateFile):
-                print(f"Remmoving {templateFile} before restoring.")
+                print(f"Removing {templateFile} before restoring.")
                 os.remove(templateFile)
             os.rename(templateFileOrigin, templateFile)
             print(f"Restored {templateFile} from {templateFileOrigin}")
     else:
         if not os.path.exists(templateFileOrigin):
             os.rename(templateFile, templateFileOrigin)
+            print(f"Backup {templateFile} to {templateFileOrigin}")
         input = os.path.join(os.path.dirname(templateFileOrigin), "template_unzip")
         print(f"Unzipping {templateFileOrigin} to {input}")
         with zipfile.ZipFile(templateFileOrigin, "r") as zipf:
