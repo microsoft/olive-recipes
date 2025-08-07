@@ -10,7 +10,7 @@ import re
 from typing import Any, Dict, Iterator, List, Optional
 
 from deepdiff import DeepDiff
-from model_lab import RuntimeEnum, RuntimeFeatureEnum
+from model_lab import RuntimeEnum
 from pydantic import BaseModel
 
 from .base import BaseModelClass
@@ -195,12 +195,12 @@ class DebugInfo(BaseModel):
 class ModelParameter(BaseModelClass):
     name: str
     oliveFile: Optional[str] = None
-    # SET AUTOMATICALLY
+    # SET AUTOMATICALLY TO TRUE BY MODEL ID
     isLLM: Optional[bool] = None
     isIntel: Optional[bool] = None
     intelRuntimeValues: Optional[List[OliveDeviceTypes]] = None
     # For template using CUDA and no runtime overwrite, we need to set this so we know the target EP
-    evalRuntime: Optional[RuntimeEnum] = None  # Changed to str to avoid forward reference
+    evalRuntime: Optional[RuntimeEnum] = None
     debugInfo: Optional[DebugInfo] = None
     # A SHORTCUT FOR SEVERAL PARAMETERS
     # This kind of config will
@@ -209,12 +209,12 @@ class ModelParameter(BaseModelClass):
     # - do not support cpu evaluation
     # - setup executeRuntimeFeatures, pyEnvRuntimeFeatures
     isQNNLLM: Optional[bool] = None
-    # SET AUTOMATICALLY
+    # SET AUTOMATICALLY TO TRUE WHEN CUDAExecutionProvider
     isGPURequired: Optional[bool] = None
     runtimeOverwrite: Optional[RuntimeOverwrite] = None
-    executeRuntimeFeatures: Optional[List[RuntimeFeatureEnum]] = None
-    evaluationRuntimeFeatures: Optional[List[RuntimeFeatureEnum]] = None
-    pyEnvRuntimeFeatures: Optional[List[RuntimeFeatureEnum]] = None
+    executeRuntimeFeatures: Optional[List[str]] = None
+    evaluationRuntimeFeatures: Optional[List[str]] = None
+    pyEnvRuntimeFeatures: Optional[List[str]] = None
     # it means default template does not use it
     # for Cpu, None means add
     addCpu: Optional[bool] = None
@@ -248,8 +248,7 @@ class ModelParameter(BaseModelClass):
         if not self.checkDebugInfo(oliveJson):
             return
 
-        isLLM = isLLM_by_id(modelInfo.id)
-        self.isLLM = True if isLLM else None
+        self.isLLM = isLLM_by_id(modelInfo.id) or None
 
         if self.sections and self.sections[0].phase == PhaseTypeEnum.Conversion:
             self.sections = self.sections[1:]
@@ -326,8 +325,8 @@ class ModelParameter(BaseModelClass):
             )
             if self.runtimeOverwrite and not self.runtimeOverwrite.Check(oliveJson):
                 printError(f"{self._file} runtime overwrite has error")
-            self.executeRuntimeFeatures = [RuntimeFeatureEnum.AutoGptq]
-            self.pyEnvRuntimeFeatures = [RuntimeFeatureEnum.Nightly]
+            self.executeRuntimeFeatures = ["AutoGptq"]
+            self.pyEnvRuntimeFeatures = ["Nightly"]
 
         for tmpDevice, section in enumerate(self.sections):
             # Add conversion toggle
@@ -422,6 +421,8 @@ class ModelParameter(BaseModelClass):
             and self.runtimeOverwrite.executeEp == EPNames.CUDAExecutionProvider
         ):
             self.isGPURequired = True
+        else:
+            self.isGPURequired = None
 
         self.checkPhase(oliveJson)
         self.CheckRuntimeInConversion(oliveJson, modelList)

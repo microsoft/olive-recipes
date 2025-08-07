@@ -155,6 +155,9 @@ def readCheckIpynb(ipynbFile: str, modelItems: dict[str, ModelParameter]):
             ipynbContent: str = file.read()
         allRuntimes: list[str] = []
         for name, modelParameter in modelItems.items():
+            if modelParameter.runtime == None:
+                printError(f"When checking {ipynbFile}, modelItem {name} does not have runtime!")
+                continue
             testPath = outputModelRelativePath
             importStr = importOnnxruntime
             if modelParameter.isLLM:
