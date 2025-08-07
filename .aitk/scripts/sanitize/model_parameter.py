@@ -12,6 +12,7 @@ from typing import Any, Dict, Iterator, List, Optional
 from deepdiff import DeepDiff
 from model_lab import RuntimeEnum
 from pydantic import BaseModel
+from pathlib import Path
 
 from .base import BaseModelClass
 from .constants import (
@@ -35,6 +36,9 @@ from .utils import (
     printError,
     printProcess,
     printWarning,
+    get_execute_runtime,
+    get_eval_runtime,
+    get_eval_in_execute_runtime,
 )
 
 
@@ -427,6 +431,7 @@ class ModelParameter(BaseModelClass):
         self.checkPhase(oliveJson)
         self.CheckRuntimeInConversion(oliveJson, modelList)
         self.checkOliveFile(oliveJson)
+        self.checkRequirements(modelList)
         if self.debugInfo and self.debugInfo.isEmpty():
             self.debugInfo = None
         self.writeIfChanged()
@@ -608,3 +613,43 @@ class ModelParameter(BaseModelClass):
         if not self.debugInfo.setupUseX(oliveJson):
             return False
         return True
+
+
+    def checkRequirements(self, modelList: ModelList):
+        if not self.runtime or not self.runtime.displayNames:
+            printError(f"{self._file} runtime is not set")
+            return
+
+        req_path = Path(__file__).parent.parent.parent / "requirements"
+        # TODO only check 1st one
+        execute_runtime = modelList.DisplayNameToRuntimeRPC[self.runtime.displayNames[0]]
+        if self.runtimeOverwrite and self.runtimeOverwrite.executeEp:
+            execute_runtime = GlobalVars.GetRuntimeRPC(self.runtimeOverwrite.executeEp, OliveDeviceTypes.Any)
+        execute_runtime = get_execute_runtime(execute_runtime)
+        self.checkRequirement(req_path, execute_runtime.value)
+        if self.executeRuntimeFeatures:
+            for feature in self.executeRuntimeFeatures:
+                self.checkRequirement(req_path, f"{execute_runtime.value}-{feature}")
+
+        eval_runtime = modelList.DisplayNameToRuntimeRPC[self.runtime.displayNames[0]]
+        if self.evalRuntime:
+            eval_runtime = self.evalRuntime
+
+        if self.runtimeOverwrite and self.runtimeOverwrite.evaluateUsedInExecute:
+            eval_in_execute_runtime = get_eval_in_execute_runtime(eval_runtime)
+            self.checkRequirement(req_path, eval_in_execute_runtime.value)
+            if self.pyEnvRuntimeFeatures:
+                for feature in self.pyEnvRuntimeFeatures:
+                    self.checkRequirement(req_path, f"{eval_in_execute_runtime.value}-{feature}")
+
+        eval_runtime = get_eval_runtime(eval_runtime, self.isLLM or False)
+        self.checkRequirement(req_path, eval_runtime.value)
+        if self.evaluationRuntimeFeatures:
+            for feature in self.evaluationRuntimeFeatures:
+                self.checkRequirement(req_path, f"{eval_runtime.value}-{feature}")
+
+
+    def checkRequirement(self, path: Path, name: str):
+        file = path / f"requirements-{name}.txt"
+        if not file.exists():
+            printError(f"Missing requirement file: {file} for {self._file}")

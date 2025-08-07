@@ -192,3 +192,28 @@ def checkPath(path: str, oliveJson: Any, printOnNotExist: bool = True):
 def isLLM_by_id(id: str) -> bool:
     check_list = ["deepseek-ai/DeepSeek", "meta-llama/Llama", "microsoft/Phi", "mistralai/Mistral", "Qwen/Qwen"]
     return any(check in id for check in check_list)
+
+
+# TODO align with Skylight\vscode\ai-mlstudio\src\model-lab\utilities\runtimeUtils.ts
+def get_execute_runtime(runtime: RuntimeEnum) -> RuntimeEnum:
+    if runtime in [RuntimeEnum.IntelAny, RuntimeEnum.IntelCPU, RuntimeEnum.IntelGPU, RuntimeEnum.IntelNPU]:
+        return RuntimeEnum.IntelNPU
+    if runtime == RuntimeEnum.NvidiaGPU:
+        return RuntimeEnum.NvidiaGPU
+    if runtime == RuntimeEnum.NvidiaTRTRTX:
+        return RuntimeEnum.WCR_CUDA
+    return RuntimeEnum.WCR
+
+
+def get_eval_runtime(runtime: RuntimeEnum, isLLM: bool) -> RuntimeEnum:
+    if runtime == RuntimeEnum.QNN and isLLM:
+        return RuntimeEnum.QNN_LLLM
+    if runtime == RuntimeEnum.NvidiaTRTRTX:
+        return RuntimeEnum.WCR_CUDA
+    return RuntimeEnum.WCR
+
+
+def get_eval_in_execute_runtime(runtime: RuntimeEnum) -> RuntimeEnum:
+    if runtime == RuntimeEnum.QNN:
+        return RuntimeEnum.QNN
+    raise ValueError(f"Unsupported runtime for eval in execute: {runtime}")
