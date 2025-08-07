@@ -7,12 +7,12 @@ from __future__ import annotations
 import json
 import os
 import re
+from pathlib import Path
 from typing import Any, Dict, Iterator, List, Optional
 
 from deepdiff import DeepDiff
 from model_lab import RuntimeEnum
 from pydantic import BaseModel
-from pathlib import Path
 
 from .base import BaseModelClass
 from .constants import (
@@ -30,15 +30,15 @@ from .parameters import Parameter, ParameterAction
 from .utils import (
     GlobalVars,
     checkPath,
+    get_eval_in_execute_runtime,
+    get_eval_runtime,
+    get_execute_runtime,
     get_target_system,
     isLLM_by_id,
     open_ex,
     printError,
     printProcess,
     printWarning,
-    get_execute_runtime,
-    get_eval_runtime,
-    get_eval_in_execute_runtime,
 )
 
 
@@ -614,7 +614,6 @@ class ModelParameter(BaseModelClass):
             return False
         return True
 
-
     def checkRequirements(self, modelList: ModelList):
         if not self.runtime or not self.runtime.displayNames:
             printError(f"{self._file} runtime is not set")
@@ -647,7 +646,6 @@ class ModelParameter(BaseModelClass):
         if self.evaluationRuntimeFeatures:
             for feature in self.evaluationRuntimeFeatures:
                 self.checkRequirement(req_path, f"{eval_runtime.value}-{feature}")
-
 
     def checkRequirement(self, path: Path, name: str):
         file = path / f"requirements-{name}.txt"
