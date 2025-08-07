@@ -652,6 +652,8 @@ class ModelParameter(BaseModelClass):
                 self.checkRequirement(req_path, f"{eval_runtime.value}-{feature}")
 
     def checkRequirement(self, path: Path, name: str):
-        file =  path / f"{name}.txt" if "_py" in name else path / f"requirements-{name}.txt"
+        file = path / f"{name}.txt" if "_py" in name else path / f"requirements-{name}.txt"
         if not file.exists():
             printError(f"Missing requirement file: {file} for {self._file}")
+        else:
+            GlobalVars.venvRequirementsCheck.add(str(file))

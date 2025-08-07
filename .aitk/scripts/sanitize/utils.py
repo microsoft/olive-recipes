@@ -28,6 +28,7 @@ class GlobalVars:
     # Should align with number of LLM models
     inferenceModelCheck = []
     requirementsCheck = []
+    venvRequirementsCheck = set()
 
     olivePath = None
     oliveCheck = 0
@@ -79,11 +80,12 @@ class GlobalVars:
         with open_ex(os.path.join(configDir, "checks.json"), "w") as file:
             # get class properties and dump all ends with Check
             properties = [attr for attr in dir(cls) if attr.endswith("Check") and attr != "Check"]
+
             # save len if list else save the value
-            properties = {
-                prop: len(getattr(cls, prop)) if isinstance(getattr(cls, prop), list) else getattr(cls, prop)
-                for prop in properties
-            }
+            def getlen(value):
+                return len(value) if isinstance(value, list) or isinstance(value, set) else value
+
+            properties = {prop: getlen(getattr(cls, prop)) for prop in properties}
             json.dump(properties, file, indent=4)
             file.write("\n")
 
