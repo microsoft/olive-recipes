@@ -188,6 +188,7 @@ def checkPath(path: str, oliveJson: Any, printOnNotExist: bool = True):
         return False
     return True
 
+
 def isLLM_by_id(id: str) -> bool:
     check_list = ["deepseek-ai/DeepSeek", "meta-llama/Llama", "microsoft/Phi", "mistralai/Mistral", "Qwen/Qwen"]
     return any(check in id for check in check_list)

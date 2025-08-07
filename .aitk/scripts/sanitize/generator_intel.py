@@ -5,7 +5,7 @@ from typing import Optional
 from .constants import OliveDeviceTypes, OlivePassNames, OlivePropertyNames, PhaseTypeEnum
 from .model_parameter import ModelParameter, Section
 from .parameters import Parameter
-from .utils import open_ex, isLLM_by_id
+from .utils import isLLM_by_id, open_ex
 
 
 def generate_quantization_config(folder: Path, file: str) -> Optional[Section]:
