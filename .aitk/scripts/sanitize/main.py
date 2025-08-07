@@ -123,7 +123,7 @@ def main():
                         continue
 
                     # check parameter
-                    modelParameter.Check(parameterTemplate, oliveJson, modelList)
+                    modelParameter.Check(parameterTemplate, oliveJson, modelList, modelInVersion)
                     if modelParameter.isIntel:
                         tmpDevices = modelParameter.getIntelDevices()
                         # Remove items containing "intel" (case-insensitive) from runtime values

@@ -5,7 +5,7 @@ from typing import Optional
 from .constants import OliveDeviceTypes, OlivePassNames, OlivePropertyNames, PhaseTypeEnum
 from .model_parameter import ModelParameter, Section
 from .parameters import Parameter
-from .utils import open_ex
+from .utils import open_ex, isLLM_by_id
 
 
 def generate_quantization_config(folder: Path, file: str) -> Optional[Section]:
@@ -40,15 +40,10 @@ def generate_quantization_config(folder: Path, file: str) -> Optional[Section]:
     return None
 
 
-def isLLM_by_id(id: str) -> bool:
-    check_list = ["deepseek-ai/DeepSeek", "meta-llama/Llama", "microsoft/Phi", "mistralai/Mistral", "Qwen/Qwen"]
-    return any(check in id for check in check_list)
-
-
 def generator_intel(id: str, recipe, folder: Path):
     aitk = recipe.get("aitk", {})
     auto = aitk.get("auto", True)
-    isLLM = aitk.get("isLLM", isLLM_by_id(id))
+    isLLM = isLLM_by_id(id)
     if not auto or not isLLM:
         return
     intel_runtime_values: list[str] = recipe.get("devices", [recipe.get("device")])
