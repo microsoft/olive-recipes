@@ -7,7 +7,7 @@ recipes:
         - gpu
       ep: OpenVINOExecutionProvider
       aitk:
-          requirements: Intel/Test_py3.13.6
+          requirements: Intel_Test_py3.13.6
 aitk:
     modelInfo:
         id: "huggingface/Qwen/Qwen2.5-0.5B"
