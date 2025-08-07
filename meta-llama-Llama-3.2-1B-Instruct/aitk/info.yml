@@ -1,6 +1,6 @@
 keywords:
     aitk
-arch: llama
+arch: llama3
 recipes:
     - file: "llama3_2_qnn_config.json"
       device: npu

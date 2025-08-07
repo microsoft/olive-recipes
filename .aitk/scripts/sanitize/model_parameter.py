@@ -24,9 +24,18 @@ from .constants import (
     ParameterTypeEnum,
     PhaseTypeEnum,
 )
-from .model_info import ModelList
+from .model_info import ModelInfo, ModelList
 from .parameters import Parameter, ParameterAction
-from .utils import GlobalVars, checkPath, get_target_system, open_ex, printError, printProcess, printWarning
+from .utils import (
+    GlobalVars,
+    checkPath,
+    get_target_system,
+    isLLM_by_id,
+    open_ex,
+    printError,
+    printProcess,
+    printWarning,
+)
 
 
 class RuntimeOverwrite(BaseModel):
@@ -186,6 +195,7 @@ class DebugInfo(BaseModel):
 class ModelParameter(BaseModelClass):
     name: str
     oliveFile: Optional[str] = None
+    # SET AUTOMATICALLY
     isLLM: Optional[bool] = None
     isIntel: Optional[bool] = None
     intelRuntimeValues: Optional[List[OliveDeviceTypes]] = None
@@ -232,11 +242,14 @@ class ModelParameter(BaseModelClass):
                 continue
             yield tmpDevice
 
-    def Check(self, templates: Dict[str, Parameter], oliveJson: Any, modelList: ModelList):
+    def Check(self, templates: Dict[str, Parameter], oliveJson: Any, modelList: ModelList, modelInfo: ModelInfo):
         GlobalVars.configCheck.append(self._file)
 
         if not self.checkDebugInfo(oliveJson):
             return
+
+        isLLM = isLLM_by_id(modelInfo.id)
+        self.isLLM = True if isLLM else None
 
         if self.sections and self.sections[0].phase == PhaseTypeEnum.Conversion:
             self.sections = self.sections[1:]

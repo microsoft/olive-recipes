@@ -14,7 +14,7 @@ This workflow performs quantization with Optimum Intel®. It performs the optimi
 
 The following config files executes the above workflow producing as dynamic shaped model:
 
-1. [Phi-3-mini-4k-instruct-gpu-context-ov-dy.json](Phi-3-mini-4k-instruct-gpu-context-ov-dy.json)
+1. [phi3_ov_config.json](phi3_ov_config.json)
 
 ## How to run
 
@@ -39,7 +39,7 @@ olive run --config <config_file.json>
 Example:
 
 ```bash
-olive run --config Phi-3-mini-4k-instruct-gpu-context-ov-dy.json
+olive run --config phi3_ov_config.json
 ```
 
 or run simply with python code:
