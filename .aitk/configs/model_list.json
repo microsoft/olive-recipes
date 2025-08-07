@@ -334,6 +334,25 @@
             "version": 1
         },
         {
+            "displayName": "openai/clip-vit-large-patch14",
+            "icon": "OpenAI",
+            "modelLink": "https://huggingface.co/openai/clip-vit-large-patch14",
+            "id": "huggingface/openai/clip-vit-large-patch14",
+            "runtimes": [
+                "QNN",
+                "AMDNPU",
+                "NvidiaTRTRTX",
+                "DML",
+                "IntelCPU",
+                "IntelGPU",
+                "IntelNPU"
+            ],
+            "architecture": "Transformer",
+            "status": "Ready",
+            "relativePath": "openai-clip-vit-large-patch14/aitk",
+            "version": 1
+        },
+        {
             "displayName": "Qwen/Qwen2.5-0.5B-Instruct",
             "icon": "qwen",
             "modelLink": "https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct",
