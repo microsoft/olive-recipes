@@ -66,7 +66,7 @@
                 "model_name": "openai/clip-vit-large-patch14",
                 "dataset_name": "nlphuji/flickr30k",
                 "start": 0,
-                "end": 10
+                "end": 100
             },
             "dataloader_config": {
                 "type": "no_auto_batch_dataloader"
@@ -80,7 +80,7 @@
                 "model_name": "openai/clip-vit-large-patch14",
                 "dataset_name": "nlphuji/flickr30k",
                 "start": 0,
-                "end": 10
+                "end": 100
             },
             "dataloader_config": {
                 "type": "no_auto_batch_dataloader"
@@ -183,7 +183,7 @@
             "type": "OnnxStaticQuantization",
             "quant_preprocess": true,
             "data_config": "quant_data_config",
-            "activation_type": "uint16",
+            "activation_type": "uint8",
             "precision": "uint8",
             "calibrate_method": "MinMax",
             "save_as_external_data": true
@@ -194,7 +194,7 @@
                 "architectures",
                 "model_type"
             ],
-            "activation_type": "uint16",
+            "activation_type": "uint8",
             "weight_type": "uint8",
             "quant_type": "OnnxStaticQuantization"
         }
