@@ -63,6 +63,22 @@
                         { "name": "avg", "priority": 2, "metric_config": { "warmup_num": 20, "repeat_test_num": 100 } },
                         { "name": "p90", "metric_config": { "warmup_num": 20, "repeat_test_num": 100 } }
                     ]
+                },
+                {
+                    "name": "throughput",
+                    "type": "throughput",
+                    "data_config": "metric_data_config",
+                    "sub_types": [
+                        {
+                            "name": "avg"
+                        },
+                        {
+                            "name": "max"
+                        },
+                        {
+                            "name": "min"
+                        }
+                    ]
                 }
             ]
         }
