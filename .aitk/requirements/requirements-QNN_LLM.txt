@@ -14,16 +14,11 @@ tornado==6.4.2
 traitlets==5.14.3
 # ipywidgets==8.1.5
 ipywidgets==8.1.5
-comm==0.2.2
-ipython==9.0.2
 jupyterlab-widgets==3.0.13
-traitlets==5.14.3
 widgetsnbextension==4.0.13
 # deps:onnxruntime-winml
 coloredlogs==15.0.1
 flatbuffers==25.2.10
-numpy==2.2.4
-packaging==24.2
 protobuf==6.30.2
 sympy==1.14.0
 # uvpip:install onnxruntime-genai-winml==0.8.3 --extra-index-url https://aiinfra.pkgs.visualstudio.com/PublicPackages/_packaging/ORT-Nightly/pypi/simple --no-deps;post

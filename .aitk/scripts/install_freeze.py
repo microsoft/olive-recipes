@@ -177,7 +177,7 @@ def main():
     print(f"Installed dependencies: {freeze_dict}")
 
     # write result
-    outputFile = path.join(path.dirname(__file__), "..", "docs", f"requirements-{args.runtime}.txt")
+    outputFile = path.join(configs_dir, "requirements", f"requirements-{args.runtime}.txt")
     with open(outputFile, "w", newline="\n") as f:
         for name in all:
             if (
