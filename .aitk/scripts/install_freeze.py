@@ -15,10 +15,19 @@ uvpipInstallPrefix = "# uvpip:install"
 depsPrefix = "# deps:"
 cudaExtraUrl = "--extra-index-url https://download.pytorch.org/whl/cu128"
 torchCudaVersion = "torch==2.7.0+cu128"
-onnxruntimeWinmlVersion = f"{uvpipInstallPrefix} onnxruntime-winml==1.22.0.post1 --extra-index-url https://aiinfra.pkgs.visualstudio.com/PublicPackages/_packaging/ORT-Nightly/pypi/simple --no-deps;post"
-onnxruntimeGenaiWinmlVersion = f"{uvpipInstallPrefix} onnxruntime-genai-winml==0.8.3 --extra-index-url https://aiinfra.pkgs.visualstudio.com/PublicPackages/_packaging/ORT-Nightly/pypi/simple --no-deps;post"
+onnxruntimeWinmlVersion = f"{uvpipInstallPrefix} onnxruntime-winml==1.22.0.post2 --extra-index-url https://aiinfra.pkgs.visualstudio.com/PublicPackages/_packaging/ORT-Nightly/pypi/simple --no-deps;post"
+onnxruntimeGenaiWinmlVersion = f"{uvpipInstallPrefix} onnxruntime-genai-winml==0.9.0.dev0 --extra-index-url https://aiinfra.pkgs.visualstudio.com/PublicPackages/_packaging/ORT-Nightly/pypi/simple --no-deps;post"
 evaluateVersion = "evaluate==0.4.3"
 scikitLearnVersion = "scikit-learn==1.6.1"
+winrtPackage = [
+    "--index-url https://aiinfra.pkgs.visualstudio.com/PublicPackages/_packaging/ORT-Nightly/pypi/simple",
+    "--extra-index-url https://pypi.org/simple",
+    "winrt-runtime==3.2.1",
+    "winrt-Windows.Foundation==3.2.1",
+    "winrt-Windows.Foundation.Collections==3.2.1",
+    "winui3-Microsoft.Windows.AI.MachineLearning==1!1.8.250702007.dev4",
+    "winui3-Microsoft.Windows.ApplicationModel.DynamicDependency.Bootstrap==1!1.8.250702007.dev4",
+]
 
 
 def get_requires(name: str, args):
@@ -50,8 +59,8 @@ def get_requires(name: str, args):
 
 def main():
     # Constants
-    # if from git: "git+https://github.com/microsoft/Olive.git@COMMIT_ID#egg=olive_ai
-    oliveAi = "olive-ai==0.9.1"
+    # if from git: "git+https://github.com/microsoft/Olive.git@COMMIT_ID#egg=olive-ai
+    oliveAi = "olive-ai@git+https://github.com/microsoft/Olive.git#egg=olive-ai"
     torchVision = "torchvision==0.22.0"
     pre = {
         RuntimeEnum.NvidiaGPU: [
@@ -107,6 +116,7 @@ def main():
             onnxruntimeGenaiWinmlVersion,
             evaluateVersion,
             scikitLearnVersion,
+            *winrtPackage,
         ],
         RuntimeEnum.WCR_CUDA: [
             "torchvision==0.22.0+cu128",
@@ -114,6 +124,7 @@ def main():
             onnxruntimeGenaiWinmlVersion,
             evaluateVersion,
             scikitLearnVersion,
+            *winrtPackage,
         ],
         RuntimeEnum.QNN_LLLM: [
             "ipykernel==6.29.5",

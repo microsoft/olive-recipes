@@ -12,9 +12,10 @@ typing-extensions==4.14.0
 onnx==1.17.0
 numpy==2.2.4
 protobuf==6.30.2
-# olive-ai==0.9.1
-olive-ai==0.9.1
-onnxscript==0.2.5
+# olive-ai@git+https://github.com/microsoft/Olive.git#egg=olive-ai
+olive-ai@git+https://github.com/microsoft/Olive.git#egg=olive-ai
+onnx-ir==0.1.4
+onnxscript==0.3.2
 optuna==4.2.1
 pandas==2.2.3
 pydantic==2.11.1
@@ -54,10 +55,10 @@ widgetsnbextension==4.0.13
 # torchvision==0.22.0+cu128
 torchvision==0.22.0+cu128
 pillow==11.2.1
-# uvpip:install onnxruntime-winml==1.22.0.post1 --extra-index-url https://aiinfra.pkgs.visualstudio.com/PublicPackages/_packaging/ORT-Nightly/pypi/simple --no-deps;post
+# uvpip:install onnxruntime-winml==1.22.0.post2 --extra-index-url https://aiinfra.pkgs.visualstudio.com/PublicPackages/_packaging/ORT-Nightly/pypi/simple --no-deps;post
 coloredlogs==15.0.1
 flatbuffers==25.2.10
-# uvpip:install onnxruntime-genai-winml==0.8.3 --extra-index-url https://aiinfra.pkgs.visualstudio.com/PublicPackages/_packaging/ORT-Nightly/pypi/simple --no-deps;post
+# uvpip:install onnxruntime-genai-winml==0.9.0.dev0 --extra-index-url https://aiinfra.pkgs.visualstudio.com/PublicPackages/_packaging/ORT-Nightly/pypi/simple --no-deps;post
 # evaluate==0.4.3
 evaluate==0.4.3
 # scikit-learn==1.6.1
@@ -65,3 +66,15 @@ scikit-learn==1.6.1
 joblib==1.5.0
 scipy==1.15.3
 threadpoolctl==3.6.0
+--index-url https://aiinfra.pkgs.visualstudio.com/PublicPackages/_packaging/ORT-Nightly/pypi/simple
+--extra-index-url https://pypi.org/simple
+# winrt-runtime==3.2.1
+winrt-runtime==3.2.1
+# winrt-Windows.Foundation==3.2.1
+winrt-Windows.Foundation==3.2.1
+# winrt-Windows.Foundation.Collections==3.2.1
+winrt-Windows.Foundation.Collections==3.2.1
+# winui3-Microsoft.Windows.AI.MachineLearning==1!1.8.250702007.dev4
+winui3-Microsoft.Windows.AI.MachineLearning==1!1.8.250702007.dev4
+# winui3-Microsoft.Windows.ApplicationModel.DynamicDependency.Bootstrap==1!1.8.250702007.dev4
+winui3-Microsoft.Windows.ApplicationModel.DynamicDependency.Bootstrap==1!1.8.250702007.dev4

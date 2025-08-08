@@ -23,6 +23,7 @@
             "runtimes": [
                 "QNN",
                 "AMDNPU",
+                "NvidiaTRTRTX",
                 "DML",
                 "IntelCPU",
                 "IntelGPU",
@@ -147,6 +148,7 @@
             "runtimes": [
                 "QNN",
                 "AMDNPU",
+                "NvidiaTRTRTX",
                 "DML",
                 "IntelCPU",
                 "IntelGPU",
@@ -195,6 +197,7 @@
             "runtimes": [
                 "QNN",
                 "AMDNPU",
+                "NvidiaTRTRTX",
                 "DML",
                 "IntelCPU",
                 "IntelGPU",
@@ -371,6 +374,7 @@
             "runtimes": [
                 "QNN",
                 "AMDNPU",
+                "NvidiaTRTRTX",
                 "DML",
                 "IntelCPU",
                 "IntelGPU",
