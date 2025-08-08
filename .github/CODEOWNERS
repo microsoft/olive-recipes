@@ -4,3 +4,6 @@
 # skylight owns aitk
 aitk/ @microsoft/skylight-dev-team @microsoft/olivedevteam
 .aitk/ @microsoft/skylight-dev-team @microsoft/olivedevteam
+
+# license
+*/LICENSE @microsoft/skylight-dev-team @microsoft/olivedevteam
