@@ -1,0 +1,7 @@
+arch: olmo
+recipes:
+  - name: AMD-OLMo-1B-SFT-DPO_VitisAI
+    file: AMD-OLMo-1B-SFT-DPO_quark_vitisai_llm.json
+    devices: npu
+    eps: VitisAIExecutionProvider
+    

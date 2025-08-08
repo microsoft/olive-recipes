@@ -16,10 +16,3 @@ class RuntimeEnum(Enum):
     WCR_CUDA = "WCR_CUDA"
     # Inference
     QNN_LLLM = "QNN_LLM"
-
-
-class RuntimeFeatureEnum(Enum):
-    AutoGptq = "AutoGptq"
-    AutoAwq = "AutoAwq"
-    Nightly = "Nightly"
-    Genai = "Genai"
