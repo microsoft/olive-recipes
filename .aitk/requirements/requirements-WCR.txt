@@ -5,6 +5,7 @@ protobuf==6.30.2
 # olive-ai==0.9.1
 olive-ai==0.9.1
 onnxscript==0.2.5
+optimum==1.26.0
 optuna==4.2.1
 pandas==2.2.3
 pydantic==2.11.1
