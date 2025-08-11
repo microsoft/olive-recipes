@@ -7,7 +7,6 @@ jupyter-client==8.6.3
 jupyter-core==5.7.2
 matplotlib-inline==0.1.7
 nest-asyncio==1.6.0
-optimum==1.26.0
 packaging==24.2
 psutil==7.0.0
 pyzmq==26.3.0
