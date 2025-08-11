@@ -15,7 +15,8 @@ protobuf==6.30.2
 olive-ai==0.9.2
 numpy==1.26.4
 onnx==1.17.0
-onnxscript==0.2.5
+onnx-ir==0.1.5
+onnxscript==0.3.2
 optuna==4.2.1
 pandas==2.2.3
 pydantic==2.11.1
