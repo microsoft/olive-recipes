@@ -2,7 +2,6 @@
     "input_model": {
         "type": "PytorchModel",
         "model_path": "openai/clip-vit-base-patch16",
-        "generative": false,
         "io_config": {
             "input_names": [
                 "input_ids",
