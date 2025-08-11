@@ -19,7 +19,7 @@ onnxruntimeWinmlVersion = f"{uvpipInstallPrefix} onnxruntime-winml==1.22.0.post1
 onnxruntimeGenaiWinmlVersion = f"{uvpipInstallPrefix} onnxruntime-genai-winml==0.8.3 --extra-index-url https://aiinfra.pkgs.visualstudio.com/PublicPackages/_packaging/ORT-Nightly/pypi/simple --no-deps;post"
 evaluateVersion = "evaluate==0.4.3"
 scikitLearnVersion = "scikit-learn==1.6.1"
-
+optimumVersion = "optimum==1.26.0"
 
 def get_requires(name: str, args):
     # TODO for this case, need to install via Model Lab first
@@ -100,6 +100,7 @@ def main():
             "torchvision==0.22.0+cu128",
             "onnxruntime-gpu==1.21.0",
             "onnxruntime-genai-cuda==0.7.0",
+            optimumVersion
         ],
         RuntimeEnum.WCR: [
             torchVision,
@@ -107,6 +108,7 @@ def main():
             onnxruntimeGenaiWinmlVersion,
             evaluateVersion,
             scikitLearnVersion,
+            optimumVersion
         ],
         RuntimeEnum.WCR_CUDA: [
             "torchvision==0.22.0+cu128",
@@ -114,6 +116,7 @@ def main():
             onnxruntimeGenaiWinmlVersion,
             evaluateVersion,
             scikitLearnVersion,
+            optimumVersion
         ],
         RuntimeEnum.QNN_LLLM: [
             "ipykernel==6.29.5",
