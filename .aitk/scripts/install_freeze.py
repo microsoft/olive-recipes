@@ -51,7 +51,7 @@ def get_requires(name: str, args):
 def main():
     # Constants
     # if from git: "git+https://github.com/microsoft/Olive.git@COMMIT_ID#egg=olive_ai
-    oliveAi = "olive-ai==0.9.1"
+    oliveAi = "olive-ai==0.9.2"
     torchVision = "torchvision==0.22.0"
     pre = {
         RuntimeEnum.NvidiaGPU: [

@@ -11,8 +11,8 @@ typing-extensions==4.13.2
 onnx==1.17.0
 numpy==1.26.4
 protobuf==6.30.2
-# olive-ai==0.9.1
-olive-ai==0.9.1
+# olive-ai==0.9.2
+olive-ai==0.9.2
 numpy==1.26.4
 onnx==1.17.0
 onnxscript==0.2.5
