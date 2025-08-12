@@ -58,6 +58,10 @@ pillow==11.2.1
 onnxruntime-gpu==1.21.0
 coloredlogs==15.0.1
 flatbuffers==25.2.10
+# 0.8.X is not working for DML LLM because
+# File "onnxruntime_genai\models\builder.py", line 571, in make_tensor_proto_from_tensor
+#    data_type=self.to_onnx_dtype[tensor.dtype],
+#KeyError: torch.uint8
 # onnxruntime-genai-cuda==0.7.0
 onnxruntime-genai-cuda==0.7.0
 # optimum==1.26.0
