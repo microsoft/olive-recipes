@@ -104,12 +104,35 @@
                     }
                 },
                 {
+                    "name": "accuracy",
+                    "type": "custom",
+                    "data_config": "eval_data",
+                    "sub_types": [
+                        {
+                            "name": "accuracy",
+                            "priority": 2,
+                            "higher_is_better": true,
+                            "goal": {
+                                "type": "threshold",
+                                "value": 0.95
+                            }
+                        }
+                    ],
+                    "user_config": {
+                        "user_script": "clip_script.py",
+                        "metric_func": "eval_embedding_accuracy",
+                        "metric_func_kwargs": {
+                            "batch_size": 32
+                        }
+                    }
+                },
+                {
                     "name": "latency",
                     "type": "latency",
                     "sub_types": [
                         {
                             "name": "avg",
-                            "priority": 2,
+                            "priority": 3,
                             "metric_config": {
                                 "warmup_num": 20,
                                 "repeat_test_num": 100
@@ -121,6 +144,33 @@
                                 "warmup_num": 20,
                                 "repeat_test_num": 100
                             }
+                        },
+                        {
+                            "name": "max"
+                        },
+                        {
+                            "name": "min"
+                        }
+                    ]
+                },
+                {
+                    "name": "throughput",
+                    "type": "throughput",
+                    "data_config": "eval_data",
+                    "sub_types": [
+                        {
+                            "name": "avg",
+                            "priority": 4,
+                            "metric_config": {
+                                "warmup_num": 20,
+                                "repeat_test_num": 100
+                            }
+                        },
+                        {
+                            "name": "max"
+                        },
+                        {
+                            "name": "min"
                         }
                     ]
                 }
