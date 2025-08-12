@@ -53,9 +53,13 @@ class RuntimeOverwrite(BaseModel):
     evaluateUsedInExecute: Optional[bool] = None
 
     def Check(self, oliveJson: Any):
+        if self.executeEp and self.executeRequirement:
+            printError(f"executeEp and executeRequirement should not both be set")
+            return False
         if self.executeRequirement:
-            if "_py" not in self.executeRequirement or "\\" in self.executeRequirement:
-                printError(f"ExecuteRequirement should be like XXX/YYY_py3.12.9")
+            pattern = r'^[^/^\\]+/[^/^\\]+_py\d\.\d+\.\d+$'
+            if not re.match(pattern, self.executeRequirement):
+                printError(f"executeRequirement should be like XXX/YYY_py3.13.6")
                 return False
         if self.pyEnvPath:
             if not checkPath(self.pyEnvPath, oliveJson):
