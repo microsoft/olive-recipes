@@ -10,7 +10,7 @@ typing-extensions==4.13.2
 # onnx==1.17.0
 onnx==1.17.0
 numpy==1.26.4
-protobuf==6.30.2
+protobuf==6.31.1
 # olive-ai==0.9.1
 olive-ai==0.9.1
 numpy==1.26.4
@@ -53,7 +53,7 @@ nest-asyncio==1.6.0
 packaging==24.2
 psutil==7.0.0
 pyzmq==26.3.0
-tornado==6.4.2
+tornado==6.5
 traitlets==5.14.3
 # ipywidgets==8.1.5
 ipywidgets==8.1.5
@@ -73,7 +73,7 @@ coloredlogs==15.0.1
 flatbuffers==25.2.10
 numpy==1.26.4
 packaging==24.2
-protobuf==6.30.2
+protobuf==6.31.1
 sympy==1.13.1
 # openvino==2025.1.0
 openvino==2025.1.0
