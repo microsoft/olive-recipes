@@ -8,5 +8,6 @@
     "oliveCheck": 0,
     "oliveJsonCheck": 76,
     "pathCheck": 748,
-    "requirementsCheck": 31
+    "requirementsCheck": 32,
+    "venvRequirementsCheck": 12
 }

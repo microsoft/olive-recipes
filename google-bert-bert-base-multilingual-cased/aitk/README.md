@@ -11,8 +11,6 @@ This folder contains examples of BERT optimization using different workflows.
 This workflow quantizes the model. It performs the pipeline:
 - *HF Model-> ONNX Model ->Quantized Onnx Model*
 
-Config file: `bert-base-multilingual-cased_qdq.json`
-
 ### Latency / Throughput
 
 | Model Version         | Latency (ms/sample)  | Throughput (token per second)| Dataset       |

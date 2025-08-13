@@ -1,6 +1,6 @@
 keywords:
     aitk
-arch: phi
+arch: phi3
 recipes:
     - file: "phi3_ov_config.json"
       devices:

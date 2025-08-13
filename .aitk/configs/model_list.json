@@ -349,6 +349,19 @@
             "version": 1
         },
         {
+            "displayName": "Qwen/Qwen2.5-0.5B",
+            "icon": "qwen",
+            "modelLink": "https://huggingface.co/Qwen/Qwen2.5-0.5B",
+            "id": "huggingface/Qwen/Qwen2.5-0.5B",
+            "runtimes": [
+                "IntelGPU"
+            ],
+            "architecture": "Transformer",
+            "status": "Hide",
+            "relativePath": "Qwen-Qwen2.5-0.5B/aitk",
+            "version": 1
+        },
+        {
             "displayName": "Qwen/Qwen2.5-0.5B-Instruct",
             "icon": "qwen",
             "modelLink": "https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct",
