@@ -8,6 +8,8 @@ recipes:
       ep: OpenVINOExecutionProvider
       aitk:
           requirements: Intel/Test_py3.13.6
+          requirementsPatches:
+            - Transformers4.49
 aitk:
     modelInfo:
         id: "huggingface/Qwen/Qwen2.5-0.5B"
