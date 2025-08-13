@@ -2,11 +2,12 @@
 onnx==1.17.0
 numpy==2.2.4
 protobuf==3.20.3
-# olive-ai==0.9.1
-olive-ai==0.9.1
+# olive-ai@git+https://github.com/microsoft/Olive.git@9267801a7a3dc4284b69219503a86e6293c804c5#egg=olive-ai
+olive-ai@git+https://github.com/microsoft/Olive.git@9267801a7a3dc4284b69219503a86e6293c804c5#egg=olive-ai
 numpy==2.2.4
 onnx==1.17.0
-onnxscript==0.2.5
+onnx-ir==0.1.5
+onnxscript==0.3.2
 optuna==4.2.1
 pandas==2.2.3
 pydantic==2.11.1
