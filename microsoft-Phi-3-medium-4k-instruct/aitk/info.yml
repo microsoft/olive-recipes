@@ -6,6 +6,10 @@ recipes:
       devices:
         - gpu
       ep: OpenVINOExecutionProvider
+      aitk:
+          requirements: Intel/Test_py3.13.6
+          requirements-patches:
+            - Transformers4.49
 aitk:
     modelInfo:
         id: "huggingface/microsoft/Phi-3-medium-4k-instruct"
