@@ -53,7 +53,18 @@ class RuntimeOverwrite(BaseModel):
     evaluateUsedInExecute: Optional[bool] = None
 
     def Check(self, oliveJson: Any):
-        return self.pyEnvPath and checkPath(self.pyEnvPath, oliveJson)
+        if self.executeEp and self.executeRequirement:
+            printError(f"executeEp and executeRequirement should not both be set")
+            return False
+        if self.executeRequirement:
+            pattern = r'^[^/\\]+/[^/\\]+_py\d\.\d+\.\d+$'
+            if not re.match(pattern, self.executeRequirement):
+                printError(f"executeRequirement should be like XXX/YYY_py3.13.6")
+                return False
+        if self.pyEnvPath:
+            if not checkPath(self.pyEnvPath, oliveJson):
+                return False
+        return True
 
 
 class Section(BaseModel):
@@ -329,10 +340,11 @@ class ModelParameter(BaseModelClass):
                 executeEp=EPNames.CUDAExecutionProvider,
                 evaluateUsedInExecute=True,
             )
-            if self.runtimeOverwrite and not self.runtimeOverwrite.Check(oliveJson):
-                printError(f"{self._file} runtime overwrite has error")
             self.executeRuntimeFeatures = ["AutoGptq"]
             self.pyEnvRuntimeFeatures = ["Nightly"]
+
+        if self.runtimeOverwrite and not self.runtimeOverwrite.Check(oliveJson):
+            printError(f"{self._file} runtime overwrite has error")
 
         for tmpDevice, section in enumerate(self.sections):
             # Add conversion toggle
