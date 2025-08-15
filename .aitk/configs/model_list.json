@@ -137,7 +137,7 @@
             "architecture": "Transformer",
             "status": "Ready",
             "relativePath": "laion-CLIP-ViT-B-32-laion2B-s34B-b79K/aitk",
-            "version": 1
+            "version": 2
         },
         {
             "displayName": "meta-llama/Llama-3.2-1B-Instruct",
@@ -312,7 +312,7 @@
             "architecture": "Transformer",
             "status": "Ready",
             "relativePath": "openai-clip-vit-base-patch16/aitk",
-            "version": 1
+            "version": 2
         },
         {
             "displayName": "openai/clip-vit-base-patch32",
@@ -331,7 +331,7 @@
             "architecture": "Transformer",
             "status": "Ready",
             "relativePath": "openai-clip-vit-base-patch32/aitk",
-            "version": 1
+            "version": 2
         },
         {
             "displayName": "Qwen/Qwen2.5-0.5B",

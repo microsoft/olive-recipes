@@ -28,4 +28,4 @@ recipes:
 aitk:
     modelInfo:
         id: "huggingface/laion/CLIP-ViT-B-32-laion2B-s34B-b79K"
-        version: 1
+        version: 2
