@@ -14,6 +14,9 @@ recipes:
         - cpu
         - gpu
       ep: OpenVINOExecutionProvider
+    - file: "phi3_5_trtrtx_config.json"
+      device: gpu
+      ep: NvTensorRTRTXExecutionProvider
     - file: "phi3_5_dml_config.json"
       device: gpu
       ep: DmlExecutionProvider
