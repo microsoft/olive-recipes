@@ -2,4 +2,3 @@
 # For the full requirements, see AITK
 olive-ai
 datasets
-optimum==1.26.0

@@ -2,9 +2,9 @@
 onnx==1.17.0
 numpy==2.2.4
 protobuf==6.30.2
-# olive-ai@git+https://github.com/microsoft/Olive.git#egg=olive-ai
-olive-ai@git+https://github.com/microsoft/Olive.git#egg=olive-ai
-onnx-ir==0.1.4
+# olive-ai@git+https://github.com/microsoft/Olive.git@8ff071c0ae9b1c38c0619ee72e8cb031957c63c4#egg=olive-ai
+olive-ai@git+https://github.com/microsoft/Olive.git@8ff071c0ae9b1c38c0619ee72e8cb031957c63c4#egg=olive-ai
+onnx-ir==0.1.5
 onnxscript==0.3.2
 optuna==4.2.1
 pandas==2.2.3
@@ -60,6 +60,8 @@ scikit-learn==1.6.1
 joblib==1.5.0
 scipy==1.15.3
 threadpoolctl==3.6.0
+# optimum==1.26.0
+optimum==1.26.0
 --index-url https://aiinfra.pkgs.visualstudio.com/PublicPackages/_packaging/ORT-Nightly/pypi/simple
 --extra-index-url https://pypi.org/simple
 # winrt-runtime==3.2.1
