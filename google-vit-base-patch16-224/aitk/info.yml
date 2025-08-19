@@ -20,6 +20,9 @@ recipes:
     - file: "vit-base-patch16-224_dml.json"
       device: gpu
       ep: DmlExecutionProvider
+    - file: "vit-base-patch16-224_webgpu.json"
+      device: gpu
+      ep: WebGpuExecutionProvider
 aitk:
     modelInfo:
         id: "huggingface/google/vit-base-patch16-224"
