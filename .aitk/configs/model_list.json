@@ -28,7 +28,7 @@
                 "IntelGPU",
                 "IntelNPU",
                 "DML",
-                "WebGpu"
+                "WEBGPU"
             ],
             "architecture": "Transformer",
             "status": "Ready",
@@ -116,7 +116,7 @@
                 "IntelGPU",
                 "IntelNPU",
                 "DML",
-                "WebGpu"
+                "WEBGPU"
             ],
             "architecture": "Transformer",
             "status": "Ready",
@@ -583,7 +583,7 @@
         "NVIDIA GPU": "NvidiaGPU",
         "NVIDIA TensorRT for RTX": "NvidiaTRTRTX",
         "DirectML": "DML",
-        "WebGpu": "WebGpu"
+        "WebGPU": "WEBGPU"
     },
     "RuntimeToDisplayName": {
         "CPU": "CPU",
@@ -596,6 +596,6 @@
         "NvidiaGPU": "NVIDIA GPU",
         "NvidiaTRTRTX": "NVIDIA TensorRT for RTX",
         "DML": "DirectML",
-        "WebGpu": "WebGpu"
+        "WEBGPU": "WebGPU"
     }
 }

@@ -11,7 +11,7 @@ class RuntimeEnum(Enum):
     IntelGPU = "IntelGPU"
     IntelNPU = "IntelNPU"
     DML = "DML"
-    WebGpu = "WebGpu"
+    WEBGPU = "WEBGPU"
     NvidiaGPU = "NvidiaGPU"
     WCR = "WCR"
     WCR_CUDA = "WCR_CUDA"
