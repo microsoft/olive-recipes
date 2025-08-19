@@ -22,6 +22,9 @@ recipes:
     - file: "bert_dml.json"
       device: gpu
       ep: DmlExecutionProvider
+    - file: "bert_webgpu.json"
+      device: gpu
+      ep: WebGpuExecutionProvider
 aitk:
     modelInfo:
         id: "huggingface/Intel/bert-base-uncased-mrpc"
@@ -32,3 +35,4 @@ aitk:
     - file: "bert_ov.json"
     - file: "bert_trtrtx.json"
     - file: "bert_dml.json"
+    - file: "bert_webgpu.json"

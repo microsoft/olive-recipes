@@ -55,10 +55,12 @@ widgetsnbextension==4.0.13
 # torchvision==0.22.0+cu128
 torchvision==0.22.0+cu128
 pillow==11.2.1
-# uvpip:install onnxruntime-winml==1.22.0.post2 --extra-index-url https://aiinfra.pkgs.visualstudio.com/PublicPackages/_packaging/ORT-Nightly/pypi/simple --no-deps;post
+./onnxruntime_winml-1.23.0.dev20250811-cp312-cp312-win_amd64.whl
+# download:onnxruntime_winml-1.23.0.dev20250811-cp312-cp312-win_amd64.whl
 coloredlogs==15.0.1
 flatbuffers==25.2.10
-# uvpip:install onnxruntime-genai-winml==0.9.0.dev0 --extra-index-url https://aiinfra.pkgs.visualstudio.com/PublicPackages/_packaging/ORT-Nightly/pypi/simple --no-deps;post
+./onnxruntime_genai_winml-0.10.0.dev20250814-cp312-cp312-win_amd64.whl
+# download:onnxruntime_genai_winml-0.10.0.dev20250814-cp312-cp312-win_amd64.whl
 # evaluate==0.4.3
 evaluate==0.4.3
 # scikit-learn==1.6.1
@@ -76,7 +78,7 @@ winrt-runtime==3.2.1
 winrt-Windows.Foundation==3.2.1
 # winrt-Windows.Foundation.Collections==3.2.1
 winrt-Windows.Foundation.Collections==3.2.1
-# winui3-Microsoft.Windows.AI.MachineLearning==1!1.8.250702007.dev4
-winui3-Microsoft.Windows.AI.MachineLearning==1!1.8.250702007.dev4
-# winui3-Microsoft.Windows.ApplicationModel.DynamicDependency.Bootstrap==1!1.8.250702007.dev4
-winui3-Microsoft.Windows.ApplicationModel.DynamicDependency.Bootstrap==1!1.8.250702007.dev4
+./wasdk_microsoft_windows_ai_machinelearning-1.8.250812004.dev0-cp312-cp312-win_amd64.whl
+# download:wasdk_microsoft_windows_ai_machinelearning-1.8.250812004.dev0-cp312-cp312-win_amd64.whl
+./wasdk_microsoft_windows_applicationmodel_dynamicdependency_bootstrap-1.8.250812004.dev0-cp312-cp312-win_amd64.whl
+# download:wasdk_microsoft_windows_applicationmodel_dynamicdependency_bootstrap-1.8.250812004.dev0-cp312-cp312-win_amd64.whl

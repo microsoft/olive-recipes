@@ -24,10 +24,11 @@
                 "QNN",
                 "AMDNPU",
                 "NvidiaTRTRTX",
-                "DML",
                 "IntelCPU",
                 "IntelGPU",
-                "IntelNPU"
+                "IntelNPU",
+                "DML",
+                "WebGpu"
             ],
             "architecture": "Transformer",
             "status": "Ready",
@@ -73,10 +74,10 @@
                 "QNN",
                 "AMDNPU",
                 "NvidiaTRTRTX",
-                "DML",
                 "IntelCPU",
                 "IntelGPU",
-                "IntelNPU"
+                "IntelNPU",
+                "DML"
             ],
             "architecture": "Transformer",
             "status": "Ready",
@@ -92,10 +93,10 @@
                 "QNN",
                 "AMDNPU",
                 "NvidiaTRTRTX",
-                "DML",
                 "IntelCPU",
                 "IntelGPU",
-                "IntelNPU"
+                "IntelNPU",
+                "DML"
             ],
             "architecture": "Transformer",
             "status": "Ready",
@@ -111,10 +112,11 @@
                 "QNN",
                 "AMDNPU",
                 "NvidiaTRTRTX",
-                "DML",
                 "IntelCPU",
                 "IntelGPU",
-                "IntelNPU"
+                "IntelNPU",
+                "DML",
+                "WebGpu"
             ],
             "architecture": "Transformer",
             "status": "Ready",
@@ -130,10 +132,10 @@
                 "QNN",
                 "AMDNPU",
                 "NvidiaTRTRTX",
-                "DML",
                 "IntelCPU",
                 "IntelGPU",
-                "IntelNPU"
+                "IntelNPU",
+                "DML"
             ],
             "architecture": "Transformer",
             "status": "Ready",
@@ -149,10 +151,10 @@
                 "QNN",
                 "AMDNPU",
                 "NvidiaTRTRTX",
-                "DML",
                 "IntelCPU",
                 "IntelGPU",
-                "IntelNPU"
+                "IntelNPU",
+                "DML"
             ],
             "architecture": "Transformer",
             "status": "Ready",
@@ -198,10 +200,10 @@
                 "QNN",
                 "AMDNPU",
                 "NvidiaTRTRTX",
-                "DML",
                 "IntelCPU",
                 "IntelGPU",
-                "IntelNPU"
+                "IntelNPU",
+                "DML"
             ],
             "architecture": "Transformer",
             "status": "Ready",
@@ -242,9 +244,7 @@
             "modelLink": "https://huggingface.co/microsoft/Phi-4-reasoning",
             "id": "huggingface/microsoft/Phi-4-reasoning",
             "runtimes": [
-                "IntelCPU",
-                "IntelGPU",
-                "IntelNPU"
+                "IntelGPU"
             ],
             "architecture": "Transformer",
             "status": "Ready",
@@ -257,9 +257,7 @@
             "modelLink": "https://huggingface.co/microsoft/Phi-4-reasoning-plus",
             "id": "huggingface/microsoft/Phi-4-reasoning-plus",
             "runtimes": [
-                "IntelCPU",
-                "IntelGPU",
-                "IntelNPU"
+                "IntelGPU"
             ],
             "architecture": "Transformer",
             "status": "Ready",
@@ -275,10 +273,10 @@
                 "QNN",
                 "AMDNPU",
                 "NvidiaTRTRTX",
-                "DML",
                 "IntelCPU",
                 "IntelGPU",
-                "IntelNPU"
+                "IntelNPU",
+                "DML"
             ],
             "architecture": "CNN",
             "status": "Ready",
@@ -307,10 +305,10 @@
                 "QNN",
                 "AMDNPU",
                 "NvidiaTRTRTX",
-                "DML",
                 "IntelCPU",
                 "IntelGPU",
-                "IntelNPU"
+                "IntelNPU",
+                "DML"
             ],
             "architecture": "Transformer",
             "status": "Ready",
@@ -326,10 +324,10 @@
                 "QNN",
                 "AMDNPU",
                 "NvidiaTRTRTX",
-                "DML",
                 "IntelCPU",
                 "IntelGPU",
-                "IntelNPU"
+                "IntelNPU",
+                "DML"
             ],
             "architecture": "Transformer",
             "status": "Ready",
@@ -375,10 +373,10 @@
                 "QNN",
                 "AMDNPU",
                 "NvidiaTRTRTX",
-                "DML",
                 "IntelCPU",
                 "IntelGPU",
-                "IntelNPU"
+                "IntelNPU",
+                "DML"
             ],
             "architecture": "Transformer",
             "status": "Ready",
@@ -584,7 +582,8 @@
         "AMD NPU": "AMDNPU",
         "NVIDIA GPU": "NvidiaGPU",
         "NVIDIA TensorRT for RTX": "NvidiaTRTRTX",
-        "DirectML": "DML"
+        "DirectML": "DML",
+        "WebGpu": "WebGpu"
     },
     "RuntimeToDisplayName": {
         "CPU": "CPU",
@@ -596,6 +595,7 @@
         "AMDNPU": "AMD NPU",
         "NvidiaGPU": "NVIDIA GPU",
         "NvidiaTRTRTX": "NVIDIA TensorRT for RTX",
-        "DML": "DirectML"
+        "DML": "DirectML",
+        "WebGpu": "WebGpu"
     }
 }
