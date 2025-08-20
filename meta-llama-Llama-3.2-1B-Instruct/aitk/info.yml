@@ -8,6 +8,13 @@ recipes:
     - file: "llama3_2_vitis_ai_config.json"
       device: npu
       ep: VitisAIExecutionProvider
+      aitk:
+        oliveFile: "phi3_5/qdq_config_vitis_ai.json"
+        requirementsPatches:
+          - AutoGptq
+        runtimeOverwrite:
+          executeEp: CUDAExecutionProvider
+        evalRuntime: AMDNPU
     - file: "llama3_2_ov_config.json"
       devices:
         - npu

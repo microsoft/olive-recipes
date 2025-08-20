@@ -73,7 +73,7 @@ def generator_intel(id: str, recipe, folder: Path):
         oliveFile=oliveFile,
         sections=sections,
         runtimeOverwrite=runtimeOverwrite,
-        executeRuntimeFeatures=requirements_patches
+        executeRuntimeFeatures=requirements_patches,
     )
     parameter._file = str(folder / (file + ".config"))
     parameter.writeIfChanged()

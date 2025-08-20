@@ -10,7 +10,6 @@ recipes:
       ep: VitisAIExecutionProvider
       aitk:
         oliveFile: "phi3_5/qdq_config_vitis_ai.json"
-        auto: True
         requirementsPatches:
           - AutoGptq
         runtimeOverwrite:

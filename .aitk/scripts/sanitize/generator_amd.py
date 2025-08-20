@@ -2,11 +2,12 @@ import json
 from pathlib import Path
 from typing import Optional
 
-from .constants import OliveDeviceTypes, OlivePassNames, OlivePropertyNames, PhaseTypeEnum
+from .constants import OlivePassNames, OlivePropertyNames, PhaseTypeEnum
+from .model_info import ModelList
 from .model_parameter import ModelParameter, RuntimeOverwrite, Section
 from .parameters import Parameter
 from .utils import isLLM_by_id, open_ex
-from .model_info import ModelList
+
 
 def generate_quantization_config(folder: Path, file: str, modelList: ModelList) -> Optional[Section]:
     """
@@ -114,7 +115,7 @@ def generate_quantization_config(folder: Path, file: str, modelList: ModelList) 
 
 def generator_amd(id: str, recipe, folder: Path, modelList: ModelList):
     aitk = recipe.get("aitk", {})
-    auto = aitk.get("auto", False)
+    auto = aitk.get("auto", True)
     isLLM = isLLM_by_id(id)
     if not auto or not isLLM:
         return
@@ -152,7 +153,7 @@ def generator_amd(id: str, recipe, folder: Path, modelList: ModelList):
         sections=sections,
         runtimeOverwrite=runtimeOverwrite,
         executeRuntimeFeatures=requirements_patches,
-        evalRuntime=evalRuntime
+        evalRuntime=evalRuntime,
     )
     parameter._file = str(folder / (file + ".config"))
     parameter.writeIfChanged()
