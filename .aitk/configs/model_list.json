@@ -137,7 +137,8 @@
                 "IntelCPU",
                 "IntelGPU",
                 "IntelNPU",
-                "DML"
+                "DML",
+                "WEBGPU"
             ],
             "architecture": "Transformer",
             "status": "Ready",
@@ -156,7 +157,8 @@
                 "IntelCPU",
                 "IntelGPU",
                 "IntelNPU",
-                "DML"
+                "DML",
+                "WEBGPU"
             ],
             "architecture": "Transformer",
             "status": "Ready",
@@ -205,7 +207,8 @@
                 "IntelCPU",
                 "IntelGPU",
                 "IntelNPU",
-                "DML"
+                "DML",
+                "WEBGPU"
             ],
             "architecture": "Transformer",
             "status": "Ready",
@@ -278,7 +281,8 @@
                 "IntelCPU",
                 "IntelGPU",
                 "IntelNPU",
-                "DML"
+                "DML",
+                "WEBGPU"
             ],
             "architecture": "CNN",
             "status": "Ready",
@@ -310,7 +314,8 @@
                 "IntelCPU",
                 "IntelGPU",
                 "IntelNPU",
-                "DML"
+                "DML",
+                "WEBGPU"
             ],
             "architecture": "Transformer",
             "status": "Ready",
@@ -329,7 +334,8 @@
                 "IntelCPU",
                 "IntelGPU",
                 "IntelNPU",
-                "DML"
+                "DML",
+                "WEBGPU"
             ],
             "architecture": "Transformer",
             "status": "Ready",
@@ -378,7 +384,8 @@
                 "IntelCPU",
                 "IntelGPU",
                 "IntelNPU",
-                "DML"
+                "DML",
+                "WEBGPU"
             ],
             "architecture": "Transformer",
             "status": "Ready",
