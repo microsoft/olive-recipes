@@ -89,7 +89,6 @@ def convert_yaml_to_project_config(yml_file: Path, yaml_object: dict) -> ModelPr
         )
         if recipe.get("ep") == EPNames.OpenVINOExecutionProvider.value:
             generator_intel(id, recipe, yml_file.parent)
-        # TODO add others
     version = modelInfo.get("version", 1)
     result = ModelProjectConfig(
         workflows=items,

@@ -1,4 +1,4 @@
-# Versioning (WIP)
+# Versioning
 
 Given AITK contains every recipe and is versioned, we could safely version our recipes and do not care backward compatiblity.
 
