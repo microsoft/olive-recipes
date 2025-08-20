@@ -563,12 +563,6 @@
             "train",
             "validation",
             "test"
-        ],
-
-        "wikitext": [
-            "train",
-            "validation",
-            "test"
         ]
     },
     "DatasetSubset": {
@@ -576,11 +570,11 @@
         "imagenet-1k": [],
         "timm/mini-imagenet": [],
         "wikitext": [
-                        "wikitext-103-raw-v1",
-                        "wikitext-103-v1",
-                        "wikitext-2-raw-v1",
-                        "wikitext-2-v1"
-                    ]
+            "wikitext-103-raw-v1",
+            "wikitext-103-v1",
+            "wikitext-2-raw-v1",
+            "wikitext-2-v1"
+        ]
     },
     "DisplayNameToRuntimeRPC": {
         "CPU": "CPU",
