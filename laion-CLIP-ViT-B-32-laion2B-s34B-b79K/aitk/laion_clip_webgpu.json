@@ -166,33 +166,8 @@
             "target_opset": 17,
             "save_as_external_data": true
         },
-        "transformer_optimizer": {
-            "type": "orttransformersoptimization",
-            "model_type": "clip",
-            "opt_level": 0,
-            "float16": true,
-            "use_gpu": true,
-            "keep_io_types": false,
-            "optimization_options": {
-                "enable_gelu": true,
-                "enable_layer_norm": true,
-                "enable_attention": true,
-                "enable_skip_layer_norm": false,
-                "enable_embed_layer_norm": false,
-                "enable_bias_skip_layer_norm": false,
-                "enable_bias_gelu": false,
-                "enable_gelu_approximation": false,
-                "enable_qordered_matmul": false,
-                "enable_shape_inference": true,
-                "enable_gemm_fast_gelu": false,
-                "enable_nhwc_conv": false,
-                "enable_group_norm": false,
-                "enable_bias_splitgelu": false,
-                "enable_packed_qkv": true,
-                "enable_packed_kv": true,
-                "enable_bias_add": false,
-                "enable_rotary_embeddings": true
-            },
+        "onnx_float_to_float16": {
+            "type": "OnnxFloatToFloat16",
             "save_as_external_data": true
         }
     },
