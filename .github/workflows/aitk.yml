@@ -1,5 +1,4 @@
-name: aitk
-description: "Workflow to verify AITK recipes"
+name: "Workflow to verify AITK recipes"
 
 on:
   pull_request:

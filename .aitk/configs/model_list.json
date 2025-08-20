@@ -2,7 +2,7 @@
     "models": [
         {
             "displayName": "deepseek-ai/DeepSeek-R1-Distill-Llama-8B",
-            "icon": "DeepSeek",
+            "icon": "DeepSeek2",
             "modelLink": "https://huggingface.co/deepseek-ai/DeepSeek-R1-Distill-Llama-8B",
             "id": "huggingface/deepseek-ai/DeepSeek-R1-Distill-Llama-8B",
             "runtimes": [
