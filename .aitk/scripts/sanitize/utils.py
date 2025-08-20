@@ -43,7 +43,7 @@ class GlobalVars:
         RuntimeEnum.NvidiaGPU: EPNames.CUDAExecutionProvider,
         RuntimeEnum.NvidiaTRTRTX: EPNames.NvTensorRTRTXExecutionProvider,
         RuntimeEnum.DML: EPNames.DmlExecutionProvider,
-        RuntimeEnum.WEBGPU: EPNames.WebGpuExecutionProvider,
+        RuntimeEnum.WebGPU: EPNames.WebGpuExecutionProvider,
     }
     RuntimeToOliveDeviceType = {
         RuntimeEnum.CPU: OliveDeviceTypes.CPU,
@@ -55,7 +55,7 @@ class GlobalVars:
         RuntimeEnum.AMDNPU: OliveDeviceTypes.NPU,
         RuntimeEnum.NvidiaGPU: OliveDeviceTypes.GPU,
         RuntimeEnum.DML: OliveDeviceTypes.GPU,
-        RuntimeEnum.WEBGPU: OliveDeviceTypes.GPU,
+        RuntimeEnum.WebGPU: OliveDeviceTypes.GPU,
     }
     RuntimeToDisplayName = {
         RuntimeEnum.CPU: "CPU",
@@ -68,7 +68,7 @@ class GlobalVars:
         RuntimeEnum.NvidiaGPU: "NVIDIA GPU",
         RuntimeEnum.NvidiaTRTRTX: "NVIDIA TensorRT for RTX",
         RuntimeEnum.DML: "DirectML",
-        RuntimeEnum.WEBGPU: "WebGPU",
+        RuntimeEnum.WebGPU: "WebGPU",
     }
 
     @classmethod

@@ -28,7 +28,7 @@
                 "IntelGPU",
                 "IntelNPU",
                 "DML",
-                "WEBGPU"
+                "WebGPU"
             ],
             "architecture": "Transformer",
             "status": "Ready",
@@ -78,7 +78,7 @@
                 "IntelGPU",
                 "IntelNPU",
                 "DML",
-                "WEBGPU"
+                "WebGPU"
             ],
             "architecture": "Transformer",
             "status": "Ready",
@@ -98,7 +98,7 @@
                 "IntelGPU",
                 "IntelNPU",
                 "DML",
-                "WEBGPU"
+                "WebGPU"
             ],
             "architecture": "Transformer",
             "status": "Ready",
@@ -118,7 +118,7 @@
                 "IntelGPU",
                 "IntelNPU",
                 "DML",
-                "WEBGPU"
+                "WebGPU"
             ],
             "architecture": "Transformer",
             "status": "Ready",
@@ -138,7 +138,7 @@
                 "IntelGPU",
                 "IntelNPU",
                 "DML",
-                "WEBGPU"
+                "WebGPU"
             ],
             "architecture": "Transformer",
             "status": "Ready",
@@ -158,7 +158,7 @@
                 "IntelGPU",
                 "IntelNPU",
                 "DML",
-                "WEBGPU"
+                "WebGPU"
             ],
             "architecture": "Transformer",
             "status": "Ready",
@@ -208,7 +208,7 @@
                 "IntelGPU",
                 "IntelNPU",
                 "DML",
-                "WEBGPU"
+                "WebGPU"
             ],
             "architecture": "Transformer",
             "status": "Ready",
@@ -282,7 +282,7 @@
                 "IntelGPU",
                 "IntelNPU",
                 "DML",
-                "WEBGPU"
+                "WebGPU"
             ],
             "architecture": "CNN",
             "status": "Ready",
@@ -315,7 +315,7 @@
                 "IntelGPU",
                 "IntelNPU",
                 "DML",
-                "WEBGPU"
+                "WebGPU"
             ],
             "architecture": "Transformer",
             "status": "Ready",
@@ -335,7 +335,7 @@
                 "IntelGPU",
                 "IntelNPU",
                 "DML",
-                "WEBGPU"
+                "WebGPU"
             ],
             "architecture": "Transformer",
             "status": "Ready",
@@ -385,7 +385,7 @@
                 "IntelGPU",
                 "IntelNPU",
                 "DML",
-                "WEBGPU"
+                "WebGPU"
             ],
             "architecture": "Transformer",
             "status": "Ready",
@@ -592,7 +592,7 @@
         "NVIDIA GPU": "NvidiaGPU",
         "NVIDIA TensorRT for RTX": "NvidiaTRTRTX",
         "DirectML": "DML",
-        "WebGPU": "WEBGPU"
+        "WebGPU": "WebGPU"
     },
     "RuntimeToDisplayName": {
         "CPU": "CPU",
@@ -605,6 +605,6 @@
         "NvidiaGPU": "NVIDIA GPU",
         "NvidiaTRTRTX": "NVIDIA TensorRT for RTX",
         "DML": "DirectML",
-        "WEBGPU": "WebGPU"
+        "WebGPU": "WebGPU"
     }
 }
