@@ -8,7 +8,7 @@ from .utils import isLLM_by_id
 
 def generator_qnn(id: str, recipe, folder: Path, modelList: ModelList):
     aitk = recipe.get("aitk", {})
-    auto = aitk.get("auto", False)
+    auto = aitk.get("auto", True)
     isLLM = isLLM_by_id(id)
     if not auto or not isLLM:
         return
@@ -26,4 +26,4 @@ def generator_qnn(id: str, recipe, folder: Path, modelList: ModelList):
         parameter.sections.append(quantize)
 
     parameter.writeIfChanged()
-    print(f"\tGenerated AMD configuration for {file}")
+    print(f"\tGenerated QNN configuration for {file}")
