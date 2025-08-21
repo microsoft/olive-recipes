@@ -4,4 +4,4 @@ recipes:
     file: Qwen2.5-Coder-7B-Instruct_quark_vitisai_llm.json
     devices: npu
     eps: VitisAIExecutionProvider
-    
+

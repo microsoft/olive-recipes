@@ -5,3 +5,4 @@ recipes:
     devices: npu
     eps: VitisAIExecutionProvider
     
+

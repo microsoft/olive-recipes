@@ -4,4 +4,9 @@ recipes:
     file: Phi-3.5-mini-instruct_quark_vitisai_llm.json
     devices: npu
     eps: VitisAIExecutionProvider
+  - name: Phi-3.5-mini-instruct_QDQ_VitisAI
+    file: "qdq_config_vitis_ai.json"
+    devices: npu
+    eps: VitisAIExecutionProvider
+
     

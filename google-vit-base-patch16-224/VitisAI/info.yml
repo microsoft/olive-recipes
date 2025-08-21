@@ -1,0 +1,7 @@
+arch: vit
+recipes:
+  - name: vit-base-patch16-224_QDQ_VitisAI
+    file: "vit_qdq_vitis_ai.json"
+    device: npu
+    ep: VitisAIExecutionProvider
+

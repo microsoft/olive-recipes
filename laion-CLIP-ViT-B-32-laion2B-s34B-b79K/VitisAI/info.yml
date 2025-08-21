@@ -1,0 +1,7 @@
+arch: clip
+recipes:
+  - name: CLIP-ViT-B-32-laion2B-s34B-b79K_QDQ_VitisAI
+    file: "laion_CLIP-ViT-B-32-laion2B-s34B-b79K_ptq_qdq_vitis_ai.json"
+    device: npu
+    ep: VitisAIExecutionProvider
+

@@ -1,0 +1,9 @@
+arch: resnet
+recipes:
+  - name: resnet-50_QDQ_VitisAI
+    file: "resnet_ptq_qdq_vitis_ai.json"
+    device: npu
+    ep: VitisAIExecutionProvider
+
+    
+    

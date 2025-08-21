@@ -4,4 +4,5 @@ recipes:
     file: Llama-3.2-1B-Instruct_quark_vitisai_llm.json
     devices: npu
     eps: VitisAIExecutionProvider
+
     

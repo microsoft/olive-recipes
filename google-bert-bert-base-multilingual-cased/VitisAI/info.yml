@@ -1,0 +1,6 @@
+arch: bert
+recipes:
+  - name: bert-base-multilingual-cased_QDQ_VitisAI
+    file: "google_bert_qdq_vitis_ai.json"
+    device: npu
+    ep: VitisAIExecutionProvider

@@ -14,7 +14,7 @@ This folder contains sample Olive configuration to optimize Phi-4 models for AMD
 
 For LLMs - follow the below commands to generate the optimized model for VitisAI Execution Provider.
 
-**Note:** We’ve tested it on Linux with ROCm and on Linux with CUDA. It is also supported on Windows with CPU, though quantization may be slower. Support for Windows with CUDA/ROCm is planned for a future release.
+**Note:** Tested on Linux with ROCm (AMD MI-series datacenter GPUs) and Linux with CUDA (NVIDIA datacenter GPUs). It is also supported on Windows with CPU, though quantization may be slower. Support for Windows with CUDA/ROCm is planned for a future release.
 
 For more details about quark, see the [Quark Documentation](https://quark.docs.amd.com/latest/)
 
@@ -33,7 +33,6 @@ pip install -r requirements.txt
 #### Install VitisAI LLM dependencies
 
 ```bash
-cd examples/phi4/vitisai
 pip install --force-reinstall -r requirements_vitisai_llm.txt
 
 # Note: If you're running model generation on a Windows system, please uncomment the following line in requirements_vitisai_llm.txt:

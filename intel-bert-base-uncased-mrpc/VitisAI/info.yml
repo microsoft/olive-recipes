@@ -1,0 +1,7 @@
+arch: bert
+recipes:
+  - name: bert-base-uncased-mrpc_QDQ_VitisAI
+    file: "bert_ptq_qdq_vitis_ai.json"
+    device: npu
+    ep: VitisAIExecutionProvider
+

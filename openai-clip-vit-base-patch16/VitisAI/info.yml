@@ -1,0 +1,7 @@
+arch: clip
+recipes:
+  - name: clip-vit-base-patch16_QDQ_VitisAI
+    file: "openai_clip-vit-base-patch16_ptq_qdq_vitis_ai.json"
+    device: npu
+    ep: VitisAIExecutionProvider
+
