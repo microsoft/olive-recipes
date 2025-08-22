@@ -6,12 +6,13 @@
             "modelLink": "https://huggingface.co/deepseek-ai/DeepSeek-R1-Distill-Llama-8B",
             "id": "huggingface/deepseek-ai/DeepSeek-R1-Distill-Llama-8B",
             "runtimes": [
-                "IntelGPU"
+                "IntelGPU",
+                "IntelNPU"
             ],
             "architecture": "Transformer",
             "status": "Hide",
             "relativePath": "deepseek-ai-DeepSeek-R1-Distill-Llama-8B/aitk",
-            "version": 1
+            "version": 2
         },
         {
             "displayName": "deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B",
