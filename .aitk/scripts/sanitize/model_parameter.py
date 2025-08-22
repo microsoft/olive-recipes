@@ -578,6 +578,8 @@ class ModelParameter(BaseModelClass):
         if not GlobalVars.olivePath:
             return
         if not self.oliveFile:
+            if self.runtime.displayNames[0] == GlobalVars.RuntimeToDisplayName[RuntimeEnum.DML]:
+                return
             printWarning(f"{self._file} does not have oliveFile")
             return
 
@@ -603,7 +605,7 @@ class ModelParameter(BaseModelClass):
         removeds: list[str] = diff.pop("dictionary_item_removed", [])
         newRemoveds = []
         for removed in removeds:
-            if removed.endswith("['reuse_cache']"):
+            if removed.endswith("['reuse_cache']") or removed == "root['add_metadata']":
                 # In debug mode for olive, this will throw exception 'file is occupied' for ov recipes
                 pass
             else:
@@ -623,8 +625,8 @@ class ModelParameter(BaseModelClass):
             diff["values_changed"] = newChangeds
 
         if diff:
-            # Check out branch hualxie/example_align for alignments
-            printError(f"different from {self.oliveFile}\r\n{diff}")
+            path = Path(self._file)
+            printError(f"{"/".join(path.parts[-3:])} different from {self.oliveFile}\r\n{diff}")
         GlobalVars.oliveCheck += 1
 
     def checkDebugInfo(self, oliveJson: Any):

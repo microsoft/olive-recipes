@@ -7,7 +7,7 @@ recipes:
         - gpu
       ep: OpenVINOExecutionProvider
       aitk:
-          oliveFile: "examples/phi3/openvino/Phi-3-mini-128k-instruct-gpu-context-ov-dy.json"
+          oliveFile: "phi3/openvino/Phi-3-mini-128k-instruct-gpu-context-ov-dy.json"
           disableRuntimeInConversion: true
 aitk:
     modelInfo:

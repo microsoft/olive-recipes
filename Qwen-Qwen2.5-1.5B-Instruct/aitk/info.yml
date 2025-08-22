@@ -19,10 +19,12 @@ recipes:
         evalRuntime: AMDNPU
     - file: "qwen2_5_ov_config.json"
       devices:
-        - npu
         - cpu
         - gpu
+        - npu
       ep: OpenVINOExecutionProvider
+      aitk:
+        oliveFile: "qwen2_5/openvino/Qwen2.5-1.5B-instruct_context_ov_dynamic_sym_bkp_int8_sym_r1.json"
     - file: "qwen2_5_dml_config.json"
       device: gpu
       ep: DmlExecutionProvider

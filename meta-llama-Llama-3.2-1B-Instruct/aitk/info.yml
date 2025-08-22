@@ -19,10 +19,12 @@ recipes:
         evalRuntime: AMDNPU
     - file: "llama3_2_ov_config.json"
       devices:
-        - npu
         - cpu
         - gpu
+        - npu
       ep: OpenVINOExecutionProvider
+      aitk:
+        oliveFile: "llama3/openvino/Llama-3.2-1B-Instruct_context_ov_dynamic_sym_bkp_int8_sym.json"
     - file: "llama3_2_dml_config.json"
       device: gpu
       ep: DmlExecutionProvider
