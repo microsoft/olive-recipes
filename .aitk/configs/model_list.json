@@ -214,12 +214,13 @@
             "modelLink": "https://huggingface.co/microsoft/Phi-4-mini-instruct",
             "id": "huggingface/microsoft/Phi-4-mini-instruct",
             "runtimes": [
-                "IntelGPU"
+                "IntelGPU",
+                "IntelNPU"
             ],
             "architecture": "Transformer",
             "status": "Ready",
             "relativePath": "microsoft-Phi-4-mini-instruct/aitk",
-            "version": 1
+            "version": 2
         },
         {
             "displayName": "microsoft/Phi-4-mini-reasoning",
