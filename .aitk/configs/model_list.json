@@ -63,7 +63,7 @@
             "architecture": "Transformer",
             "status": "Ready",
             "relativePath": "deepseek-ai-DeepSeek-R1-Distill-Qwen-14B/aitk",
-            "version": 1
+            "version": 2
         },
         {
             "displayName": "google-bert/bert-base-multilingual-cased",
