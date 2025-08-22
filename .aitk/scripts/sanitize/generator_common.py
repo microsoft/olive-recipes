@@ -19,6 +19,7 @@ def create_model_parameter(aitk, name: str, configFile: Path):
 
     requirements_patches = aitk.get("requirementsPatches")
     evalRuntime = aitk.get("evalRuntime")
+    disableRuntimeInConversion = aitk.get("disableRuntimeInConversion")
 
     parameter = ModelParameter(
         name=name,
@@ -26,6 +27,7 @@ def create_model_parameter(aitk, name: str, configFile: Path):
         runtimeOverwrite=runtimeOverwrite,
         executeRuntimeFeatures=requirements_patches,
         evalRuntime=evalRuntime,
+        disableRuntimeInConversion=disableRuntimeInConversion,
     )
     parameter._file = str(configFile) + ".config"
     return parameter

@@ -238,6 +238,7 @@ class ModelParameter(BaseModelClass):
     addAmdNpu: Optional[ADMNPUConfig] = None
 
     runtime: Optional[Parameter] = None
+    disableRuntimeInConversion: Optional[bool] = None
     runtimeInConversion: Optional[Parameter] = None
     sections: List[Section] = []
 
@@ -478,6 +479,10 @@ class ModelParameter(BaseModelClass):
         return None
 
     def CheckRuntimeInConversion(self, oliveJson: Any, modelList: ModelList):
+        if self.disableRuntimeInConversion:
+            self.runtimeInConversion = None
+            return
+
         def getOpenVINOPass(passType: str):
             return next(
                 (
