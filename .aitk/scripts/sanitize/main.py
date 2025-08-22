@@ -124,17 +124,6 @@ def main():
 
                     # check parameter
                     modelParameter.Check(parameterTemplate, oliveJson, modelList, modelInVersion)
-                    if modelParameter.isIntel:
-                        tmpDevices = modelParameter.getIntelDevices()
-                        # Remove items containing "intel" (case-insensitive) from runtime values
-                        filteredValues = [v for v in model.runtimes if "intel" not in v.value.lower()]
-                        # Add Intel runtime values
-                        intelRuntimes = [
-                            GlobalVars.GetRuntimeRPC(EPNames.OpenVINOExecutionProvider, device) for device in tmpDevices
-                        ]
-                        filteredValues.extend([runtime for runtime in intelRuntimes])
-                        model.runtimes = filteredValues
-
                     hasLLM = hasLLM or modelParameter.isLLM
 
                     # check ipynb
