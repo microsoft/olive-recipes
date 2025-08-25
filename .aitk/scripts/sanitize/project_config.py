@@ -7,7 +7,7 @@ from typing import List, Optional
 from pydantic import BaseModel
 
 from .base import BaseModelClass
-from .constants import IconEnum, ArchitectureEnum
+from .constants import ArchitectureEnum, IconEnum
 from .model_info import ModelInfo
 from .utils import GlobalVars, open_ex, printError, printProcess
 

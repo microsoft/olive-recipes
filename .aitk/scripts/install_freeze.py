@@ -30,6 +30,7 @@ winrtPackage = [
     "winui3-Microsoft.Windows.ApplicationModel.DynamicDependency.Bootstrap==1!1.8.250702007.dev4",
 ]
 
+
 def get_requires(name: str, args):
     # TODO for this case, need to install via Model Lab first
     if name.startswith(uvpipInstallPrefix):
