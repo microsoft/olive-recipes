@@ -184,6 +184,7 @@ def checkPath(path: str, oliveJson: Any, printOnNotExist: bool = True):
         currentEp = system[OlivePropertyNames.Accelerators][0][OlivePropertyNames.ExecutionProviders][0]
         # TODO some ov recipes do not have device but we set it in config
         if path == f"systems.{syskey}.accelerators.0.device" and currentEp == EPNames.OpenVINOExecutionProvider.value:
+            printWarning(f"Not in olive json: {path}")
             return True
         if printOnNotExist:
             printError(f"Not in olive json: {path}")

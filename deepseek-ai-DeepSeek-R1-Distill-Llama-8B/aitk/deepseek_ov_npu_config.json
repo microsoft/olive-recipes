@@ -50,5 +50,5 @@
     "target": "local_system",
     "cache_dir": "cache",
     "evaluate_input_model": false,
-    "output_dir": "model/DeepSeek_R1_Distill_Llama_8B_context_ov_dynamic_sym_gs128_bkp_int8_sym_r1"
+    "output_dir": "model/DeepSeek_R1"
 }

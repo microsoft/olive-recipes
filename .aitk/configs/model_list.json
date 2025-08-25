@@ -452,7 +452,7 @@
             "architecture": "Transformer",
             "status": "Ready",
             "relativePath": "Qwen-Qwen2.5-Coder-0.5B-Instruct/aitk",
-            "version": 1
+            "version": 2
         },
         {
             "displayName": "Qwen/Qwen2.5-Coder-1.5B-Instruct",

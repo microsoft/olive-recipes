@@ -50,5 +50,5 @@
     "target": "local_system",
     "cache_dir": "cache",
     "evaluate_input_model": false,
-    "output_dir": "model/Phi_3_mini_4k_instruct_context_ov_dynamic_sym_gs128_bkp_int8_sym"
+    "output_dir": "model/Phi_3"
 }
