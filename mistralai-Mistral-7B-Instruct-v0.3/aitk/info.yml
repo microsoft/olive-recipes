@@ -7,7 +7,6 @@ recipes:
       ep: OpenVINOExecutionProvider
       aitk:
           oliveFile: "mistral/openvino/Mistral-7B-Instruct-v0.3-gpu-context-ov-dy.json"
-          disableRuntimeInConversion: true
 aitk:
     modelInfo:
         id: "huggingface/mistralai/Mistral-7B-Instruct-v0.3"
