@@ -238,7 +238,6 @@ class ModelParameter(BaseModelClass):
     addAmdNpu: Optional[ADMNPUConfig] = None
 
     runtime: Optional[Parameter] = None
-    disableRuntimeInConversion: Optional[bool] = None
     runtimeInConversion: Optional[Parameter] = None
     sections: List[Section] = []
 
@@ -327,7 +326,7 @@ class ModelParameter(BaseModelClass):
                 self.runtime.displayNames.append(GlobalVars.RuntimeToDisplayName[tmpRuntimeRPC])
 
         self.runtime.actions = runtimeActions
-        self.TryToRemoveReuseCacheInRuntimeAction(oliveJson)
+        self.TryToRemoveReuseCacheInRuntimeAction(oliveJson, modelInfo)
         if not self.runtime.Check(False, oliveJson, modelList):
             printError(f"{self._file} runtime has error")
 
@@ -444,14 +443,14 @@ class ModelParameter(BaseModelClass):
             self.isGPURequired = None
 
         self.checkPhase(oliveJson)
-        self.CheckRuntimeInConversion(oliveJson, modelList)
+        self.CheckRuntimeInConversion(oliveJson, modelList, modelInfo)
         self.checkOliveFile(oliveJson, modelInfo)
         self.checkRequirements(modelList)
         if self.debugInfo and self.debugInfo.isEmpty():
             self.debugInfo = None
         self.writeIfChanged()
 
-    def TryToRemoveReuseCacheInRuntimeAction(self, oliveJson: Any):
+    def TryToRemoveReuseCacheInRuntimeAction(self, oliveJson: Any, modelInfo: ModelInfo):
         if not self.runtime or not self.runtime.values:
             printError(f"{self._file} runtime values is empty, cannot remove reuse_cache")
             return
@@ -464,6 +463,9 @@ class ModelParameter(BaseModelClass):
                     reuse_cache_paths.append(reuse_cache_path)
 
         if reuse_cache_paths:
+            if not modelInfo.p0:
+                printError(f"TODO we should remove this in olive json due to potentional issues. Related config {self._file}")
+                return
             if self.runtime.actions is None:
                 self.runtime.actions = []
             for i in range(len(self.runtime.values)):
@@ -478,8 +480,9 @@ class ModelParameter(BaseModelClass):
                     )
         return None
 
-    def CheckRuntimeInConversion(self, oliveJson: Any, modelList: ModelList):
-        if self.disableRuntimeInConversion:
+    def CheckRuntimeInConversion(self, oliveJson: Any, modelList: ModelList, modelInfo: ModelInfo):
+        # TODO update p0 then make this optional
+        if not modelInfo.p0:
             self.runtimeInConversion = None
             return
 
