@@ -445,7 +445,7 @@ class ModelParameter(BaseModelClass):
 
         self.checkPhase(oliveJson)
         self.CheckRuntimeInConversion(oliveJson, modelList)
-        self.checkOliveFile(oliveJson)
+        self.checkOliveFile(oliveJson, modelInfo)
         self.checkRequirements(modelList)
         if self.debugInfo and self.debugInfo.isEmpty():
             self.debugInfo = None
@@ -574,8 +574,10 @@ class ModelParameter(BaseModelClass):
         ):
             printWarning(f"{self._file}'s olive json should have two data configs for evaluation")
 
-    def checkOliveFile(self, oliveJson: Any):
+    def checkOliveFile(self, oliveJson: Any, modelInfo: ModelInfo):
         if not GlobalVars.olivePath:
+            return
+        if modelInfo.extension:
             return
         if not self.oliveFile:
             if self.runtime.displayNames[0] == GlobalVars.RuntimeToDisplayName[RuntimeEnum.DML]:

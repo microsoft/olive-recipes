@@ -354,12 +354,13 @@
             "groupId": "huggingface/Qwen/Qwen2.5-1.5B-Instruct",
             "groupItemName": "0.5B",
             "runtimes": [
-                "IntelGPU"
+                "IntelGPU",
+                "IntelNPU"
             ],
             "architecture": "Transformer",
             "status": "Ready",
             "relativePath": "Qwen-Qwen2.5-0.5B-Instruct/aitk",
-            "version": 1
+            "version": 2
         },
         {
             "displayName": "Qwen/Qwen2.5-1.5B-Instruct",
@@ -394,7 +395,7 @@
             "architecture": "Transformer",
             "status": "Ready",
             "relativePath": "Qwen-Qwen2.5-3B-Instruct/aitk",
-            "version": 1
+            "version": 2
         },
         {
             "displayName": "Qwen/Qwen2.5-7B-Instruct",
@@ -404,12 +405,13 @@
             "groupId": "huggingface/Qwen/Qwen2.5-1.5B-Instruct",
             "groupItemName": "7B",
             "runtimes": [
-                "IntelGPU"
+                "IntelGPU",
+                "IntelNPU"
             ],
             "architecture": "Transformer",
             "status": "Ready",
             "relativePath": "Qwen-Qwen2.5-7B-Instruct/aitk",
-            "version": 1
+            "version": 2
         },
         {
             "displayName": "Qwen/Qwen2.5-14B-Instruct",
@@ -424,7 +426,7 @@
             "architecture": "Transformer",
             "status": "Ready",
             "relativePath": "Qwen-Qwen2.5-14B-Instruct/aitk",
-            "version": 1
+            "version": 2
         },
         {
             "displayName": "Qwen/Qwen2.5-Coder-0.5B-Instruct",
@@ -434,7 +436,8 @@
             "groupId": "huggingface/Qwen/Qwen2.5-Coder-1.5B-Instruct",
             "groupItemName": "0.5B",
             "runtimes": [
-                "IntelGPU"
+                "IntelGPU",
+                "IntelNPU"
             ],
             "architecture": "Transformer",
             "status": "Ready",
@@ -469,7 +472,7 @@
             "architecture": "Transformer",
             "status": "Ready",
             "relativePath": "Qwen-Qwen2.5-Coder-3B-Instruct/aitk",
-            "version": 1
+            "version": 2
         },
         {
             "displayName": "Qwen/Qwen2.5-Coder-7B-Instruct",
@@ -479,12 +482,13 @@
             "groupId": "huggingface/Qwen/Qwen2.5-Coder-1.5B-Instruct",
             "groupItemName": "7B",
             "runtimes": [
-                "IntelGPU"
+                "IntelGPU",
+                "IntelNPU"
             ],
             "architecture": "Transformer",
             "status": "Ready",
             "relativePath": "Qwen-Qwen2.5-Coder-7B-Instruct/aitk",
-            "version": 1
+            "version": 2
         },
         {
             "displayName": "Qwen/Qwen2.5-Coder-14B-Instruct",
@@ -499,7 +503,7 @@
             "architecture": "Transformer",
             "status": "Ready",
             "relativePath": "Qwen-Qwen2.5-Coder-14B-Instruct/aitk",
-            "version": 1
+            "version": 2
         }
     ],
     "template_models": [

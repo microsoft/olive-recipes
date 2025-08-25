@@ -8,9 +8,10 @@ recipes:
       ep: OpenVINOExecutionProvider
       aitk:
           oliveFile: "qwen2_5/openvino/Qwen2.5-Coder-14B-Instruct-gpu-context-dy.json"
+          disableRuntimeInConversion: true
 aitk:
     modelInfo:
         id: "huggingface/Qwen/Qwen2.5-Coder-14B-Instruct"
-        version: 1
+        version: 2
         groupId: "huggingface/Qwen/Qwen2.5-Coder-1.5B-Instruct"
         groupItemName: "14B"

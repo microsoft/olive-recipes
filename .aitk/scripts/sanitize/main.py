@@ -67,8 +67,6 @@ def main():
             # process each version
             for version in allVersions:
                 # deep copy model for version usage
-                modelInVersion = copy.deepcopy(model)
-                modelInVersion.version = version
                 modelVerDir = modelDir if model.relativePath else os.path.join(modelDir, str(version))
 
                 # process copy
@@ -102,9 +100,9 @@ def main():
                 workflowsAgainstShared: dict[str, ModelParameter] = {}
 
                 if modelSpaceConfig.modelInfo:
-                    modelSpaceConfig.modelInfo.id = modelInVersion.id
+                    modelSpaceConfig.modelInfo.id = model.id
                 else:
-                    modelSpaceConfig.modelInfo = ModelInfoProject(id=modelInVersion.id)
+                    modelSpaceConfig.modelInfo = ModelInfoProject(id=model.id)
 
                 hasLLM = False
                 for _, modelItem in enumerate(modelSpaceConfig.workflows):
@@ -117,13 +115,13 @@ def main():
 
                     # check olive json
                     oliveJsonFile = os.path.join(modelVerDir, modelItem.file)
-                    oliveJson = readCheckOliveConfig(oliveJsonFile)
+                    oliveJson = readCheckOliveConfig(oliveJsonFile, model)
                     if not oliveJson:
                         printError(f"{oliveJsonFile} not exists or is not a valid olive json file")
                         continue
 
                     # check parameter
-                    modelParameter.Check(parameterTemplate, oliveJson, modelList, modelInVersion)
+                    modelParameter.Check(parameterTemplate, oliveJson, modelList, model)
                     hasLLM = hasLLM or modelParameter.isLLM
 
                     # check ipynb
@@ -143,7 +141,7 @@ def main():
                 if model.extension:
                     GlobalVars.extensionCheck += 1
 
-                modelSpaceConfig.Check(modelInVersion)
+                modelSpaceConfig.Check(model)
 
                 if hasLLM:
                     # check inference_model.json
@@ -155,7 +153,7 @@ def main():
                         with open_ex(inferenceModelFile, "r") as file:
                             fileContent = file.read()
                             inferenceModelData = json.loads(fileContent)
-                        tmpModelName = modelInVersion.id.split("/")[-1]
+                        tmpModelName = model.id.split("/")[-1]
                         inferenceModelData["Name"] = tmpModelName
                         # Write back to file
                         newContent = json.dumps(inferenceModelData, indent=4, ensure_ascii=False)
