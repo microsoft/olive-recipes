@@ -24,3 +24,4 @@ aitk:
     modelInfo:
         id: "huggingface/google-bert/bert-base-multilingual-cased"
         version: 1
+        p0: true

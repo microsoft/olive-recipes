@@ -32,3 +32,4 @@ aitk:
     modelInfo:
         id: "huggingface/meta-llama/Llama-3.2-1B-Instruct"
         version: 1
+        p0: true

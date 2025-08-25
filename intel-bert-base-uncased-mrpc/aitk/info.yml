@@ -26,9 +26,4 @@ aitk:
     modelInfo:
         id: "huggingface/Intel/bert-base-uncased-mrpc"
         version: 1
-    workflows:
-    - file: "bert_qdq_qnn.json"
-    - file: "bert_qdq_amd.json"
-    - file: "bert_ov.json"
-    - file: "bert_trtrtx.json"
-    - file: "bert_dml.json"
+        p0: true

@@ -32,3 +32,4 @@ aitk:
     modelInfo:
         id: "huggingface/microsoft/Phi-3.5-mini-instruct"
         version: 1
+        p0: true

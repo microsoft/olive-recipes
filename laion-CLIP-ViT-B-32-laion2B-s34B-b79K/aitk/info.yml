@@ -29,3 +29,4 @@ aitk:
     modelInfo:
         id: "huggingface/laion/CLIP-ViT-B-32-laion2B-s34B-b79K"
         version: 2
+        p0: true
