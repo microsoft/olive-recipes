@@ -5,7 +5,7 @@ This folder contains examples of Laion Clip optimization using different workflo
 - Text and vision model QDQ for Qualcomm NPU
 - QDQ for AMD NPU
 - OpenVINO for Intel NPU
-- Float downcasting for NVIDIA TRT for RTX GPU / DML for general GPU
+- Float downcasting for NVIDIA TRT for RTX GPU / DML for general GPU / WebGPU for general GPU
 
 ## Laion Clip text optimization with QDQ for Qualcomm NPU
 
@@ -48,7 +48,7 @@ This example performs Laion Clip optimization with QDQ in one workflow. It perfo
 
 This example performs Laion Clip optimization with OpenVINO in one workflow for Intel NPU.
 
-## Float downcasting for NVIDIA TRT for RTX GPU / DML for general GPU
+## Float downcasting for NVIDIA TRT for RTX GPU / DML for general GPU / WebGPU for general GPU
 
 It performs the optimization pipeline:
 
