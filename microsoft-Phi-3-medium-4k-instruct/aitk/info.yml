@@ -1,0 +1,18 @@
+keywords:
+    aitk
+arch: phi3
+recipes:
+    - file: "phi3_ov_config.json"
+      devices:
+        - gpu
+      ep: OpenVINOExecutionProvider
+      aitk:
+          requirements: Intel/Test_py3.12.9
+          requirementsPatches:
+            - Transformers4.49
+aitk:
+    modelInfo:
+        id: "huggingface/microsoft/Phi-3-medium-4k-instruct"
+        version: 1
+        groupId: "huggingface/microsoft/Phi-3-medium-4k-instruct"
+        groupItemName: "4K"
