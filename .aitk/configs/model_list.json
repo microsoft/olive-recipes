@@ -83,6 +83,25 @@
             "version": 1
         },
         {
+            "displayName": "google-bert/bert-base-multilingual-uncased",
+            "icon": "gemini",
+            "modelLink": "https://huggingface.co/google-bert/bert-base-multilingual-uncased",
+            "id": "huggingface/google-bert/bert-base-multilingual-uncased",
+            "runtimes": [
+                "QNN",
+                "AMDNPU",
+                "NvidiaTRTRTX",
+                "DML",
+                "IntelCPU",
+                "IntelGPU",
+                "IntelNPU"
+            ],
+            "architecture": "Transformer",
+            "status": "Ready",
+            "relativePath": "google-bert-bert-base-multilingual-uncased/aitk",
+            "version": 1
+        },
+        {
             "displayName": "google/vit-base-patch16-224",
             "icon": "gemini",
             "modelLink": "https://huggingface.co/google/vit-base-patch16-224",
