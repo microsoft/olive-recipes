@@ -10,9 +10,9 @@
                 "IntelNPU"
             ],
             "architecture": "Transformer",
-            "status": "Hide",
+            "status": "Ready",
             "relativePath": "deepseek-ai-DeepSeek-R1-Distill-Llama-8B/aitk",
-            "version": 2
+            "version": 1
         },
         {
             "displayName": "deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B",
