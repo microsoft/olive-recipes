@@ -37,13 +37,15 @@
         },
         "io_update": {
             "type": "OpenVINOIoUpdate",
-            "static": false
+            "static": false,
+            "reuse_cache": true
         },
         "encapsulation": {
             "type": "OpenVINOEncapsulation",
             "target_device": "npu",
             "keep_ov_dynamic_dims": true,
-            "ov_version": "2025.2"
+            "ov_version": "2025.2",
+            "reuse_cache": true
         }
     },
     "search_strategy": false,

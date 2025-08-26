@@ -17,12 +17,13 @@
                 "ratio": 0.8
             }
         },
-        "io_update": { "type": "OpenVINOIoUpdate", "static": false },
+        "io_update": { "type": "OpenVINOIoUpdate", "static": false, "reuse_cache": true },
         "encapsulation": {
             "type": "OpenVINOEncapsulation",
             "target_device": "gpu",
             "keep_ov_dynamic_dims": true,
-            "ov_version": "2025.1"
+            "ov_version": "2025.1",
+            "reuse_cache": true
         }
     },
     "search_strategy": false,

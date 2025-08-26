@@ -463,9 +463,11 @@ class ModelParameter(BaseModelClass):
                     reuse_cache_paths.append(reuse_cache_path)
 
         if reuse_cache_paths:
+            # Previously, in debug mode for olive, this will throw exception 'file is occupied' for ov recipes
+            # Seem fixed here https://github.com/microsoft/Olive/pull/2017/files
+            # TODO update p0 later
             if not modelInfo.p0:
-                printError(f"TODO we should remove this in olive json due to potentional issues. Related config {self._file}")
-                return
+                return None
             if self.runtime.actions is None:
                 self.runtime.actions = []
             for i in range(len(self.runtime.values)):
@@ -611,7 +613,6 @@ class ModelParameter(BaseModelClass):
         newRemoveds = []
         for removed in removeds:
             if removed.endswith("['reuse_cache']") or removed == "root['add_metadata']":
-                # In debug mode for olive, this will throw exception 'file is occupied' for ov recipes
                 pass
             else:
                 newRemoveds.append(removed)
