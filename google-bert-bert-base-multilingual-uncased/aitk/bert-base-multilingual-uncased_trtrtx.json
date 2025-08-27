@@ -1,7 +1,7 @@
 {
     "input_model": {
         "type": "HfModel",
-        "model_path": "google-bert/bert-base-multilingual-cased",
+        "model_path": "google-bert/bert-base-multilingual-uncased",
         "task": "feature-extraction"
     },
     "systems": {
