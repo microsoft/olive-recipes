@@ -66,7 +66,6 @@ def main():
             allVersions = [model.version]
             # process each version
             for version in allVersions:
-                # deep copy model for version usage
                 modelVerDir = modelDir if model.relativePath else os.path.join(modelDir, str(version))
 
                 # process copy
