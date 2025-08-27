@@ -102,11 +102,9 @@ def readCheckOliveConfig(oliveJsonFile: str, model: ModelInfo):
         return
     
     # check host
-    # TODO remove later
-    if not model.p0 and "clip" not in model.id.lower():
-        if OlivePropertyNames.Host in oliveJson:
-            if oliveJson[OlivePropertyNames.Host] == target:
-                printError(f"{oliveJsonFile} should not use same host as target. You should either remove it or setup a separate one")
+    if OlivePropertyNames.Host in oliveJson:
+        if oliveJson[OlivePropertyNames.Host] == target:
+            printError(f"{oliveJsonFile} should not use same host as target. You should either remove it or setup a separate one")
 
     # cache / output / evaluate_input_model
     if OlivePropertyNames.CleanCache in oliveJson and oliveJson[OlivePropertyNames.CleanCache]:

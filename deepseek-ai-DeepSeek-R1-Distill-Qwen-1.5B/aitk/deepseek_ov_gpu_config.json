@@ -1,14 +1,14 @@
 {
     "input_model": {
         "type": "HfModel",
-        "model_path": "Qwen/Qwen2.5-1.5B-Instruct"
+        "model_path": "deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B"
     },
     "systems": {
         "local_system": {
             "type": "LocalSystem",
             "accelerators": [
                 {
-                    "device":"npu",
+                    "device": "gpu",
                     "execution_providers": [
                         "OpenVINOExecutionProvider"
                     ]
@@ -19,24 +19,27 @@
     "passes": {
         "optimum_convert": {
             "type": "OpenVINOOptimumConversion",
-            "extra_args": { "device": "npu" },
+            "extra_args": {
+                "device": "gpu",
+                "task": "text-generation-with-past"
+            },
             "ov_quant_config": {
                 "weight_format": "int4",
-                "group_size": 128,
-                "dataset": "wikitext2",
-                "ratio": 1,
-                "awq": false,
-                "scale_estimation": false,
-                "sym": true,
-                "trust_remote_code": true,
-                "backup_precision": "int8_asym",
-                "sensitivity_metric": "weight_quantization_error"
+                "group_size": 32,
+                "ratio": 0.7,
+                "awq": true,
+                "scale_estimation": true,
+                "dataset": "wikitext2"
             }
         },
-        "io_update": { "type": "OpenVINOIoUpdate", "static": false, "reuse_cache": true },
+        "io_update": {
+            "type": "OpenVINOIoUpdate",
+            "static": false,
+            "reuse_cache": true
+        },
         "encapsulation": {
             "type": "OpenVINOEncapsulation",
-            "target_device": "npu",
+            "target_device": "gpu",
             "keep_ov_dynamic_dims": true,
             "ov_version": "2025.1",
             "reuse_cache": true
@@ -46,5 +49,5 @@
     "target": "local_system",
     "cache_dir": "cache",
     "evaluate_input_model": false,
-    "output_dir": "model/qwen2_5"
+    "output_dir": "model/deepseek-gpu"
 }

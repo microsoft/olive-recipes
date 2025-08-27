@@ -465,9 +465,7 @@ class ModelParameter(BaseModelClass):
         if reuse_cache_paths:
             # Previously, in debug mode for olive, this will throw exception 'file is occupied' for ov recipes
             # Seem fixed here https://github.com/microsoft/Olive/pull/2017/files
-            # TODO update p0 later
-            if not modelInfo.p0:
-                return None
+            return None
             if self.runtime.actions is None:
                 self.runtime.actions = []
             for i in range(len(self.runtime.values)):
@@ -483,10 +481,8 @@ class ModelParameter(BaseModelClass):
         return None
 
     def CheckRuntimeInConversion(self, oliveJson: Any, modelList: ModelList, modelInfo: ModelInfo):
-        # TODO update p0 then make this optional
-        if not modelInfo.p0:
-            self.runtimeInConversion = None
-            return
+        self.runtimeInConversion = None
+        return
 
         def getOpenVINOPass(passType: str):
             return next(
@@ -612,7 +608,7 @@ class ModelParameter(BaseModelClass):
         removeds: list[str] = diff.pop("dictionary_item_removed", [])
         newRemoveds = []
         for removed in removeds:
-            if removed.endswith("['reuse_cache']") or removed == "root['add_metadata']":
+            if removed == "root['add_metadata']":
                 pass
             else:
                 newRemoveds.append(removed)
