@@ -28,4 +28,5 @@ recipes:
 aitk:
     modelInfo:
         id: "huggingface/openai/clip-vit-large-patch14"
-        version: 1
+        version: 2
+        p0: true
