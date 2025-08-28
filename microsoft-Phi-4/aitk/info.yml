@@ -1,0 +1,16 @@
+keywords:
+    aitk
+arch: phi4
+recipes:
+    - file: "phi4_ov_config.json"
+      devices:
+        - gpu
+      ep: OpenVINOExecutionProvider
+      aitk:
+          oliveFile: "phi4/openvino/phi_4/phi_4_gpu_context_dy.json"
+          requirementsPatches:
+          - Nightly
+aitk:
+    modelInfo:
+        id: "huggingface/microsoft/Phi-4"
+        version: 1

@@ -13,14 +13,16 @@ recipes:
       aitk:
         oliveFile: "phi3_5/qdq_config_vitis_ai.json"
         requirementsPatches:
-          - AutoGptq
-        runtimeOverwrite:
-          executeEp: CUDAExecutionProvider
-        evalRuntime: AMDNPU
-    - file: "deepseek_ov_config.json"
+          - AMD
+    - file: "deepseek_ov_gpu_config.json"
       devices:
         - cpu
         - gpu
+      ep: OpenVINOExecutionProvider
+      aitk:
+          oliveFile: "deepseek/openvino/DeepSeek-R1-Distill-Qwen-1.5B-gpu-context-ov-dy-gs32-r1.json"
+    - file: "deepseek_ov_config.json"
+      devices:
         - npu
       ep: OpenVINOExecutionProvider
       aitk:
@@ -31,7 +33,7 @@ recipes:
 aitk:
     modelInfo:
         id: "huggingface/deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B"
-        version: 1
+        version: 2
         groupId: "huggingface/deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B"
         groupItemName: "1.5B"
         p0: true

@@ -21,7 +21,7 @@
         }
     },
     "systems": {
-        "qnn_system": {
+        "target_system": {
             "type": "LocalSystem",
             "accelerators": [
                 {
@@ -148,8 +148,7 @@
             "quant_type": "OnnxStaticQuantization"
         }
     },
-    "host": "qnn_system",
-    "target": "qnn_system",
+    "target": "target_system",
     "evaluator": "common_evaluator",
     "output_dir": "model/vit",
     "evaluate_input_model": false,

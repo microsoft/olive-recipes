@@ -1,0 +1,31 @@
+{
+    "Name": "Phi-4",
+    "PromptTemplate": {
+        "assistant": "{Content}",
+        "prompt": "<|user|>\n{Content} <|end|>\n<|assistant|>"
+    },
+    "ParameterSchema": {
+        "enabled": [
+            {
+                "name": "max_tokens",
+                "default": 512
+            },
+            {
+                "name": "temperature",
+                "default": 0.6
+            },
+            {
+                "name": "top_p",
+                "default": 0.9
+            },
+            {
+                "name": "top_k",
+                "default": 5
+            },
+            {
+                "name": "random_seed",
+                "default": 57894
+            }
+        ]
+    }
+}

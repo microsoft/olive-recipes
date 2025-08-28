@@ -11,12 +11,8 @@ recipes:
       device: npu
       ep: VitisAIExecutionProvider
       aitk:
-        oliveFile: "phi3_5/qdq_config_vitis_ai.json"
         requirementsPatches:
-          - AutoGptq
-        runtimeOverwrite:
-          executeEp: CUDAExecutionProvider
-        evalRuntime: AMDNPU
+          - AMD
     - file: "llama3_2_ov_config.json"
       devices:
         - cpu

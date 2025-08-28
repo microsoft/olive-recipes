@@ -104,7 +104,6 @@
             "data_config": "quantize_data_config"
         }
     },
-    "host": "local_system",
     "target": "local_system",
     "evaluator": "common_evaluator",
     "output_dir": "model/vit-base-patch16-224",
