@@ -148,7 +148,6 @@
             "quant_type": "OnnxStaticQuantization"
         }
     },
-    "host": "target_system",
     "target": "target_system",
     "evaluator": "common_evaluator",
     "output_dir": "model/vit",

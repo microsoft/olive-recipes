@@ -141,7 +141,7 @@
                 }
             ]
         },
-        "OnnxQuantization": {
+        "quantization": {
             "type": "OnnxStaticQuantization",
             "data_config": "quantization_data_config",
             "activation_type": "uint16",

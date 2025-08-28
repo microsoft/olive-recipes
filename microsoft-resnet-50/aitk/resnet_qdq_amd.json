@@ -138,7 +138,6 @@
             "quant_type": "OnnxStaticQuantization"
         }
     },
-    "host": "target_system",
     "target": "target_system",
     "evaluator": "common_evaluator",
     "cache_dir": "cache",
