@@ -25,11 +25,8 @@
             },
             "ov_quant_config": {
                 "weight_format": "int4",
-                "group_size": 32,
-                "ratio": 0.7,
-                "awq": true,
-                "scale_estimation": true,
-                "dataset": "wikitext2"
+                "group_size": 128,
+                "ratio": 1
             }
         },
         "io_update": {

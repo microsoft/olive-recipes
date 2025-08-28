@@ -118,7 +118,6 @@
             "data_config": "xnli"
         }
     },
-    "host": "local_system",
     "target": "local_system",
     "evaluator": "common_evaluator",
     "cache_dir": "cache",

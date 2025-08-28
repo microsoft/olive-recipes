@@ -154,7 +154,6 @@
             "save_as_external_data": true
         }
     },
-    "host": "target_system",
     "target": "target_system",
     "evaluator": "common_evaluator",
     "cache_dir": "cache",

@@ -88,7 +88,6 @@
         }
     },
     "search_strategy": false,
-    "host": "local_system",
     "target": "local_system",
     "cache_dir": "cache",
     "evaluator": "common_evaluator",
