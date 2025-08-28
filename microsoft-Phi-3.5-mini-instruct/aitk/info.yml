@@ -13,16 +13,14 @@ recipes:
       aitk:
         oliveFile: "phi3_5/qdq_config_vitis_ai.json"
         requirementsPatches:
-          - AMD
-    - file: "phi3_5_ov_gpu_config.json"
+          - AutoGptq
+        runtimeOverwrite:
+          executeEp: CUDAExecutionProvider
+        evalRuntime: AMDNPU
+    - file: "phi3_5_ov_config.json"
       devices:
         - cpu
         - gpu
-      ep: OpenVINOExecutionProvider
-      aitk:
-        oliveFile: "phi3_5/openvino/Phi-3.5-mini-instruct-gpu-context-ov-dynamic.json"
-    - file: "phi3_5_ov_config.json"
-      devices:
         - npu
       ep: OpenVINOExecutionProvider
       aitk:
@@ -33,5 +31,5 @@ recipes:
 aitk:
     modelInfo:
         id: "huggingface/microsoft/Phi-3.5-mini-instruct"
-        version: 2
+        version: 1
         p0: true

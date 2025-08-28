@@ -71,8 +71,7 @@
                     128
                 ]
             ],
-            "static": true,
-            "reuse_cache": true
+            "static": true
         },
         "ov_quantize": {
             "type": "OpenVINOQuantization",
@@ -80,17 +79,16 @@
             "data_config": "quantize_data_config",
             "model_type": "TRANSFORMER",
             "user_script": "user_script.py",
-            "transform_fn": "custom_transform_func",
-            "reuse_cache": true
+            "transform_fn": "custom_transform_func"
         },
         "encapsulation": {
             "type": "OpenVINOEncapsulation",
             "target_device": "npu",
-            "ov_version": "2025.1",
-            "reuse_cache": true
+            "ov_version": "2025.1"
         }
     },
     "search_strategy": false,
+    "host": "local_system",
     "target": "local_system",
     "cache_dir": "cache",
     "evaluator": "common_evaluator",

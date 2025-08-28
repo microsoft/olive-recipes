@@ -5,13 +5,14 @@ Main sanitize script
 from __future__ import annotations
 
 import argparse
+import copy
 import json
 import os
 import subprocess
 from pathlib import Path
 
 from .base import BaseModelClass
-from .constants import ModelStatusEnum
+from .constants import EPNames, ModelStatusEnum
 from .copy_config import CopyConfig
 from .file_validation import check_case, process_gitignore, readCheckIpynb, readCheckOliveConfig, readCheckRequirements
 from .model_info import ModelInfo, ModelList
