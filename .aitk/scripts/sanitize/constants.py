@@ -115,6 +115,7 @@ class OlivePassNames:
     OpenVINOQuantization = "openvinoquantization"
     OrtTransformersOptimization = "orttransformersoptimization"
 
+
 # Should sort by value
 class OlivePropertyNames:
     Accelerators = "accelerators"

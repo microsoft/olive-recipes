@@ -175,7 +175,7 @@ class DebugInfo(BaseModel):
         self.useModelBuilder = getPass(OlivePassNames.ModelBuilder)
         self.useOpenVINOConversion = getPass(OlivePassNames.OpenVINOConversion)
         self.useOpenVINOOptimumConversion = getPass(OlivePassNames.OpenVINOOptimumConversion)
-        
+
         notEmpty = [
             v
             for v in [
