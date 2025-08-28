@@ -95,7 +95,7 @@
                 "model_name": "openai/clip-vit-base-patch16",
                 "dataset_name": "nlphuji/flickr30k",
                 "start": 100,
-                "length": 200
+                "length": 100
             },
             "dataloader_config": {
                 "type": "no_auto_batch_dataloader"
