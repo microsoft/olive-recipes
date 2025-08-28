@@ -13,10 +13,7 @@ recipes:
       aitk:
         oliveFile: "phi3_5/qdq_config_vitis_ai.json"
         requirementsPatches:
-          - AutoGptq
-        runtimeOverwrite:
-          executeEp: CUDAExecutionProvider
-        evalRuntime: AMDNPU
+          - AMD
     - file: "deepseek_ov_gpu_config.json"
       devices:
         - cpu
