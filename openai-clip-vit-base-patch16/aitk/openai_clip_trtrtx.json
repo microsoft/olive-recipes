@@ -81,7 +81,7 @@
                 "model_name": "openai/clip-vit-base-patch16",
                 "dataset_name": "nlphuji/flickr30k",
                 "start": 0,
-                "length": 100
+                "length": 10
             },
             "dataloader_config": {
                 "type": "no_auto_batch_dataloader"
@@ -94,8 +94,8 @@
                 "type": "clip_dataset",
                 "model_name": "openai/clip-vit-base-patch16",
                 "dataset_name": "nlphuji/flickr30k",
-                "start": 100,
-                "length": 100
+                "start": 10,
+                "length": 10
             },
             "dataloader_config": {
                 "type": "no_auto_batch_dataloader"
