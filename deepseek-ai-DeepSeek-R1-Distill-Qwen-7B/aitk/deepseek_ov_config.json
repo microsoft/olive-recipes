@@ -3,15 +3,14 @@
     "systems": {
         "local_system": {
             "type": "LocalSystem",
-            "accelerators": [ { "execution_providers": [ "OpenVINOExecutionProvider" ] } ]
+            "accelerators": [ { "device": "gpu", "execution_providers": [ "OpenVINOExecutionProvider" ] } ]
         }
     },
     "passes": {
         "optimum_convert": {
             "type": "OpenVINOOptimumConversion",
-            "extra_args": { "device": "gpu" },
+            "extra_args": { "device": "gpu", "task": "text-generation-with-past" },
             "ov_quant_config": {
-                "task": "text-generation-with-past",
                 "weight_format": "int4",
                 "group_size": 128,
                 "ratio": 1,
@@ -20,16 +19,16 @@
                 "dataset": "wikitext2"
             }
         },
-        "io_update": { "type": "OpenVINOIoUpdate", "static": false },
+        "io_update": { "type": "OpenVINOIoUpdate", "static": false, "reuse_cache": true },
         "encapsulation": {
             "type": "OpenVINOEncapsulation",
             "target_device": "gpu",
             "keep_ov_dynamic_dims": true,
-            "ov_version": "2025.1"
+            "ov_version": "2025.1",
+            "reuse_cache": true
         }
     },
     "search_strategy": false,
-    "host": "local_system",
     "target": "local_system",
     "cache_dir": "cache",
     "evaluate_input_model": false,

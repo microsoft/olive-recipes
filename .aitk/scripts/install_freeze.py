@@ -30,6 +30,11 @@ winrtPackage = [
     "winui3-Microsoft.Windows.ApplicationModel.DynamicDependency.Bootstrap==1!1.8.250702007.dev4",
 ]
 
+# if from git: "git+https://github.com/microsoft/Olive.git@COMMIT_ID#egg=olive_ai
+oliveAi = (
+    "olive-ai@git+https://github.com/microsoft/Olive.git@19abbd99463db9f608e3124237c1ecc74ac6e92e#egg=olive-ai"
+)
+torchVision = "torchvision==0.22.0"
 
 def get_requires(name: str, args):
     # TODO for this case, need to install via Model Lab first
@@ -59,10 +64,6 @@ def get_requires(name: str, args):
 
 
 def main():
-    # Constants
-    # if from git: "git+https://github.com/microsoft/Olive.git@COMMIT_ID#egg=olive_ai
-    oliveAi = "olive-ai@git+https://github.com/microsoft/Olive.git@19abbd99463db9f608e3124237c1ecc74ac6e92e#egg=olive-ai"
-    torchVision = "torchvision==0.22.0"
     pre = {
         RuntimeEnum.NvidiaGPU: [
             cudaExtraUrl,
@@ -76,15 +77,27 @@ def main():
             "torch==2.6.0",
         ],
     }
-    shared = [
+    shared_conversion = [
+        "huggingface-hub[hf_xet]==0.34.4",
         # sticking to ONNX IR version 10 which can still be consumed by ORT v1.22.0
         "onnx==1.17.0",
         oliveAi,
         "tabulate==0.9.0",
         "datasets==3.5.0",
+    ]
+    shared_ipynb = [
         "ipykernel==6.29.5",
         "ipywidgets==8.1.5",
     ]
+    shared_both = shared_conversion + shared_ipynb
+    shared = {
+        RuntimeEnum.QNN: shared_conversion,
+        RuntimeEnum.IntelNPU: shared_conversion,
+        RuntimeEnum.NvidiaGPU: shared_conversion,
+        RuntimeEnum.WCR: shared_both,
+        RuntimeEnum.WCR_CUDA: shared_both,
+        RuntimeEnum.QNN_LLLM: shared_ipynb,
+    }
     # torchvision, onnxruntime and genai go here. others should go feature
     post = {
         RuntimeEnum.QNN: [
@@ -92,17 +105,17 @@ def main():
             "onnxruntime-qnn==1.21.1",
             "# uvpip:install onnxruntime-genai==0.7.0 --no-deps;post",
         ],
+        # now optimum-intel does not depend on onnxruntime, but we use a separate venv to simplify management
         RuntimeEnum.IntelNPU: [
             # nncf needs torch 2.6 so torchvision is downgraded
             "torchvision==0.21.0",
-            # onnxruntime-openvino see below
-            # use this to track depedencies
             "onnxruntime==1.21.0",
             # from olive[openvino]
             "openvino==2025.1.0",
             "nncf==2.16.0",
+            "numpy==1.26.4",
             "optimum[openvino]==1.24.0",
-            # optimum-intel==1.15.0: depends on onnxruntime so we need to use a separate venv
+            # TODO for model builder
             "onnxruntime-genai==0.7.0",
         ],
         # https://onnxruntime.ai/docs/execution-providers/CUDA-ExecutionProvider.html
@@ -131,8 +144,6 @@ def main():
             *winrtPackage,
         ],
         RuntimeEnum.QNN_LLLM: [
-            "ipykernel==6.29.5",
-            "ipywidgets==8.1.5",
             "# deps:onnxruntime-winml",
             onnxruntimeGenaiWinmlVersion,
         ],
@@ -149,9 +160,6 @@ def main():
         print(args.runtime)
 
     runtime = RuntimeEnum(args.runtime)
-    onlyInference = False
-    if runtime in [RuntimeEnum.QNN_LLLM]:
-        onlyInference = True
 
     # prepare file
     configs_dir = path.dirname(path.dirname(__file__))
@@ -164,14 +172,9 @@ def main():
             for line in pre[runtime]:
                 f.write(line + "\n")
                 all.append(line)
-
-                # remove olive
-                if line.endswith("egg=olive_ai") or line.startswith("olive-ai=="):
-                    shared = shared[1:]
-        if not onlyInference:
-            for line in shared:
-                f.write(line + "\n")
-                all.append(line)
+        for line in shared[runtime]:
+            f.write(line + "\n")
+            all.append(line)
         if runtime in post:
             for line in post[runtime]:
                 f.write(line + "\n")
@@ -190,10 +193,30 @@ def main():
             # requires outputs lower case names
             freeze_dict[name.lower()] = version
     print(f"Installed dependencies: {freeze_dict}")
+    freeze_dict_used = set()
 
     # write result
     outputFile = path.join(configs_dir, "requirements", f"requirements-{args.runtime}.txt")
     with open(outputFile, "w", newline="\n") as f:
+        def write_requires_recursively(name: str):
+            requires = get_requires(name, args)
+            print(f"Requires for {name}: {requires}")
+            for req in requires:
+                if req in freeze_dict:
+                    if req not in freeze_dict_used:
+                        f.write(f"{req}=={freeze_dict[req]}\n")
+                        freeze_dict_used.add(req)
+                        write_requires_recursively(req)
+                else:
+                    newReq = req.replace("-", "_")
+                    if newReq in freeze_dict:
+                        if newReq not in freeze_dict_used:
+                            f.write(f"{newReq}=={freeze_dict[newReq]}\n")
+                            freeze_dict_used.add(newReq)
+                            write_requires_recursively(newReq)
+                    else:
+                        raise Exception(f"Cannot find {req} in pip freeze")
+
         for name in all:
             if (
                 name.startswith("#") and not name.startswith(uvpipInstallPrefix) and not name.startswith(depsPrefix)
@@ -203,17 +226,11 @@ def main():
             if not name.startswith("#"):
                 f.write("# " + name + "\n")
             f.write(name + "\n")
-            requires = get_requires(name, args)
-            print(f"Requires for {name}: {requires}")
-            for req in requires:
-                if req in freeze_dict:
-                    f.write(f"{req}=={freeze_dict[req]}\n")
-                else:
-                    newReq = req.replace("-", "_")
-                    if newReq in freeze_dict:
-                        f.write(f"{newReq}=={freeze_dict[newReq]}\n")
-                    else:
-                        raise Exception(f"Cannot find {req} in pip freeze")
+            write_requires_recursively(name)
+        f.write("# not in requires\n")
+        for k in freeze_dict:
+            if k not in freeze_dict_used:
+                f.write(f"{k}=={freeze_dict[k]}\n")
 
     # remove duplicate lines from output file
     with open(outputFile, "r") as f:

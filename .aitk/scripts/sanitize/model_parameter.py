@@ -326,7 +326,7 @@ class ModelParameter(BaseModelClass):
                 self.runtime.displayNames.append(GlobalVars.RuntimeToDisplayName[tmpRuntimeRPC])
 
         self.runtime.actions = runtimeActions
-        self.TryToRemoveReuseCacheInRuntimeAction(oliveJson)
+        self.TryToRemoveReuseCacheInRuntimeAction(oliveJson, modelInfo)
         if not self.runtime.Check(False, oliveJson, modelList):
             printError(f"{self._file} runtime has error")
 
@@ -443,14 +443,14 @@ class ModelParameter(BaseModelClass):
             self.isGPURequired = None
 
         self.checkPhase(oliveJson)
-        self.CheckRuntimeInConversion(oliveJson, modelList)
-        self.checkOliveFile(oliveJson)
+        self.CheckRuntimeInConversion(oliveJson, modelList, modelInfo)
+        self.checkOliveFile(oliveJson, modelInfo)
         self.checkRequirements(modelList)
         if self.debugInfo and self.debugInfo.isEmpty():
             self.debugInfo = None
         self.writeIfChanged()
 
-    def TryToRemoveReuseCacheInRuntimeAction(self, oliveJson: Any):
+    def TryToRemoveReuseCacheInRuntimeAction(self, oliveJson: Any, modelInfo: ModelInfo):
         if not self.runtime or not self.runtime.values:
             printError(f"{self._file} runtime values is empty, cannot remove reuse_cache")
             return
@@ -463,6 +463,11 @@ class ModelParameter(BaseModelClass):
                     reuse_cache_paths.append(reuse_cache_path)
 
         if reuse_cache_paths:
+            # Previously, in debug mode for olive, this will throw exception 'file is occupied' for ov recipes
+            # Seem fixed here https://github.com/microsoft/Olive/pull/2017/files
+            # TODO update p0 later
+            if not modelInfo.p0:
+                return None
             if self.runtime.actions is None:
                 self.runtime.actions = []
             for i in range(len(self.runtime.values)):
@@ -477,7 +482,12 @@ class ModelParameter(BaseModelClass):
                     )
         return None
 
-    def CheckRuntimeInConversion(self, oliveJson: Any, modelList: ModelList):
+    def CheckRuntimeInConversion(self, oliveJson: Any, modelList: ModelList, modelInfo: ModelInfo):
+        # TODO update p0 then make this optional
+        if not modelInfo.p0:
+            self.runtimeInConversion = None
+            return
+
         def getOpenVINOPass(passType: str):
             return next(
                 (
@@ -569,10 +579,14 @@ class ModelParameter(BaseModelClass):
         ):
             printWarning(f"{self._file}'s olive json should have two data configs for evaluation")
 
-    def checkOliveFile(self, oliveJson: Any):
+    def checkOliveFile(self, oliveJson: Any, modelInfo: ModelInfo):
         if not GlobalVars.olivePath:
             return
+        if modelInfo.extension:
+            return
         if not self.oliveFile:
+            if self.runtime.displayNames[0] == GlobalVars.RuntimeToDisplayName[RuntimeEnum.DML]:
+                return
             printWarning(f"{self._file} does not have oliveFile")
             return
 
@@ -598,8 +612,7 @@ class ModelParameter(BaseModelClass):
         removeds: list[str] = diff.pop("dictionary_item_removed", [])
         newRemoveds = []
         for removed in removeds:
-            if removed.endswith("['reuse_cache']"):
-                # In debug mode for olive, this will throw exception 'file is occupied' for ov recipes
+            if removed.endswith("['reuse_cache']") or removed == "root['add_metadata']":
                 pass
             else:
                 newRemoveds.append(removed)
@@ -618,8 +631,8 @@ class ModelParameter(BaseModelClass):
             diff["values_changed"] = newChangeds
 
         if diff:
-            # Check out branch hualxie/example_align for alignments
-            printError(f"different from {self.oliveFile}\r\n{diff}")
+            path = Path(self._file)
+            printError(f"{"/".join(path.parts[-3:])} different from {self.oliveFile}\r\n{diff}")
         GlobalVars.oliveCheck += 1
 
     def checkDebugInfo(self, oliveJson: Any):

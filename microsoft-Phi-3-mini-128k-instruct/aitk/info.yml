@@ -7,10 +7,10 @@ recipes:
         - gpu
       ep: OpenVINOExecutionProvider
       aitk:
-          oliveFile: "examples/phi3/openvino/Phi-3-mini-128k-instruct-gpu-context-ov-dy.json"
+          oliveFile: "phi3/openvino/Phi-3-mini-128k-instruct-gpu-context-ov-dy.json"
 aitk:
     modelInfo:
         id: "huggingface/microsoft/Phi-3-mini-128k-instruct"
-        version: 1
+        version: 2
         groupId: "huggingface/microsoft/Phi-3-mini-4k-instruct"
         groupItemName: "128K"

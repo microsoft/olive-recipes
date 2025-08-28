@@ -22,6 +22,7 @@ from .constants import (
 )
 from .model_parameter import ModelParameter
 from .utils import GlobalVars, open_ex, printError, printProcess, printWarning
+from .model_info import ModelInfo
 
 
 def check_case(path: Path) -> bool:
@@ -70,7 +71,7 @@ def checkSystem(oliveJsonFile: str, system):
     return True
 
 
-def readCheckOliveConfig(oliveJsonFile: str):
+def readCheckOliveConfig(oliveJsonFile: str, model: ModelInfo):
     """
     This will set phases to modelParameter
     """
@@ -89,7 +90,6 @@ def readCheckOliveConfig(oliveJsonFile: str):
 
     jsonUpdated = False
 
-    # TODO check host
     # check target
     if OlivePropertyNames.Target not in oliveJson:
         printError(f"{oliveJsonFile} should have target")
@@ -100,6 +100,13 @@ def readCheckOliveConfig(oliveJsonFile: str):
         return
     if not checkSystem(oliveJsonFile, oliveJson[OlivePropertyNames.Systems][target]):
         return
+    
+    # check host
+    # TODO remove later
+    if not model.p0 and "clip" not in model.id.lower():
+        if OlivePropertyNames.Host in oliveJson:
+            if oliveJson[OlivePropertyNames.Host] == target:
+                printError(f"{oliveJsonFile} should not use same host as target. You should either remove it or setup a separate one")
 
     # cache / output / evaluate_input_model
     if OlivePropertyNames.CleanCache in oliveJson and oliveJson[OlivePropertyNames.CleanCache]:

@@ -4,9 +4,14 @@ arch: phi4
 recipes:
     - file: "phi4_ov_config.json"
       devices:
-        - gpu
+        - npu
       ep: OpenVINOExecutionProvider
+      aitk:
+        disableRuntimeInConversion: true
+        oliveFile: phi4/openvino/phi_4_reasoning/Phi-4-reasoning_context_ov_dynamic_sym_gs128_bkp_int8_sym.json
+        requirementsPatches:
+            - Nightly
 aitk:
     modelInfo:
         id: "huggingface/microsoft/Phi-4-reasoning"
-        version: 1
+        version: 2

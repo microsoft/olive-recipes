@@ -8,7 +8,17 @@ recipes:
       ep: OpenVINOExecutionProvider
       aitk:
           oliveFile: "phi4/openvino/phi_4_mini_instruct/Phi-4-mini-instruct-gpu-context-dy.json"
+          requirementsPatches:
+          - Nightly
+    - file: "phi4_ov_npu_config.json"
+      devices:
+        - npu
+      ep: OpenVINOExecutionProvider
+      aitk:
+          oliveFile: "phi4/openvino/phi_4_mini_instruct/Phi_4_mini_instruct_context_ov_dynamic_sym_gs128_bkp_int8_sym.json"
+          requirementsPatches:
+          - Nightly
 aitk:
     modelInfo:
         id: "huggingface/microsoft/Phi-4-mini-instruct"
-        version: 1
+        version: 2
