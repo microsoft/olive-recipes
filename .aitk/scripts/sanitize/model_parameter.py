@@ -172,41 +172,30 @@ class DebugInfo(BaseModel):
                 None,
             )
 
-        # setup useModelBuilder
         self.useModelBuilder = getPass(OlivePassNames.ModelBuilder)
-
-        # setup useOpenVINOConversion
         self.useOpenVINOConversion = getPass(OlivePassNames.OpenVINOConversion)
-
-        # setup useOpenVINOOptimumConversion
         self.useOpenVINOOptimumConversion = getPass(OlivePassNames.OpenVINOOptimumConversion)
-        if (
-            sum(
-                bool(v)
-                for v in [
-                    self.useModelBuilder,
-                    self.useOpenVINOConversion,
-                    self.useOpenVINOOptimumConversion,
-                ]
-            )
-            > 1
-        ):
-            printError(f"should not have both useModelBuilder and useOpenVINOConversion")
+        
+        notEmpty = [
+            v
+            for v in [
+                self.useModelBuilder,
+                self.useOpenVINOConversion,
+                self.useOpenVINOOptimumConversion,
+            ]
+            if v
+        ]
+        self._use = notEmpty[0] if notEmpty else None
+        if len(notEmpty) > 1:
+            printError(f"should not mix them")
             return False
         return True
 
     def getUseX(self):
-        if self.useModelBuilder:
-            return self.useModelBuilder
-        elif self.useOpenVINOConversion:
-            return self.useOpenVINOConversion
-        elif self.useOpenVINOOptimumConversion:
-            return self.useOpenVINOOptimumConversion
-        else:
-            return None
+        return self._use
 
     def isEmpty(self):
-        return not (self.useModelBuilder or self.useOpenVINOConversion or self.useOpenVINOOptimumConversion)
+        return not self._use
 
 
 class ModelParameter(BaseModelClass):
@@ -466,7 +455,7 @@ class ModelParameter(BaseModelClass):
             # Previously, in debug mode for olive, this will throw exception 'file is occupied' for ov recipes
             # Seem fixed here https://github.com/microsoft/Olive/pull/2017/files
             # TODO update p0 later
-            if not modelInfo.p0:
+            if not (modelInfo.p0 and modelInfo.version == 1):
                 return None
             if self.runtime.actions is None:
                 self.runtime.actions = []
@@ -484,7 +473,7 @@ class ModelParameter(BaseModelClass):
 
     def CheckRuntimeInConversion(self, oliveJson: Any, modelList: ModelList, modelInfo: ModelInfo):
         # TODO update p0 then make this optional
-        if not modelInfo.p0:
+        if not (modelInfo.p0 and modelInfo.version == 1):
             self.runtimeInConversion = None
             return
 

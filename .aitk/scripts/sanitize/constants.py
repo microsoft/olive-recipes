@@ -102,16 +102,17 @@ class OliveDeviceTypes(Enum):
 
 
 # Pass name is case insensitive, so we use lower case for all pass names
+# Should sort by value
 class OlivePassNames:
+    ModelBuilder = "modelbuilder"
     OnnxConversion = "onnxconversion"
+    OnnxDynamicQuantization = "onnxdynamicquantization"
     OnnxQuantization = "onnxquantization"
     OnnxStaticQuantization = "onnxstaticquantization"
-    OnnxDynamicQuantization = "onnxdynamicquantization"
-    ModelBuilder = "modelbuilder"
     OpenVINOConversion = "openvinoconversion"
+    OpenVINOEncapsulation = "openvinoencapsulation"
     OpenVINOOptimumConversion = "openvinooptimumconversion"
     OpenVINOQuantization = "openvinoquantization"
-    OpenVINOEncapsulation = "openvinoencapsulation"
     OrtTransformersOptimization = "orttransformersoptimization"
 
 # Should sort by value
