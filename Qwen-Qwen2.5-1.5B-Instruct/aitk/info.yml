@@ -5,15 +5,26 @@ recipes:
     - file: "qwen2_5_qnn_config.json"
       device: npu
       ep: QNNExecutionProvider
+      aitk:
+        oliveFile: "phi3_5/qnn_config.json"
     - file: "qwen2_5_vitis_ai_config.json"
       device: npu
       ep: VitisAIExecutionProvider
+      aitk:
+        oliveFile: "phi3_5/qdq_config_vitis_ai.json"
+        requirementsPatches:
+          - AutoGptq
+        runtimeOverwrite:
+          executeEp: CUDAExecutionProvider
+        evalRuntime: AMDNPU
     - file: "qwen2_5_ov_config.json"
       devices:
-        - npu
         - cpu
         - gpu
+        - npu
       ep: OpenVINOExecutionProvider
+      aitk:
+        oliveFile: "qwen2_5/openvino/Qwen2.5-1.5B-instruct_context_ov_dynamic_sym_bkp_int8_sym_r1.json"
     - file: "qwen2_5_dml_config.json"
       device: gpu
       ep: DmlExecutionProvider
@@ -23,3 +34,4 @@ aitk:
         version: 1
         groupId: "huggingface/Qwen/Qwen2.5-1.5B-Instruct"
         groupItemName: "1.5B"
+        p0: true

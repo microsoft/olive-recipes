@@ -1,0 +1,2 @@
+./auto_gptq-0.8.0.dev0+cu128-cp312-cp312-win_amd64.whl
+# download:auto_gptq-0.8.0.dev0+cu128-cp312-cp312-win_amd64.whl

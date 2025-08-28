@@ -8,8 +8,13 @@ recipes:
       ep: OpenVINOExecutionProvider
       aitk:
           oliveFile: "deepseek/openvino/DeepSeek-R1-Distill-Llama-8B-gpu-context-ov-dy-gs128-r1.json"
+    - file: "deepseek_ov_npu_config.json"
+      devices:
+        - npu
+      ep: OpenVINOExecutionProvider
+      aitk:
+          oliveFile: "deepseek/openvino/DeepSeek_R1_Distill_Llama_8B_npu_context_ov_dy_sym_gs128_bkp_int8_sym_r1.json"
 aitk:
     modelInfo:
         id: "huggingface/deepseek-ai/DeepSeek-R1-Distill-Llama-8B"
         version: 1
-        status: Hide

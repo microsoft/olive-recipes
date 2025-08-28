@@ -5,9 +5,18 @@ recipes:
     - file: "deepseek_qnn_config.json"
       device: npu
       ep: QNNExecutionProvider
+      aitk:
+        oliveFile: "phi3_5/qnn_config.json"
     - file: "deepseek_vitis_ai_config.json"
       device: npu
       ep: VitisAIExecutionProvider
+      aitk:
+        oliveFile: "phi3_5/qdq_config_vitis_ai.json"
+        requirementsPatches:
+          - AutoGptq
+        runtimeOverwrite:
+          executeEp: CUDAExecutionProvider
+        evalRuntime: AMDNPU
     - file: "deepseek_ov_config.json"
       devices:
         - cpu
@@ -15,7 +24,7 @@ recipes:
         - npu
       ep: OpenVINOExecutionProvider
       aitk:
-          oliveFile: "deepseek/openvino/DeepSeek-R1-Distill-Qwen-1.5B_context_ov_dynamic_sym_gs128_bkp_int8_sym_r1.json"
+          oliveFile: "deepseek/openvino/DeepSeek-R1-Distill-Qwen-1.5B-npu-context-ov-dy-sym-gs128-bkp-int8-sym-r1.json"
     - file: "deepseek_dml_config.json"
       device: gpu
       ep: DmlExecutionProvider
@@ -25,3 +34,4 @@ aitk:
         version: 1
         groupId: "huggingface/deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B"
         groupItemName: "1.5B"
+        p0: true

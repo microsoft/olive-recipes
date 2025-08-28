@@ -1,0 +1,7 @@
+arch: qwen2
+recipes:
+  - name: Qwen1.5-7B-Chat_VitisAI
+    file: Qwen1.5-7B-Chat_quark_vitisai_llm.json
+    devices: npu
+    eps: VitisAIExecutionProvider
+    

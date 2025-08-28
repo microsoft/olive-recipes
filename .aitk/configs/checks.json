@@ -1,12 +1,13 @@
 {
-    "configCheck": 81,
+    "configCheck": 92,
     "extensionCheck": 1,
-    "gitignoreCheck": 32,
+    "gitignoreCheck": 33,
     "inferenceModelCheck": 22,
-    "ipynbCheck": 56,
-    "modelProjectCheck": 33,
+    "ipynbCheck": 57,
+    "modelProjectCheck": 34,
     "oliveCheck": 0,
-    "oliveJsonCheck": 81,
-    "pathCheck": 816,
-    "requirementsCheck": 32
+    "oliveJsonCheck": 92,
+    "pathCheck": 787,
+    "requirementsCheck": 33,
+    "venvRequirementsCheck": 12
 }

@@ -8,6 +8,7 @@
             "type": "LocalSystem",
             "accelerators": [
                 {
+                    "device": "npu",
                     "execution_providers": [
                         "OpenVINOExecutionProvider"
                     ]
@@ -18,26 +19,21 @@
     "passes": {
         "optimum_convert": {
             "type": "OpenVINOOptimumConversion",
-            "extra_args": {
-                "device": "npu"
-            },
+            "extra_args": { "device": "npu" },
             "ov_quant_config": {
                 "weight_format": "int4",
                 "group_size": 128,
                 "dataset": "wikitext2",
                 "ratio": 1,
-                "awq": true,
-                "scale_estimation": true,
+                "awq": false,
+                "scale_estimation": false,
                 "sym": true,
                 "trust_remote_code": true,
-                "backup_precision": "int8_sym"
+                "backup_precision": "int8_asym",
+                "sensitivity_metric": "weight_quantization_error"
             }
         },
-        "io_update": {
-            "type": "OpenVINOIoUpdate",
-            "static": false,
-            "reuse_cache": true
-        },
+        "io_update": { "type": "OpenVINOIoUpdate", "static": false, "reuse_cache": true },
         "encapsulation": {
             "type": "OpenVINOEncapsulation",
             "target_device": "npu",
@@ -47,7 +43,6 @@
         }
     },
     "search_strategy": false,
-    "host": "local_system",
     "cache_dir": "cache",
     "evaluate_input_model": false,
     "output_dir": "model/Phi-4-reasoning-plus_context_ov_dynamic_sym_gs128_bkp_int8_sym",

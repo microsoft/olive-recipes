@@ -3,7 +3,9 @@ from pathlib import Path
 import yaml
 from model_lab import RuntimeEnum
 from sanitize.constants import ArchitectureEnum, EPNames, IconEnum, ModelStatusEnum
+from sanitize.generator_amd import generator_amd
 from sanitize.generator_intel import generator_intel
+from sanitize.generator_qnn import generator_qnn
 from sanitize.model_info import ModelInfo, ModelList
 from sanitize.project_config import ModelInfoProject, ModelProjectConfig, WorkflowItem
 from sanitize.utils import GlobalVars
@@ -55,8 +57,9 @@ def convert_yaml_to_model_info(root_dir: Path, yml_file: Path, yaml_object: dict
         runtimes.update(get_runtime(recipe))
     runtimes = [r for r in RuntimeEnum if r in runtimes]
     relative_path = str(yml_file.parent.relative_to(root_dir)).replace("\\", "/")
-    groupId = modelInfo.get("groupId", None)
-    groupItemName = modelInfo.get("groupItemName", None)
+    groupId = modelInfo.get("groupId")
+    groupItemName = modelInfo.get("groupItemName")
+    p0 = modelInfo.get("p0")
     model_info = ModelInfo(
         displayName=display_name,
         icon=icon,
@@ -69,11 +72,12 @@ def convert_yaml_to_model_info(root_dir: Path, yml_file: Path, yaml_object: dict
         relativePath=relative_path,
         groupId=groupId,
         groupItemName=groupItemName,
+        p0=p0,
     )
     return model_info
 
 
-def convert_yaml_to_project_config(yml_file: Path, yaml_object: dict) -> ModelProjectConfig:
+def convert_yaml_to_project_config(yml_file: Path, yaml_object: dict, modelList: ModelList) -> ModelProjectConfig:
     aitk = yaml_object.get("aitk", {})
     modelInfo = aitk.get("modelInfo", {})
     id = modelInfo.get("id")
@@ -89,6 +93,10 @@ def convert_yaml_to_project_config(yml_file: Path, yaml_object: dict) -> ModelPr
         )
         if recipe.get("ep") == EPNames.OpenVINOExecutionProvider.value:
             generator_intel(id, recipe, yml_file.parent)
+        elif recipe.get("ep") == EPNames.VitisAIExecutionProvider.value:
+            generator_amd(id, recipe, yml_file.parent, modelList)
+        elif recipe.get("ep") == EPNames.QNNExecutionProvider.value:
+            generator_qnn(id, recipe, yml_file.parent, modelList)
     version = modelInfo.get("version", 1)
     result = ModelProjectConfig(
         workflows=items,
@@ -124,7 +132,7 @@ def project_processor():
                 continue
         print(f"Process aitk for {yml_file}")
         modelList.models.append(convert_yaml_to_model_info(root_dir, yml_file, yaml_object))
-        convert_yaml_to_project_config(yml_file, yaml_object)
+        convert_yaml_to_project_config(yml_file, yaml_object, modelList)
 
     modelList.models.sort(key=lambda x: (x.GetSortKey()))
     modelList.writeIfChanged()

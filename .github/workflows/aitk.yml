@@ -1,0 +1,22 @@
+name: "Workflow to verify AITK recipes"
+
+on:
+  pull_request:
+    paths:
+      - '**/aitk/**'
+      - '.aitk/**'
+
+jobs:
+  run-script:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install dependencies
+        run: |
+          pip install -r .aitk/scripts/requirements.txt
+      - name: Run script
+        run: python .aitk/scripts/sanitize.py

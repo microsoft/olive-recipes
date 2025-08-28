@@ -1,0 +1,7 @@
+arch: llama
+recipes:
+  - name: DeepSeek-R1-Distill-Llama-8B_VitisAI
+    file: DeepSeek-R1-Distill-Llama-8B_quark_vitisai_llm.json
+    devices: npu
+    eps: VitisAIExecutionProvider
+    

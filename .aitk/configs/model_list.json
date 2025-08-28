@@ -6,10 +6,11 @@
             "modelLink": "https://huggingface.co/deepseek-ai/DeepSeek-R1-Distill-Llama-8B",
             "id": "huggingface/deepseek-ai/DeepSeek-R1-Distill-Llama-8B",
             "runtimes": [
-                "IntelGPU"
+                "IntelGPU",
+                "IntelNPU"
             ],
             "architecture": "Transformer",
-            "status": "Hide",
+            "status": "Ready",
             "relativePath": "deepseek-ai-DeepSeek-R1-Distill-Llama-8B/aitk",
             "version": 1
         },
@@ -23,15 +24,16 @@
             "runtimes": [
                 "QNN",
                 "AMDNPU",
-                "DML",
                 "IntelCPU",
                 "IntelGPU",
-                "IntelNPU"
+                "IntelNPU",
+                "DML"
             ],
             "architecture": "Transformer",
             "status": "Ready",
             "relativePath": "deepseek-ai-DeepSeek-R1-Distill-Qwen-1.5B/aitk",
-            "version": 1
+            "version": 1,
+            "p0": true
         },
         {
             "displayName": "deepseek-ai/DeepSeek-R1-Distill-Qwen-7B",
@@ -41,12 +43,13 @@
             "groupId": "huggingface/deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B",
             "groupItemName": "7B",
             "runtimes": [
-                "IntelGPU"
+                "IntelGPU",
+                "IntelNPU"
             ],
             "architecture": "Transformer",
             "status": "Ready",
             "relativePath": "deepseek-ai-DeepSeek-R1-Distill-Qwen-7B/aitk",
-            "version": 1
+            "version": 2
         },
         {
             "displayName": "deepseek-ai/DeepSeek-R1-Distill-Qwen-14B",
@@ -61,7 +64,7 @@
             "architecture": "Transformer",
             "status": "Ready",
             "relativePath": "deepseek-ai-DeepSeek-R1-Distill-Qwen-14B/aitk",
-            "version": 1
+            "version": 2
         },
         {
             "displayName": "google-bert/bert-base-multilingual-cased",
@@ -72,15 +75,16 @@
                 "QNN",
                 "AMDNPU",
                 "NvidiaTRTRTX",
-                "DML",
                 "IntelCPU",
                 "IntelGPU",
-                "IntelNPU"
+                "IntelNPU",
+                "DML"
             ],
             "architecture": "Transformer",
             "status": "Ready",
             "relativePath": "google-bert-bert-base-multilingual-cased/aitk",
-            "version": 1
+            "version": 1,
+            "p0": true
         },
         {
             "displayName": "google/vit-base-patch16-224",
@@ -91,15 +95,16 @@
                 "QNN",
                 "AMDNPU",
                 "NvidiaTRTRTX",
-                "DML",
                 "IntelCPU",
                 "IntelGPU",
-                "IntelNPU"
+                "IntelNPU",
+                "DML"
             ],
             "architecture": "Transformer",
             "status": "Ready",
             "relativePath": "google-vit-base-patch16-224/aitk",
-            "version": 1
+            "version": 1,
+            "p0": true
         },
         {
             "displayName": "Intel/bert-base-uncased-mrpc",
@@ -110,15 +115,16 @@
                 "QNN",
                 "AMDNPU",
                 "NvidiaTRTRTX",
-                "DML",
                 "IntelCPU",
                 "IntelGPU",
-                "IntelNPU"
+                "IntelNPU",
+                "DML"
             ],
             "architecture": "Transformer",
             "status": "Ready",
             "relativePath": "intel-bert-base-uncased-mrpc/aitk",
-            "version": 1
+            "version": 1,
+            "p0": true
         },
         {
             "displayName": "laion/CLIP-ViT-B-32-laion2B-s34B-b79K",
@@ -129,15 +135,16 @@
                 "QNN",
                 "AMDNPU",
                 "NvidiaTRTRTX",
-                "DML",
                 "IntelCPU",
                 "IntelGPU",
-                "IntelNPU"
+                "IntelNPU",
+                "DML"
             ],
             "architecture": "Transformer",
             "status": "Ready",
             "relativePath": "laion-CLIP-ViT-B-32-laion2B-s34B-b79K/aitk",
-            "version": 1
+            "version": 2,
+            "p0": true
         },
         {
             "displayName": "meta-llama/Llama-3.2-1B-Instruct",
@@ -147,15 +154,16 @@
             "runtimes": [
                 "QNN",
                 "AMDNPU",
-                "DML",
                 "IntelCPU",
                 "IntelGPU",
-                "IntelNPU"
+                "IntelNPU",
+                "DML"
             ],
             "architecture": "Transformer",
             "status": "Ready",
             "relativePath": "meta-llama-Llama-3.2-1B-Instruct/aitk",
-            "version": 1
+            "version": 1,
+            "p0": true
         },
         {
             "displayName": "microsoft/Phi-3-mini-128k-instruct",
@@ -170,7 +178,7 @@
             "architecture": "Transformer",
             "status": "Ready",
             "relativePath": "microsoft-Phi-3-mini-128k-instruct/aitk",
-            "version": 1
+            "version": 2
         },
         {
             "displayName": "microsoft/Phi-3-mini-4k-instruct",
@@ -180,12 +188,13 @@
             "groupId": "huggingface/microsoft/Phi-3-mini-4k-instruct",
             "groupItemName": "4K",
             "runtimes": [
-                "IntelGPU"
+                "IntelGPU",
+                "IntelNPU"
             ],
             "architecture": "Transformer",
             "status": "Ready",
             "relativePath": "microsoft-Phi-3-mini-4k-instruct/aitk",
-            "version": 1
+            "version": 2
         },
         {
             "displayName": "microsoft/Phi-3.5-mini-instruct",
@@ -195,15 +204,16 @@
             "runtimes": [
                 "QNN",
                 "AMDNPU",
-                "DML",
                 "IntelCPU",
                 "IntelGPU",
-                "IntelNPU"
+                "IntelNPU",
+                "DML"
             ],
             "architecture": "Transformer",
             "status": "Ready",
             "relativePath": "microsoft-Phi-3.5-mini-instruct/aitk",
-            "version": 1
+            "version": 1,
+            "p0": true
         },
         {
             "displayName": "microsoft/Phi-4-mini-instruct",
@@ -211,12 +221,13 @@
             "modelLink": "https://huggingface.co/microsoft/Phi-4-mini-instruct",
             "id": "huggingface/microsoft/Phi-4-mini-instruct",
             "runtimes": [
-                "IntelGPU"
+                "IntelGPU",
+                "IntelNPU"
             ],
             "architecture": "Transformer",
             "status": "Ready",
             "relativePath": "microsoft-Phi-4-mini-instruct/aitk",
-            "version": 1
+            "version": 2
         },
         {
             "displayName": "microsoft/Phi-4-mini-reasoning",
@@ -224,14 +235,13 @@
             "modelLink": "https://huggingface.co/microsoft/Phi-4-mini-reasoning",
             "id": "huggingface/microsoft/Phi-4-mini-reasoning",
             "runtimes": [
-                "IntelCPU",
                 "IntelGPU",
                 "IntelNPU"
             ],
             "architecture": "Transformer",
             "status": "Ready",
             "relativePath": "microsoft-Phi-4-mini-reasoning/aitk",
-            "version": 1
+            "version": 2
         },
         {
             "displayName": "microsoft/Phi-4-reasoning",
@@ -239,14 +249,12 @@
             "modelLink": "https://huggingface.co/microsoft/Phi-4-reasoning",
             "id": "huggingface/microsoft/Phi-4-reasoning",
             "runtimes": [
-                "IntelCPU",
-                "IntelGPU",
                 "IntelNPU"
             ],
             "architecture": "Transformer",
             "status": "Ready",
             "relativePath": "microsoft-Phi-4-reasoning/aitk",
-            "version": 1
+            "version": 2
         },
         {
             "displayName": "microsoft/Phi-4-reasoning-plus",
@@ -254,14 +262,12 @@
             "modelLink": "https://huggingface.co/microsoft/Phi-4-reasoning-plus",
             "id": "huggingface/microsoft/Phi-4-reasoning-plus",
             "runtimes": [
-                "IntelCPU",
-                "IntelGPU",
                 "IntelNPU"
             ],
             "architecture": "Transformer",
             "status": "Ready",
             "relativePath": "microsoft-Phi-4-reasoning-plus/aitk",
-            "version": 1
+            "version": 2
         },
         {
             "displayName": "Microsoft/ResNet-50",
@@ -272,15 +278,16 @@
                 "QNN",
                 "AMDNPU",
                 "NvidiaTRTRTX",
-                "DML",
                 "IntelCPU",
                 "IntelGPU",
-                "IntelNPU"
+                "IntelNPU",
+                "DML"
             ],
             "architecture": "CNN",
             "status": "Ready",
             "relativePath": "microsoft-resnet-50/aitk",
-            "version": 1
+            "version": 1,
+            "p0": true
         },
         {
             "displayName": "mistralai/Mistral-7B-Instruct-v0.3",
@@ -293,7 +300,7 @@
             "architecture": "Transformer",
             "status": "Ready",
             "relativePath": "mistralai-Mistral-7B-Instruct-v0.3/aitk",
-            "version": 1
+            "version": 2
         },
         {
             "displayName": "openai/clip-vit-base-patch16",
@@ -304,15 +311,16 @@
                 "QNN",
                 "AMDNPU",
                 "NvidiaTRTRTX",
-                "DML",
                 "IntelCPU",
                 "IntelGPU",
-                "IntelNPU"
+                "IntelNPU",
+                "DML"
             ],
             "architecture": "Transformer",
             "status": "Ready",
             "relativePath": "openai-clip-vit-base-patch16/aitk",
-            "version": 1
+            "version": 2,
+            "p0": true
         },
         {
             "displayName": "openai/clip-vit-base-patch32",
@@ -323,15 +331,16 @@
                 "QNN",
                 "AMDNPU",
                 "NvidiaTRTRTX",
-                "DML",
                 "IntelCPU",
                 "IntelGPU",
-                "IntelNPU"
+                "IntelNPU",
+                "DML"
             ],
             "architecture": "Transformer",
             "status": "Ready",
             "relativePath": "openai-clip-vit-base-patch32/aitk",
-            "version": 1
+            "version": 2,
+            "p0": true
         },
         {
             "displayName": "openai/clip-vit-large-patch14",
@@ -342,14 +351,27 @@
                 "QNN",
                 "AMDNPU",
                 "NvidiaTRTRTX",
-                "DML",
                 "IntelCPU",
                 "IntelGPU",
-                "IntelNPU"
+                "IntelNPU",
+                "DML"
             ],
             "architecture": "Transformer",
             "status": "Ready",
             "relativePath": "openai-clip-vit-large-patch14/aitk",
+            "version": 1
+        },
+        {
+            "displayName": "Qwen/Qwen2.5-0.5B",
+            "icon": "qwen",
+            "modelLink": "https://huggingface.co/Qwen/Qwen2.5-0.5B",
+            "id": "huggingface/Qwen/Qwen2.5-0.5B",
+            "runtimes": [
+                "IntelGPU"
+            ],
+            "architecture": "Transformer",
+            "status": "Hide",
+            "relativePath": "Qwen-Qwen2.5-0.5B/aitk",
             "version": 1
         },
         {
@@ -360,12 +382,13 @@
             "groupId": "huggingface/Qwen/Qwen2.5-1.5B-Instruct",
             "groupItemName": "0.5B",
             "runtimes": [
-                "IntelGPU"
+                "IntelGPU",
+                "IntelNPU"
             ],
             "architecture": "Transformer",
             "status": "Ready",
             "relativePath": "Qwen-Qwen2.5-0.5B-Instruct/aitk",
-            "version": 1
+            "version": 2
         },
         {
             "displayName": "Qwen/Qwen2.5-1.5B-Instruct",
@@ -377,15 +400,16 @@
             "runtimes": [
                 "QNN",
                 "AMDNPU",
-                "DML",
                 "IntelCPU",
                 "IntelGPU",
-                "IntelNPU"
+                "IntelNPU",
+                "DML"
             ],
             "architecture": "Transformer",
             "status": "Ready",
             "relativePath": "Qwen-Qwen2.5-1.5B-Instruct/aitk",
-            "version": 1
+            "version": 1,
+            "p0": true
         },
         {
             "displayName": "Qwen/Qwen2.5-3B-Instruct",
@@ -400,7 +424,7 @@
             "architecture": "Transformer",
             "status": "Ready",
             "relativePath": "Qwen-Qwen2.5-3B-Instruct/aitk",
-            "version": 1
+            "version": 2
         },
         {
             "displayName": "Qwen/Qwen2.5-7B-Instruct",
@@ -410,12 +434,13 @@
             "groupId": "huggingface/Qwen/Qwen2.5-1.5B-Instruct",
             "groupItemName": "7B",
             "runtimes": [
-                "IntelGPU"
+                "IntelGPU",
+                "IntelNPU"
             ],
             "architecture": "Transformer",
             "status": "Ready",
             "relativePath": "Qwen-Qwen2.5-7B-Instruct/aitk",
-            "version": 1
+            "version": 2
         },
         {
             "displayName": "Qwen/Qwen2.5-14B-Instruct",
@@ -430,7 +455,7 @@
             "architecture": "Transformer",
             "status": "Ready",
             "relativePath": "Qwen-Qwen2.5-14B-Instruct/aitk",
-            "version": 1
+            "version": 2
         },
         {
             "displayName": "Qwen/Qwen2.5-Coder-0.5B-Instruct",
@@ -440,12 +465,13 @@
             "groupId": "huggingface/Qwen/Qwen2.5-Coder-1.5B-Instruct",
             "groupItemName": "0.5B",
             "runtimes": [
-                "IntelGPU"
+                "IntelGPU",
+                "IntelNPU"
             ],
             "architecture": "Transformer",
             "status": "Ready",
             "relativePath": "Qwen-Qwen2.5-Coder-0.5B-Instruct/aitk",
-            "version": 1
+            "version": 2
         },
         {
             "displayName": "Qwen/Qwen2.5-Coder-1.5B-Instruct",
@@ -455,12 +481,13 @@
             "groupId": "huggingface/Qwen/Qwen2.5-Coder-1.5B-Instruct",
             "groupItemName": "1.5B",
             "runtimes": [
-                "IntelGPU"
+                "IntelGPU",
+                "IntelNPU"
             ],
             "architecture": "Transformer",
             "status": "Ready",
             "relativePath": "Qwen-Qwen2.5-Coder-1.5B-Instruct/aitk",
-            "version": 1
+            "version": 2
         },
         {
             "displayName": "Qwen/Qwen2.5-Coder-3B-Instruct",
@@ -475,7 +502,7 @@
             "architecture": "Transformer",
             "status": "Ready",
             "relativePath": "Qwen-Qwen2.5-Coder-3B-Instruct/aitk",
-            "version": 1
+            "version": 2
         },
         {
             "displayName": "Qwen/Qwen2.5-Coder-7B-Instruct",
@@ -485,12 +512,13 @@
             "groupId": "huggingface/Qwen/Qwen2.5-Coder-1.5B-Instruct",
             "groupItemName": "7B",
             "runtimes": [
-                "IntelGPU"
+                "IntelGPU",
+                "IntelNPU"
             ],
             "architecture": "Transformer",
             "status": "Ready",
             "relativePath": "Qwen-Qwen2.5-Coder-7B-Instruct/aitk",
-            "version": 1
+            "version": 2
         },
         {
             "displayName": "Qwen/Qwen2.5-Coder-14B-Instruct",
@@ -505,7 +533,7 @@
             "architecture": "Transformer",
             "status": "Ready",
             "relativePath": "Qwen-Qwen2.5-Coder-14B-Instruct/aitk",
-            "version": 1
+            "version": 2
         }
     ],
     "template_models": [
@@ -574,7 +602,13 @@
     "DatasetSubset": {
         "nlphuji/flickr30k": [],
         "imagenet-1k": [],
-        "timm/mini-imagenet": []
+        "timm/mini-imagenet": [],
+        "wikitext": [
+            "wikitext-103-raw-v1",
+            "wikitext-103-v1",
+            "wikitext-2-raw-v1",
+            "wikitext-2-v1"
+        ]
     },
     "DisplayNameToRuntimeRPC": {
         "CPU": "CPU",

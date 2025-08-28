@@ -1,3 +1,4 @@
+pyyaml
 pydash
 pydantic
 deepdiff

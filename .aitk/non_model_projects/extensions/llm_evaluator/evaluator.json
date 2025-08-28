@@ -24,7 +24,6 @@
             "save_as_external_data": true
         }
     },
-    "host": "local_system",
     "target": "local_system",
     "evaluator": "modelLab_llm_evaluator",
     "evaluate_input_model": false,

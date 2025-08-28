@@ -6,9 +6,17 @@ recipes:
       devices:
         - gpu
       ep: OpenVINOExecutionProvider
+      aitk:
+          oliveFile: "qwen2_5/openvino/Qwen2.5-Coder-7B-Instruct-gpu-context-dy.json"
+    - file: "qwen2_5_ov_npu_config.json"
+      devices:
+        - npu
+      ep: OpenVINOExecutionProvider
+      aitk:
+          oliveFile: "qwen2_5/openvino/Qwen2.5_Coder_7B_instruct_context_ov_dynamic_sym_bkp_int8_sym_r1.json"
 aitk:
     modelInfo:
         id: "huggingface/Qwen/Qwen2.5-Coder-7B-Instruct"
-        version: 1
+        version: 2
         groupId: "huggingface/Qwen/Qwen2.5-Coder-1.5B-Instruct"
         groupItemName: "7B"

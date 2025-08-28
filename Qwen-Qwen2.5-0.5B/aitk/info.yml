@@ -1,0 +1,17 @@
+keywords:
+    aitk
+arch: qwen2
+recipes:
+    - file: "qwen2_5_ov_config.json"
+      devices:
+        - gpu
+      ep: OpenVINOExecutionProvider
+      aitk:
+          requirements: Intel/Test_py3.12.9
+          requirementsPatches:
+            - Transformers4.49
+aitk:
+    modelInfo:
+        id: "huggingface/Qwen/Qwen2.5-0.5B"
+        version: 1
+        status: Hide

@@ -1,19 +1,30 @@
 keywords:
     aitk
-arch: llama
+arch: llama3
 recipes:
     - file: "llama3_2_qnn_config.json"
       device: npu
       ep: QNNExecutionProvider
+      aitk:
+        oliveFile: "phi3_5/qnn_config.json"
     - file: "llama3_2_vitis_ai_config.json"
       device: npu
       ep: VitisAIExecutionProvider
+      aitk:
+        oliveFile: "phi3_5/qdq_config_vitis_ai.json"
+        requirementsPatches:
+          - AutoGptq
+        runtimeOverwrite:
+          executeEp: CUDAExecutionProvider
+        evalRuntime: AMDNPU
     - file: "llama3_2_ov_config.json"
       devices:
-        - npu
         - cpu
         - gpu
+        - npu
       ep: OpenVINOExecutionProvider
+      aitk:
+        oliveFile: "llama3/openvino/Llama-3.2-1B-Instruct_context_ov_dynamic_sym_bkp_int8_sym.json"
     - file: "llama3_2_dml_config.json"
       device: gpu
       ep: DmlExecutionProvider
@@ -21,3 +32,4 @@ aitk:
     modelInfo:
         id: "huggingface/meta-llama/Llama-3.2-1B-Instruct"
         version: 1
+        p0: true

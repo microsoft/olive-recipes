@@ -7,7 +7,7 @@ from typing import List, Optional
 from pydantic import BaseModel
 
 from .base import BaseModelClass
-from .constants import IconEnum
+from .constants import ArchitectureEnum, IconEnum
 from .model_info import ModelInfo
 from .utils import GlobalVars, open_ex, printError, printProcess
 
@@ -36,6 +36,7 @@ class ModelInfoProject(BaseModel):
     displayName: Optional[str] = None
     icon: Optional[IconEnum] = None
     modelLink: Optional[str] = None
+    architecture: Optional[ArchitectureEnum] = None
 
     def Check(self, modelInfo: ModelInfo):
         if not self.id:
@@ -45,6 +46,8 @@ class ModelInfoProject(BaseModel):
         if self.icon and self.icon != modelInfo.icon:
             return False
         if self.modelLink and self.modelLink != modelInfo.modelLink:
+            return False
+        if self.architecture and self.architecture != modelInfo.architecture:
             return False
         return True
 

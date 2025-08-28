@@ -11,6 +11,6 @@ recipes:
 aitk:
     modelInfo:
         id: "huggingface/Qwen/Qwen2.5-Coder-14B-Instruct"
-        version: 1
+        version: 2
         groupId: "huggingface/Qwen/Qwen2.5-Coder-1.5B-Instruct"
         groupItemName: "14B"

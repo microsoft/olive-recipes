@@ -1,0 +1,7 @@
+arch: mistral
+recipes:
+  - name: Mistral-7B-Instruct-v0.3_VitisAI
+    file: Mistral-7B-Instruct-v0.3_quark_vitisai_llm.json
+    devices: npu
+    eps: VitisAIExecutionProvider
+    

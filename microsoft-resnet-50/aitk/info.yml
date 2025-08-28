@@ -26,3 +26,4 @@ aitk:
         version: 1
         architecture: CNN
         displayName: "Microsoft/ResNet-50"
+        p0: true
