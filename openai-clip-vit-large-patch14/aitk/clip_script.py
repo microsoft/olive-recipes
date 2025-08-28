@@ -149,3 +149,41 @@ def eval_similarity_degrad(output, targets, batch_size=1024):
         for i in range(0, preds.size(0), batch_size)
     ]
     return {"percentage": f"{100.0 - torch.mean(torch.cat(scores)) * 100.0:.2f}"}
+
+
+def eval_embedding_accuracy(output, targets, batch_size=1024, similarity_threshold=0.95):
+    """
+    Evaluate accuracy based on cosine similarity threshold.
+    
+    Args:
+        output: Model output containing predictions
+        targets: Ground truth embeddings
+        batch_size: Batch size for processing
+        similarity_threshold: Threshold for considering embeddings as "correct" (default: 0.95)
+    
+    Returns:
+        Dictionary containing accuracy percentage
+    """
+    import torch.nn.functional as F
+
+    preds = output.preds
+
+    # Calculate cosine similarity for each batch
+    similarities = []
+    for i in range(0, preds.size(0), batch_size):
+        batch_preds = preds[i : i + batch_size]
+        batch_targets = targets[i : i + batch_size]
+        batch_similarities = F.cosine_similarity(batch_preds, batch_targets)
+        similarities.append(batch_similarities)
+
+    # Concatenate all similarities
+    all_similarities = torch.cat(similarities)
+
+    # Count predictions above threshold (considered "correct")
+    correct_predictions = (all_similarities >= similarity_threshold).sum().item()
+    total_predictions = all_similarities.size(0)
+
+    # Calculate accuracy
+    accuracy = (correct_predictions / total_predictions) * 100.0
+
+    return {"accuracy": f"{accuracy:.2f}"}
