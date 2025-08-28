@@ -160,6 +160,10 @@ class DebugInfo(BaseModel):
     # - could not disable quantization
     # - use OpenVINOConversion for conversion
     useOpenVINOOptimumConversion: Optional[str] = None
+    # This kind of config will
+    # - could not disable quantization
+    # - use QuarkQuantization for conversion
+    useQuarkQuantization: Optional[str] = None
 
     def setupUseX(self, oliveJson: Any):
         def getPass(passType: str):
@@ -172,41 +176,32 @@ class DebugInfo(BaseModel):
                 None,
             )
 
-        # setup useModelBuilder
         self.useModelBuilder = getPass(OlivePassNames.ModelBuilder)
-
-        # setup useOpenVINOConversion
         self.useOpenVINOConversion = getPass(OlivePassNames.OpenVINOConversion)
-
-        # setup useOpenVINOOptimumConversion
         self.useOpenVINOOptimumConversion = getPass(OlivePassNames.OpenVINOOptimumConversion)
-        if (
-            sum(
-                bool(v)
-                for v in [
-                    self.useModelBuilder,
-                    self.useOpenVINOConversion,
-                    self.useOpenVINOOptimumConversion,
-                ]
-            )
-            > 1
-        ):
-            printError(f"should not have both useModelBuilder and useOpenVINOConversion")
+        self.useQuarkQuantization = getPass(OlivePassNames.QuarkQuantization)
+
+        notEmpty = [
+            v
+            for v in [
+                self.useModelBuilder,
+                self.useOpenVINOConversion,
+                self.useOpenVINOOptimumConversion,
+                self.useQuarkQuantization,
+            ]
+            if v
+        ]
+        self._use = notEmpty[0] if notEmpty else None
+        if len(notEmpty) > 1:
+            printError(f"should not mix them")
             return False
         return True
 
     def getUseX(self):
-        if self.useModelBuilder:
-            return self.useModelBuilder
-        elif self.useOpenVINOConversion:
-            return self.useOpenVINOConversion
-        elif self.useOpenVINOOptimumConversion:
-            return self.useOpenVINOOptimumConversion
-        else:
-            return None
+        return self._use
 
     def isEmpty(self):
-        return not (self.useModelBuilder or self.useOpenVINOConversion or self.useOpenVINOOptimumConversion)
+        return not self._use
 
 
 class ModelParameter(BaseModelClass):

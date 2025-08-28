@@ -5,9 +5,9 @@
     "inferenceModelCheck": 24,
     "ipynbCheck": 38,
     "modelProjectCheck": 35,
-    "oliveCheck": 75,
+    "oliveCheck": 0,
     "oliveJsonCheck": 89,
-    "pathCheck": 598,
+    "pathCheck": 594,
     "requirementsCheck": 34,
     "venvRequirementsCheck": 12
 }

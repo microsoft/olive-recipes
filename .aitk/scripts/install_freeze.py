@@ -21,10 +21,9 @@ evaluateVersion = "evaluate==0.4.3"
 scikitLearnVersion = "scikit-learn==1.6.1"
 optimumVersion = "optimum==1.26.0"
 # if from git: "git+https://github.com/microsoft/Olive.git@COMMIT_ID#egg=olive_ai
-oliveAi = (
-    "olive-ai@git+https://github.com/microsoft/Olive.git@8365802b68c32725418ae2c8999b9a90af0d41e0#egg=olive-ai"
-)
+oliveAi = "olive-ai@git+https://github.com/microsoft/Olive.git@8365802b68c32725418ae2c8999b9a90af0d41e0#egg=olive-ai"
 torchVision = "torchvision==0.22.0"
+
 
 def get_requires(name: str, args):
     # TODO for this case, need to install via Model Lab first
@@ -186,6 +185,7 @@ def main():
     # write result
     outputFile = path.join(configs_dir, "requirements", f"requirements-{args.runtime}.txt")
     with open(outputFile, "w", newline="\n") as f:
+
         def write_requires_recursively(name: str):
             requires = get_requires(name, args)
             print(f"Requires for {name}: {requires}")
