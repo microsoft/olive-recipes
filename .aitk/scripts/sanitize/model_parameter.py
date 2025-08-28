@@ -481,6 +481,7 @@ class ModelParameter(BaseModelClass):
         return None
 
     def CheckRuntimeInConversion(self, oliveJson: Any, modelList: ModelList, modelInfo: ModelInfo):
+        # TODO same model is used accross CPU, NPU, GPU now
         self.runtimeInConversion = None
         return
 

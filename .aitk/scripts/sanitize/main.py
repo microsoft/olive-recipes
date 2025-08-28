@@ -36,7 +36,7 @@ def main():
     argparser.add_argument(
         "-o",
         "--olive",
-        default="d:/hualxie/Olive",
+        default="",
         type=str,
         help="Path to olive repo to check json files",
     )

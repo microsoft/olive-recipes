@@ -4,7 +4,7 @@
         "model_path": "microsoft/Phi-3.5-mini-instruct"
     },
     "systems": {
-        "qnn_system": {
+        "target_system": {
             "type": "PythonEnvironment",
             "python_environment_path": "/path/to/qnn/env/bin",
             "accelerators": [
@@ -123,7 +123,7 @@
             "type": "ComposeOnnxModels"
         }
     },
-    "target": "qnn_system",
+    "target": "target_system",
     "log_severity_level": 1,
     "output_dir": "model/phi3_5",
     "cache_dir": "cache",

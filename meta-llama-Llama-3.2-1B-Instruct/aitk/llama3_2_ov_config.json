@@ -19,21 +19,27 @@
     "passes": {
         "optimum_convert": {
             "type": "OpenVINOOptimumConversion",
-            "extra_args": { "device": "npu" },
+            "extra_args": {
+                "device": "npu"
+            },
             "ov_quant_config": {
                 "weight_format": "int4",
                 "group_size": 128,
                 "dataset": "wikitext2",
                 "ratio": 1,
-                "awq": true,
-                "scale_estimation": true,
                 "sym": true,
                 "trust_remote_code": true,
-                "backup_precision": "int8_sym",
-                "sensitivity_metric": "weight_quantization_error"
+                "awq": true,
+                "scale_estimation": true,
+                
+                "backup_precision": "int8_sym"
             }
         },
-        "io_update": { "type": "OpenVINOIoUpdate", "static": false, "reuse_cache": true },
+        "io_update": {
+            "type": "OpenVINOIoUpdate",
+            "static": false,
+            "reuse_cache": true
+        },
         "encapsulation": {
             "type": "OpenVINOEncapsulation",
             "target_device": "npu",
