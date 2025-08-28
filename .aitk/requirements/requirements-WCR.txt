@@ -116,5 +116,3 @@ threadpoolctl==3.6.0
 optimum==1.26.0
 # not in requires
 hf-xet==1.1.9
-onnxruntime-genai-winml==0.8.3
-onnxruntime-winml==1.22.0.post1
