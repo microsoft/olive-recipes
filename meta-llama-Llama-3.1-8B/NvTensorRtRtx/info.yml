@@ -1,0 +1,6 @@
+arch: llama
+recipes:
+  - name: Llama3.1_8B_NVMO_INT4_AWQ
+    file: Llama-3.1-8B_nvmo_int4_awq.json
+    devices: gpu
+    eps: NvTensorRTRTXExecutionProvider
