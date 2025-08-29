@@ -13,15 +13,9 @@ This workflow quantizes the model. It performs the pipeline:
 
 ### Latency / Throughput
 
-| EP                    | Latency (ms/sample)  | Throughput (token per second)| Dataset       |
+| Model Version         | Latency (ms/sample)  | Throughput (token per second)| Dataset       |
 |-----------------------|----------------------|------------------------------|---------------|
-| QNN                   | 12.46                | 151.80                       | facebook/xnli |
-| Intel NPU             | 4.54                 |                              | wikipedia     |
-| Intel GPU             | 2.85                 |                              | wikipedia     |
-| Intel CPU             | 4.30                 |                              | wikipedia     |
-| AMD NPU               | 11.95                | 83.54                        | facebook/xnli |
-| NVIDIA TRT            | 1.95                 | 492.08                       | facebook/xnli |
-| DirectML              | 6.05                 | 179.68                       | facebook/xnli |
-|-----------------------|----------------------|------------------------------|---------------|
+| PyTorch FP32          | 1162                 | 0.81                         | facebook/xnli |
+| ONNX INT8 (QDQ)       | 590                  | 1.75                         | facebook/xnli |
 
 *Note: Latency can vary significantly depending on the hardware and system environment. The values provided here are for reference only and may not reflect performance on all devices.*
