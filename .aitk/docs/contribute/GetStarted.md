@@ -53,7 +53,7 @@ In AITK, the recipe conversion and evaluation process are separated. They could 
 
 To create such file, please
 
-- Create a clean venv and install are needed packages
+- Create a clean venv and install all needed packages
 - Use pip freeze to save the requirements into `.aitk/requirements/XXX/YYY_py3.12.9.txt`
     - Python version is also flexible as long as it is in uv supported list [Python versions | uv](https://docs.astral.sh/uv/concepts/python-versions/#viewing-available-python-versions)
     - Choose a python version that most packages have already built against it. For example, onnx 1.17.0 build against 312 but [not latest 313](https://pypi.org/pypi/onnx/1.17.0/json)
