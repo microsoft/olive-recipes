@@ -94,7 +94,7 @@
         "common_evaluator": {
             "metrics": [
                 {
-                    "name": "accuracy-qnn",
+                    "name": "accuracy",
                     "type": "accuracy",
                     "backend": "huggingface_metrics",
                     "data_config": "metric_data_config",
@@ -106,7 +106,7 @@
                     ]
                 },
                 {
-                    "name": "latency_qnn",
+                    "name": "latency",
                     "type": "latency",
                     "data_config": "metric_data_config",
                     "sub_types": [
