@@ -100,6 +100,9 @@
             "target_opset": 20,
             "save_as_external_data": true
         },
+        "onnx_simplify": {
+            "type": "OnnxPeepholeOptimizer"
+        },
         "dynamic_shape_to_fixed": {
             "type": "DynamicToFixedShape",
             "dim_param": [
@@ -115,40 +118,25 @@
             "type": "GraphSurgeries",
             "surgeries": [
                 {
-                    "surgeon": "ReplaceAttentionMaskValue",
-                    "replacement": -100.0
+                    "surgeon": "ReplaceAttentionMaskValue"
                 },
                 {
                     "surgeon": "MatMulAddToGemm"
                 }
             ]
         },
-        "transformer_optimizer": {
-            "type": "OrtTransformersOptimization",
-            "model_type": "bert",
-            "opt_level": 1,
-            "optimization_options": {
-                "enable_gelu": true,
-                "enable_bias_gelu": false,
-                "enable_layer_norm": true,
-                "enable_skip_layer_norm": false,
-                "enable_bias_skip_layer_norm": false,
-                "enable_attention": false
-            },
-            "save_as_external_data": true
-        },
         "quantization": {
             "type": "OnnxStaticQuantization",
             "data_config": "glue_mrpc",
-            "quant_preprocess": true,
             "activation_type": "uint16",
             "precision": "uint8",
+            "calibrate_method": "MinMax",
+            "quant_preprocess": true,
             "save_as_external_data": true
         }
     },
     "evaluator": "common_evaluator",
     "evaluate_input_model": false,
-    "host": "local_system",
     "target": "local_system",
     "cache_dir": "cache",
     "output_dir": "model/bert_ptq_qnn"

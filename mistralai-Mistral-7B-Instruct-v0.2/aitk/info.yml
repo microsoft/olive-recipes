@@ -1,0 +1,18 @@
+keywords:
+    aitk
+arch: mistral
+recipes:
+    - file: "Mistral_7B_Instruct_v0.2_gpu_context_ov_dy.json"
+      device: gpu
+      ep: OpenVINOExecutionProvider
+      aitk:
+          oliveFile: "mistral/openvino/Mistral_7B_Instruct_v0.2_gpu_context_ov_dy.json"
+    - file: "Mistral_7B_Instruct_v0.2_npu_context_ov_dy.json"
+      device: npu
+      ep: OpenVINOExecutionProvider
+      aitk:
+          oliveFile: "mistral/openvino/Mistral_7B_Instruct_v0.2_npu_context_ov_dy_sym_gs128_bkp_int8_sym.json"
+aitk:
+    modelInfo:
+        id: "huggingface/mistralai/Mistral-7B-Instruct-v0.2"
+        version: 1
