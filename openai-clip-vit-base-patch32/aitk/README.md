@@ -5,7 +5,7 @@ This folder contains examples of Openai Clip optimization using different workfl
 - Text and vision model QDQ for Qualcomm NPU
 - QDQ for AMD NPU
 - OpenVINO for Intel NPU
-- Float downcasting for NVIDIA TRT for RTX GPU / DML for general GPU / WebGPU for general GPU
+- Float downcasting for NVIDIA TRT for RTX GPU / DML for general GPU
 
 ## Openai Clip text optimization with QDQ for Qualcomm NPU
 
@@ -48,7 +48,7 @@ This example performs Openai Clip optimization with QDQ in one workflow. It perf
 
 This example performs Openai Clip optimization with OpenVINO in one workflow for Intel NPU.
 
-## Float downcasting for NVIDIA TRT for RTX GPU / DML for general GPU / WebGPU for general GPU
+## Float downcasting for NVIDIA TRT for RTX GPU / DML for general GPU
 
 It performs the optimization pipeline:
 

@@ -25,9 +25,6 @@ recipes:
     - file: "openai_clip_dml.json"
       device: gpu
       ep: DmlExecutionProvider
-    - file: "openai_clip_webgpu.json"
-      device: gpu
-      ep: WebGpuExecutionProvider
 aitk:
     modelInfo:
         id: "huggingface/openai/clip-vit-base-patch32"

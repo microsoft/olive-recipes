@@ -7,7 +7,7 @@ This repository demonstrates the optimization of the [DeepSeek-R1-Distill-Qwen-1
    + This process extends the QDQ flow and compiling specifically for **Qualcomm NPUs**
 - OpenVINO for Intel NPU
    + This process uses OpenVINO specific passes like `OpenVINOOptimumConversion`, `OpenVINOIoUpdate` and `OpenVINOEncapsulation`
-- Float downcasting for NVIDIA TRT for RTX GPU / WebGPU for general GPU
+- Float downcasting for NVIDIA TRT for RTX GPU
 - DML for general GPU
    + This process uses AutoAWQ and ModelBuilder
 

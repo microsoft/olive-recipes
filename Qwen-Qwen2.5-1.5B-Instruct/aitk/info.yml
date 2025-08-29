@@ -31,9 +31,6 @@ recipes:
     - file: "qwen2_5_dml_config.json"
       device: gpu
       ep: DmlExecutionProvider
-    - file: "qwen2_5_webgpu_config.json"
-      device: gpu
-      ep: WebGpuExecutionProvider
 aitk:
     modelInfo:
         id: "huggingface/Qwen/Qwen2.5-1.5B-Instruct"
