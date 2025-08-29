@@ -119,7 +119,8 @@ Run .aitk/scripts/sanitize.py to config and generate AITK specific files. These 
 - model_list.json: you could see that new model is correctly added
 - .gitignore: default pattern for AITK project files
 - model_project.config: list recipes same as info.yml
-- xxx.json.config: UX definition file for xxx.json. Automatically generated for intel llm model now
+- xxx.json.config: UX definition file for xxx.json. Automatically generated for llm model now
+    - For new recipes, we may need to work together for generation
 
 You could also see warnings for your project:
 
