@@ -9,7 +9,7 @@ In general, the following steps should be done to submit recipes to AITK and the
 |-|-|
 | Create Folder | Create folder for new model |
 | Create Olive recipes | Add Olive recipes for converting the model |
-| Create Requirements file (optional) | Create file to configure stand‑alone Python venv |
+| Create Requirements file (optional) | Create file to configure stand-alone Python venv |
 | Create info.yml | Info.yml is used to describe the olive recipes and AITK project |
 | Run sanitize.py | Sanitize.py will help to validate and generate additional files for AITK |
 | Test in AITK | Do E2E test |
