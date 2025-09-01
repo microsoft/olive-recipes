@@ -30,7 +30,7 @@ Base requirements is determined by two ways:
 
 This is determined by `executeRuntimeFeatures` in json.config. One could find it by append the name in base requirements.
 - for example, in [DeepSeek QNN](..\..\..\deepseek-ai-DeepSeek-R1-Distill-Qwen-1.5B\aitk\deepseek_qnn_config.json.config), `executeRuntimeFeatures` is `AutoGptq`, so it will use [requirements-NvidiaGPU-AutoGptq](..\..\requirements\requirements-NvidiaGPU-AutoGptq.txt)
-- for example, in [Qwen OV](..\..\..\Qwen-Qwen2.5-0.5B\aitk\qwen2_5_ov_config.json.config), `   executeRuntimeFeatures` is `Transformers4.49`, so it will use [Intel\Test-Transformers4.49](..\..\requirements\Intel\Test_py3.12.9-Transformers4.49.txt)
+- for example, in [Qwen OV](..\..\..\Qwen-Qwen2.5-0.5B\aitk\qwen2_5_ov_config.json.config), `executeRuntimeFeatures` is `Transformers4.49`, so it will use [Intel\Test-Transformers4.49](..\..\requirements\Intel\Test_py3.12.9-Transformers4.49.txt)
 
 ### Project requirements
 
