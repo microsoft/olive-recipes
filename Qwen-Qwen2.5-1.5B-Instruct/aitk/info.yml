@@ -6,7 +6,7 @@ recipes:
       device: npu
       ep: QNNExecutionProvider
       aitk:
-        oliveFile: "qwen2_5/qnn/qwen_2.5_1.5b_instruct_qnn_config.json"
+        oliveFile: "phi3_5/qnn_config.json"
     - file: "qwen2_5_vitis_ai_config.json"
       device: npu
       ep: VitisAIExecutionProvider
