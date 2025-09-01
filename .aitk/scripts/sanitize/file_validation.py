@@ -102,11 +102,13 @@ def readCheckOliveConfig(oliveJsonFile: str, model: ModelInfo):
         return
 
     # check host
-    if OlivePropertyNames.Host in oliveJson:
-        if oliveJson[OlivePropertyNames.Host] == target:
-            printError(
-                f"{oliveJsonFile} should not use same host as target because they are different concepts. You should either remove it (recommeneded) or setup a separate one"
-            )
+    # TODO remove later
+    if not (model.p0 and model.version == 1):
+        if OlivePropertyNames.Host in oliveJson:
+            if oliveJson[OlivePropertyNames.Host] == target:
+                printError(
+                    f"{oliveJsonFile} should not use same host as target. You should either remove it or setup a separate one"
+                )
 
     # cache / output / evaluate_input_model
     if OlivePropertyNames.CleanCache in oliveJson and oliveJson[OlivePropertyNames.CleanCache]:

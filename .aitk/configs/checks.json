@@ -3,11 +3,11 @@
     "extensionCheck": 1,
     "gitignoreCheck": 34,
     "inferenceModelCheck": 24,
-    "ipynbCheck": 38,
+    "ipynbCheck": 34,
     "modelProjectCheck": 35,
     "oliveCheck": 0,
-    "oliveJsonCheck": 89,
-    "pathCheck": 582,
+    "oliveJsonCheck": 86,
+    "pathCheck": 640,
     "requirementsCheck": 34,
-    "venvRequirementsCheck": 13
+    "venvRequirementsCheck": 12
 }

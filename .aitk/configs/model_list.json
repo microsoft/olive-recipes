@@ -103,7 +103,7 @@
             "architecture": "Transformer",
             "status": "Ready",
             "relativePath": "google-vit-base-patch16-224/aitk",
-            "version": 1,
+            "version": 2,
             "p0": true
         },
         {
@@ -123,7 +123,7 @@
             "architecture": "Transformer",
             "status": "Ready",
             "relativePath": "intel-bert-base-uncased-mrpc/aitk",
-            "version": 1,
+            "version": 2,
             "p0": true
         },
         {
@@ -299,7 +299,7 @@
             "architecture": "CNN",
             "status": "Ready",
             "relativePath": "microsoft-resnet-50/aitk",
-            "version": 1,
+            "version": 2,
             "p0": true
         },
         {

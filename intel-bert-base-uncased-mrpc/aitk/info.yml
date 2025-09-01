@@ -25,5 +25,5 @@ recipes:
 aitk:
     modelInfo:
         id: "huggingface/Intel/bert-base-uncased-mrpc"
-        version: 1
+        version: 2
         p0: true

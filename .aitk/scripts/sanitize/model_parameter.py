@@ -179,7 +179,6 @@ class DebugInfo(BaseModel):
         self.useModelBuilder = getPass(OlivePassNames.ModelBuilder)
         self.useOpenVINOConversion = getPass(OlivePassNames.OpenVINOConversion)
         self.useOpenVINOOptimumConversion = getPass(OlivePassNames.OpenVINOOptimumConversion)
-        self.useQuarkQuantization = getPass(OlivePassNames.QuarkQuantization)
 
         notEmpty = [
             v
@@ -187,7 +186,6 @@ class DebugInfo(BaseModel):
                 self.useModelBuilder,
                 self.useOpenVINOConversion,
                 self.useOpenVINOOptimumConversion,
-                self.useQuarkQuantization,
             ]
             if v
         ]
@@ -460,7 +458,9 @@ class ModelParameter(BaseModelClass):
         if reuse_cache_paths:
             # Previously, in debug mode for olive, this will throw exception 'file is occupied' for ov recipes
             # Seem fixed here https://github.com/microsoft/Olive/pull/2017/files
-            return None
+            # TODO update p0 later
+            if not (modelInfo.p0 and modelInfo.version == 1):
+                return None
             if self.runtime.actions is None:
                 self.runtime.actions = []
             for i in range(len(self.runtime.values)):
@@ -476,9 +476,10 @@ class ModelParameter(BaseModelClass):
         return None
 
     def CheckRuntimeInConversion(self, oliveJson: Any, modelList: ModelList, modelInfo: ModelInfo):
-        # TODO same model is used accross CPU, NPU, GPU now
-        self.runtimeInConversion = None
-        return
+        # TODO update p0 then make this optional
+        if not (modelInfo.p0 and modelInfo.version == 1):
+            self.runtimeInConversion = None
+            return
 
         def getOpenVINOPass(passType: str):
             return next(
