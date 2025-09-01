@@ -10,9 +10,6 @@ recipes:
     - file: "phi3_5_vitis_ai_config.json"
       device: npu
       ep: VitisAIExecutionProvider
-      aitk:
-        requirementsPatches:
-          - AMD
     - file: "phi3_5_ov_gpu_config.json"
       devices:
         - cpu

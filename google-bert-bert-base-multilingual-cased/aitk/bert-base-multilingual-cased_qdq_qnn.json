@@ -34,6 +34,7 @@
             ]
         },
         "model_loader": "load_bert_nsp_model",
+        "script_dir": ".",
         "model_script": "google_bert.py"
     },
     "systems": {
@@ -62,6 +63,7 @@
         {
             "name": "calibration_data",
             "type": "HuggingfaceContainer",
+            "script_dir": ".",
             "user_script": "google_bert.py",
             "load_dataset_config": {
                 "data_name": "glue",
@@ -114,6 +116,7 @@
             "dataloader_config": {
                 "batch_size": 1
             },
+            "script_dir": ".",
             "user_script": "google_bert.py"
         }
     ],

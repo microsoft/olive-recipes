@@ -10,9 +10,6 @@ recipes:
     - file: "llama3_2_vitis_ai_config.json"
       device: npu
       ep: VitisAIExecutionProvider
-      aitk:
-        requirementsPatches:
-          - AMD
     - file: "llama3_2_ov_config.json"
       devices:
         - cpu
