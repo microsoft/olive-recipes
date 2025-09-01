@@ -14,7 +14,7 @@ To convert the model, a **detailed** requirements file should be added or refere
 
 In the README.md, the **evaluation result** should be included to show that the model could be successfully converted.
 
-If UX config is not auto-generated, a screnshot for UX should also be provided in pr description.
+If UX config is not auto-generated, a screenshot for UX should also be provided in pr description.
 
 ## Configs update
 
