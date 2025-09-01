@@ -72,17 +72,7 @@ In demo pr, we use [olive-recipes/.aitk/requirements/Intel/Test_py3.12.9-Transfo
 
 ### Venv file special commands (WIP)
 
-We support special commands to enable better venv setup.
-
-#### uvpip
-
-It is in the format of `# uvpip:COMMANDS;pre|post`, for example:
-
-`# uvpip:install onnxruntime-genai-winml==0.8.3 --extra-index-url https://aiinfra.pkgs.visualstudio.com/PublicPackages/_packaging/ORT-Nightly/pypi/simple --no-deps;post`
-
-It means after installing requirements, run `uv pip install onnxruntime-genai-winml==0.8.3 --extra-index-url https://aiinfra.pkgs.visualstudio.com/PublicPackages/_packaging/ORT-Nightly/pypi/simple --no-deps`
-
-It could help install individual packages from different sources or with different options.
+We support special commands to enable better venv setup. See [Requirement Special Commands](../guide/ReqCommands.md).
 
 ## Create info.yml
 

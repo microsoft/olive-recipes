@@ -21,6 +21,7 @@ class CLIPDataset(Dataset):
         image_size=(224, 224),
     ):
         assert 0 <= start
+        assert length > 0
         end = start + length
 
         self.start = start
