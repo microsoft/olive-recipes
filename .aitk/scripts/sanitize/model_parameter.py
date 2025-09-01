@@ -383,6 +383,8 @@ class ModelParameter(BaseModelClass):
                                 OlivePassNames.OnnxQuantization,
                                 OlivePassNames.OnnxStaticQuantization,
                                 OlivePassNames.OnnxDynamicQuantization,
+                                # for trtrtx
+                                OlivePassNames.OnnxFloatToFloat16,
                             ]
                         ][0]
                         conversion = [
