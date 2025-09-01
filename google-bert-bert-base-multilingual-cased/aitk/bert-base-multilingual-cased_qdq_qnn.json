@@ -128,7 +128,7 @@
                     "sub_types": [
                         {
                             "name": "accuracy",
-                            "priority": 2
+                            "priority": 1
                         },
                         {
                             "name": "f1"
@@ -141,7 +141,7 @@
                     "sub_types": [
                         {
                             "name": "avg",
-                            "priority": 4,
+                            "priority": 2,
                             "metric_config": {
                                 "warmup_num": 20,
                                 "repeat_test_num": 100
