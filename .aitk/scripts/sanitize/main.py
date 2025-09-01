@@ -179,7 +179,8 @@ def main():
     for filename, lineno, msg in GlobalVars.errorList:
         # Red text, with file and line number, clickable in terminal
         print(f"\033[31mERROR: {filename}:{lineno}: {msg}\033[0m")
-
+    if GlobalVars.errorList:
+        exit(1)
 
 if __name__ == "__main__":
     main()
