@@ -18,7 +18,7 @@ If UX config is not auto-generated, a screenshot for UX should also be provided 
 
 ## Configs update
 
-When new models is added or there are changes to configuration, `.aitk/configs/checks.json` and `.aitk/configs.model_list.json` are also updated. Please make sure the changes match the changes in the pr.
+When new models are added or there are changes to configuration, `.aitk/configs/checks.json` and `.aitk/configs.model_list.json` are also updated. Please make sure the changes match the changes in the pr.
 
 ## Version update
 
