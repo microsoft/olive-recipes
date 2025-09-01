@@ -11,6 +11,7 @@ In general, the following steps should be done to submit recipes to AITK and the
 | Create Olive recipes | Add Olive recipes for converting the model |
 | Create Requirements file (optional) | Create file to configure stand-alone Python venv |
 | Create info.yml | Info.yml is used to describe the olive recipes and AITK project |
+| Update version (for update) | Update version if necessary for updating project |
 | Run sanitize.py | Sanitize.py will help to validate and generate additional files for AITK |
 | Test in AITK | Do E2E test |
 | Submit pr | Include necessary files, changes and metrics |
@@ -51,28 +52,13 @@ In AITK, the recipe conversion and evaluation process are separated. They could 
 - For other models, a venv setup for conversion is required. So once verified and checked in, end users could always reliably convert the model.
 - For other models, evaluation venv will be aligned with P0’s. Because model should always be able to run in latest WinML runtimes.
 
-To create such file, please
-
-- Create a clean venv and install all needed packages
-- Use pip freeze to save the requirements into `.aitk/requirements/XXX/YYY_py3.12.9.txt`
-    - Python version is also flexible as long as it is in uv supported list [Python versions | uv](https://docs.astral.sh/uv/concepts/python-versions/#viewing-available-python-versions)
-    - Choose a python version that most packages have already built against it. For example, onnx 1.17.0 build against 312 but [not latest 313](https://pypi.org/pypi/onnx/1.17.0/json)
+To create such file, please follow [Create Requirements](./HowToCreateReq.md).
 
 For a certain period of time / a bunch of recipes, **the venv should be shared** to avoid creating too many different venv in end user’s computer.
 
+One could use venv patch file to reuse it as much as possible.
+
 In demo pr, we use [olive-recipes/.aitk/requirements/Intel/Test_py3.12.9.txt at main · microsoft/olive-recipes](https://github.com/microsoft/olive-recipes/blob/main/.aitk/requirements/Intel/Test_py3.12.9.txt)
-
-### Create venv patch file
-
-If recipes need a venv that is only a little different from another one, we could use patch to avoid creating a new venv.
-
-It will be in the format of .aitk/requirements/XXX/YYY_py3.12.9-ZZZ.txt. ZZZ is the patch name.
-
-In demo pr, we use [olive-recipes/.aitk/requirements/Intel/Test_py3.12.9-Transformers4.49.txt at main · microsoft/olive-recipes](https://github.com/microsoft/olive-recipes/blob/main/.aitk/requirements/Intel/Test_py3.12.9-Transformers4.49.txt) to bump version of transformers lib.
-
-### Venv file special commands (WIP)
-
-We support special commands to enable better venv setup. See [Requirement Special Commands](../guide/ReqCommands.md).
 
 ## Create info.yml
 
@@ -89,7 +75,7 @@ Explanations
 - recipes.aitk.requirements: requirement file explained above
 - recipes.aitk.requirementsPatches: patch file explained above
 - aitk.modelInfo.id: a unique name in aitk. Usually huggingface/ORG/MODEL_NAME
-- aitk.modelInfo.version: when config or inference sample has breaking updates, increase this number and AITK will ask user to upgrade their recipes
+- aitk.modelInfo.version: when config or inference sample has breaking updates, increase this number and AITK will ask user to upgrade their recipes. Start from 1.
 - aitk.modelInfo.groupId: (optional) If we want to group multiple models together like for different size, we could set it
 - aitk.modelInfo.groupItemName: (optional) the name shown in dropdown
 
@@ -100,6 +86,14 @@ Grouping is like
 After these steps, all new files are like
 
 ![New Files](./GetStarted/newfiles.png)
+
+## Update version (for update)
+
+When we are updating the project, we may need to increase version. See [Versioning](./Versioning.md).
+
+Version is designed to be an increasing integer for model scope to simplify version management.
+
+For end user, the version could bump more than 1 between each AITK update because AITK release and recipe update are two different processes. This is transparent to end user and they just see update no matter the gap is.
 
 ## Run sanitize.py
 
