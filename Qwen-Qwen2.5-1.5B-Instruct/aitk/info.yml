@@ -11,7 +11,6 @@ recipes:
       device: npu
       ep: VitisAIExecutionProvider
       aitk:
-        oliveFile: "phi3_5/qdq_config_vitis_ai.json"
         requirementsPatches:
           - AMD
     - file: "qwen2_5_ov_gpu_config.json"
