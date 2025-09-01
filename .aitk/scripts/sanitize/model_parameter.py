@@ -95,7 +95,7 @@ class Section(BaseModel):
         #    return False
         # TODO add place holder for General?
         if not self.parameters and self.phase != PhaseTypeEnum.Conversion:
-            printWarning(f"self.parameters is empty for {self.phase}.")
+            printWarning(f"{_file} self.parameters is empty for {self.phase}.")
 
         for i, parameter in enumerate(self.parameters):
             if parameter.template:

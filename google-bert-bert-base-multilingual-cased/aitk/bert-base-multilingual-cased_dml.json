@@ -30,68 +30,63 @@
     },
     "data_configs": [
         {
-            "name": "wiki_data",
+            "name": "evaluation_data_config",
             "type": "HuggingfaceContainer",
             "load_dataset_config": {
-                "type": "dataset_to_nsp_dataset",
-                "data_name": "wikitext",
-                "subset": "wikitext-2-raw-v1",
-                "split": "train",
-                "input_cols": [
-                    "sentence1",
-                    "sentence2"
-                ],
-                "label_col": "label"
+                "data_name": "facebook/xnli",
+                "subset": "en",
+                "split": "validation"
             },
             "pre_process_data_config": {
-                "type": "tokenize_dataset",
-                "model_name": "google-bert/bert-base-multilingual-cased",
                 "input_cols": [
-                    "sentence1",
-                    "sentence2"
+                    "premise"
                 ],
-                "label_col": "label",
-                "seq_length": 128,
+                "padding": "max_length",
+                "max_length": 128,
                 "max_samples": 10
-            },
-            "post_process_data_config": {
-                "type": "bert_scl_post_process"
             },
             "dataloader_config": {
                 "batch_size": 1
-            },
-            "user_script": "google_bert.py"
+            }
         }
     ],
     "evaluators": {
         "common_evaluator": {
             "metrics": [
                 {
-                    "name": "accuracy",
-                    "type": "accuracy",
-                    "backend": "huggingface_metrics",
-                    "data_config": "wiki_data",
+                    "name": "latency",
+                    "type": "latency",
+                    "data_config": "evaluation_data_config",
                     "sub_types": [
                         {
-                            "name": "accuracy",
-                            "priority": 1
+                            "name": "avg",
+                            "priority": 1,
+                            "goal": {
+                                "type": "percent-min-improvement",
+                                "value": 0.1
+                            }
                         },
                         {
-                            "name": "f1"
+                            "name": "max"
+                        },
+                        {
+                            "name": "min"
                         }
                     ]
                 },
                 {
-                    "name": "latency",
-                    "type": "latency",
+                    "name": "throughput",
+                    "type": "throughput",
+                    "data_config": "evaluation_data_config",
                     "sub_types": [
                         {
-                            "name": "avg",
-                            "priority": 2,
-                            "metric_config": {
-                                "warmup_num": 20,
-                                "repeat_test_num": 100
-                            }
+                            "name": "avg"
+                        },
+                        {
+                            "name": "max"
+                        },
+                        {
+                            "name": "min"
                         }
                     ]
                 }
