@@ -48,7 +48,6 @@ typing-inspection==0.4.1
 torchmetrics==1.7.0
 lightning-utilities==0.15.2
 transformers==4.50.3
-huggingface-hub==0.34.4
 regex==2025.7.34
 safetensors==0.6.2
 tokenizers==0.21.4

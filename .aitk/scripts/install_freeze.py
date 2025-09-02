@@ -12,7 +12,6 @@ from model_lab import RuntimeEnum
 # - `# copy:`: copy from cache to folder in runtime like `# copy:a/*.dll;b;pre`, `# copy:a/*.dll;b;post`
 # - `# download:`: download from release and save it to cache folder like `# download:onnxruntime-genai-cuda-0.7.0-cp39-cp39-win_amd64.whl`
 uvpipInstallPrefix = "# uvpip:install"
-depsPrefix = "# deps:"
 cudaExtraUrl = "--extra-index-url https://download.pytorch.org/whl/cu128"
 torchCudaVersion = "torch==2.7.0+cu128"
 onnxruntimeWinmlVersion = f"{uvpipInstallPrefix} onnxruntime-winml==1.22.0.post1 --extra-index-url https://aiinfra.pkgs.visualstudio.com/PublicPackages/_packaging/ORT-Nightly/pypi/simple --no-deps;post"
@@ -27,10 +26,10 @@ amdQuark = "AMD__Quark_py3.10.17"
 
 def get_requires(name: str, args):
     # TODO for this case, need to install via Model Lab first
+    viaModelLab = False
     if name.startswith(uvpipInstallPrefix):
         name = name.split(" ")[2].strip()
-    elif name.startswith(depsPrefix):
-        name = name.split(":")[1].strip()
+        viaModelLab = True
 
     if "#egg=" in name:
         package_name = name.split("#egg=")[1]
@@ -49,7 +48,7 @@ def get_requires(name: str, args):
                 break
     except subprocess.CalledProcessError:
         pass
-    return [req for req in requires if req]
+    return [req for req in requires if req], package_name, viaModelLab
 
 
 def get_name_outputFile(python: str, configs_dir: str):
@@ -62,8 +61,8 @@ def get_name_outputFile(python: str, configs_dir: str):
         outputFile = path.join(configs_dir, "requirements", folder, f"{name}.txt")
     else:
         runtime = pythonSegs[-4]
-        runtime = RuntimeEnum(runtime)
         outputFile = path.join(configs_dir, "requirements", f"requirements-{runtime}.txt")
+        runtime = RuntimeEnum(runtime)
     return runtime, outputFile
 
 def main():
@@ -136,6 +135,10 @@ def main():
         RuntimeEnum.NvidiaGPU: [
             "torchvision==0.22.0+cu128",
             "onnxruntime-gpu==1.21.0",
+            # 0.8.X is not working for DML LLM because
+            # File "onnxruntime_genai\models\builder.py", line 571, in make_tensor_proto_from_tensor
+            #    data_type=self.to_onnx_dtype[tensor.dtype],
+            #KeyError: torch.uint8
             "onnxruntime-genai-cuda==0.7.0",
             optimumVersion,
         ],
@@ -205,25 +208,31 @@ def main():
 
     # write result
     with open(outputFile, "w", newline="\n") as f:
+        def get_write_require(req: str):
+            if req in freeze_dict:
+                if req not in freeze_dict_used:
+                    f.write(f"{req}=={freeze_dict[req]}\n")
+                    freeze_dict_used.add(req)
+                    write_requires_recursively(req)
+                return True
+            return False
 
         def write_requires_recursively(name: str):
-            requires = get_requires(name, args)
-            print(f"Requires for {name}: {requires}")
+            requires, package_name, viaModelLab = get_requires(name, args)
+            print(f"Requires for {name} by {package_name}: {requires}")
+            freeze_dict_used.add(package_name)
+            
             for req in requires:
-                if req in freeze_dict:
-                    if req not in freeze_dict_used:
-                        f.write(f"{req}=={freeze_dict[req]}\n")
-                        freeze_dict_used.add(req)
-                        write_requires_recursively(req)
-                else:
-                    newReq = req.replace("-", "_")
-                    if newReq in freeze_dict:
-                        if newReq not in freeze_dict_used:
-                            f.write(f"{newReq}=={freeze_dict[newReq]}\n")
-                            freeze_dict_used.add(newReq)
-                            write_requires_recursively(newReq)
-                    else:
-                        raise Exception(f"Cannot find {req} in pip freeze")
+                if get_write_require(req):
+                    continue
+                newReq = req.replace("-", "_")
+                if get_write_require(newReq):
+                    continue
+                # in QNN for onnxruntime-genai
+                if req == "onnxruntime":
+                    if get_write_require("onnxruntime-qnn"):
+                        continue
+                raise Exception(f"Cannot find {req} in pip freeze")
 
         for name in all:
             if (
@@ -244,8 +253,7 @@ def main():
     with open(outputFile, "r") as f:
         lines = f.readlines()
     unique_lines = list(dict.fromkeys(lines))  # Preserve order and remove duplicates
-    with open(outputFile, "w", newline="\n") as f:
-        f.writelines(unique_lines)
+    assert len(lines) == len(unique_lines), "Duplicate lines found."
 
 
 if __name__ == "__main__":

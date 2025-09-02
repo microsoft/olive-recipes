@@ -32,7 +32,6 @@ psutil==7.0.0
 ipywidgets==8.1.5
 jupyterlab-widgets==3.0.15
 widgetsnbextension==4.0.14
-# deps:onnxruntime-winml
 # numpy==2.2.4
 numpy==2.2.4
 # uvpip:install onnxruntime-genai-winml==0.8.3 --extra-index-url https://aiinfra.pkgs.visualstudio.com/PublicPackages/_packaging/ORT-Nightly/pypi/simple --no-deps;post
