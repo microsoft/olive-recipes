@@ -1,0 +1,27 @@
+keywords:
+    aitk
+arch: bert
+recipes:
+    - file: "ms-marco-MiniLM-L-6-v2_qdq_qnn.json"
+      device: npu
+      ep: QNNExecutionProvider
+    - file: "ms-marco-MiniLM-L-6-v2_qdq_amd.json"
+      device: npu
+      ep: VitisAIExecutionProvider
+    - file: "ms-marco-MiniLM-L-6-v2_context_ov_static.json"
+      devices:
+        - npu
+        - cpu
+        - gpu
+      ep: OpenVINOExecutionProvider
+    - file: "ms-marco-MiniLM-L-6-v2_trtrtx.json"
+      device: gpu
+      ep: NvTensorRTRTXExecutionProvider
+    - file: "ms-marco-MiniLM-L-6-v2_dml.json"
+      device: gpu
+      ep: DmlExecutionProvider
+aitk:
+    modelInfo:
+        id: "huggingface/cross-encoder/ms-marco-MiniLM-L-6-v2"
+        version: 1
+        p0: true

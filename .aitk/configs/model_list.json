@@ -1,6 +1,26 @@
 {
     "models": [
         {
+            "displayName": "cross-encoder/ms-marco-MiniLM-L-6-v2",
+            "icon": "HuggingFace",
+            "modelLink": "https://huggingface.co/cross-encoder/ms-marco-MiniLM-L-6-v2",
+            "id": "huggingface/cross-encoder/ms-marco-MiniLM-L-6-v2",
+            "runtimes": [
+                "QNN",
+                "AMDNPU",
+                "NvidiaTRTRTX",
+                "IntelCPU",
+                "IntelGPU",
+                "IntelNPU",
+                "DML"
+            ],
+            "architecture": "Transformer",
+            "status": "Ready",
+            "relativePath": "cross-encoder-ms-marco-MiniLM-L-6-v2/aitk",
+            "version": 1,
+            "p0": true
+        },
+        {
             "displayName": "deepseek-ai/DeepSeek-R1-Distill-Llama-8B",
             "icon": "DeepSeek",
             "modelLink": "https://huggingface.co/deepseek-ai/DeepSeek-R1-Distill-Llama-8B",
