@@ -4,8 +4,33 @@
         "model_path": "google-bert/bert-base-multilingual-cased",
         "task": "feature-extraction",
         "io_config": {
-            "input_names": [ "input_ids", "attention_mask", "token_type_ids" ],
-            "input_shapes": [ [ 1, 128 ], [ 1, 1, 128, 128 ], [ 1, 128 ] ]
+            "input_names": [
+                "input_ids",
+                "attention_mask",
+                "token_type_ids"
+            ],
+            "input_shapes": [
+                [
+                    1,
+                    128
+                ],
+                [
+                    1,
+                    128
+                ],
+                [
+                    1,
+                    128
+                ]
+            ],
+            "input_types": [
+                "int64",
+                "int64",
+                "int64"
+            ],
+            "output_names": [
+                "last_hidden_state"
+            ]
         }
     },
     "systems": {
