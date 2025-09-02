@@ -9,7 +9,7 @@
             "accelerators": [
                 {
                     "execution_providers": [
-                        "VitisAIExecutionProvider"
+                        "CPUExecutionProvider"
                     ]
                 }
             ]

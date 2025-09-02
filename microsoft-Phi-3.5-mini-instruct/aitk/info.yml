@@ -12,6 +12,7 @@ recipes:
       ep: VitisAIExecutionProvider
       aitk:
           requirements: AMD/Quark_py3.10.17
+          evalRuntime: AMDNPU
     - file: "phi3_5_ov_gpu_config.json"
       devices:
         - cpu

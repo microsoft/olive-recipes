@@ -12,6 +12,7 @@ recipes:
       ep: VitisAIExecutionProvider
       aitk:
           requirements: AMD/Quark_py3.10.17
+          evalRuntime: AMDNPU
     - file: "llama3_2_ov_config.json"
       devices:
         - cpu
