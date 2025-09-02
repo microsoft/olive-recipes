@@ -23,7 +23,7 @@ optimumVersion = "optimum==1.26.0"
 # if from git: "git+https://github.com/microsoft/Olive.git@COMMIT_ID#egg=olive_ai
 oliveAi = "olive-ai@git+https://github.com/microsoft/Olive.git@8ff071c0ae9b1c38c0619ee72e8cb031957c63c4#egg=olive-ai"
 torchVision = "torchvision==0.22.0"
-
+amdQuark = "AMD__Quark_py3.10.17"
 
 def get_requires(name: str, args):
     # TODO for this case, need to install via Model Lab first
@@ -52,6 +52,20 @@ def get_requires(name: str, args):
     return [req for req in requires if req]
 
 
+def get_name_outputFile(python: str, configs_dir: str):
+    pythonSegs = python.split("-")
+    if "__" in python:
+        folder_name = pythonSegs[-4].split("__")
+        folder = folder_name[0]
+        name = f"{folder_name[1]}_py{pythonSegs[-1]}"
+        runtime = f"{folder}__{name}"
+        outputFile = path.join(configs_dir, "requirements", folder, f"{name}.txt")
+    else:
+        runtime = pythonSegs[-4]
+        runtime = RuntimeEnum(runtime)
+        outputFile = path.join(configs_dir, "requirements", f"requirements-{runtime}.txt")
+    return runtime, outputFile
+
 def main():
     pre = {
         RuntimeEnum.NvidiaGPU: [
@@ -65,6 +79,16 @@ def main():
         RuntimeEnum.IntelNPU: [
             "torch==2.6.0",
         ],
+        amdQuark: [
+            "transformers==4.50.0",
+            "amd-quark==0.9",
+            "--extra-index-url=https://pypi.amd.com/simple",
+            "model-generate==1.5.1",
+            # olive.passes.quark_quantizer.torch.language_modeling.llm_utils.model_preparation
+            "psutil==7.0.0",
+            # ValueError: Using a `device_map`, `tp_plan`, `torch.device` context manager or setting `torch.set_default_device(device)` requires `accelerate`. You can install it with `pip install accelerate`
+            "accelerate==1.10.1",
+        ]
     }
     shared_conversion = [
         "huggingface-hub[hf_xet]==0.34.4",
@@ -86,6 +110,7 @@ def main():
         RuntimeEnum.WCR: shared_both,
         RuntimeEnum.WCR_CUDA: shared_both,
         RuntimeEnum.QNN_LLLM: shared_ipynb,
+        amdQuark: shared_conversion,
     }
     # torchvision, onnxruntime and genai go here. others should go feature
     post = {
@@ -138,16 +163,11 @@ def main():
     }
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("--runtime", "-r", default="", help=",".join([k.value for k in RuntimeEnum]))
-    parser.add_argument("--python", "-p", required=True, type=str, help="python path. TODO: input twice")
+    parser.add_argument("--python", "-p", required=True, type=str, help="python path")
     args = parser.parse_args()
 
-    if not args.runtime:
-        pythonSegs = args.python.split("-")
-        args.runtime = pythonSegs[-4]
-        print(args.runtime)
-
-    runtime = RuntimeEnum(args.runtime)
+    configs_dir = path.dirname(path.dirname(__file__))
+    runtime, outputFile = get_name_outputFile(args.python, configs_dir)
 
     # prepare file
     configs_dir = path.dirname(path.dirname(__file__))
@@ -184,7 +204,6 @@ def main():
     freeze_dict_used = set()
 
     # write result
-    outputFile = path.join(configs_dir, "requirements", f"requirements-{args.runtime}.txt")
     with open(outputFile, "w", newline="\n") as f:
 
         def write_requires_recursively(name: str):
