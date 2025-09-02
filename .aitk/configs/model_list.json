@@ -330,6 +330,26 @@
             "version": 2
         },
         {
+            "displayName": "neuralmind/bert-base-portuguese-cased",
+            "icon": "HuggingFace",
+            "modelLink": "https://huggingface.co/neuralmind/bert-base-portuguese-cased",
+            "id": "huggingface/neuralmind/bert-base-portuguese-cased",
+            "runtimes": [
+                "QNN",
+                "AMDNPU",
+                "NvidiaTRTRTX",
+                "IntelCPU",
+                "IntelGPU",
+                "IntelNPU",
+                "DML"
+            ],
+            "architecture": "Transformer",
+            "status": "Ready",
+            "relativePath": "neuralmind-bert-base-portuguese-cased/aitk",
+            "version": 1,
+            "p0": true
+        },
+        {
             "displayName": "openai/clip-vit-base-patch16",
             "icon": "OpenAI",
             "modelLink": "https://huggingface.co/openai/clip-vit-base-patch16",
