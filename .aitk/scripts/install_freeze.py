@@ -132,6 +132,7 @@ def main():
         ],
         RuntimeEnum.QNN_LLLM: [
             "# deps:onnxruntime-winml",
+            "numpy==2.2.4",
             onnxruntimeGenaiWinmlVersion,
         ],
     }
