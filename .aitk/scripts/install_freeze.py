@@ -159,7 +159,7 @@ def main():
             optimumVersion,
         ],
         RuntimeEnum.QNN_LLLM: [
-            "# deps:onnxruntime-winml",
+            # for onnxruntime-winml
             "numpy==2.2.4",
             onnxruntimeGenaiWinmlVersion,
         ],
@@ -236,7 +236,7 @@ def main():
 
         for name in all:
             if (
-                name.startswith("#") and not name.startswith(uvpipInstallPrefix) and not name.startswith(depsPrefix)
+                name.startswith("#") and not name.startswith(uvpipInstallPrefix)
             ) or name.startswith("--"):
                 f.write(name + "\n")
                 continue
