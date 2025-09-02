@@ -10,6 +10,8 @@ recipes:
     - file: "phi3_5_vitis_ai_config.json"
       device: npu
       ep: VitisAIExecutionProvider
+      aitk:
+          requirements: AMD/Quark_py3.10.17
     - file: "phi3_5_ov_gpu_config.json"
       devices:
         - cpu
