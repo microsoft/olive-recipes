@@ -1,0 +1,26 @@
+keywords:
+    aitk
+arch: bert
+recipes:
+    - file: "bert-base-chinese_qdq_qnn.json"
+      device: npu
+      ep: QNNExecutionProvider
+    - file: "bert-base-chinese_qdq_amd.json"
+      device: npu
+      ep: VitisAIExecutionProvider
+    - file: "bert-base-chinese_context_ov_static.json"
+      devices:
+        - npu
+        - cpu
+        - gpu
+      ep: OpenVINOExecutionProvider
+    - file: "bert-base-chinese_trtrtx.json"
+      device: gpu
+      ep: NvTensorRTRTXExecutionProvider
+    - file: "bert-base-chinese_dml.json"
+      device: gpu
+      ep: DmlExecutionProvider
+aitk:
+    modelInfo:
+        id: "huggingface/google-bert/bert-base-chinese"
+        version: 1
