@@ -11,12 +11,8 @@ recipes:
       device: npu
       ep: VitisAIExecutionProvider
       aitk:
-        oliveFile: "phi3_5/qdq_config_vitis_ai.json"
-        requirementsPatches:
-          - AutoGptq
-        runtimeOverwrite:
-          executeEp: CUDAExecutionProvider
-        evalRuntime: AMDNPU
+          requirements: AMD/Quark_py3.10.17
+          evalRuntime: AMDNPU
     - file: "llama3_2_ov_config.json"
       devices:
         - cpu
@@ -31,5 +27,5 @@ recipes:
 aitk:
     modelInfo:
         id: "huggingface/meta-llama/Llama-3.2-1B-Instruct"
-        version: 1
+        version: 2
         p0: true

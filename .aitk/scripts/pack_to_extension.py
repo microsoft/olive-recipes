@@ -6,6 +6,7 @@ import shutil
 import subprocess
 import sys
 import zipfile
+from pathlib import Path
 
 templateFile = "resources/template.zip"
 templateFileOrigin = "resources/template_origin.zip"
@@ -69,8 +70,9 @@ if __name__ == "__main__":
         print(f"Unzipping {templateFileOrigin} to {input}")
         with zipfile.ZipFile(templateFileOrigin, "r") as zipf:
             zipf.extractall(input)
+        this_repo = str(Path(__file__).parent.parent.parent)
         subprocess.run(
-            [sys.executable, os.path.join(os.path.dirname(__file__), "copy_from_recipe.py"), input], check=True
+            [sys.executable, os.path.join(input, "model_lab_configs", "scripts", "copy_from_recipe.py"), "--olive-recipes-dir", this_repo], check=True
         )
         zipTemplate(input, templateFile)
         print(f"Packed resources into {templateFile}. Remove {input} directory.")

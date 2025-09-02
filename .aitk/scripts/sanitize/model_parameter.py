@@ -95,7 +95,7 @@ class Section(BaseModel):
         #    return False
         # TODO add place holder for General?
         if not self.parameters and self.phase != PhaseTypeEnum.Conversion:
-            printWarning(f"self.parameters is empty for {self.phase}.")
+            printWarning(f"{_file} self.parameters is empty for {self.phase}.")
 
         for i, parameter in enumerate(self.parameters):
             if parameter.template:
@@ -160,6 +160,10 @@ class DebugInfo(BaseModel):
     # - could not disable quantization
     # - use OpenVINOConversion for conversion
     useOpenVINOOptimumConversion: Optional[str] = None
+    # This kind of config will
+    # - could not disable quantization
+    # - use QuarkQuantization for conversion
+    useQuarkQuantization: Optional[str] = None
 
     def setupUseX(self, oliveJson: Any):
         def getPass(passType: str):
@@ -175,6 +179,7 @@ class DebugInfo(BaseModel):
         self.useModelBuilder = getPass(OlivePassNames.ModelBuilder)
         self.useOpenVINOConversion = getPass(OlivePassNames.OpenVINOConversion)
         self.useOpenVINOOptimumConversion = getPass(OlivePassNames.OpenVINOOptimumConversion)
+        self.useQuarkQuantization = getPass(OlivePassNames.QuarkQuantization)
 
         notEmpty = [
             v
@@ -182,6 +187,7 @@ class DebugInfo(BaseModel):
                 self.useModelBuilder,
                 self.useOpenVINOConversion,
                 self.useOpenVINOOptimumConversion,
+                self.useQuarkQuantization,
             ]
             if v
         ]
@@ -377,6 +383,8 @@ class ModelParameter(BaseModelClass):
                                 OlivePassNames.OnnxQuantization,
                                 OlivePassNames.OnnxStaticQuantization,
                                 OlivePassNames.OnnxDynamicQuantization,
+                                # for trtrtx
+                                OlivePassNames.OnnxFloatToFloat16,
                             ]
                         ][0]
                         conversion = [
@@ -454,9 +462,7 @@ class ModelParameter(BaseModelClass):
         if reuse_cache_paths:
             # Previously, in debug mode for olive, this will throw exception 'file is occupied' for ov recipes
             # Seem fixed here https://github.com/microsoft/Olive/pull/2017/files
-            # TODO update p0 later
-            if not (modelInfo.p0 and modelInfo.version == 1):
-                return None
+            return None
             if self.runtime.actions is None:
                 self.runtime.actions = []
             for i in range(len(self.runtime.values)):
@@ -472,10 +478,8 @@ class ModelParameter(BaseModelClass):
         return None
 
     def CheckRuntimeInConversion(self, oliveJson: Any, modelList: ModelList, modelInfo: ModelInfo):
-        # TODO update p0 then make this optional
-        if not (modelInfo.p0 and modelInfo.version == 1):
-            self.runtimeInConversion = None
-            return
+        self.runtimeInConversion = None
+        return
 
         def getOpenVINOPass(passType: str):
             return next(
@@ -574,7 +578,7 @@ class ModelParameter(BaseModelClass):
         if modelInfo.extension:
             return
         if not self.oliveFile:
-            if self.runtime.displayNames[0] == GlobalVars.RuntimeToDisplayName[RuntimeEnum.DML]:
+            if self.runtime and self.runtime.displayNames and self.runtime.displayNames[0] == GlobalVars.RuntimeToDisplayName[RuntimeEnum.DML]:
                 return
             printWarning(f"{self._file} does not have oliveFile")
             return
@@ -601,7 +605,7 @@ class ModelParameter(BaseModelClass):
         removeds: list[str] = diff.pop("dictionary_item_removed", [])
         newRemoveds = []
         for removed in removeds:
-            if removed.endswith("['reuse_cache']") or removed == "root['add_metadata']":
+            if removed == "root['add_metadata']":
                 pass
             else:
                 newRemoveds.append(removed)
@@ -620,7 +624,7 @@ class ModelParameter(BaseModelClass):
             diff["values_changed"] = newChangeds
 
         if diff:
-            path = Path(self._file)
+            path = Path(self._file if self._file else "UNKNOWN")
             printError(f"{"/".join(path.parts[-3:])} different from {self.oliveFile}\r\n{diff}")
         GlobalVars.oliveCheck += 1
 

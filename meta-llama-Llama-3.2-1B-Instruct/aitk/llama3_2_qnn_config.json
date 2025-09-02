@@ -4,7 +4,7 @@
         "model_path": "meta-llama/Llama-3.2-1B-Instruct"
     },
     "systems": {
-        "qnn_system": {
+        "target_system": {
             "type": "PythonEnvironment",
             "python_environment_path": "/path/to/qnn/env/bin",
             "accelerators": [
@@ -18,7 +18,22 @@
     },
     "data_configs": [
         {
-            "name": "wikitext2_train",
+            "name": "wikitext2_train_joined",
+            "type": "HuggingfaceContainer",
+            "load_dataset_config": {
+                "data_name": "wikitext",
+                "subset": "wikitext-2-raw-v1",
+                "split": "train"
+            },
+            "pre_process_data_config": {
+                "strategy": "join",
+                "add_special_tokens": false,
+                "max_seq_len": 4096,
+                "max_samples": 128
+            }
+        },
+        {
+            "name": "wikitext2_train_act",
             "type": "HuggingfaceContainer",
             "load_dataset_config": {
                 "data_name": "wikitext",
@@ -27,9 +42,9 @@
             },
             "pre_process_data_config": {
                 "strategy": "line-by-line",
-                "add_special_tokens": false,
-                "max_samples": 128,
-                "max_seq_len": 512
+                "add_special_tokens": true,
+                "max_samples": 256,
+                "max_seq_len": 4096
             }
         }
     ],
@@ -40,7 +55,9 @@
         "g": {
             "type": "GptqQuantizer",
             "sym": true,
-            "group_size": -1
+            "group_size": -1,
+            "desc_act": true,
+            "data_config": "wikitext2_train_joined"
         },
         "cs": {
             "type": "CaptureSplitInfo",
@@ -55,8 +72,7 @@
             "int4_op_types_to_quantize": [
                 "MatMul",
                 "Gather"
-            ],
-            "save_as_external_data": true
+            ]
         },
         "mq": {
             "type": "MatMulNBitsToQDQ",
@@ -84,7 +100,7 @@
         },
         "sq": {
             "type": "OnnxStaticQuantization",
-            "data_config": "wikitext2_train",
+            "data_config": "wikitext2_train_act",
             "activation_type": "uint16",
             "precision": "uint8",
             "calibration_providers": [
@@ -96,7 +112,10 @@
                 "GroupQueryAttention",
                 "MatMulNBits"
             ],
-            "save_as_external_data": true
+            "save_as_external_data": true,
+            "extra_option": {
+                "CalibStridedMinMax": 4
+            }
         },
         "sp": {
             "type": "SplitModel"
@@ -113,17 +132,13 @@
                 "htp_graph_finalization_optimization_mode": "3",
                 "soc_model": "60"
             },
-            "session_options": {
-                "intra_op_num_threads": 2,
-                "inter_op_num_threads": 1
-            },
             "weight_sharing": true
         },
         "cp": {
             "type": "ComposeOnnxModels"
         }
     },
-    "target": "qnn_system",
+    "target": "target_system",
     "log_severity_level": 1,
     "output_dir": "model/llama3_2",
     "cache_dir": "cache",

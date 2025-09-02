@@ -19,7 +19,27 @@
     },
     "data_configs": [
         {
-            "name": "xnli",
+            "name": "quantization_data_config",
+            "type": "HuggingfaceContainer",
+            "load_dataset_config": {
+                "data_name": "facebook/xnli",
+                "subset": "en",
+                "split": "validation"
+            },
+            "pre_process_data_config": {
+                "input_cols": [
+                    "premise"
+                ],
+                "padding": "max_length",
+                "max_length": 128,
+                "max_samples": 10
+            },
+            "dataloader_config": {
+                "batch_size": 1
+            }
+        },
+        {
+            "name": "evaluation_data_config",
             "type": "HuggingfaceContainer",
             "load_dataset_config": {
                 "data_name": "facebook/xnli",
@@ -45,7 +65,7 @@
                 {
                     "name": "latency",
                     "type": "latency",
-                    "data_config": "xnli",
+                    "data_config": "evaluation_data_config",
                     "sub_types": [
                         {
                             "name": "avg",
@@ -66,7 +86,7 @@
                 {
                     "name": "throughput",
                     "type": "throughput",
-                    "data_config": "xnli",
+                    "data_config": "evaluation_data_config",
                     "sub_types": [
                         {
                             "name": "avg"
@@ -115,10 +135,9 @@
         "session_params_tuning": {
             "type": "OrtSessionParamsTuning",
             "io_bind": false,
-            "data_config": "xnli"
+            "data_config": "quantization_data_config"
         }
     },
-    "host": "local_system",
     "target": "local_system",
     "evaluator": "common_evaluator",
     "cache_dir": "cache",
