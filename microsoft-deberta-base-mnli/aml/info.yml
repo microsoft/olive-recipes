@@ -1,0 +1,5 @@
+keywords:
+    aml
+name: microsoft-deberta-base-mnli
+recipes: deberta.json
+features: aml-registry, search
