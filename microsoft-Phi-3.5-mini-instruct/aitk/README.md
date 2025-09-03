@@ -143,7 +143,7 @@ Olive will run the AOT compilation step in the **AOT Compilation Python Environm
 
 > ⚠️ If optimization fails due to out of memory, please remove `calibration_providers` in config file.
 
-> ⚠️ If optimization fails during context binary generation, rerun the command. The process will resume from the last completed step.
+> ⚠️ If optimization fails during context binary generation (EPContextBinaryGenerator pass, usually exit status 3221225477), rerun the command. The process will resume from the last completed step.
 
 ### **Inference**
 

@@ -6,6 +6,7 @@ recipes:
       device: npu
       ep: QNNExecutionProvider
       aitk:
+        # not qwen2_5/qnn/qwen_2.5_1.5b_instruct_qnn_config.json because GPTQModel depends on device_smi which uses deprecated wmic
         oliveFile: "phi3_5/qnn_config.json"
     - file: "qwen2_5_vitis_ai_config.json"
       device: npu
