@@ -1,0 +1,8 @@
+keywords:
+    olive-ci
+ep:
+    CPUExecutionProvider
+device:
+    cpu
+name: gte-large-en-v1.5
+recipes:
