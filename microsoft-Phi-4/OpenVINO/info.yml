@@ -1,0 +1,8 @@
+keywords:
+    openvino
+arch: phi4
+recipes:
+    - file: "phi4_gpu_config.json"
+      devices:
+        - gpu
+      ep: OpenVINOExecutionProvider
