@@ -11,8 +11,12 @@ recipes:
       device: npu
       ep: VitisAIExecutionProvider
       aitk:
-          requirements: AMD/Quark_py3.10.17
-          evalRuntime: AMDNPU
+        oliveFile: "phi3_5/qdq_config_vitis_ai.json"
+        requirementsPatches:
+          - AutoGptq
+        runtimeOverwrite:
+          executeEp: CUDAExecutionProvider
+        evalRuntime: AMDNPU
     - file: "qwen2_5_ov_gpu_config.json"
       devices:
         - cpu
