@@ -1,0 +1,11 @@
+keywords:
+    openvino
+recipes:
+    - file: "Qwen2.5_Coder_7B_Instruct_context_ov_dynamic_sym_bkp_int8_sym_r1.json"
+      devices:
+        - npu
+      ep: OpenVINOExecutionProvider
+    - file: "Qwen2.5-Coder-7B-Instruct-gpu-context-dy.json"
+      devices:
+        - gpu
+      ep: OpenVINOExecutionProvider

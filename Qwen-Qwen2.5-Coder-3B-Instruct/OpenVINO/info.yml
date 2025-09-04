@@ -1,0 +1,7 @@
+keywords:
+    openvino
+recipes:
+    - file: "Qwen2.5-Coder-3B-Instruct-gpu-context-dy.json"
+      devices:
+        - gpu
+      ep: OpenVINOExecutionProvider
