@@ -2,7 +2,7 @@ keywords:
     openvino
 arch: phi4
 recipes:
-    - file: "phi4_gpu_config.json"
+    - file: "phi_4_gpu_context_dy.json"
       devices:
         - gpu
       ep: OpenVINOExecutionProvider
