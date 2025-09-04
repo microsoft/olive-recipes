@@ -16,7 +16,7 @@ This workflow performs quantization with Optimum Intel®. It performs the optimi
 The flow in the following config files executes the above workflow producing a dynamic shape model.
 
 1. [Qwen2.5_7B_instruct_context_ov_dynamic_sym_bkp_int8_sym_r1.json](Qwen2.5_7B_instruct_context_ov_dynamic_sym_bkp_int8_sym_r1.json)
-2. [Qwen2.5-7B-Instruct-gpu-context-dy.json](Qwen2.5-7B-Instruct-gpu-context-dy.json)
+2. [Qwen2.5-7B-instruct-gpu-context-dy.json](Qwen2.5-7B-instruct-gpu-context-dy.json)
 
 
 ## How to run

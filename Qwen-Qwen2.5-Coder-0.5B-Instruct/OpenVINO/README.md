@@ -16,7 +16,7 @@ This workflow performs quantization with Optimum Intel®. It performs the optimi
 The flow in the following config files executes the above workflow producing a dynamic shape model.
 
 1. [Qwen2.5_Coder_0.5B_instruct_context_ov_dynamic_sym_bkp_int8_sym_r1.json](Qwen2.5_Coder_0.5B_instruct_context_ov_dynamic_sym_bkp_int8_sym_r1.json)
-2. [Qwen2.5-Coder-0.5B-Instruct-gpu-context-dy.json](Qwen2.5-Coder-0.5B-Instruct-gpu-context-dy.json)
+2. [Qwen2.5-Coder-0.5B-instruct-gpu-context-dy.json](Qwen2.5-Coder-0.5B-instruct-gpu-context-dy.json)
 
 
 ## How to run
@@ -67,5 +67,5 @@ python model-chat.py -e follow_config -v -g -m models/<model_folder>/model/
 Example:
 
 ```bash
-python model-chat.py -e follow_config -v -g -m models/Qwen2.5_Coder_0.5B_Instruct_context_ov_dynamic_sym_bkp_int8_sym_r1/model/
+python model-chat.py -e follow_config -v -g -m models/Qwen2.5_Coder_0.5B_instruct_context_ov_dynamic_sym_bkp_int8_sym_r1/model/
 ```

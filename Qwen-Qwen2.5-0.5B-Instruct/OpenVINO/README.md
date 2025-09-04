@@ -67,5 +67,5 @@ python model-chat.py -e follow_config -v -g -m models/<model_folder>/model/
 Example:
 
 ```bash
-python model-chat.py -e follow_config -v -g -m models/Qwen2.5_0.5B_Instruct_context_ov_dynamic_sym_bkp_int8_sym_r1/model/
+python model-chat.py -e follow_config -v -g -m models/Qwen2.5_0.5B_instruct_context_ov_dynamic_sym_bkp_int8_sym_r1/model/
 ```

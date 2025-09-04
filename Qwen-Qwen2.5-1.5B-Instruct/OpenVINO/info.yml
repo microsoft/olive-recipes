@@ -5,7 +5,7 @@ recipes:
       devices:
         - npu
       ep: OpenVINOExecutionProvider
-    - file: "Qwen2.5-1.5B-Instruct-gpu-context-dy.json"
+    - file: "Qwen2.5-1.5B-instruct-gpu-context-dy.json"
       devices:
         - gpu
       ep: OpenVINOExecutionProvider

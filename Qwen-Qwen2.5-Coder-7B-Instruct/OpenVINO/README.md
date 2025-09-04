@@ -15,8 +15,8 @@ This workflow performs quantization with Optimum Intel®. It performs the optimi
 
 The flow in the following config files executes the above workflow producing a dynamic shape model.
 
-1. [Qwen2.5_Coder_7B_Instruct_context_ov_dynamic_sym_bkp_int8_sym_r1.json](Qwen2.5_Coder_7B_Instruct_context_ov_dynamic_sym_bkp_int8_sym_r1.json)
-2. [Qwen2.5-Coder-7B-Instruct-gpu-context-dy.json](Qwen2.5-Coder-7B-Instruct-gpu-context-dy.json)
+1. [Qwen2.5_Coder_7B_instruct_context_ov_dynamic_sym_bkp_int8_sym_r1.json](Qwen2.5_Coder_7B_instruct_context_ov_dynamic_sym_bkp_int8_sym_r1.json)
+2. [Qwen2.5-Coder-7B-instruct-gpu-context-dy.json](Qwen2.5-Coder-7B-instruct-gpu-context-dy.json)
 
 
 ## How to run
@@ -41,13 +41,13 @@ olive run --config <config_file.json>
 
 Example:
 ```bash
-olive run --config Qwen2.5_Coder_7B_Instruct_context_ov_dynamic_sym_bkp_int8_sym_r1.json
+olive run --config Qwen2.5_Coder_7B_instruct_context_ov_dynamic_sym_bkp_int8_sym_r1.json
 ```
 or run simply with python code:
 
 ```python
 from olive import run
-workflow_output = run("Qwen2.5_Coder_7B_Instruct_context_ov_dynamic_sym_bkp_int8_sym_r1.json")
+workflow_output = run("Qwen2.5_Coder_7B_instruct_context_ov_dynamic_sym_bkp_int8_sym_r1.json")
 ```
 
 After running the above command, the model candidates and corresponding config will be saved in the output directory.
@@ -67,5 +67,5 @@ python model-chat.py -e follow_config -v -g -m models/<model_folder>/model/
 Example:
 
 ```bash
-python model-chat.py -e follow_config -v -g -m models/Qwen2.5_Coder_7B_Instruct_context_ov_dynamic_sym_bkp_int8_sym_r1/model/
+python model-chat.py -e follow_config -v -g -m models/Qwen2.5_Coder_7B_instruct_context_ov_dynamic_sym_bkp_int8_sym_r1/model/
 ```
