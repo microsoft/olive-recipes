@@ -5,6 +5,3 @@ recipes:
     - file: "vit_qnn_fp32_ctx.json"
       device: npu
       ep: QNNExecutionProvider
-aitk:
-    modelInfo:
-        id: "huggingface/google/vit-base-patch16-224"
