@@ -1,0 +1,12 @@
+keywords:
+    openvino
+arch: deepseek
+recipes:
+    - file: "DeepSeek-R1-Distill-Llama-8B-gpu-context-ov-dy-gs128-r1.json"
+      devices:
+        - gpu
+      ep: OpenVINOExecutionProvider
+    - file: "DeepSeek_R1_Distill_Llama_8B_npu_context_ov_dy_sym_gs128_bkp_int8_sym_r1.json"
+      devices:
+        - npu
+      ep: OpenVINOExecutionProvider

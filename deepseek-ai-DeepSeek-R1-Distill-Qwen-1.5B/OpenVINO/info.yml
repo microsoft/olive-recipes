@@ -1,0 +1,12 @@
+keywords:
+    openvino
+arch: deepseek
+recipes:
+    - file: "DeepSeek-R1-Distill-Qwen-1.5B-gpu-context-ov-dy-gs32-r1.json"
+      devices:
+        - gpu
+      ep: OpenVINOExecutionProvider
+    - file: "DeepSeek-R1-Distill-Qwen-1.5B-npu-context-ov-dy-sym-gs128-bkp-int8-sym-r1.json"
+      devices:
+        - npu
+      ep: OpenVINOExecutionProvider
