@@ -542,6 +542,26 @@
             "status": "Ready",
             "relativePath": "Qwen-Qwen2.5-Coder-14B-Instruct/aitk",
             "version": 2
+        },
+        {
+            "displayName": "WinKawaks/vit-tiny-patch16-224",
+            "icon": "WinKawaks",
+            "modelLink": "https://huggingface.co/WinKawaks/vit-tiny-patch16-224",
+            "id": "huggingface/WinKawaks/vit-tiny-patch16-224",
+            "groupId": "huggingface/WinKawaks/vit-tiny-patch16-224",
+            "runtimes": [
+                "QNN",
+                "AMDNPU",
+                "NvidiaTRTRTX",
+                "IntelCPU",
+                "IntelGPU",
+                "IntelNPU",
+                "DML"
+            ],
+            "architecture": "Transformer",
+            "status": "Ready",
+            "relativePath": "WinKawaks-vit-tiny-patch16-224/aitk",
+            "version": 1
         }
     ],
     "template_models": [

@@ -1,0 +1,27 @@
+keywords:
+    aitk
+arch: vit
+recipes:
+    - file: "WinKawaks_vit_tiny_patch16_224_qdq_qnn.json"
+      device: npu
+      ep: QNNExecutionProvider
+    - file: "WinKawaks_vit_tiny_patch16_224_qdq_amd.json"
+      device: npu
+      ep: VitisAIExecutionProvider
+    - file: "WinKawaks_vit_tiny_patch16_224_ov.json"
+      devices:
+        - npu
+        - cpu
+        - gpu
+      ep: OpenVINOExecutionProvider
+    - file: "WinKawaks_vit_tiny_patch16_224_trtrtx.json"
+      device: gpu
+      ep: NvTensorRTRTXExecutionProvider
+    - file: "WinKawaks_vit_tiny_patch16_224_dml.json"
+      device: gpu
+      ep: DmlExecutionProvider
+aitk:
+    modelInfo:
+        id: "huggingface/WinKawaks/vit-tiny-patch16-224"
+        version: 1
+        groupId: "huggingface/WinKawaks/vit-tiny-patch16-224"
