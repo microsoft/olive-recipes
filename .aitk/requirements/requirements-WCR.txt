@@ -122,7 +122,6 @@ hf-xet==1.1.9
 --extra-index-url https://pypi.org/simple
 # winrt-runtime==3.2.1
 winrt-runtime==3.2.1
-typing-extensions==4.14.1
 # winrt-Windows.Foundation==3.2.1
 winrt-Windows.Foundation==3.2.1
 # winrt-Windows.Foundation.Collections==3.2.1
