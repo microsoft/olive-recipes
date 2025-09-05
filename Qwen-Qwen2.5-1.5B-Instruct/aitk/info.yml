@@ -6,6 +6,7 @@ recipes:
       device: npu
       ep: QNNExecutionProvider
       aitk:
+        # not qwen2_5/qnn/qwen_2.5_1.5b_instruct_qnn_config.json because GPTQModel depends on device_smi which uses deprecated wmic
         oliveFile: "phi3_5/qnn_config.json"
     - file: "qwen2_5_vitis_ai_config.json"
       device: npu
@@ -17,10 +18,15 @@ recipes:
         runtimeOverwrite:
           executeEp: CUDAExecutionProvider
         evalRuntime: AMDNPU
-    - file: "qwen2_5_ov_config.json"
+    - file: "qwen2_5_ov_gpu_config.json"
       devices:
         - cpu
         - gpu
+      ep: OpenVINOExecutionProvider
+      aitk:
+        oliveFile: "qwen2_5/openvino/Qwen2.5-1.5B-instruct-gpu-context-dy.json"
+    - file: "qwen2_5_ov_config.json"
+      devices:
         - npu
       ep: OpenVINOExecutionProvider
       aitk:
@@ -34,7 +40,7 @@ recipes:
 aitk:
     modelInfo:
         id: "huggingface/Qwen/Qwen2.5-1.5B-Instruct"
-        version: 1
+        version: 2
         groupId: "huggingface/Qwen/Qwen2.5-1.5B-Instruct"
         groupItemName: "1.5B"
         p0: true

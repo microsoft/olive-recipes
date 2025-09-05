@@ -92,7 +92,7 @@
                 "model_name": "laion/CLIP-ViT-B-32-laion2B-s34B-b79K",
                 "dataset_name": "nlphuji/flickr30k",
                 "start": 0,
-                "end": 10
+                "length": 10
             },
             "dataloader_config": {
                 "type": "no_auto_batch_dataloader"

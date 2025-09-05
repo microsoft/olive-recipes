@@ -5,7 +5,7 @@
         "task": "feature-extraction"
     },
     "systems": {
-        "qnn_system": {
+        "target_system": {
             "type": "LocalSystem",
             "accelerators": [
                 {
@@ -141,7 +141,7 @@
                 }
             ]
         },
-        "OnnxQuantization": {
+        "quantization": {
             "type": "OnnxStaticQuantization",
             "data_config": "quantization_data_config",
             "activation_type": "uint16",
@@ -159,8 +159,7 @@
             "quant_type": "OnnxStaticQuantization"
         }
     },
-    "host": "qnn_system",
-    "target": "qnn_system",
+    "target": "target_system",
     "evaluator": "common_evaluator",
     "cache_dir": "cache",
     "output_dir": "model/google_bert",

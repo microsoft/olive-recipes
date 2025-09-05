@@ -116,6 +116,7 @@ def project_processor():
     modelList = ModelList.Read(str(root_dir / ".aitk" / "configs"))
     modelList.models.clear()
 
+    all_ids = set()
     for yml_file in root_dir.rglob("info.yml"):
         # read yml file as yaml object
         with yml_file.open("r", encoding="utf-8") as file:
@@ -131,7 +132,11 @@ def project_processor():
                     raise KeyError(f"aitk not found in {yml_file}")
                 continue
         print(f"Process aitk for {yml_file}")
-        modelList.models.append(convert_yaml_to_model_info(root_dir, yml_file, yaml_object))
+        modelInfo = convert_yaml_to_model_info(root_dir, yml_file, yaml_object)
+        if modelInfo.id.lower() in all_ids:
+            raise KeyError(f"same id found in {yml_file}")
+        all_ids.add(modelInfo.id.lower())
+        modelList.models.append(modelInfo)
         convert_yaml_to_project_config(yml_file, yaml_object, modelList)
 
     modelList.models.sort(key=lambda x: (x.GetSortKey()))

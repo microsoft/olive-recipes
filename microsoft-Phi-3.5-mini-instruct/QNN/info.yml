@@ -1,0 +1,6 @@
+keywords:
+    QNN
+recipes:
+    - file: "phi3_5_qnn_fp16.json"
+      device: npu
+      ep: QNNExecutionProvider

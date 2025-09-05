@@ -1,124 +1,142 @@
-# Get started with adding new template
+# Get started to add new recipe
 
-OUTDATED - NEED UPDATE
+## Overview
 
-A detailed guide to add a new template for AITK Model Lab.
+In general, the following steps should be done to submit recipes to AITK and these are summary of what they do
 
-## Add the new model to the list
 
-First, the model needs to be added to the `model_list.json` to be ready to be shown.
+| Name | Summary |
+|-|-|
+| Create Folder | Create folder for new model |
+| Create Olive recipes | Add Olive recipes for converting the model |
+| Create Requirements file (optional) | Create file to configure stand-alone Python venv |
+| Create info.yml | Info.yml is used to describe the olive recipes and AITK project |
+| Update version (for update) | Update version if necessary for updating project |
+| Run sanitize.py | Sanitize.py will help to validate and generate additional files for AITK |
+| Test in AITK | Do E2E test |
+| Submit pr | Include necessary files, changes and metrics |
 
-The format is like
+### Demo
 
-```
-{
-    "displayName": "google/vit-base-patch16-224",
-    "icon": "gemini",
-    "modelLink": "https://huggingface.co/google/vit-base-patch16-224",
-    "id": "huggingface/google/vit-base-patch16-224",
-    "runtimes": [
-        "QNN",
-        "AMDNPU",
-        "IntelNPU"
-    ],
-    "architecture": "Transformer",
-    "status": "Ready",
-    "version": 1
-}
-```
+In this demo pr, we will add microsoft/Phi-3-medium-4k-instruct with one intel gpu recipe. Refer to [Hualxie/demo by xieofxie · Pull Request #31 · microsoft/olive-recipes](https://github.com/microsoft/olive-recipes/pull/31/files).
 
-Explanation for each field:
+## Create Folder
 
-- displayName: display name
-- icon: one of the `IconEnum` in `scripts\sanitize.py`. To add a new icon, please submit issue.
-- modelLink: the link in the Huggingface
-- id: the path to find the template
-- runtimes: indicate what is supported for searching
-- architecture: for searching
-- status: `Ready` to be shown up. `Hide` to hide it until release time is reached.
-- version: this will be set by `scripts\sanitize.py` from the folder structure
+In the root folder, create a folder in the name of organization-model like `microsoft-Phi-3-medium-4k-instruct`. Each model should has its own folder with its own LICENSE.
 
-## Create the folder and put templates here
+Then inside it, create
 
-Create new folder following the id plus the version number like `model_lab_configs\huggingface\google\vit-base-patch16-224\1` and then put your files here like
+- LICENSE: the model license
+- Subfolders: could be any name. For example
+    - aitk: all aitk maintained recipes.
+    - NvTensorRtRtx: recipes for NVIDIA TensorRT for RTX
 
-- vit-base-patch16-224_qdq_qnn.json: required. The olive config. For requirements, see [OliveJsonRequirements.md](./OliveJsonRequirements.md)
-- vit-base-patch16-224.py: optional. User script if needed
-- .gitignore: optional. If you want to bring your own, please make sure it convers `requirements.md`
-- README.md: required
-- requirements.txt: optional. If exist, it will be installed after runtime requirements
-    + For better compatibility support, should include lib version like `package>=1.2.3,<2.0.0`
-- inference_sample.ipynb: required. We should guide user how to use the model in WinML
-    + This one will be used for olive json. If you want to provide a specific one, you could create one like `vit-base-patch16-224_qdq_qnn_inference_sample.ipynb`
+In this case, since it is a new model and we want to show it in AITK, we use aitk
 
-## Create the model_project.config
 
-This file tells the Model Lab which json should be treated as workflow and checked. It usually like this:
+## Create Olive recipes
 
-```
-{
-    "workflows": [
-        {
-            "name": "Convert to QNN",
-            "file": "vit-base-patch16-224_qdq_qnn.json",
-            "template": "huggingface/google/vit-base-patch16-224",
-            "version": 1,
-            "templateName": "vit-base-patch16-224_qdq_qnn"
-        }
-    ],
-    "modelInfo": {
-        "id": "huggingface/google/vit-base-patch16-224"
-    }
-}
-```
+In the aitk folder, create the following files to do the conversion and inferencing. These files are required.
 
-Explanation for each field:
+- xxx.json: olive config
+- inference_sample.ipynb: how the model could be used via WinML. Could copy from similar projects
+- README.md: 
+    - describe how xxx.json works
+    - include evaluation result like latency, accuracy, throughput etc. (together with device info)
 
-- name: display name
-- file: the olive json config
-- template / version / templateName: automatically set from file path
-- modelInfo - id: automatically set. Used for the model card
+## Create Requirements file (optional)
 
-## Create the *.json.config
+In AITK, the recipe conversion and evaluation process are separated. They could use same venv or totally different ones.
 
-To show the UX, you need to create `vit-base-patch16-224_qdq_qnn.json.config` and fill in parameters.
-As a general guide, please refer to other json configs.
-In the config, config with `"autoGenerated": true` is generated by `scripts\sanitize.py` and you don't need to fill it.
+- For P0 models, these venvs will be maintained by MS and whenever they have updates, P0 recipes will also be verified.
+- For other models, a venv setup for conversion is required. So once verified and checked in, end users could always reliably convert the model.
+- For other models, evaluation venv will be aligned with P0’s. Because model should always be able to run in latest WinML runtimes.
 
-You need to organize sections by yourselves. Usually in the sequence of `Quantization` and `Evaluation`.
+To create such file, please follow [Create Requirements](./HowToCreateReq.md).
 
-For example, this will show an integer control to set `data_configs[0].pre_process_data_config.size`:
+For a certain period of time / a bunch of recipes, **the venv should be shared** to avoid creating too many different venv in end user’s computer.
 
-```
-{
-    "name": "Quantization Dataset Size",
-    "type": "int",
-    "path": "data_configs[0].pre_process_data_config.size",
-    "template": {
-        "path": "data_configs[0].pre_process_data_config.size",
-        "template": "QuantizationDatasetSize"
-    }
-}
-```
+One could use venv patch file to reuse it as much as possible.
 
-In the config, if template is used, you need only to write values for template part (the others will be filled with template default):
+In demo pr, we use [olive-recipes/.aitk/requirements/Intel/Test_py3.12.9.txt at main · microsoft/olive-recipes](https://github.com/microsoft/olive-recipes/blob/main/.aitk/requirements/Intel/Test_py3.12.9.txt)
 
-- name / type: these are copied from template `QuantizationDatasetSize` in `parameter_template.json`
-- path: it is copied from `template - path`
+## Create info.yml
 
-## Run sanitize.py and fix issues
+Create the required yml file to describe the project
 
-After all files are setup, please run `scripts\santize.py` and fix issues.
+For example:
 
-## Run pack_to_extension.py to try E2E
+![info.yml](./GetStarted/info.yml.png)
 
-After there is no issues, please run `scripts\pack_to_extension.py` to pack the current templates git repo into the extension and try the new template E2E.
+Explanations
 
-You could also use `--restore` to restore the original one.
+- recipes.devices: the list of devices that recipe supports: cpu, gpu, npu
+- recipes.ep / eps: the list of Eps that recipe supports
+- recipes.aitk.requirements: requirement file explained above
+- recipes.aitk.requirementsPatches: patch file explained above
+- aitk.modelInfo.id: a unique name in aitk. Usually huggingface/ORG/MODEL_NAME
+- aitk.modelInfo.version: when config or inference sample has breaking updates, increase this number and AITK will ask user to upgrade their recipes. Start from 1.
+- aitk.modelInfo.groupId: (optional) If we want to group multiple models together like for different size, we could set it
+- aitk.modelInfo.groupItemName: (optional) the name shown in dropdown
 
-## Submit pr with relative info
+Grouping is like
 
-After testing is done, please submit pr with changes and include the following, so reviewers know that the model is running well.
+![Grouping](./GetStarted/grouping.png)
 
-- Screenshot of successful templates results
-- Inside README.md, include metrics for further reference
+After these steps, all new files are like
+
+![New Files](./GetStarted/newfiles.png)
+
+## Update version (for update)
+
+When we are updating the project, we may need to increase version. See [Versioning](./Versioning.md).
+
+Version is designed to be an increasing integer for model scope to simplify version management.
+
+For end user, the version could bump more than 1 between each AITK update because AITK release and recipe update are two different processes. This is transparent to end user and they just see update no matter the gap is.
+
+## Run sanitize.py
+
+Run .aitk/scripts/sanitize.py to config and generate AITK specific files. These files are optional for pr creator as they are auto-generated (but need to commit for AITK).
+
+- checks.json: sanity check for changes
+- model_list.json: you could see that new model is correctly added
+- .gitignore: default pattern for AITK project files
+- model_project.config: list recipes same as info.yml
+- xxx.json.config: UX definition file for xxx.json. Automatically generated for llm model now
+    - For new recipes, we may need to work together for generation
+
+You could also see warnings for your project:
+
+- requirements.txt not exists: This file is optional. If provided, we will install the packages in it in our default venv. The purpose of this file is to enable user to add packages he needed for updated inference sample or olive json
+    - This file is not the config for conversion or inference venv
+- inference_model.json not exists: this is for adding converted model to AITK catalog. If tested, we could add that
+
+Now the changed files are
+
+![Changed files](./GetStarted/changed.png)
+
+### XXX.json.config Explanation (WIP)
+
+[UxConfig.md](./UxConfig.md)
+
+## Test in AITK
+
+Run `.aitk/scripts/pack_to_extension.py` and it will pack current local olive-recipes repo into installed AITK extension. So you could test in your local branch first before pushing to olive-recipes.
+
+After the script, reopen VS Code to restart the AITK, you should see it in the model list
+
+![In list](./GetStarted/inlist.png)
+
+It will be converted via your specified environment and run in current WCR environment from AITK.
+
+### Test in AITK source code
+
+Run `npm run zip-template`. It will pack olive-recipes into windows-ai-studio-templates first then pack windows-ai-studio-templates into resources/template.zip for extension debugging.
+
+## Submit pr
+
+With all these changes and new files, now you could submit the pr.
+The sanitize.py will run again during pr validation, so make sure all changes are commited.
+
+When we review the pr, we will look at the metrics in README.md to make sure the model is converted and running correctly.
