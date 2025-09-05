@@ -5,4 +5,4 @@ ep:
 device:
     cpu
 name: gte-large-en-v1.5
-recipes:
+recipes: config.json
