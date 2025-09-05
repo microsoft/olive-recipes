@@ -92,6 +92,7 @@ class EPNames(Enum):
     VitisAIExecutionProvider = "VitisAIExecutionProvider"
     NvTensorRTRTXExecutionProvider = "NvTensorRTRTXExecutionProvider"
     DmlExecutionProvider = "DmlExecutionProvider"
+    WebGpuExecutionProvider = "WebGpuExecutionProvider"
 
 
 class OliveDeviceTypes(Enum):
