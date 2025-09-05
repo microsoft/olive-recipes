@@ -4,11 +4,10 @@
 
 ### Install dependencies
 
-Install latest `olive-ai` and `onnxruntime-genai` nightly package:
+Run the following command:
 
 ```bash
-python -m pip install olive-ai - U
-python -m pip install -U --pre --extra-index-url https://aiinfra.pkgs.visualstudio.com/PublicPackages/_packaging/ORT-Nightly/pypi/simple onnxruntime-genai
+python -m pip install -r requirements.txt
 ```
 
 ### Capture ONNX Graph Using Olive CLI
