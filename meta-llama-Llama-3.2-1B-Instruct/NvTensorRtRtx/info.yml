@@ -1,6 +1,6 @@
 arch: llama
 recipes:
-  - name: Llama3.2_1B_Instruct_NVMO_INT4_AWQ
-    file: Llama-3.2-1B-Instruct_nvmo_int4_awq.json
+  - name: Llama-3.2-1B-Instruct_Model_Builder_FP16
+    file: Llama-3.2-1B-Instruct_model_builder_fp16.json
     devices: gpu
     eps: NvTensorRTRTXExecutionProvider
