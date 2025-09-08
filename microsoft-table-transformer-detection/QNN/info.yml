@@ -1,0 +1,6 @@
+keywords:
+    QNN
+recipes:
+    - file: "ttd_config.json"
+      device: npu
+      ep: QNNExecutionProvider

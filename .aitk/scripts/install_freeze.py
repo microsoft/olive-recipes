@@ -20,7 +20,7 @@ evaluateVersion = "evaluate==0.4.3"
 scikitLearnVersion = "scikit-learn==1.6.1"
 optimumVersion = "optimum==1.26.0"
 # if from git: "git+https://github.com/microsoft/Olive.git@COMMIT_ID#egg=olive_ai
-oliveAi = "olive-ai@git+https://github.com/microsoft/Olive.git@8ff071c0ae9b1c38c0619ee72e8cb031957c63c4#egg=olive-ai"
+oliveAi = "olive-ai@git+https://github.com/microsoft/Olive.git@8365802b68c32725418ae2c8999b9a90af0d41e0#egg=olive-ai"
 torchVision = "torchvision==0.22.0"
 amdQuark = "AMD__Quark_py3.10.17"
 

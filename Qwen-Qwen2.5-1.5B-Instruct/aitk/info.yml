@@ -6,13 +6,18 @@ recipes:
       device: npu
       ep: QNNExecutionProvider
       aitk:
+        # not qwen2_5/qnn/qwen_2.5_1.5b_instruct_qnn_config.json because GPTQModel depends on device_smi which uses deprecated wmic
         oliveFile: "phi3_5/qnn_config.json"
     - file: "qwen2_5_vitis_ai_config.json"
       device: npu
       ep: VitisAIExecutionProvider
       aitk:
-          requirements: AMD/Quark_py3.10.17
-          evalRuntime: AMDNPU
+        oliveFile: "phi3_5/qdq_config_vitis_ai.json"
+        requirementsPatches:
+          - AutoGptq
+        runtimeOverwrite:
+          executeEp: CUDAExecutionProvider
+        evalRuntime: AMDNPU
     - file: "qwen2_5_ov_gpu_config.json"
       devices:
         - cpu
