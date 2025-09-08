@@ -573,8 +573,6 @@ class ModelParameter(BaseModelClass):
             printWarning(f"{self._file}'s olive json should have two data configs for evaluation")
 
     def checkOliveFile(self, oliveJson: Any, modelInfo: ModelInfo):
-        if not GlobalVars.olivePath:
-            return
         if modelInfo.extension:
             return
         if not self.oliveFile:
@@ -583,7 +581,16 @@ class ModelParameter(BaseModelClass):
             printWarning(f"{self._file} does not have oliveFile")
             return
 
-        with open_ex(os.path.join(GlobalVars.olivePath, "examples", self.oliveFile), "r") as file:
+        # TODO should merge ones within olive-recipes
+        if self.oliveFile.startswith("r:"): # relative to
+            compareFile = os.path.join(os.path.dirname(self._file), self.oliveFile[2:])
+        elif self.oliveFile.startswith("i:"): # ignore
+            return
+        elif GlobalVars.olivePath:
+            compareFile = os.path.join(GlobalVars.olivePath, "examples", self.oliveFile)
+        else:
+            return
+        with open_ex(compareFile, "r") as file:
             oliveFileJson = json.load(file)
 
         diff = DeepDiff(
