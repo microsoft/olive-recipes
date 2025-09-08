@@ -34,12 +34,27 @@
                 "int64"
             ],
             "output_names": [
-                "logits_per_image"
+                "logits_per_image",
+                "logits_per_text",
+                "text_embeds",
+                "image_embeds"
             ],
             "output_shapes": [
                 [
                     1,
                     10
+                ],
+                [
+                    10,
+                    1
+                ],
+                [
+                    10,
+                    512
+                ],
+                [
+                    1,
+                    512
                 ]
             ]
         }
