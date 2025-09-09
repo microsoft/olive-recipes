@@ -68,7 +68,7 @@ def main():
             copyConfigFile = os.path.join(modelVerDir, "_copy.json.config")
             if os.path.exists(copyConfigFile):
                 copyConfig = CopyConfig.Read(copyConfigFile)
-                copyConfig.process(modelVerDir)
+                copyConfig.process(modelVerDir, pre=False)
                 copyConfig.writeIfChanged()
 
             # get model space config

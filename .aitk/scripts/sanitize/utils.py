@@ -28,6 +28,7 @@ class GlobalVars:
     # Should align with number of LLM models
     inferenceModelCheck = []
     requirementsCheck = []
+    copyCheck = 0
     venvRequirementsCheck = set()
 
     olivePath = None

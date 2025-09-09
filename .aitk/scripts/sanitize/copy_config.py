@@ -12,7 +12,7 @@ from pydantic import BaseModel
 
 from .base import BaseModelClass
 from .constants import ReplaceTypeEnum
-from .utils import open_ex, printError, printInfo, printProcess
+from .utils import open_ex, printError, printInfo, printProcess, GlobalVars
 
 
 class Replacement(BaseModel):
@@ -40,16 +40,29 @@ class CopyConfig(BaseModelClass):
         copyConfig._fileContent = copyConfigContent
         return copyConfig
 
-    def process(self, modelVerDir: str):
+    def process(self, modelVerDir: str, pre: bool = True):
         if not self.copies:
             return
         for copy in self.copies:
             src = os.path.join(modelVerDir, copy.src)
+            # validation
+            if src.endswith("model_project.config"):
+                printError("Should not copy model_project.config, it will be generated")
+                continue
+            # separate pre and post
+            if src.endswith(".json.config"):
+                if pre:
+                    continue
+            else:
+                if not pre:
+                    continue
+
             dst = os.path.join(modelVerDir, copy.dst)
             if not os.path.exists(src):
                 printError(f"{src} does not exist")
                 continue
             shutil.copy(src, dst)
+            GlobalVars.copyCheck += 1
             if copy.replacements:
                 stringReplacements = [
                     repl for repl in copy.replacements if repl.type == None or repl.type == ReplaceTypeEnum.String
