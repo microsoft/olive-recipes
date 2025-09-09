@@ -152,7 +152,7 @@ def main():
                 # check inference_model.json
                 inferenceModelFile = os.path.join(modelVerDir, "inference_model.json")
                 if not os.path.exists(inferenceModelFile):
-                    printWarning(f"{inferenceModelFile} not exists.")
+                    printWarning(f"{inferenceModelFile} does not exists.")
                 else:
                     GlobalVars.inferenceModelCheck.append(inferenceModelFile)
                     with open_ex(inferenceModelFile, "r") as file:
