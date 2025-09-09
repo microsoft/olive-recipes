@@ -5,10 +5,12 @@
     "gitignoreCheck": 34,
     "inferenceModelCheck": 24,
     "ipynbCheck": 34,
+    "licenseCheck": 33,
     "modelProjectCheck": 35,
     "oliveCheck": 0,
     "oliveJsonCheck": 89,
     "pathCheck": 607,
     "requirementsCheck": 34,
+    "templateCheck": 1,
     "venvRequirementsCheck": 12
 }

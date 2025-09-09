@@ -71,6 +71,14 @@ def main():
                 copyConfig.process(modelVerDir, pre=False)
                 copyConfig.writeIfChanged()
 
+            # check LICENSE
+            if not model.extension and not model.template:
+                licenseFile = os.path.join(modelVerDir, "..", "LICENSE")
+                if not os.path.exists(licenseFile):
+                    printError(f"{licenseFile} not exists.")
+                else:
+                    GlobalVars.licenseCheck += 1
+
             # get model space config
             modelSpaceConfig = ModelProjectConfig.Read(os.path.join(modelVerDir, "model_project.config"))
             modelSpaceConfig.modelInfo.version = version
@@ -135,6 +143,8 @@ def main():
 
             if model.extension:
                 GlobalVars.extensionCheck += 1
+            if model.template:
+                GlobalVars.templateCheck += 1
 
             modelSpaceConfig.Check(model)
 

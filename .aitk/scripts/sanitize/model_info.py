@@ -33,6 +33,7 @@ class ModelInfo(BaseModel):
     relativePath: Optional[str] = None
     version: int = -1
     extension: Optional[bool] = None
+    template: Optional[bool] = None
     p0: Optional[bool] = None
 
     def Check(self):
@@ -62,6 +63,7 @@ class ModelInfo(BaseModel):
 class ModelList(BaseModelClass):
     models: List[ModelInfo]
     template_models: List[ModelInfo]
+    extensions: List[ModelInfo]
     HFDatasets: Dict[str, str]
     LoginRequiredDatasets: List[str]
     LoginRequiredModelIds: List[str]
@@ -86,7 +88,7 @@ class ModelList(BaseModelClass):
         return modelList
 
     def allModels(self):
-        return self.models + self.template_models
+        return self.models + self.template_models + self.extensions
 
     # Check after set version
     def Check(self):
@@ -97,6 +99,10 @@ class ModelList(BaseModelClass):
             if not model.Check():
                 printError(f"{self._file} model {i} has error")
         self.SetupConstants()
+        for model in self.template_models:
+            model.template = True
+        for model in self.extensions:
+            model.extension = True
         self.writeIfChanged()
 
         self.CheckDataset(self.LoginRequiredDatasets, "LoginRequiredDatasets")

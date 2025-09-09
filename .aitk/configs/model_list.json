@@ -557,8 +557,11 @@
             "architecture": "Others",
             "status": "Ready",
             "relativePath": ".aitk/non_model_projects/templates/empty",
-            "version": 1
-        },
+            "version": 1,
+            "template": true
+        }
+    ],
+    "extensions": [
         {
             "displayName": "LLM Evaluator Template",
             "icon": "HuggingFace",
