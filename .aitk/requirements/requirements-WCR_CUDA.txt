@@ -100,8 +100,8 @@ widgetsnbextension==4.0.13
 # torchvision==0.22.0+cu128
 torchvision==0.22.0+cu128
 pillow==11.2.1
-./onnxruntime_winml-1.23.0.dev202509051843-cp312-cp312-win_amd64
-# download:onnxruntime_winml-1.23.0.dev202509051843-cp312-cp312-win_amd64
+./onnxruntime_winml-1.23.0-cp312-cp312-win_amd64.whl
+# download:onnxruntime_winml-1.23.0-cp312-cp312-win_amd64.whl
 coloredlogs==15.0.1
 humanfriendly==10.0
 pyreadline3==3.5.4
