@@ -63,7 +63,6 @@ class ModelInfo(BaseModel):
 class ModelList(BaseModelClass):
     models: List[ModelInfo]
     template_models: List[ModelInfo]
-    extensions: List[ModelInfo]
     HFDatasets: Dict[str, str]
     LoginRequiredDatasets: List[str]
     LoginRequiredModelIds: List[str]
@@ -88,7 +87,7 @@ class ModelList(BaseModelClass):
         return modelList
 
     def allModels(self):
-        return self.models + self.template_models + self.extensions
+        return self.models + self.template_models
 
     # Check after set version
     def Check(self):
@@ -100,9 +99,10 @@ class ModelList(BaseModelClass):
                 printError(f"{self._file} model {i} has error")
         self.SetupConstants()
         for model in self.template_models:
-            model.template = True
-        for model in self.extensions:
-            model.extension = True
+            if model.extension:
+                model.status = ModelStatusEnum.Hide
+            else:
+                model.template = True
         self.writeIfChanged()
 
         self.CheckDataset(self.LoginRequiredDatasets, "LoginRequiredDatasets")
