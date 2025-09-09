@@ -12,7 +12,7 @@ from pydantic import BaseModel
 
 from .base import BaseModelClass
 from .constants import ReplaceTypeEnum
-from .utils import open_ex, printError, printInfo, printProcess, GlobalVars
+from .utils import GlobalVars, open_ex, printError, printInfo, printProcess
 
 
 class Replacement(BaseModel):

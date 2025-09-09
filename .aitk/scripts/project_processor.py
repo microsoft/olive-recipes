@@ -3,13 +3,13 @@ from pathlib import Path
 import yaml
 from model_lab import RuntimeEnum
 from sanitize.constants import ArchitectureEnum, EPNames, IconEnum, ModelStatusEnum
+from sanitize.copy_config import CopyConfig
 from sanitize.generator_amd import generator_amd
 from sanitize.generator_intel import generator_intel
 from sanitize.generator_qnn import generator_qnn
 from sanitize.model_info import ModelInfo, ModelList
 from sanitize.project_config import ModelInfoProject, ModelProjectConfig, WorkflowItem
 from sanitize.utils import GlobalVars
-from sanitize.copy_config import CopyConfig
 
 org_to_icon = {
     "Intel": IconEnum.Intel,

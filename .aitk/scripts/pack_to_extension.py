@@ -72,7 +72,13 @@ if __name__ == "__main__":
             zipf.extractall(input)
         this_repo = str(Path(__file__).parent.parent.parent)
         subprocess.run(
-            [sys.executable, os.path.join(input, "model_lab_configs", "scripts", "copy_from_recipe.py"), "--olive-recipes-dir", this_repo], check=True
+            [
+                sys.executable,
+                os.path.join(input, "model_lab_configs", "scripts", "copy_from_recipe.py"),
+                "--olive-recipes-dir",
+                this_repo,
+            ],
+            check=True,
         )
         zipTemplate(input, templateFile)
         print(f"Packed resources into {templateFile}. Remove {input} directory.")

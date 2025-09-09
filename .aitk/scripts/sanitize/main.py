@@ -179,5 +179,6 @@ def main():
     if GlobalVars.errorList:
         exit(1)
 
+
 if __name__ == "__main__":
     main()
