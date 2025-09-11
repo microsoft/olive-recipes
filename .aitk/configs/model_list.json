@@ -24,6 +24,7 @@
             "runtimes": [
                 "QNN",
                 "AMDNPU",
+                "NvidiaTRTRTX",
                 "IntelCPU",
                 "IntelGPU",
                 "IntelNPU",
@@ -154,6 +155,7 @@
             "runtimes": [
                 "QNN",
                 "AMDNPU",
+                "NvidiaTRTRTX",
                 "IntelCPU",
                 "IntelGPU",
                 "IntelNPU",
@@ -204,6 +206,7 @@
             "runtimes": [
                 "QNN",
                 "AMDNPU",
+                "NvidiaTRTRTX",
                 "IntelCPU",
                 "IntelGPU",
                 "IntelNPU",
@@ -408,6 +411,7 @@
             "runtimes": [
                 "QNN",
                 "AMDNPU",
+                "NvidiaTRTRTX",
                 "IntelCPU",
                 "IntelGPU",
                 "IntelNPU",
@@ -629,7 +633,8 @@
         "AMD NPU": "AMDNPU",
         "NVIDIA GPU": "NvidiaGPU",
         "NVIDIA TensorRT for RTX": "NvidiaTRTRTX",
-        "DirectML": "DML"
+        "DirectML": "DML",
+        "WebGPU": "WebGPU"
     },
     "RuntimeToDisplayName": {
         "CPU": "CPU",
@@ -641,6 +646,7 @@
         "AMDNPU": "AMD NPU",
         "NvidiaGPU": "NVIDIA GPU",
         "NvidiaTRTRTX": "NVIDIA TensorRT for RTX",
-        "DML": "DirectML"
+        "DML": "DirectML",
+        "WebGPU": "WebGPU"
     }
 }
