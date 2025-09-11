@@ -19,3 +19,11 @@ olive optimize -m UsefulSensors/moonshine-tiny --exporter dynamo_exporter -t aut
 ```
 
 After running the above command, the model candidates and corresponding config will be saved in the output directory.
+
+### Inference the output model
+
+Check `inference_sample.py` for the example inference script:
+
+```bash
+python inference_sample.py
+```
