@@ -20,7 +20,7 @@ export BUILD_CUDA_EXT=0
 # Windows
 # set BUILD_CUDA_EXT=0
 
-# Install AutoGPTQ from source
+# Install AutoGPTQ from source (THIS PACKAGE DOES NOT SUPPORT PYTHON 3.12 FOR NOW)
 pip install --no-build-isolation git+https://github.com/PanQiWei/AutoGPTQ.git
 ```
 
@@ -45,13 +45,44 @@ command -v python
 This command will return the path to the Python executable.
 
 ### Run the Quantization + Compilation CLI
-Activate the **Quantization Python Environment**, replace the `/path/to/qnn/env/bin` by the actual path from previous step, and run the CLI:
+
+Activate the **Quantization Python Environment**, replace the `/path/to/qnn/env/bin` (or `C:\path\to\qnn\env\bin` on Windows) by the actual path from previous step, and run the CLI:
+
+#### Linux (bash)
 
 ```bash
-olive optimize -m Qwen/Qwen2.5-1.5B-Instruct --provider QNNExecutionProvider --device npu --precision int4 --num_split 4 --enable_aot --qnn_env_path </path/to/qnn/env/bin> --surgeries RemoveRopeMultiCache,AttentionMaskToSequenceLengths,SimplifiedLayerNormToL2Norm --act_precision uint16 --use_qdq_format
+olive optimize \
+    -m Qwen/Qwen2.5-1.5B-Instruct \
+    --provider QNNExecutionProvider \
+    --device npu \
+    --precision int4 \
+    --num_split 4 \
+    --enable_aot \
+    --qnn_env_path /path/to/qnn/env/bin \
+    --surgeries RemoveRopeMultiCache,AttentionMaskToSequenceLengths,SimplifiedLayerNormToL2Norm \
+    --act_precision uint16 \
+    --use_qdq_format
 ```
 
-Olive will run the AOT compilation step in the **AOT Compilation Python Environment** using a subprocess. All other steps will run in the **Quantization Python Environment** natively.
+#### Windows (PowerShell)
+
+```powershell
+olive optimize `
+    -m Qwen/Qwen2.5-1.5B-Instruct `
+    --provider QNNExecutionProvider `
+    --device npu `
+    --precision int4 `
+    --num_split 4 `
+    --enable_aot `
+    --qnn_env_path C:\path\to\qnn\env\bin `
+    --surgeries RemoveRopeMultiCache,AttentionMaskToSequenceLengths,SimplifiedLayerNormToL2Norm `
+    --act_precision uint16 `
+    --use_qdq_format
+```
+
+Olive will run the AOT compilation step in the **AOT Compilation Python Environment** using a subprocess.  
+All other steps will run in the **Quantization Python Environment** natively.
+
 
 ✅ Optimized model saved in: `optimized-model/`
 
