@@ -70,8 +70,16 @@ def main():
             copyConfigFile = os.path.join(modelVerDir, "_copy.json.config")
             if os.path.exists(copyConfigFile):
                 copyConfig = CopyConfig.Read(copyConfigFile)
-                copyConfig.process(modelVerDir)
+                copyConfig.process(modelVerDir, pre=False)
                 copyConfig.writeIfChanged()
+
+            # check LICENSE
+            if not model.extension and not model.template:
+                licenseFile = os.path.join(modelVerDir, "..", "LICENSE")
+                if not os.path.exists(licenseFile):
+                    printError(f"{licenseFile} not exists.")
+                else:
+                    GlobalVars.licenseCheck += 1
 
             # get model space config
             modelSpaceConfig = ModelProjectConfig.Read(os.path.join(modelVerDir, "model_project.config"))
@@ -137,6 +145,8 @@ def main():
 
             if model.extension:
                 GlobalVars.extensionCheck += 1
+            if model.template:
+                GlobalVars.templateCheck += 1
 
             modelSpaceConfig.Check(model)
 
@@ -144,7 +154,7 @@ def main():
                 # check inference_model.json
                 inferenceModelFile = os.path.join(modelVerDir, "inference_model.json")
                 if not os.path.exists(inferenceModelFile):
-                    printWarning(f"{inferenceModelFile} not exists.")
+                    printWarning(f"{inferenceModelFile} does not exists.")
                 else:
                     GlobalVars.inferenceModelCheck.append(inferenceModelFile)
                     with open_ex(inferenceModelFile, "r") as file:
@@ -180,6 +190,7 @@ def main():
         print(f"\033[31mERROR: {filename}:{lineno}: {msg}\033[0m")
     if GlobalVars.errorList:
         exit(1)
+
 
 if __name__ == "__main__":
     main()

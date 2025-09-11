@@ -578,7 +578,11 @@ class ModelParameter(BaseModelClass):
         if modelInfo.extension:
             return
         if not self.oliveFile:
-            if self.runtime and self.runtime.displayNames and self.runtime.displayNames[0] == GlobalVars.RuntimeToDisplayName[RuntimeEnum.DML]:
+            if (
+                self.runtime
+                and self.runtime.displayNames
+                and self.runtime.displayNames[0] == GlobalVars.RuntimeToDisplayName[RuntimeEnum.DML]
+            ):
                 return
             printWarning(f"{self._file} does not have oliveFile")
             return

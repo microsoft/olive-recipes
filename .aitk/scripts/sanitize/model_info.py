@@ -33,6 +33,7 @@ class ModelInfo(BaseModel):
     relativePath: Optional[str] = None
     version: int = -1
     extension: Optional[bool] = None
+    template: Optional[bool] = None
     p0: Optional[bool] = None
 
     def Check(self):
@@ -97,6 +98,11 @@ class ModelList(BaseModelClass):
             if not model.Check():
                 printError(f"{self._file} model {i} has error")
         self.SetupConstants()
+        for model in self.template_models:
+            if model.extension:
+                model.status = ModelStatusEnum.Hide
+            else:
+                model.template = True
         self.writeIfChanged()
 
         self.CheckDataset(self.LoginRequiredDatasets, "LoginRequiredDatasets")

@@ -3,6 +3,7 @@ from pathlib import Path
 import yaml
 from model_lab import RuntimeEnum
 from sanitize.constants import ArchitectureEnum, EPNames, IconEnum, ModelStatusEnum
+from sanitize.copy_config import CopyConfig
 from sanitize.generator_amd import generator_amd
 from sanitize.generator_intel import generator_intel
 from sanitize.generator_qnn import generator_qnn
@@ -132,11 +133,19 @@ def project_processor():
                     raise KeyError(f"aitk not found in {yml_file}")
                 continue
         print(f"Process aitk for {yml_file}")
+        # model info
         modelInfo = convert_yaml_to_model_info(root_dir, yml_file, yaml_object)
         if modelInfo.id.lower() in all_ids:
             raise KeyError(f"same id found in {yml_file}")
         all_ids.add(modelInfo.id.lower())
         modelList.models.append(modelInfo)
+        # copy pre
+        copyConfigFile = yml_file.parent / "_copy.json.config"
+        if copyConfigFile.exists():
+            copyConfig = CopyConfig.Read(copyConfigFile.as_posix())
+            copyConfig.process(yml_file.parent.as_posix(), pre=True)
+            copyConfig.writeIfChanged()
+        # project config and json configs
         convert_yaml_to_project_config(yml_file, yaml_object, modelList)
 
     modelList.models.sort(key=lambda x: (x.GetSortKey()))

@@ -36,6 +36,7 @@ oliveAi = (
 torchVision = "torchvision==0.22.0"
 amdQuark = "AMD__Quark_py3.10.17"
 
+
 def get_requires(name: str, args):
     # TODO for this case, need to install via Model Lab first
     viaModelLab = False
@@ -77,6 +78,7 @@ def get_name_outputFile(python: str, configs_dir: str):
         runtime = RuntimeEnum(runtime)
     return runtime, outputFile
 
+
 def main():
     pre = {
         RuntimeEnum.NvidiaGPU: [
@@ -99,7 +101,7 @@ def main():
             "psutil==7.0.0",
             # ValueError: Using a `device_map`, `tp_plan`, `torch.device` context manager or setting `torch.set_default_device(device)` requires `accelerate`. You can install it with `pip install accelerate`
             "accelerate==1.10.1",
-        ]
+        ],
     }
     shared_conversion = [
         "huggingface-hub[hf_xet]==0.34.4",
@@ -150,7 +152,7 @@ def main():
             # 0.8.X is not working for DML LLM because
             # File "onnxruntime_genai\models\builder.py", line 571, in make_tensor_proto_from_tensor
             #    data_type=self.to_onnx_dtype[tensor.dtype],
-            #KeyError: torch.uint8
+            # KeyError: torch.uint8
             "onnxruntime-genai-cuda==0.7.0",
             optimumVersion,
         ],
@@ -222,6 +224,7 @@ def main():
 
     # write result
     with open(outputFile, "w", newline="\n") as f:
+
         def get_write_require(req: str):
             if req in freeze_dict:
                 if req not in freeze_dict_used:
@@ -235,7 +238,7 @@ def main():
             requires, package_name, viaModelLab = get_requires(name, args)
             print(f"Requires for {name} by {package_name}: {requires}")
             freeze_dict_used.add(package_name)
-            
+
             for req in requires:
                 if get_write_require(req):
                     continue
@@ -249,9 +252,7 @@ def main():
                 raise Exception(f"Cannot find {req} in pip freeze")
 
         for name in all:
-            if (
-                name.startswith("#") and not name.startswith(uvpipInstallPrefix)
-            ) or name.startswith("--"):
+            if (name.startswith("#") and not name.startswith(uvpipInstallPrefix)) or name.startswith("--"):
                 f.write(name + "\n")
                 continue
             if not name.startswith("#"):
