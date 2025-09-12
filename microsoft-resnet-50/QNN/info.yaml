@@ -2,9 +2,9 @@ keywords:
     olive
 arch: resnet
 recipes:
-    - file: "resnet_ptq_qnn_fp32.json"
+    - file: "resnet_qnn_fp32.json"
       device: npu
       ep: QNNExecutionProvider
-    - file: "resnet_ptq_qnn_fp32_ctx.json"
+    - file: "resnet_qnn_fp32_ctx.json"
       device: npu
       ep: QNNExecutionProvider
