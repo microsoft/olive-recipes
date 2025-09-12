@@ -3,7 +3,7 @@
 This repository demonstrates the optimization of the [Qwen2.5-Coder-0.5B-Instruct](https://huggingface.co/Qwen/Qwen2.5-Coder-0.5B-Instruct) model using **post-training quantization (PTQ)** techniques.
 
 - OpenVINO for Intel® GPU/NPU
-    + This process uses OpenVINO specific passes like `OpenVINOOptimumConversion`, `OpenVINOIoUpdate` and `OpenVINOEncapsulation`
+   + This process uses OpenVINO specific passes like `OpenVINOOptimumConversion`, `OpenVINOIoUpdate` and `OpenVINOEncapsulation`
 
 ## Intel® Workflows
 
