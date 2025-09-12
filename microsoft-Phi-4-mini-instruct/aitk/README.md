@@ -14,8 +14,9 @@ This workflow performs quantization with Optimum Intel®. It performs the optimi
 ### Phi 4 Mini Instruct Dynamic Shape Model
 
 The flow in following config file executes the above workflow producing a dynamic shape model.
+
 1. [phi4_ov_config.json](phi4_ov_config.json)
-1. [phi4_ov_npu_config.json](phi4_ov_npu_config.json)
+2. [phi4_ov_npu_config.json](phi4_ov_npu_config.json)
 
 ## How to run
 

@@ -16,7 +16,7 @@ This workflow performs quantization with Optimum Intel®. It performs the optimi
 The following config files executes the above workflow producing as dynamic shaped model:
 
 1. [phi3_ov_config.json](phi3_ov_config.json)
-1. [phi3_ov_npu_config.json](phi3_ov_npu_config.json)
+2. [phi3_ov_npu_config.json](phi3_ov_npu_config.json)
 
 ## How to run
 

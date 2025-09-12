@@ -1,9 +1,9 @@
 # DeepSeek-R1-Distill-Qwen-7B Model Optimization
 
-This repository demonstrates the optimization of the [DeepSeek R1 Distill Qwen 7B](https://huggingface.co/deepseek-ai/DeepSeek-R1-Distill-Qwen-7B) model using **post-training quantization (PTQ)** techniques. The optimization process is divided into these workflows:
+This repository demonstrates the optimization of the [DeepSeek-R1-Distill-Qwen-7B](https://huggingface.co/deepseek-ai/DeepSeek-R1-Distill-Qwen-7B) model using **post-training quantization (PTQ)** techniques. The optimization process is divided into these workflows:
 
-- Intel® NPU: [DeepSeek R1 Distill Qwen 7B Dynamic Shape Model](./deepseek_ov_npu_config.json)
-- Intel® GPU: [DeepSeek R1 Distill Qwen 7B Dynamic Shape Model](./deepseek_ov_config.json)
+- OpenVINO for Intel® GPU/NPU
+   + This process uses OpenVINO specific passes like `OpenVINOOptimumConversion`, `OpenVINOIoUpdate` and `OpenVINOEncapsulation`
 
 ## Intel® Workflows
 
