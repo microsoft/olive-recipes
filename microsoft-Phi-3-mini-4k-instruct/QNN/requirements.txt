@@ -1,0 +1,3 @@
+gptqmodel
+datasets
+onnxruntime-genai-cuda>=0.9.0
