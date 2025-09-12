@@ -1,6 +1,6 @@
 arch: qwen2
 recipes:
-  - name: Qwen2.5_1.5B_Instruct_NVMO_INT4_AWQ
-    file: Qwen2.5-1.5B-Instruct_nvmo_int4_awq.json
+  - name: Qwen2.5_1.5B_Instruct_Model_Builder_FP16
+    file: Qwen2.5-1.5B-Instruct_model_builder_fp16.json
     devices: gpu
     eps: NvTensorRTRTXExecutionProvider

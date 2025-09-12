@@ -1,0 +1,6 @@
+arch: mistral
+recipes:
+  - name: Mistral-7B-Instruct-v0.2_Model_Builder_INT4
+    file: Mistral-7B-Instruct-v0.2_model_builder_int4.json
+    devices: gpu
+    eps: NvTensorRTRTXExecutionProvider

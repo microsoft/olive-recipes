@@ -1,0 +1,31 @@
+{
+    "input_model": {
+        "type": "HfModel",
+        "model_path": "Qwen/Qwen2.5-14B-Instruct",
+        "task": "text-classification"
+    },
+    "systems": {
+        "local_system": {
+            "type": "LocalSystem",
+            "accelerators": [ { "device": "gpu", "execution_providers": [ "NvTensorRTRTXExecutionProvider" ] } ]
+        }
+    },
+    "engine": { "target": "local_system" },
+    "passes": {
+        "mb": {
+            "type": "ModelBuilder",
+            "precision": "int4",
+            "int4_block_size": 32,
+            "int4_algo_config": "rtn",
+            "int4_is_symmetric": true,
+            "enable_cuda_graph": true
+        },
+        "mq": {
+            "type": "MatMulNBitsToQDQ",
+            "use_int4": true,
+            "add_zero_point": false,
+            "save_as_external_data": true
+        }
+    },
+    "log_severity_level": 0
+}
