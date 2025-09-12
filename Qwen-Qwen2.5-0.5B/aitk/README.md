@@ -2,8 +2,13 @@
 
 This repository demonstrates the optimization of the [Qwen2.5-0.5B](https://huggingface.co/Qwen/Qwen2.5-0.5B) model using **post-training quantization (PTQ)** techniques.
 
-- OpenVINO for Intel GPU
-   + This process uses OpenVINO specific passes like `OpenVINOOptimumConversion`, `OpenVINOIoUpdate` and `OpenVINOEncapsulation`
+- OpenVINO for Intel® GPU
+
+## Intel® Workflows
+
+This workflow performs quantization with Optimum Intel®. It performs the optimization pipeline:
+
+- *HuggingFace Model -> Quantized OpenVINO model -> Quantized encapsulated ONNX OpenVINO IR model*
 
 ## Metrics
 
