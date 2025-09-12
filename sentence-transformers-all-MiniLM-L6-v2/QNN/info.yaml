@@ -1,0 +1,7 @@
+keywords:
+    olive
+ep:
+    QNNExecutionProvider
+device:
+    npu
+name: sentence-transformers-all-MiniLM-L6-v2
