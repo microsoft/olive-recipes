@@ -1,0 +1,7 @@
+keywords:
+    olive
+arch: resnet
+recipes:
+    - file: "resnet_trtrtx.json"
+      device: gpu
+      ep: NvTensorRTRTXExecutionProvider

@@ -1,0 +1,7 @@
+keywords:
+    olive
+arch: resnet
+recipes:
+    - file: "resnet_ptq_cpu.json"
+      device: cpu
+      ep: CPUExecutionProvider
