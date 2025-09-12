@@ -1,4 +1,4 @@
-# Phi-3.5 Model Optimization
+# Phi-3 Mini 4k Instruct Model Optimization
 
 This repository demonstrates the optimization of the [Microsoft Phi-3 Mini 4k Instruct](https://huggingface.co/microsoft/Phi-3-mini-4k-instruct) model using **post-training quantization (PTQ)** techniques. 
 
