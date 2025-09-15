@@ -9,6 +9,7 @@ __pycache__/
 # Cache and models
 cache/
 models/
+.olive-cache/
 
 # Distribution / packaging
 .Python
