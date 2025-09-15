@@ -1,0 +1,7 @@
+keywords:
+    qnn
+ep:
+    QNNExecutionProvider
+device:
+    npu
+name: llama-3.1-8b
