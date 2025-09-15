@@ -8,7 +8,7 @@ Run the following command:
 python -m pip install -r requirements.txt
 ```
 
-## Optimze meta-llama/Llama-2-7b-hf using Olive optimize CLI
+## Optimize meta-llama/Llama-2-7b-hf using Olive optimize CLI
 
 Run the following command to optimize the model for CUDAExecutionProvider:
 
