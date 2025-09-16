@@ -14,5 +14,6 @@ class RuntimeEnum(Enum):
     NvidiaGPU = "NvidiaGPU"
     WCR = "WCR"
     WCR_CUDA = "WCR_CUDA"
+    WCR_INIT = "WCR_INIT"
     # Inference
     QNN_LLLM = "QNN_LLM"
