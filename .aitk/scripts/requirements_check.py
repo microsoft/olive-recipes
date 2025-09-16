@@ -12,7 +12,7 @@ def req_is_subset(req1, req2):
         print(f"Requirement '{req1[0].name}' is subset of '{req2[0].name}'")
     else:
         print(f"Requirement '{req1[0].name}' is not a subset of '{req2[0].name}'")
-        exit(1)
+        raise SystemExit(1)
 
 
 def requirements_check():
