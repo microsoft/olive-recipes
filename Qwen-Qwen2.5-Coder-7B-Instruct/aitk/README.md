@@ -1,8 +1,15 @@
 # Qwen2.5-Coder-7B-Instruct Model Optimization
 
 This repository demonstrates the optimization of the [Qwen2.5-Coder-7B-Instruct](https://huggingface.co/Qwen/Qwen2.5-Coder-7B-Instruct) model using **post-training quantization (PTQ)** techniques.
-- OpenVINO for Intel GPU
+
+- OpenVINO for Intel® GPU/NPU
    + This process uses OpenVINO specific passes like `OpenVINOOptimumConversion`, `OpenVINOIoUpdate` and `OpenVINOEncapsulation`
+
+## Intel® Workflows
+
+This workflow performs quantization with Optimum Intel®. It performs the optimization pipeline:
+
+- *HuggingFace Model -> Quantized OpenVINO model -> Quantized encapsulated ONNX OpenVINO IR model*
 
 ### **Inference**
 

@@ -3,7 +3,7 @@
 This folder contains examples of ResNet optimization using different workflows.
 
 - QDQ for Qualcomm NPU / AMD NPU
-- OpenVINO for Intel NPU
+- OpenVINO for Intel® CPU/GPU/NPU
 - Float downcasting for NVIDIA TRT for RTX GPU / DML for general GPU
 
 ## QDQ for Qualcomm NPU / AMD NPU
@@ -11,6 +11,12 @@ This folder contains examples of ResNet optimization using different workflows.
 This workflow performs ResNet optimization with QDQ in one workflow. It performs the optimization pipeline:
 
 - *PyTorch Model -> Onnx Model -> Quantized Onnx Model*
+
+## OpenVINO Quantization Workflows with OpenVINO NNCF
+
+This workflow performs quantization with OpenVINO NNCF. It performs the optimization pipeline:
+
+- *HuggingFace Model -> OpenVINO Model -> Quantized OpenVINO Model -> Quantized encapsulated ONNX OpenVINO IR Model*
 
 ## Evaluation result
 

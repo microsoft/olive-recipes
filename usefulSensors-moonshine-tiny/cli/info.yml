@@ -1,0 +1,9 @@
+keywords:
+    olive
+ep:
+    CUDAExecutionProvider
+    CPUExecutionProvider
+device:
+    gpu
+    cpu
+name: moonshine-tiny

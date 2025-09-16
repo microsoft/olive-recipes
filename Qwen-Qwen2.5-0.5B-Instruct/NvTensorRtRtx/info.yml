@@ -1,0 +1,6 @@
+arch: qwen2
+recipes:
+  - name: Qwen2.5-0.5B-Instruct_Model_Builder_FP16
+    file: Qwen2.5-0.5B-Instruct_model_builder_fp16.json
+    devices: gpu
+    eps: NvTensorRTRTXExecutionProvider
