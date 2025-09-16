@@ -105,8 +105,8 @@ humanfriendly==10.0
 pyreadline3==3.5.4
 flatbuffers==25.2.10
 sympy==1.14.0
-./onnxruntime_genai_winml-0.10.0.dev20250909-cp312-cp312-win_amd64.whl
-# download:onnxruntime_genai_winml-0.10.0.dev20250909-cp312-cp312-win_amd64.whl
+./onnxruntime_genai_winml-0.10.0.dev20250915-cp312-cp312-win_amd64.whl
+# download:onnxruntime_genai_winml-0.10.0.dev20250915-cp312-cp312-win_amd64.whl
 # evaluate==0.4.3
 evaluate==0.4.3
 # scikit-learn==1.6.1
@@ -126,7 +126,7 @@ winrt-runtime==3.2.1
 winrt-Windows.Foundation==3.2.1
 # winrt-Windows.Foundation.Collections==3.2.1
 winrt-Windows.Foundation.Collections==3.2.1
-./wasdk_microsoft_windows_ai_machinelearning-1.8.250909001-cp312-cp312-win_amd64.whl
-# download:wasdk_microsoft_windows_ai_machinelearning-1.8.250909001-cp312-cp312-win_amd64.whl
-./wasdk_microsoft_windows_applicationmodel_dynamicdependency_bootstrap-1.8.250909001-cp312-cp312-win_amd64.whl
-# download:wasdk_microsoft_windows_applicationmodel_dynamicdependency_bootstrap-1.8.250909001-cp312-cp312-win_amd64.whl
+./wasdk_microsoft_windows_ai_machinelearning-1.8.250911001-cp312-cp312-win_amd64.whl
+# download:wasdk_microsoft_windows_ai_machinelearning-1.8.250911001-cp312-cp312-win_amd64.whl
+./wasdk_microsoft_windows_applicationmodel_dynamicdependency_bootstrap-1.8.250911001-cp312-cp312-win_amd64.whl
+# download:wasdk_microsoft_windows_applicationmodel_dynamicdependency_bootstrap-1.8.250911001-cp312-cp312-win_amd64.whl
