@@ -4,7 +4,7 @@ from pathlib import Path
 def get_lines_from_file(file_path: Path):
     with open(file_path, "r", encoding="utf-8") as f:
         lines = f.readlines()
-    return [file_path, set(line.strip() for line in lines if line.strip() and not line.startswith("#"))]
+    return [file_path, set(line.strip() for line in lines)]
 
 
 def req_is_subset(req1, req2):
