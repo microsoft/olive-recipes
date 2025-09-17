@@ -30,6 +30,7 @@ org_to_icon = {
 class ModelSummary:
     def __init__(self, modelInfo: ModelInfo):
         self.modelInfo = modelInfo
+        self.modelName = modelInfo.displayName.split("/")[1].replace("-", " ").title()
         self.recipes = dict[RuntimeEnum, list[str]]()
 
 
@@ -46,12 +47,11 @@ class AllModelSummary:
             self.write_list(f, "Non-LLM Models", self.nonLlmModels, GlobalVars.RuntimeToDisplayName, root_dir, md)
 
     def write_list(self, f, title: str, modelList: list[ModelSummary], runtimeToDisplayName: Dict[RuntimeEnum, str], root_dir: Path, md_path: Path):
-        modelList.sort(key=lambda x: (x.modelInfo.GetSortKey()))
+        modelList.sort(key=lambda x: (x.modelName))
         f.write(f"## {title}\n\n")
         f.write("| Model Name | Supported Runtimes |\n")
         f.write("|------------|--------------------|\n")
         for model in modelList:
-            modelName = model.modelInfo.displayName.split("/")[1].replace("-", " ").title()
             def get_runtime_str(runtime: RuntimeEnum, recipes: list[str]) -> str:
                 name = runtimeToDisplayName.get(runtime)
                 # TODO only show first one
@@ -59,7 +59,7 @@ class AllModelSummary:
                 recipe_path = os.path.relpath(recipe_path, md_path.parent).replace("\\", "/")
                 return f"[{name}]({recipe_path})"
             runtimes = ", ".join([get_runtime_str(r, model.recipes[r]) for r in RuntimeEnum if r in model.recipes])
-            f.write(f"| [{modelName}]({model.modelInfo.modelLink}) | {runtimes} |\n")
+            f.write(f"| [{model.modelName}]({model.modelInfo.modelLink}) | {runtimes} |\n")
 
 
 def get_runtime(recipe: dict):
