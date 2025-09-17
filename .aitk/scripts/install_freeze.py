@@ -64,7 +64,17 @@ def get_requires(name: str, args):
     return [req for req in requires if req], package_name, viaModelLab
 
 
-def get_name_outputFile(python: str, configs_dir: str):
+def get_name_outputFile(python: str, configs_dir: str, input_runtime: str):
+    if input_runtime:
+        if "/" in input_runtime:
+            folder, name = input_runtime.split("/")
+            runtime = f"{folder}__{name}"
+            outputFile = path.join(configs_dir, "requirements", folder, f"{name}.txt")
+        else:
+            outputFile = path.join(configs_dir, "requirements", f"requirements-{input_runtime}.txt")
+            runtime = RuntimeEnum(input_runtime)
+        return runtime, outputFile
+
     pythonSegs = python.split("-")
     if "__" in python:
         folder_name = pythonSegs[-4].split("__")
@@ -122,6 +132,7 @@ def main():
         RuntimeEnum.NvidiaGPU: shared_conversion,
         RuntimeEnum.WCR: shared_both,
         RuntimeEnum.WCR_CUDA: shared_both,
+        RuntimeEnum.WCR_INIT: [onnxruntimeWinmlVersion],
         RuntimeEnum.QNN_LLLM: shared_ipynb,
         amdQuark: shared_conversion,
     }
@@ -183,10 +194,11 @@ def main():
 
     parser = argparse.ArgumentParser()
     parser.add_argument("--python", "-p", required=True, type=str, help="python path")
+    parser.add_argument("--runtime", "-r", required=True, type=str, help="runtime name")
     args = parser.parse_args()
 
     configs_dir = path.dirname(path.dirname(__file__))
-    runtime, outputFile = get_name_outputFile(args.python, configs_dir)
+    runtime, outputFile = get_name_outputFile(args.python, configs_dir, args.runtime)
 
     # prepare file
     configs_dir = path.dirname(path.dirname(__file__))

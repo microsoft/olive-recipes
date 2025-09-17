@@ -11,6 +11,7 @@ from pathlib import Path
 
 from auto_formatter import auto_format_scripts
 from project_processor import project_processor
+from requirements_check import requirements_check
 from sanitize.main import main
 from sanitize.utils import GlobalVars
 
@@ -49,5 +50,6 @@ if __name__ == "__main__":
     # Auto-format scripts before running sanitize
     if "--format_scripts" in sys.argv:
         auto_format_scripts()
+    requirements_check()
     project_processor()
     run_main()
