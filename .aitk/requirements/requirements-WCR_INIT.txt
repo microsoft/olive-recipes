@@ -1,5 +1,5 @@
-./onnxruntime_winml-1.23.0-cp312-cp312-win_amd64.whl
-# download:onnxruntime_winml-1.23.0-cp312-cp312-win_amd64.whl
+./onnxruntime_winml-1.23.0.dev2025091008-cp312-cp312-win_amd64.whl
+# download:onnxruntime_winml-1.23.0.dev2025091008-cp312-cp312-win_amd64.whl
 ./onnxruntime_genai_winml-0.10.0.dev20250915-cp312-cp312-win_amd64.whl
 # download:onnxruntime_genai_winml-0.10.0.dev20250915-cp312-cp312-win_amd64.whl
 --index-url https://aiinfra.pkgs.visualstudio.com/PublicPackages/_packaging/ORT-Nightly/pypi/simple
