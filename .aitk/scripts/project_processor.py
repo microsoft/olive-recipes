@@ -56,7 +56,7 @@ class AllModelSummary:
                 name = runtimeToDisplayName.get(runtime)
                 # TODO only show first one
                 recipe_path = root_dir / str(model.modelInfo.relativePath) / recipes[0]
-                recipe_path = os.path.relpath(recipe_path, md_path.parent)
+                recipe_path = os.path.relpath(recipe_path, md_path.parent).replace("\\", "/")
                 return f"[{name}]({recipe_path})"
             runtimes = ", ".join([get_runtime_str(r, model.recipes[r]) for r in RuntimeEnum if r in model.recipes])
             f.write(f"| [{modelName}]({model.modelInfo.modelLink}) | {runtimes} |\n")
