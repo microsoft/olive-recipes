@@ -1,7 +1,7 @@
+import os
 from pathlib import Path
 from typing import Dict
 
-import os
 import yaml
 from model_lab import RuntimeEnum
 from sanitize.constants import ArchitectureEnum, EPNames, IconEnum, ModelStatusEnum
@@ -11,7 +11,7 @@ from sanitize.generator_intel import generator_intel
 from sanitize.generator_qnn import generator_qnn
 from sanitize.model_info import ModelInfo, ModelList
 from sanitize.project_config import ModelInfoProject, ModelProjectConfig, WorkflowItem
-from sanitize.utils import GlobalVars, open_ex, isLLM_by_id
+from sanitize.utils import GlobalVars, isLLM_by_id, open_ex
 
 org_to_icon = {
     "Intel": IconEnum.Intel,
@@ -41,23 +41,33 @@ class AllModelSummary:
 
     def write(self, root_dir: Path):
         md = root_dir / ".aitk" / "docs" / "guide" / "ModelList.md"
-        with open_ex(md, 'w') as f:
+        with open_ex(md, "w") as f:
             f.write("# Model List\n\n")
             self.write_list(f, "LLM Models", self.llmModels, GlobalVars.RuntimeToDisplayName, root_dir, md)
             self.write_list(f, "Non-LLM Models", self.nonLlmModels, GlobalVars.RuntimeToDisplayName, root_dir, md)
 
-    def write_list(self, f, title: str, modelList: list[ModelSummary], runtimeToDisplayName: Dict[RuntimeEnum, str], root_dir: Path, md_path: Path):
+    def write_list(
+        self,
+        f,
+        title: str,
+        modelList: list[ModelSummary],
+        runtimeToDisplayName: Dict[RuntimeEnum, str],
+        root_dir: Path,
+        md_path: Path,
+    ):
         modelList.sort(key=lambda x: (x.modelName))
         f.write(f"## {title}\n\n")
         f.write("| Model Name | Supported Runtimes |\n")
         f.write("|------------|--------------------|\n")
         for model in modelList:
+
             def get_runtime_str(runtime: RuntimeEnum, recipes: list[str]) -> str:
                 name = runtimeToDisplayName.get(runtime)
                 # TODO only show first one
                 recipe_path = root_dir / str(model.modelInfo.relativePath) / recipes[0]
                 recipe_path = os.path.relpath(recipe_path, md_path.parent).replace("\\", "/")
                 return f"[{name}]({recipe_path})"
+
             runtimes = ", ".join([get_runtime_str(r, model.recipes[r]) for r in RuntimeEnum if r in model.recipes])
             f.write(f"| [{model.modelName}]({model.modelInfo.modelLink}) | {runtimes} |\n")
 
@@ -115,7 +125,9 @@ def convert_yaml_to_model_info(root_dir: Path, yml_file: Path, yaml_object: dict
     return model_info
 
 
-def convert_yaml_to_project_config(yml_file: Path, yaml_object: dict, modelList: ModelList, modelSummary: ModelSummary) -> ModelProjectConfig:
+def convert_yaml_to_project_config(
+    yml_file: Path, yaml_object: dict, modelList: ModelList, modelSummary: ModelSummary
+) -> ModelProjectConfig:
     aitk = yaml_object.get("aitk", {})
     modelInfo = aitk.get("modelInfo", {})
     id = modelInfo.get("id")
