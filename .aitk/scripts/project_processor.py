@@ -189,10 +189,11 @@ def project_processor():
             copyConfig.writeIfChanged()
         # model summary
         model_summary = ModelSummary(modelInfo)
-        if isLLM_by_id(modelInfo.id):
-            all_summary.llmModels.append(model_summary)
-        else:
-            all_summary.nonLlmModels.append(model_summary)
+        if modelInfo.status == ModelStatusEnum.Ready:
+            if isLLM_by_id(modelInfo.id):
+                all_summary.llmModels.append(model_summary)
+            else:
+                all_summary.nonLlmModels.append(model_summary)
         # project config and json configs
         convert_yaml_to_project_config(yml_file, yaml_object, modelList, model_summary)
 
