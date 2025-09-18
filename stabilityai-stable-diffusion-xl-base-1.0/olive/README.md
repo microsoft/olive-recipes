@@ -28,6 +28,7 @@ Transformers optimization uses the following optimizations to speed up Stable Di
 * Reduce Transpose nodes by graph transformation.
 
 #### Prerequisites
+
 ##### Clone the repository and install Olive
 
 Refer to the instructions in the [examples README](../README.md) to clone the repository and install Olive.
@@ -38,6 +39,7 @@ We use the same olive workflow config files and scripts as the DirectML examples
 So, cd into the corresponding DirectML example folder from the root of the cloned repository:
 
 **_Stable Diffusion XL_**
+
 ```bash
 cd examples/stable_diffusion_xl
 ```
@@ -60,7 +62,7 @@ pip install onnxruntime-gpu --pre --index-url https://aiinfra.pkgs.visualstudio.
 Install the necessary python packages:
 
 ```bash
-python -m pip install -r requirements-common.txt
+python -m pip install -r requirements.txt
 ```
 
 #### Conversion to ONNX and Latency Optimization

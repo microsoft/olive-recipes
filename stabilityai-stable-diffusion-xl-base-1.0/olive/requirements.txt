@@ -1,2 +1,9 @@
--r requirements-common.txt
-onnxruntime-directml>=1.16.2
+accelerate
+diffusers
+invisible-watermark
+onnx
+optimum
+pillow
+torch
+# StableDiffusionSafetyChecker vision_model ignores attn_implementation
+transformers<4.43.0
