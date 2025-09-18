@@ -1,10 +1,10 @@
-# DeepSeek-R1-Distill-Qwen-14B optimization
+# DeepSeek-R1-Distill-Qwen-7B optimization
 
-This folder contains examples of Olive recipes for `DeepSeek-R1-Distill-Qwen-14B` optimization.
+This folder contains examples of Olive recipes for `DeepSeek-R1-Distill-Qwen-7B` optimization.
 
-## INT4 AWQ Quantized Model Generation
+## INT4 RTN Quantized Model Generation
 
-The olive recipe `DeepSeek-R1-Distill-Qwen-14B_nvmo_int4_awq.json` produces INT4 AWQ quantized model using NVIDIA's TensorRT Model Optimizer toolkit.
+The olive recipe `DeepSeek-R1-Distill-Qwen-7B_nvmo_int4_rtn.json` produces INT4 RTN quantized model using NVIDIA's TensorRT Model Optimizer toolkit.
 
 ### Setup
 
@@ -42,20 +42,18 @@ The olive recipe `DeepSeek-R1-Distill-Qwen-14B_nvmo_int4_awq.json` produces INT4
 
     - Install packages provided in requirements text file.
     ```bash
-    pip install -r requirements-nvmo-awq.txt
+    pip install -r requirements-nvmo.txt
     ```
 
 ### Steps to run
 
 ```bash
-olive run --config DeepSeek-R1-Distill-Qwen-14B_nvmo_int4_awq.json
+olive run --config DeepSeek-R1-Distill-Qwen-7B_nvmo_int4_rtn.json
 ```
 
 ### Recipe details
 
-The olive recipe `DeepSeek-R1-Distill-Qwen-14B_nvmo_int4_awq.json` has 2 passes: (a) `ModelBuilder` and (b) `NVModelOptQuantization`. The `ModelBuilder` pass is used to generate the FP16 model for `NvTensorRTRTXExecutionProvider` (aka `NvTensorRtRtx` EP). Subsequently, the `NVModelOptQuantization` pass performs INT4 AWQ quantization to produce the 4-bit optimized model. In the quantization pass, execution-providers from the available/installed onnxruntime execution-providers is used for calibration. The field `calibration_providers` can be used to select any specific execution provider for calibration (assuming it is available/installed).
-
-- Note that while using NvTensorRTRTXExecutionProvider for INT4 AWQ quantization, profile (min/max/opt ranges) of shapes of the model-inputs is created internally using the details from the model's config (e.g. config.json in HuggingFace model card). This input-shapes-profile is used during onnxruntime session creation. Make sure that config.json is available in the model-directory if `tokenizer_dir` is a model path (instead of model-name).
+The olive recipe `DeepSeek-R1-Distill-Qwen-7B_nvmo_int4_rtn.json` has 2 passes: (a) `ModelBuilder` and (b) `NVModelOptQuantization`. The `ModelBuilder` pass is used to generate the FP16 model for `NvTensorRTRTXExecutionProvider` (aka `NvTensorRtRtx` EP). Subsequently, the `NVModelOptQuantization` pass performs INT4 RTN quantization to produce the 4-bit optimized model.
 
 ### Troubleshoot
 

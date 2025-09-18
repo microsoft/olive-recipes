@@ -1,0 +1,4 @@
+output/
+tmp/
+
+mobilenet_*eval.json

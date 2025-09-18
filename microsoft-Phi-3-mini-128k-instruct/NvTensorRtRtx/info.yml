@@ -1,0 +1,6 @@
+arch: phi3
+recipes:
+  - name: Phi-3-mini-128k-instruct_NVMO_INT4_RTN
+    file: Phi-3-mini-128k-instruct_nvmo_int4_rtn.json
+    devices: gpu
+    eps: NvTensorRTRTXExecutionProvider

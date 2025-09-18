@@ -1,0 +1,28 @@
+{
+    "input_model": {
+        "type": "HfModel",
+        "model_path": "microsoft/Phi-3-mini-128k-instruct",
+        "task": "text-classification"
+    },
+    "systems": {
+        "local_system": {
+            "type": "LocalSystem",
+            "accelerators": [ { "device": "gpu", "execution_providers": [ "NvTensorRTRTXExecutionProvider" ] } ]
+        }
+    },
+    "engine": { "target": "local_system" },
+    "passes": {
+        "builder": { "type": "ModelBuilder", "precision": "fp16", "enable_cuda_graph": true},
+        "quantization": {
+            "type": "NVModelOptQuantization",
+            "algorithm": "rtn",
+            "int4_block_size": 32,
+            "tokenizer_dir": "microsoft/Phi-3-mini-128k-instruct",
+            "calibration_method": "rtn_dq",
+            "calibration_params": {
+                 "add_position_ids": false
+            }
+        }
+    },
+    "log_severity_level": 0
+}

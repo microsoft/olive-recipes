@@ -1,0 +1,9 @@
+keywords:
+    olive
+arch: phi3
+recipes:
+    - file: "config.json"
+      devices:
+        - npu
+      ep: QNNExecutionProvider
+name: phi3-mini-128k-instruct

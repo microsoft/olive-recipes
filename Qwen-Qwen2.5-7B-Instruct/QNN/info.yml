@@ -1,0 +1,7 @@
+keywords:
+    qnn
+ep:
+    QNNExecutionProvider
+device:
+    npu
+name: qwen2.5-7b-instruct

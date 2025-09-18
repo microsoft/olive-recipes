@@ -1,0 +1,4 @@
+auto-gptq
+datasets
+optimum
+transformers==4.53.3
