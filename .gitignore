@@ -11,6 +11,9 @@ cache/
 models/
 .olive-cache/
 
+# Inc quantization
+nc_workspace/
+
 # Distribution / packaging
 .Python
 build/
