@@ -12,7 +12,7 @@
             "architecture": "Transformer",
             "status": "Ready",
             "relativePath": "deepseek-ai-DeepSeek-R1-Distill-Llama-8B/aitk",
-            "version": 1
+            "version": 2
         },
         {
             "displayName": "deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B",
@@ -33,7 +33,7 @@
             "architecture": "Transformer",
             "status": "Ready",
             "relativePath": "deepseek-ai-DeepSeek-R1-Distill-Qwen-1.5B/aitk",
-            "version": 2,
+            "version": 3,
             "p0": true
         },
         {
@@ -50,7 +50,7 @@
             "architecture": "Transformer",
             "status": "Ready",
             "relativePath": "deepseek-ai-DeepSeek-R1-Distill-Qwen-7B/aitk",
-            "version": 2
+            "version": 3
         },
         {
             "displayName": "deepseek-ai/DeepSeek-R1-Distill-Qwen-14B",
@@ -65,7 +65,7 @@
             "architecture": "Transformer",
             "status": "Ready",
             "relativePath": "deepseek-ai-DeepSeek-R1-Distill-Qwen-14B/aitk",
-            "version": 2
+            "version": 3
         },
         {
             "displayName": "google-bert/bert-base-multilingual-cased",
@@ -84,7 +84,7 @@
             "architecture": "Transformer",
             "status": "Ready",
             "relativePath": "google-bert-bert-base-multilingual-cased/aitk",
-            "version": 2,
+            "version": 3,
             "p0": true
         },
         {
@@ -104,7 +104,7 @@
             "architecture": "Transformer",
             "status": "Ready",
             "relativePath": "google-vit-base-patch16-224/aitk",
-            "version": 2,
+            "version": 3,
             "p0": true
         },
         {
@@ -124,7 +124,7 @@
             "architecture": "Transformer",
             "status": "Ready",
             "relativePath": "intel-bert-base-uncased-mrpc/aitk",
-            "version": 2,
+            "version": 3,
             "p0": true
         },
         {
@@ -144,7 +144,7 @@
             "architecture": "Transformer",
             "status": "Ready",
             "relativePath": "laion-CLIP-ViT-B-32-laion2B-s34B-b79K/aitk",
-            "version": 3,
+            "version": 4,
             "p0": true
         },
         {
@@ -164,7 +164,7 @@
             "architecture": "Transformer",
             "status": "Ready",
             "relativePath": "meta-llama-Llama-3.2-1B-Instruct/aitk",
-            "version": 2,
+            "version": 3,
             "p0": true
         },
         {
@@ -180,7 +180,7 @@
             "architecture": "Transformer",
             "status": "Ready",
             "relativePath": "microsoft-Phi-3-mini-128k-instruct/aitk",
-            "version": 2
+            "version": 3
         },
         {
             "displayName": "microsoft/Phi-3-mini-4k-instruct",
@@ -196,7 +196,7 @@
             "architecture": "Transformer",
             "status": "Ready",
             "relativePath": "microsoft-Phi-3-mini-4k-instruct/aitk",
-            "version": 2
+            "version": 3
         },
         {
             "displayName": "microsoft/Phi-3.5-mini-instruct",
@@ -215,7 +215,7 @@
             "architecture": "Transformer",
             "status": "Ready",
             "relativePath": "microsoft-Phi-3.5-mini-instruct/aitk",
-            "version": 2,
+            "version": 3,
             "p0": true
         },
         {
@@ -229,7 +229,7 @@
             "architecture": "Transformer",
             "status": "Ready",
             "relativePath": "microsoft-Phi-4/aitk",
-            "version": 1
+            "version": 2
         },
         {
             "displayName": "microsoft/Phi-4-mini-instruct",
@@ -243,7 +243,7 @@
             "architecture": "Transformer",
             "status": "Ready",
             "relativePath": "microsoft-Phi-4-mini-instruct/aitk",
-            "version": 2
+            "version": 3
         },
         {
             "displayName": "microsoft/Phi-4-mini-reasoning",
@@ -257,7 +257,7 @@
             "architecture": "Transformer",
             "status": "Ready",
             "relativePath": "microsoft-Phi-4-mini-reasoning/aitk",
-            "version": 2
+            "version": 3
         },
         {
             "displayName": "microsoft/Phi-4-reasoning",
@@ -270,7 +270,7 @@
             "architecture": "Transformer",
             "status": "Ready",
             "relativePath": "microsoft-Phi-4-reasoning/aitk",
-            "version": 2
+            "version": 3
         },
         {
             "displayName": "microsoft/Phi-4-reasoning-plus",
@@ -283,7 +283,7 @@
             "architecture": "Transformer",
             "status": "Ready",
             "relativePath": "microsoft-Phi-4-reasoning-plus/aitk",
-            "version": 2
+            "version": 3
         },
         {
             "displayName": "Microsoft/ResNet-50",
@@ -302,7 +302,7 @@
             "architecture": "CNN",
             "status": "Ready",
             "relativePath": "microsoft-resnet-50/aitk",
-            "version": 2,
+            "version": 3,
             "p0": true
         },
         {
@@ -317,7 +317,7 @@
             "architecture": "Transformer",
             "status": "Ready",
             "relativePath": "mistralai-Mistral-7B-Instruct-v0.2/aitk",
-            "version": 1
+            "version": 2
         },
         {
             "displayName": "mistralai/Mistral-7B-Instruct-v0.3",
@@ -330,7 +330,7 @@
             "architecture": "Transformer",
             "status": "Ready",
             "relativePath": "mistralai-Mistral-7B-Instruct-v0.3/aitk",
-            "version": 2
+            "version": 3
         },
         {
             "displayName": "openai/clip-vit-base-patch16",
@@ -349,7 +349,7 @@
             "architecture": "Transformer",
             "status": "Ready",
             "relativePath": "openai-clip-vit-base-patch16/aitk",
-            "version": 3,
+            "version": 4,
             "p0": true
         },
         {
@@ -369,7 +369,7 @@
             "architecture": "Transformer",
             "status": "Ready",
             "relativePath": "openai-clip-vit-base-patch32/aitk",
-            "version": 3,
+            "version": 4,
             "p0": true
         },
         {
@@ -383,7 +383,7 @@
             "architecture": "Transformer",
             "status": "Hide",
             "relativePath": "Qwen-Qwen2.5-0.5B/aitk",
-            "version": 1
+            "version": 2
         },
         {
             "displayName": "Qwen/Qwen2.5-0.5B-Instruct",
@@ -399,7 +399,7 @@
             "architecture": "Transformer",
             "status": "Ready",
             "relativePath": "Qwen-Qwen2.5-0.5B-Instruct/aitk",
-            "version": 2
+            "version": 3
         },
         {
             "displayName": "Qwen/Qwen2.5-1.5B-Instruct",
@@ -420,7 +420,7 @@
             "architecture": "Transformer",
             "status": "Ready",
             "relativePath": "Qwen-Qwen2.5-1.5B-Instruct/aitk",
-            "version": 2,
+            "version": 3,
             "p0": true
         },
         {
@@ -436,7 +436,7 @@
             "architecture": "Transformer",
             "status": "Ready",
             "relativePath": "Qwen-Qwen2.5-3B-Instruct/aitk",
-            "version": 2
+            "version": 3
         },
         {
             "displayName": "Qwen/Qwen2.5-7B-Instruct",
@@ -452,7 +452,7 @@
             "architecture": "Transformer",
             "status": "Ready",
             "relativePath": "Qwen-Qwen2.5-7B-Instruct/aitk",
-            "version": 2
+            "version": 3
         },
         {
             "displayName": "Qwen/Qwen2.5-14B-Instruct",
@@ -467,7 +467,7 @@
             "architecture": "Transformer",
             "status": "Ready",
             "relativePath": "Qwen-Qwen2.5-14B-Instruct/aitk",
-            "version": 2
+            "version": 3
         },
         {
             "displayName": "Qwen/Qwen2.5-Coder-0.5B-Instruct",
@@ -483,7 +483,7 @@
             "architecture": "Transformer",
             "status": "Ready",
             "relativePath": "Qwen-Qwen2.5-Coder-0.5B-Instruct/aitk",
-            "version": 2
+            "version": 3
         },
         {
             "displayName": "Qwen/Qwen2.5-Coder-1.5B-Instruct",
@@ -499,7 +499,7 @@
             "architecture": "Transformer",
             "status": "Ready",
             "relativePath": "Qwen-Qwen2.5-Coder-1.5B-Instruct/aitk",
-            "version": 2
+            "version": 3
         },
         {
             "displayName": "Qwen/Qwen2.5-Coder-3B-Instruct",
@@ -514,7 +514,7 @@
             "architecture": "Transformer",
             "status": "Ready",
             "relativePath": "Qwen-Qwen2.5-Coder-3B-Instruct/aitk",
-            "version": 2
+            "version": 3
         },
         {
             "displayName": "Qwen/Qwen2.5-Coder-7B-Instruct",
@@ -530,7 +530,7 @@
             "architecture": "Transformer",
             "status": "Ready",
             "relativePath": "Qwen-Qwen2.5-Coder-7B-Instruct/aitk",
-            "version": 2
+            "version": 3
         },
         {
             "displayName": "Qwen/Qwen2.5-Coder-14B-Instruct",
@@ -545,7 +545,7 @@
             "architecture": "Transformer",
             "status": "Ready",
             "relativePath": "Qwen-Qwen2.5-Coder-14B-Instruct/aitk",
-            "version": 2
+            "version": 3
         }
     ],
     "template_models": [

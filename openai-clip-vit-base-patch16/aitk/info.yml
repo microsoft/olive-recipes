@@ -23,5 +23,5 @@ recipes:
 aitk:
     modelInfo:
         id: "huggingface/openai/clip-vit-base-patch16"
-        version: 3
+        version: 4
         p0: true
