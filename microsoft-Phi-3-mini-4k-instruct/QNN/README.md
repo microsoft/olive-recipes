@@ -4,16 +4,23 @@ This repository demonstrates the optimization of the [Microsoft Phi-3 Mini 4k In
 
 
 ### Quantization Python Environment Setup
-Quantization is resource-intensive and requires GPU acceleration. In an x64 Python environment with Olive installed, install the required packages:
+Quantization is resource-intensive and requires GPU acceleration. In an x64 Python environment, install the required packages:
 
 ```bash
-pip install -r requirements.txt
+# Linux
+export BUILD_CUDA_EXT=0
+# Windows
+# set BUILD_CUDA_EXT=0
+pip install --no-build-isolation -r requirements.txt
 ```
 
 ### AOT Compilation Python Environment Setup
-Model compilation using QNN Execution Provider requires a Python environment with onnxruntime-qnn installed. In a separate Python environment with Olive installed, install the required packages:
+Model compilation using QNN Execution Provider requires a Python environment with onnxruntime-qnn installed. In a separate Python environment, install the required packages:
 
 ```bash
+# Install Olive
+pip install olive==0.9.2
+
 # Install ONNX Runtime QNN
 pip install -r https://raw.githubusercontent.com/microsoft/onnxruntime/refs/heads/main/requirements.txt
 pip install -U --pre --extra-index-url https://aiinfra.pkgs.visualstudio.com/PublicPackages/_packaging/ORT-Nightly/pypi/simple onnxruntime-qnn --no-deps
