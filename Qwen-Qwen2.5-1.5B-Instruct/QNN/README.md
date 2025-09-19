@@ -1,39 +1,32 @@
 # Qwen2.5-1.5B-Instruct Model Optimization
 
-This repository demonstrates the optimization of the [Qwen2.5-1.5B-Instruct](https://huggingface.co/Qwen/Qwen2.5-1.5B-Instruct) model using **post-training quantization (PTQ)** techniques. 
+This repository demonstrates the optimization of the [Qwen2.5-1.5B-Instruct](https://huggingface.co/Qwen/Qwen2.5-1.5B-Instruct) model using **post-training quantization (PTQ)** techniques.
 
 
 ### Quantization Python Environment Setup
-Quantization is resource-intensive and requires GPU acceleration. In an x64 Python environment with Olive installed, install the required packages:
+Quantization is resource-intensive and requires GPU acceleration. In an x64 Python environment, install the required packages:
 
 ```bash
-# Install common dependencies
-pip install -r requirements.txt
-
-# Install ONNX Runtime GPU packages
-pip install "onnxruntime-genai-cuda>=0.9.0"
-
-# AutoGPTQ: Install from source (stable package may be slow for weight packing)
-# Disable CUDA extension build (not required)
 # Linux
 export BUILD_CUDA_EXT=0
 # Windows
 # set BUILD_CUDA_EXT=0
-
-# Install AutoGPTQ from source (THIS PACKAGE DOES NOT SUPPORT PYTHON 3.12 FOR NOW)
-pip install --no-build-isolation git+https://github.com/PanQiWei/AutoGPTQ.git
+pip install --no-build-isolation -r requirements.txt
 ```
 
 ### AOT Compilation Python Environment Setup
-Model compilation using QNN Execution Provider requires a Python environment with onnxruntime-qnn installed. In a separate Python environment with Olive installed, install the required packages:
+Model compilation using QNN Execution Provider requires a Python environment with onnxruntime-qnn installed. In a separate Python environment, install the required packages:
 
 ```bash
+# Install Olive
+pip install olive==0.9.2
+
 # Install ONNX Runtime QNN
 pip install -r https://raw.githubusercontent.com/microsoft/onnxruntime/refs/heads/main/requirements.txt
 pip install -U --pre --extra-index-url https://aiinfra.pkgs.visualstudio.com/PublicPackages/_packaging/ORT-Nightly/pypi/simple onnxruntime-qnn --no-deps
 ```
 
-This qnn env path can be found by running the following command in the environment:
+Replace `/path/to/qnn/env/bin` in [config.json](config.json) with the path to the directory containing your QNN environment's Python executable. This path can be found by running the following command in the environment:
 
 ```bash
 # Linux
@@ -42,48 +35,17 @@ command -v python
 # where python
 ```
 
-This command will return the path to the Python executable.
+This command will return the path to the Python executable. Set the parent directory of the executable as the `/path/to/qnn/env/bin` in the config file.
 
-### Run the Quantization + Compilation CLI
-
-Activate the **Quantization Python Environment**, replace the `/path/to/qnn/env/bin` (or `C:\path\to\qnn\env\bin` on Windows) by the actual path from previous step, and run the CLI:
-
-#### Linux (bash)
+### Run the Quantization + Compilation Config
+Activate the **Quantization Python Environment** and run the workflow:
 
 ```bash
-olive optimize \
-    -m Qwen/Qwen2.5-1.5B-Instruct \
-    --provider QNNExecutionProvider \
-    --device npu \
-    --precision int4 \
-    --num_split 4 \
-    --enable_aot \
-    --qnn_env_path /path/to/qnn/env/bin \
-    --surgeries RemoveRopeMultiCache,AttentionMaskToSequenceLengths,SimplifiedLayerNormToL2Norm \
-    --act_precision uint16 \
-    --use_qdq_format
+olive run --config config.json
 ```
 
-#### Windows (PowerShell)
+Olive will run the AOT compilation step in the **AOT Compilation Python Environment** specified in the config file using a subprocess. All other steps will run in the **Quantization Python Environment** natively.
 
-```powershell
-olive optimize `
-    -m Qwen/Qwen2.5-1.5B-Instruct `
-    --provider QNNExecutionProvider `
-    --device npu `
-    --precision int4 `
-    --num_split 4 `
-    --enable_aot `
-    --qnn_env_path C:\path\to\qnn\env\bin `
-    --surgeries RemoveRopeMultiCache,AttentionMaskToSequenceLengths,SimplifiedLayerNormToL2Norm `
-    --act_precision uint16 `
-    --use_qdq_format
-```
-
-Olive will run the AOT compilation step in the **AOT Compilation Python Environment** using a subprocess.  
-All other steps will run in the **Quantization Python Environment** natively.
-
-
-✅ Optimized model saved in: `optimized-model/`
+✅ Optimized model saved in: `models/qwen_2.5_1.5b_Instruct/`
 
 > ⚠️ If optimization fails during context binary generation, rerun the command. The process will resume from the last completed step.
