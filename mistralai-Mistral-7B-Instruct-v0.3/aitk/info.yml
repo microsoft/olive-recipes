@@ -10,4 +10,4 @@ recipes:
 aitk:
     modelInfo:
         id: "huggingface/mistralai/Mistral-7B-Instruct-v0.3"
-        version: 2
+        version: 3

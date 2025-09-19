@@ -30,11 +30,14 @@ recipes:
       ep: OpenVINOExecutionProvider
       aitk:
         oliveFile: "phi3_5/openvino/Phi-3.5-mini-instruct-npu-context-ov-dynamic-sym-gs128-bkp-int8-sym.json"
+    - file: "phi3_5_trtrtx_config.json"
+      device: gpu
+      ep: NvTensorRTRTXExecutionProvider
     - file: "phi3_5_dml_config.json"
       device: gpu
       ep: DmlExecutionProvider
 aitk:
     modelInfo:
         id: "huggingface/microsoft/Phi-3.5-mini-instruct"
-        version: 2
+        version: 3
         p0: true

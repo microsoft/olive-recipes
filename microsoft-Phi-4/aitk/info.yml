@@ -13,4 +13,4 @@ recipes:
 aitk:
     modelInfo:
         id: "huggingface/microsoft/Phi-4"
-        version: 1
+        version: 2

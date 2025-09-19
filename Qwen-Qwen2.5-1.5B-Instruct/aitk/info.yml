@@ -31,13 +31,16 @@ recipes:
       ep: OpenVINOExecutionProvider
       aitk:
         oliveFile: "qwen2_5/openvino/Qwen2.5-1.5B-instruct_context_ov_dynamic_sym_bkp_int8_sym_r1.json"
+    - file: "qwen2_5_trtrtx_config.json"
+      device: gpu
+      ep: NvTensorRTRTXExecutionProvider
     - file: "qwen2_5_dml_config.json"
       device: gpu
       ep: DmlExecutionProvider
 aitk:
     modelInfo:
         id: "huggingface/Qwen/Qwen2.5-1.5B-Instruct"
-        version: 2
+        version: 3
         groupId: "huggingface/Qwen/Qwen2.5-1.5B-Instruct"
         groupItemName: "1.5B"
         p0: true

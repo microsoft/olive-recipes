@@ -52,6 +52,8 @@ def main():
     # check parameter template
     parameterTemplate = readCheckParameterTemplate(os.path.join(configDir, "parameter_template.json"))
 
+    modelList.Check()
+    
     # check each model
     for model in modelList.allModels():
         modelDir = shouldCheckModel(str(rootDir), configDir, model)
@@ -163,7 +165,6 @@ def main():
                     # Write back to file
                     newContent = json.dumps(inferenceModelData, indent=4, ensure_ascii=False)
                     BaseModelClass.writeJsonIfChanged(newContent, inferenceModelFile, fileContent)
-    modelList.Check()
 
     if GlobalVars.olivePath:
         printWarning(f"Total {GlobalVars.oliveCheck} config files checked against olive json files")
