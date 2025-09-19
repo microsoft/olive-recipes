@@ -1,5 +1,4 @@
 datasets
-optimum
 # install both autogptq and gptqmodel, some recipes use one or the other
 git+https://github.com/PanQiWei/AutoGPTQ.git
 git+https://github.com/ModelCloud/GPTQModel.git@5d2911a4b2a709afb0941d53c3882d0cd80b9649
@@ -7,5 +6,6 @@ olive==0.9.2
 # these are the versions the recipes were last validated with
 onnxruntime-genai-cuda==0.7.1
 onnxruntime-gpu==1.21.1
+optimum
 # newer transformers might have incompatibility with gptq passes
 transformers==4.52.4
