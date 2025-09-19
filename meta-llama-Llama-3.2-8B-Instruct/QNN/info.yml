@@ -4,4 +4,4 @@ ep:
     QNNExecutionProvider
 device:
     npu
-name: llama3.2-1b-instruct
+name: llama3.2-8b-instruct

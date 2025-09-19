@@ -1,5 +1,5 @@
 {
-    "input_model": { "type": "HfModel", "model_path": "meta-llama/Llama-3.2-1B-Instruct" },
+    "input_model": { "type": "HfModel", "model_path": "meta-llama/Llama-3.2-8B-Instruct" },
     "systems": {
         "qnn_system": {
             "type": "PythonEnvironment",
@@ -91,7 +91,7 @@
     },
     "target": "qnn_system",
     "log_severity_level": 1,
-    "output_dir": "models/llama_3.2_1b_Instruct",
+    "output_dir": "models/llama_3.2_8b_Instruct",
     "cache_dir": "cache",
     "no_artifacts": true
 }
