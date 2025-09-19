@@ -1,5 +1,5 @@
-gptqmodel
 datasets
+optimum
 # install both autogptq and gptqmodel, some recipes use one or the other
 git+https://github.com/PanQiWei/AutoGPTQ.git
 git+https://github.com/ModelCloud/GPTQModel.git@5d2911a4b2a709afb0941d53c3882d0cd80b9649
