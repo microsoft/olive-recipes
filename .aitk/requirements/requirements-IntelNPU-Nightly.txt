@@ -1,4 +1,4 @@
-# olive-ai@git+https://github.com/microsoft/Olive.git@19abbd99463db9f608e3124237c1ecc74ac6e92e#egg=olive-ai depends on optimum[openvino]<=1.24
+# olive-ai@git+https://github.com/microsoft/Olive.git@413c6bfe3eab9584efae1f42975e8af3d600e1ad#egg=olive-ai depends on optimum[openvino]<=1.24
 # optimum[openvino]==1.24.0 depends on transformers<4.49.0
 # phi4 depends on transformers>=4.49.0
 

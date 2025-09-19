@@ -13,8 +13,8 @@ tqdm==4.67.1
 colorama==0.4.6
 typing-extensions==4.15.0
 protobuf==3.20.3
-# olive-ai@git+https://github.com/microsoft/Olive.git@19abbd99463db9f608e3124237c1ecc74ac6e92e#egg=olive-ai
-olive-ai@git+https://github.com/microsoft/Olive.git@19abbd99463db9f608e3124237c1ecc74ac6e92e#egg=olive-ai
+# olive-ai@git+https://github.com/microsoft/Olive.git@413c6bfe3eab9584efae1f42975e8af3d600e1ad#egg=olive-ai
+olive-ai@git+https://github.com/microsoft/Olive.git@413c6bfe3eab9584efae1f42975e8af3d600e1ad#egg=olive-ai
 numpy==2.2.4
 onnx==1.17.0
 onnx-ir==0.1.5
