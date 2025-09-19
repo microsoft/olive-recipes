@@ -7,11 +7,20 @@ This repository demonstrates the optimization of the [Microsoft Phi-3 Mini 128k 
 Quantization is resource-intensive and requires GPU acceleration. In an x64 Python environment, install the required packages:
 
 ```bash
+pip install -r requirements.txt
+
+# AutoGPTQ: Install from source (stable package may be slow for weight packing)
+# Disable CUDA extension build (not required)
 # Linux
 export BUILD_CUDA_EXT=0
 # Windows
 # set BUILD_CUDA_EXT=0
-pip install --no-build-isolation -r requirements.txt
+
+# Install AutoGPTQ from source
+pip install --no-build-isolation git+https://github.com/PanQiWei/AutoGPTQ.git
+
+# Install GptqModel from source
+pip install --no-build-isolation git+https://github.com/ModelCloud/GPTQModel.git@5d2911a4b2a709afb0941d53c3882d0cd80b9649
 ```
 
 ### AOT Compilation Python Environment Setup

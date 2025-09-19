@@ -1,0 +1,7 @@
+keywords:
+    olive
+ep:
+    QNNExecutionProvider
+device:
+    npu
+name: llama3.2-1b-instruct

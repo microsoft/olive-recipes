@@ -1,6 +1,6 @@
-# Phi-3 Mini 4k Instruct Model Optimization
+# Qwen2.5-7B-Instruct Model Optimization
 
-This repository demonstrates the optimization of the [Microsoft Phi-3 Mini 4k Instruct](https://huggingface.co/microsoft/Phi-3-mini-4k-instruct) model using **post-training quantization (PTQ)** techniques. 
+This repository demonstrates the optimization of the [Qwen2.5-7B-Instruct](https://huggingface.co/Qwen/Qwen2.5-7B-Instruct) model using **post-training quantization (PTQ)** techniques.
 
 
 ### Quantization Python Environment Setup
@@ -55,6 +55,6 @@ olive run --config config.json
 
 Olive will run the AOT compilation step in the **AOT Compilation Python Environment** specified in the config file using a subprocess. All other steps will run in the **Quantization Python Environment** natively.
 
-✅ Optimized model saved in: `models/phi3_mini_4k_instruct/`
+✅ Optimized model saved in: `models/qwen_2.5_7b_Instruct/`
 
 > ⚠️ If optimization fails during context binary generation, rerun the command. The process will resume from the last completed step.

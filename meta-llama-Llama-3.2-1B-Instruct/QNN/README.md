@@ -1,6 +1,6 @@
-# Phi-3 Mini 4k Instruct Model Optimization
+# Llama-3.2-1B-Instruct Model Optimization
 
-This repository demonstrates the optimization of the [Microsoft Phi-3 Mini 4k Instruct](https://huggingface.co/microsoft/Phi-3-mini-4k-instruct) model using **post-training quantization (PTQ)** techniques. 
+This repository demonstrates the optimization of the [Llama-3.2-1B-Instruct](https://huggingface.co/meta-llama/Llama-3.2-1B-Instruct) model using **post-training quantization (PTQ)** techniques.
 
 
 ### Quantization Python Environment Setup
@@ -55,6 +55,6 @@ olive run --config config.json
 
 Olive will run the AOT compilation step in the **AOT Compilation Python Environment** specified in the config file using a subprocess. All other steps will run in the **Quantization Python Environment** natively.
 
-✅ Optimized model saved in: `models/phi3_mini_4k_instruct/`
+✅ Optimized model saved in: `models/llama_3.2_1b_Instruct/`
 
 > ⚠️ If optimization fails during context binary generation, rerun the command. The process will resume from the last completed step.
