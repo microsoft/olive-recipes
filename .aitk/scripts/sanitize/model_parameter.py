@@ -440,6 +440,7 @@ class ModelParameter(BaseModelClass):
         else:
             self.isGPURequired = None
         
+        # model builder uses AutoConfig.from_pretrained(hf_name, token=hf_token, trust_remote_code=True, **extra_kwargs) and trust_remote_code=True requires token
         first_pass_value = next(iter(oliveJson[OlivePropertyNames.Passes].values()), None)
         if first_pass_value and first_pass_value[OlivePropertyNames.Type].lower() == OlivePassNames.ModelBuilder:
             self.needHFLogin = True
