@@ -223,6 +223,7 @@ class ModelParameter(BaseModelClass):
     isQNNLLM: Optional[bool] = None
     # SET AUTOMATICALLY TO TRUE WHEN CUDAExecutionProvider
     isGPURequired: Optional[bool] = None
+    needHFLogin: Optional[bool] = None
     runtimeOverwrite: Optional[RuntimeOverwrite] = None
     executeRuntimeFeatures: Optional[List[str]] = None
     evaluationRuntimeFeatures: Optional[List[str]] = None
@@ -438,6 +439,10 @@ class ModelParameter(BaseModelClass):
             self.isGPURequired = True
         else:
             self.isGPURequired = None
+        
+        first_pass_value = next(iter(oliveJson[OlivePropertyNames.Passes].values()), None)
+        if first_pass_value and first_pass_value[OlivePropertyNames.Type].lower() == OlivePassNames.ModelBuilder:
+            self.needHFLogin = True
 
         self.checkPhase(oliveJson)
         self.CheckRuntimeInConversion(oliveJson, modelList, modelInfo)
