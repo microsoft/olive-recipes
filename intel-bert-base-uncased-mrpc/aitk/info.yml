@@ -1,5 +1,6 @@
 keywords:
-    aitk
+    - aitk
+    - session_params_tuning
 arch: bert
 recipes:
     - file: "bert_qdq_qnn.json"

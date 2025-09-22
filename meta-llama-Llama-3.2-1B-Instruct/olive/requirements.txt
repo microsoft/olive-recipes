@@ -1,0 +1,9 @@
+bitsandbytes
+datasets
+git+https://github.com/microsoft/TransformerCompression
+lm_eval
+numpy<2.0
+olive-ai[inc,lora,gpu]
+onnxruntime-genai-cuda
+optimum
+transformers==4.45.0
