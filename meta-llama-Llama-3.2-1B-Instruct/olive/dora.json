@@ -44,7 +44,7 @@
             "keep_io_types": false,
             "float16": true
         },
-        "e": { "type": "ExtractAdapters" }
+        "e": { "type": "ExtractAdapters", "adapter_type": "dora" }
     },
     "host": "local_system",
     "target": "local_system",

@@ -48,7 +48,7 @@
             "keep_io_types": false,
             "float16": true
         },
-        "e": { "type": "ExtractAdapters" },
+        "e": { "type": "ExtractAdapters", "adapter_type": "loha" },
         "m": { "type": "ModelBuilder", "metadata_only": true, "precision": "fp16" }
     },
     "host": "local_system",
