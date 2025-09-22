@@ -171,6 +171,6 @@
     "evaluate_input_model": false,
     "target": "target_system",
     "clean_cache": false,
-    "output_dir": "model/clip",
+    "output_dir": "model/clip_qnn",
     "cache_dir": "cache"
 }

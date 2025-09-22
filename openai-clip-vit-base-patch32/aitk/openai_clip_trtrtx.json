@@ -182,6 +182,6 @@
     "target": "local_system",
     "evaluator": "common_evaluator",
     "cache_dir": "cache",
-    "output_dir": "model/clip-vit-base-patch16",
+    "output_dir": "model/clip_trtrtx",
     "evaluate_input_model": false
 }
