@@ -20,8 +20,8 @@ recipes:
     - file: "llama3_2_ov_config.json"
       devices:
         - cpu
-        - gpu
         - npu
+        - gpu
       ep: OpenVINOExecutionProvider
       aitk:
         oliveFile: "llama3/openvino/Llama-3.2-1B-Instruct_context_ov_dynamic_sym_bkp_int8_sym.json"

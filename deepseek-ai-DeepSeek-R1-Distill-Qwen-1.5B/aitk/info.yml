@@ -19,8 +19,8 @@ recipes:
         evalRuntime: AMDNPU
     - file: "deepseek_ov_gpu_config.json"
       devices:
-        - cpu
         - gpu
+        - cpu
       ep: OpenVINOExecutionProvider
       aitk:
           oliveFile: "deepseek/openvino/DeepSeek-R1-Distill-Qwen-1.5B-gpu-context-ov-dy-gs32-r1.json"

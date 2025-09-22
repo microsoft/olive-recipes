@@ -98,8 +98,8 @@ class EPNames(Enum):
 class OliveDeviceTypes(Enum):
     Any = "any"
     CPU = "cpu"
-    GPU = "gpu"
     NPU = "npu"
+    GPU = "gpu"
 
 
 # Pass name is case insensitive, so we use lower case for all pass names

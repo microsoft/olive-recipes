@@ -20,8 +20,8 @@ recipes:
         evalRuntime: AMDNPU
     - file: "qwen2_5_ov_gpu_config.json"
       devices:
-        - cpu
         - gpu
+        - cpu
       ep: OpenVINOExecutionProvider
       aitk:
         oliveFile: "qwen2_5/openvino/Qwen2.5-1.5B-instruct-gpu-context-dy.json"
