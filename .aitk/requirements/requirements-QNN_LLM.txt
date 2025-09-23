@@ -35,6 +35,7 @@ widgetsnbextension==4.0.13
 numpy==2.2.4
 --index-url https://aiinfra.pkgs.visualstudio.com/PublicPackages/_packaging/ORT-Nightly/pypi/simple
 --extra-index-url https://pypi.org/simple
+onnxruntime-winml==1.23.0.dev2025091008
 onnxruntime-genai-winml==0.10.0.dev20250915
 # winrt-runtime==3.2.1
 winrt-runtime==3.2.1
@@ -44,4 +45,13 @@ winrt-Windows.Foundation==3.2.1
 winrt-Windows.Foundation.Collections==3.2.1
 wasdk-Microsoft.Windows.AI.MachineLearning==1.8.250916003
 wasdk-Microsoft.Windows.ApplicationModel.DynamicDependency.Bootstrap==1.8.250916003
+coloredlogs==15.0.1
+humanfriendly==10.0
+pyreadline3==3.5.4
+flatbuffers==25.2.10
+numpy==2.2.4
+packaging==24.2
+protobuf==6.30.2
+sympy==1.14.0
+mpmath==1.3.0
 # not in requires
