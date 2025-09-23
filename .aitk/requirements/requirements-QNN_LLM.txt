@@ -15,7 +15,7 @@ prompt-toolkit==3.0.52
 wcwidth==0.2.13
 stack-data==0.6.3
 asttokens==3.0.0
-executing==2.2.1
+executing==2.2.0
 pure-eval==0.2.3
 jupyter-client==8.6.3
 jupyter-core==5.7.2
@@ -32,7 +32,16 @@ psutil==7.0.0
 ipywidgets==8.1.5
 jupyterlab-widgets==3.0.13
 widgetsnbextension==4.0.13
-# numpy==2.2.4
 numpy==2.2.4
-# uvpip:install onnxruntime-genai-winml==0.8.3 --extra-index-url https://aiinfra.pkgs.visualstudio.com/PublicPackages/_packaging/ORT-Nightly/pypi/simple --no-deps;post
+--index-url https://aiinfra.pkgs.visualstudio.com/PublicPackages/_packaging/ORT-Nightly/pypi/simple
+--extra-index-url https://pypi.org/simple
+onnxruntime-genai-winml==0.10.0.dev20250915
+# winrt-runtime==3.2.1
+winrt-runtime==3.2.1
+# winrt-Windows.Foundation==3.2.1
+winrt-Windows.Foundation==3.2.1
+# winrt-Windows.Foundation.Collections==3.2.1
+winrt-Windows.Foundation.Collections==3.2.1
+wasdk-Microsoft.Windows.AI.MachineLearning==1.8.250916003
+wasdk-Microsoft.Windows.ApplicationModel.DynamicDependency.Bootstrap==1.8.250916003
 # not in requires
