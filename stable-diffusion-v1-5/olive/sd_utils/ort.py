@@ -10,11 +10,10 @@ from pathlib import Path
 
 import onnxruntime as ort
 from diffusers import OnnxRuntimeModel, OnnxStableDiffusionPipeline
+from olive.model import ONNXModelHandler
 from onnxruntime import __version__ as OrtVersion
 from packaging import version
 from sd_utils import config as sd_config
-
-from olive.model import ONNXModelHandler
 
 # ruff: noqa: TID252, T201
 
@@ -125,7 +124,7 @@ def save_onnx_pipeline(
 
         # Copy the QNN context bin if present
         src_ctx_path = Path(str(src_path).replace(".onnx", "_qnn.bin"))
-        if(src_ctx_path.exists()):        
+        if(src_ctx_path.exists()):
             dst_ctx_path = optimized_model_dir / submodel_name / "model_ctx_qnn.bin"
             shutil.copyfile(src_ctx_path, dst_ctx_path)
 

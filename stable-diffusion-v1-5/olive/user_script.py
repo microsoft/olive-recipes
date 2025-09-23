@@ -10,10 +10,10 @@ import torch
 from diffusers import AutoencoderKL, UNet2DConditionModel
 from diffusers.pipelines.stable_diffusion.safety_checker import StableDiffusionSafetyChecker
 from huggingface_hub import model_info
-from sd_utils import config
-from transformers.models.clip.modeling_clip import CLIPTextModel
 from model_adaptations import monkey_patch_model
 from olive.data.registry import Registry
+from sd_utils import config
+from transformers.models.clip.modeling_clip import CLIPTextModel
 
 # ruff: noqa: T201
 

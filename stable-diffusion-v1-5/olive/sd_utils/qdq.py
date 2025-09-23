@@ -36,12 +36,12 @@ def update_qdq_config(config: dict, provider: str, submodel_name: str):
             used_passes = {"convert", "dynamic_shape_to_fixed", "optimize_qdq", "quantization"}
     elif submodel_name == "vae_encoder":
         if(provider == "qnn"):
-            used_passes = {"convert", "dynamic_shape_to_fixed"} 
+            used_passes = {"convert", "dynamic_shape_to_fixed"}
         else:
             used_passes = {"convert", "dynamic_shape_to_fixed", "quantization"}
     else:
         if(provider == "qnn"):
-            used_passes = {"convert", "dynamic_shape_to_fixed", "quantization", "cb"} 
+            used_passes = {"convert", "dynamic_shape_to_fixed", "quantization", "cb"}
         else:
             used_passes = {"convert", "dynamic_shape_to_fixed", "quantization"}
 

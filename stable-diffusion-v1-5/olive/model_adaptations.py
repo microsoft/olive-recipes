@@ -16,15 +16,14 @@ from diffusers.models.attention import BasicTransformerBlock, FeedForward
 from diffusers.models.transformers.transformer_2d import Transformer2DModel
 
 
-
 class Conv2dLinear(torch.nn.Module):
-    """
-    A class to convert a Linear layer to a Conv2D layer with a 1x1 kernel.
+    """A class to convert a Linear layer to a Conv2D layer with a 1x1 kernel.
     This allows the linear transformation to be applied to the channel dimension
     at each spatial location in the input tensor.
 
     Args:
         linear (nn.Linear): The original linear layer to be converted.
+
     """
 
     def __init__(self, linear: torch.nn.Linear):
@@ -50,21 +49,20 @@ class Conv2dLinear(torch.nn.Module):
             self.conv.bias.data.copy_(linear.bias.data)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        """
-        Forward-pass routine for the Conv2D layer.
+        """Forward-pass routine for the Conv2D layer.
 
         Args:
             x (torch.Tensor): The input tensor in NCHW format.
 
         Returns:
             torch.Tensor: The output tensor after applying the Conv2D transformation.
+
         """
         return self.conv(x)
 
 
 class SHAAttention(nn.Module):
-    """
-    Split-Head Attention with per-head Conv2D projections and a single output
+    """Split-Head Attention with per-head Conv2D projections and a single output
     Conv2D projection.  This implementation splits the attention heads into
     separate Conv2D projection layers and applies a single output projection
     after concatenating all heads.  Adjusted to handle spatial dimensions (H,
@@ -72,11 +70,11 @@ class SHAAttention(nn.Module):
     """
 
     def __init__(self, orig_attn: attention_processor.Attention):
-        """
-        Initialize SHAAttention by copying weights from an existing Attention module.
+        """Initialize SHAAttention by copying weights from an existing Attention module.
 
         Args:
             orig_attn (attention_processor.Attention): The original Attention module to be replaced.
+
         """
         super().__init__()
 
@@ -206,8 +204,7 @@ class SHAAttention(nn.Module):
         encoder_hidden_states: Optional[torch.Tensor] = None,
         **kwargs,
     ) -> tuple[torch.Tensor, Optional[torch.Tensor], Optional[tuple[torch.Tensor]]]:
-        """
-        Forward pass for Split-Head Cross Attention.
+        """Forward pass for Split-Head Cross Attention.
         Processes each head separately using head-specific Conv2D projection layers.
 
         Args:
@@ -218,6 +215,7 @@ class SHAAttention(nn.Module):
 
         Returns:
             Tuple containing the attention output, attention weights, and past key-value.
+
         """
         bsz, hidden_size, H, W = hidden_states.size()
         residual = hidden_states
@@ -235,7 +233,7 @@ class SHAAttention(nn.Module):
         # query_states, key_states, value_states: List of (bsz, dim_head, H, W)
 
         # Handle past_key_value for caching
-        past_key_value = kwargs.get("past_key_value", None)
+        past_key_value = kwargs.get("past_key_value")
         if past_key_value is not None:
             raise NotImplementedError("SHAAttention does not support kv cache yet")
 
@@ -317,13 +315,13 @@ def traverse_and_replace(
     target_type: type[torch.nn.Module],
     replacement_fn: Callable[[torch.nn.Module], torch.nn.Module],
 ):
-    """
-    Recursively traverses the model to find and replace modules of a specified type.
+    """Recursively traverses the model to find and replace modules of a specified type.
 
     Args:
         model (nn.Module): The model to traverse.
         target_type (type): The type of modules to replace (e.g., Attention, GELU).
         replacement_fn (callable): A function that takes a module instance and returns the replacement module.
+
     """
     for name, module in model.named_children():
         if isinstance(module, target_type):
@@ -342,12 +340,12 @@ def traverse_and_replace(
 
 
 def replace_attention_modules(model: nn.Module):
-    """
-    Recursively traverses the model to find and replace all instances of Attention with SHAAttention,
+    """Recursively traverses the model to find and replace all instances of Attention with SHAAttention,
     including those nested within ModuleList containers.
 
     Args:
         model (nn.Module): The model in which to replace Attention modules.
+
     """
     traverse_and_replace(
         model, attention_processor.Attention, lambda orig_attn: SHAAttention(orig_attn)
@@ -355,14 +353,14 @@ def replace_attention_modules(model: nn.Module):
 
 
 def replace_gelu_and_approx_gelu_with_conv2d(activation_module: nn.Module) -> nn.Module:
-    """
-    Replaces the projection layer in GELU and ApproximateGELU activation modules from Linear to Conv2D.
+    """Replaces the projection layer in GELU and ApproximateGELU activation modules from Linear to Conv2D.
 
     Args:
         activation_module (nn.Module): The activation module to replace.
 
     Returns:
         nn.Module: The activation module with Conv2D projection.
+
     """
     assert isinstance(activation_module, GELU) or isinstance(
         activation_module, ApproximateGELU
@@ -386,13 +384,13 @@ def replace_gelu_and_approx_gelu_with_conv2d(activation_module: nn.Module) -> nn
 
 
 class QcGEGLU(nn.Module):
-    r"""
-    A reimplemented version of the GEGLU activation function using two Conv2D layers.
+    r"""A reimplemented version of the GEGLU activation function using two Conv2D layers.
     This class replaces the original GEGLU's Linear projections with Conv2D projections
     and eliminates the need for the chunk operation by directly computing the gate.
 
     Parameters:
         original_geglu (GEGLU): The original GEGLU module to be replaced.
+
     """
 
     def __init__(self, original_geglu: GEGLU):
@@ -451,8 +449,7 @@ class QcGEGLU(nn.Module):
 
 
 def replace_geglu_with_conv2d(activation_module: nn.Module) -> nn.Module:
-    """
-    Replaces the original GEGLU activation module with the QcGEGLU module,
+    """Replaces the original GEGLU activation module with the QcGEGLU module,
     which uses two Conv2D layers and eliminates the chunk operation.
 
     Args:
@@ -460,6 +457,7 @@ def replace_geglu_with_conv2d(activation_module: nn.Module) -> nn.Module:
 
     Returns:
         nn.Module: The QcGEGLU activation module with two Conv2D projections.
+
     """
     if isinstance(activation_module, GEGLU):
         # Instantiate QcGEGLU with the original GEGLU module
@@ -472,13 +470,13 @@ def replace_geglu_with_conv2d(activation_module: nn.Module) -> nn.Module:
 
 
 def replace_activations_with_conv2d(model: nn.Module):
-    """
-    Recursively traverses the model to find and replace GELU, GEGLU, and ApproximateGELU activation projections
+    """Recursively traverses the model to find and replace GELU, GEGLU, and ApproximateGELU activation projections
     from Linear layers to Conv2D layers, ensuring compatibility with NCHW input shapes.
     Also handles activations nested within ModuleList containers.
 
     Args:
         model (nn.Module): The model in which to perform the replacement.
+
     """
     # Replace GELU and ApproximateGELU
     traverse_and_replace(model, GELU, replace_gelu_and_approx_gelu_with_conv2d)
@@ -491,8 +489,7 @@ def replace_activations_with_conv2d(model: nn.Module):
 
 
 def replace_feedforward_with_conv2d(feedforward_module: nn.Module) -> nn.Module:
-    """
-    Replaces the nn.Linear layer in the FeedForward module with a Conv2D layer
+    """Replaces the nn.Linear layer in the FeedForward module with a Conv2D layer
     to handle hidden_states of shape (N, C, H, W).
 
     Args:
@@ -500,6 +497,7 @@ def replace_feedforward_with_conv2d(feedforward_module: nn.Module) -> nn.Module:
 
     Returns:
         nn.Module: The FeedForward module with Conv2D layers instead of Linear layers.
+
     """
     if isinstance(feedforward_module, FeedForward):
         # Create a new ModuleList to hold the modified layers
@@ -542,24 +540,24 @@ def replace_feedforward_modules(model: nn.Module):
 
 
 def replace_layer_norm_modules(model: nn.Module):
-    """
-    Recursively traverses the model to find and replace all instances of
+    """Recursively traverses the model to find and replace all instances of
     LayerNorm within BasicTransformerBlock with PermuteLayerNorm to be
     compatible with optimized_operate_on_continuous_inputs.
 
     Args:
         model (nn.Module): The model in which to replace LayerNorm modules.
+
     """
 
     def replace_layer_norm(block: BasicTransformerBlock) -> BasicTransformerBlock:
-        """
-        Replaces norm1, norm2, and norm3 within a BasicTransformerBlock.
+        """Replaces norm1, norm2, and norm3 within a BasicTransformerBlock.
 
         Args:
             block (BasicTransformerBlock): The transformer block to modify.
 
         Returns:
             BasicTransformerBlock: The modified transformer block.
+
         """
         block.norm1 = PermuteLayerNorm(block.norm1)
         block.norm2 = PermuteLayerNorm(block.norm2)
@@ -571,8 +569,7 @@ def replace_layer_norm_modules(model: nn.Module):
 
 
 def replace_transformer2d_modules(model: nn.Module):
-    """
-    Recursively traverses the model to find and replace all instances of
+    """Recursively traverses the model to find and replace all instances of
     Transformer2DModel that use linear projection, patching only those
     instances with the optimized continuous‐input methods and swapping in
     Conv2dLinear for proj_in / proj_out.
@@ -601,8 +598,7 @@ def replace_transformer2d_modules(model: nn.Module):
 
 
 def optimized_operate_on_continuous_inputs(self, hidden_states):
-    """
-    By using 4D NCHW hidden states, we can skip permutation and reshape
+    """By using 4D NCHW hidden states, we can skip permutation and reshape
     required in the HF implementation.
     """
     hidden_states = self.norm(hidden_states)
@@ -624,8 +620,7 @@ def optimized_get_output_for_continuous_inputs(
 
 
 def get_timestep_embedding(sample: torch.Tensor, timestep: torch.Tensor):
-    """
-    Adapted from diffusers.models.get_timestep_embedding.
+    """Adapted from diffusers.models.get_timestep_embedding.
     Removes parameters unused by our implementation and supports batching.
     """
     embedding_dim = 320  # TODO: Extract from last unet layers
@@ -653,15 +648,14 @@ def get_timestep_embedding(sample: torch.Tensor, timestep: torch.Tensor):
 
 
 def monkey_patch_model(model: UNet2DConditionModel):
-    """
-    1. Apply monkey patches
+    """1. Apply monkey patches
     2. Apply module replacements for targeted modules whenever monkeypatch
     code is too long
 
     Note:
-
     - This monkeypatch is verified against diffusers==0.31.0 on stable
     diffusion 1.5
+
     """
     print("Monkeypatching Unet (replacing MHA with SHA attention etc)")
     replace_attention_modules(model)
