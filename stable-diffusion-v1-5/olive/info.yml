@@ -1,0 +1,12 @@
+keywords:
+    olive-ai
+ep:
+    CPUExecutionProvider
+    CUDAExecutionProvider
+    OpenVINOExecutionProvider
+    QNNExecutionProvider
+device:
+    cpu
+    gpu
+    npu
+name: stable-diffusion-v1-5
