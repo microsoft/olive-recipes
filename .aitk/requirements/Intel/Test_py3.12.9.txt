@@ -11,8 +11,8 @@ typing-extensions==4.15.0
 onnx==1.17.0
 numpy==1.26.4
 protobuf==6.31.1
-# olive-ai@git+https://github.com/microsoft/Olive.git@413c6bfe3eab9584efae1f42975e8af3d600e1ad#egg=olive-ai
-olive-ai@git+https://github.com/microsoft/Olive.git@413c6bfe3eab9584efae1f42975e8af3d600e1ad#egg=olive-ai
+# olive-ai==0.9.3
+olive-ai==0.9.3
 numpy==1.26.4
 onnx==1.17.0
 onnx-ir==0.1.5

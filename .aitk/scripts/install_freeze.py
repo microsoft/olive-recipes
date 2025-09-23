@@ -31,7 +31,7 @@ winrtPackage = [
 
 # if from git: "git+https://github.com/microsoft/Olive.git@COMMIT_ID#egg=olive_ai
 oliveAi = (
-    "olive-ai@git+https://github.com/microsoft/Olive.git@413c6bfe3eab9584efae1f42975e8af3d600e1ad#egg=olive-ai"
+    "olive-ai==0.9.3"
 )
 torchVision = "torchvision==0.22.0"
 amdQuark = "AMD__Quark_py3.10.17"
