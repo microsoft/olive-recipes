@@ -108,6 +108,25 @@
             "p0": true
         },
         {
+            "displayName": "rizvandwiki/gender-classification",
+            "icon": "gemini",
+            "modelLink": "https://huggingface.co/rizvandwiki/gender-classification",
+            "id": "huggingface/rizvandwiki/gender-classification",
+            "runtimes": [
+                "QNN",
+                "AMDNPU",
+                "NvidiaTRTRTX",
+                "DML",
+                "IntelCPU",
+                "IntelGPU",
+                "IntelNPU"
+            ],
+            "architecture": "Transformer",
+            "status": "Ready",
+            "relativePath": "rizvandwiki-gender-classification/aitk",
+            "version": 1
+        },
+        {
             "displayName": "Intel/bert-base-uncased-mrpc",
             "icon": "intel",
             "modelLink": "https://huggingface.co/Intel/bert-base-uncased-mrpc",

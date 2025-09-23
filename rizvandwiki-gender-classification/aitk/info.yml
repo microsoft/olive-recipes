@@ -1,0 +1,26 @@
+keywords:
+    aitk
+arch: vit
+recipes:
+    - file: "rizvandwiki_gender_classification_qdq_qnn.json"
+      device: npu
+      ep: QNNExecutionProvider
+    - file: "rizvandwiki_gender_classification_qdq_amd.json"
+      device: npu
+      ep: VitisAIExecutionProvider
+    - file: "rizvandwiki_gender_classification_ov_static.json"
+      devices:
+        - npu
+        - cpu
+        - gpu
+      ep: OpenVINOExecutionProvider
+    - file: "rizvandwiki_gender_classification_trtrtx.json"
+      device: gpu
+      ep: NvTensorRTRTXExecutionProvider
+    - file: "rizvandwiki_gender_classification_dml.json"
+      device: gpu
+      ep: DmlExecutionProvider
+aitk:
+    modelInfo:
+        id: "huggingface/google/rizvandwiki_gender_classification"
+        version: 1
