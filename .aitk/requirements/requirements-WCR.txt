@@ -117,7 +117,7 @@ hf-xet==1.1.9
 --index-url https://aiinfra.pkgs.visualstudio.com/PublicPackages/_packaging/ORT-Nightly/pypi/simple
 --extra-index-url https://pypi.org/simple
 onnxruntime-winml==1.23.0.dev2025091008
-onnxruntime-genai-winml==0.10.0.dev20250915
+onnxruntime-genai-winml==0.10.0
 # winrt-runtime==3.2.1
 winrt-runtime==3.2.1
 # winrt-Windows.Foundation==3.2.1
