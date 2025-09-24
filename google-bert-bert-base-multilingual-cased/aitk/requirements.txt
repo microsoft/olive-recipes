@@ -1,4 +1,4 @@
+datasets
 # This file will be installed together with AITK runtime requirements
 # For the full requirements, see AITK
 olive-ai
-datasets

@@ -31,7 +31,6 @@
                 "trust_remote_code": true,
                 "awq": true,
                 "scale_estimation": true,
-                
                 "backup_precision": "int8_sym"
             }
         },

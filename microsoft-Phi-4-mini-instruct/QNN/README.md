@@ -63,7 +63,7 @@ Olive will run the AOT compilation step in the **AOT Compilation Python Environm
 
 ## Run Olive workflow with docker
 
-Optimizing the model with Docker will simplify the installation process, so the Dockerfile we built already sets up the environments for you to use out of the box. 
+Optimizing the model with Docker will simplify the installation process, so the Dockerfile we built already sets up the environments for you to use out of the box.
 
 ### Install dependencies
 

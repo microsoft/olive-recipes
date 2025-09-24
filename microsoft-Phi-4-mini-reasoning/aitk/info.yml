@@ -12,7 +12,7 @@ recipes:
           - Nightly
     - file: "phi4_ov_gpu_config.json"
       devices:
-          - gpu 
+          - gpu
       ep: OpenVINOExecutionProvider
       aitk:
           oliveFile: "phi4/openvino/phi_4_mini_reasoning/Phi_4_mini_reasoning_gpu_context_dy.json"

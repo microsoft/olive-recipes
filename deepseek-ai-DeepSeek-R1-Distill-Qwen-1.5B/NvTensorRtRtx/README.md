@@ -8,7 +8,7 @@ The olive recipe `DeepSeek-R1-Distill-Qwen-1.5B_model_builder_fp16.json` uses `M
 
 ### Setup
 
-1. Install Olive 
+1. Install Olive
 
 2. Install onnxruntime-genai package that has support for NvTensorRTRTXExecutionProvider.
 

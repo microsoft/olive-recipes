@@ -8,7 +8,7 @@ The olive recipe `Mistral-7B-Instruct-v0.2_model_builder_int4.json` uses `ModelB
 
 ### Setup
 
-1. Install Olive 
+1. Install Olive
 
 2. Install onnxruntime-genai package that has support for NvTensorRTRTXExecutionProvider.
 

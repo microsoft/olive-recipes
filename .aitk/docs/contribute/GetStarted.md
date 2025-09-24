@@ -40,7 +40,7 @@ In the aitk folder, create the following files to do the conversion and inferenc
 
 - xxx.json: olive config
 - inference_sample.ipynb: how the model could be used via WinML. Could copy from similar projects
-- README.md: 
+- README.md:
     - describe how xxx.json works
     - include evaluation result like latency, accuracy, throughput etc. (together with device info)
 

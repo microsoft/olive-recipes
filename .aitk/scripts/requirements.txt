@@ -1,4 +1,4 @@
-pyyaml
-pydash
-pydantic
 deepdiff
+pydantic
+pydash
+pyyaml

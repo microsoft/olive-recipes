@@ -53,7 +53,7 @@ def main():
     parameterTemplate = readCheckParameterTemplate(os.path.join(configDir, "parameter_template.json"))
 
     modelList.Check()
-    
+
     # check each model
     for model in modelList.allModels():
         modelDir = shouldCheckModel(str(rootDir), configDir, model)

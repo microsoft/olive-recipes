@@ -4,4 +4,3 @@ recipes:
     file: Mistral-7B-Instruct-v0.2_quark_vitisai_llm.json
     devices: npu
     eps: VitisAIExecutionProvider
-    

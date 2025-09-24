@@ -8,7 +8,7 @@ The olive recipe `Qwen2.5-Coder-0.5B-Instruct_model_builder_fp16.json` uses `Mod
 
 ### Setup
 
-1. Install Olive 
+1. Install Olive
 
 2. Install onnxruntime-genai package that has support for NvTensorRTRTXExecutionProvider.
 
