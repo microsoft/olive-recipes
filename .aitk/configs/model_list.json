@@ -395,6 +395,25 @@
             "version": 3
         },
         {
+            "displayName": "nateraw/vit-age-classifier",
+            "icon": "nateraw",
+            "modelLink": "https://huggingface.co/nateraw/vit-age-classifier",
+            "id": "huggingface/nateraw/vit-age-classifier",
+            "runtimes": [
+                "QNN",
+                "AMDNPU",
+                "NvidiaTRTRTX",
+                "DML",
+                "IntelCPU",
+                "IntelGPU",
+                "IntelNPU"
+            ],
+            "architecture": "Transformer",
+            "status": "Ready",
+            "relativePath": "nateraw-vit-age-classifier/aitk",
+            "version": 1
+        },
+        {
             "displayName": "Qwen/Qwen2.5-0.5B",
             "icon": "qwen",
             "modelLink": "https://huggingface.co/Qwen/Qwen2.5-0.5B",

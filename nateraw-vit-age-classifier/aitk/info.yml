@@ -1,0 +1,26 @@
+keywords:
+    aitk
+arch: vit
+recipes:
+    - file: "nateraw_vit_age_classifier_qdq_qnn.json"
+      device: npu
+      ep: QNNExecutionProvider
+    - file: "nateraw_vit_age_classifier_qdq_amd.json"
+      device: npu
+      ep: VitisAIExecutionProvider
+    - file: "nateraw_vit_age_classifier_ov.json"
+      devices:
+        - npu
+        - cpu
+        - gpu
+      ep: OpenVINOExecutionProvider
+    - file: "nateraw_vit_age_classifier_trtrtx.json"
+      device: gpu
+      ep: NvTensorRTRTXExecutionProvider
+    - file: "nateraw_vit_age_classifier_dml.json"
+      device: gpu
+      ep: DmlExecutionProvider
+aitk:
+    modelInfo:
+        id: "huggingface/google/nateraw_vit_age_classifier"
+        version: 1
