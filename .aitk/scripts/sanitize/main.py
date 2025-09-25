@@ -182,7 +182,7 @@ def main():
     if len(GlobalVars.errorList) == 0:
         # If the output is not empty, there are uncommitted changes
         if bool(result.stdout.strip()):
-            printError("Please commit changes!")
+            printError("There are changes after sanitize.py, please commit changes or fix them up!")
 
     for filename, lineno, msg in GlobalVars.errorList:
         # Red text, with file and line number, clickable in terminal
