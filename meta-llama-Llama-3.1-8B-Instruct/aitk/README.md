@@ -1,6 +1,6 @@
-# Llama-3.1-8B Model Optimization
+# Llama-3.1-8B-Instruct Model Optimization
 
-This repository demonstrates the optimization of the [Llama-3.1-8B](https://huggingface.co/meta-llama/Llama-3.1-8B) model using **post-training quantization (PTQ)** techniques. The optimization process is divided into four main workflows:
+This repository demonstrates the optimization of the [Llama-3.1-8B-Instruct](https://huggingface.co/meta-llama/Llama-3.1-8B-Instruct) model using **post-training quantization (PTQ)** techniques. The optimization process is divided into four main workflows:
 
 - QDQ for AMD NPU
 - PTQ + AOT for QNN NPU

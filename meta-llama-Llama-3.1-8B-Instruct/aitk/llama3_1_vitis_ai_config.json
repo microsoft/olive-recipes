@@ -1,7 +1,7 @@
 {
     "input_model": {
         "type": "HfModel",
-        "model_path": "meta-llama/Llama-3.1-8B"
+        "model_path": "meta-llama/Llama-3.1-8B-Instruct"
     },
     "systems": {
         "local_system": {
@@ -91,7 +91,7 @@
     },
     "target": "local_system",
     "log_severity_level": 1,
-    "output_dir": "model/llama3_1",
+    "output_dir": "model/llama3_1_instruct",
     "cache_dir": "cache",
     "no_artifacts": true,
     "evaluate_input_model": false

@@ -1,0 +1,110 @@
+{
+    "workflow_id": "default_workflow",
+    "azureml_client": null,
+    "input_model": {
+        "type": "hfmodel",
+        "config": {
+            "model_path": "meta-llama/Llama-3.1-8B"
+        }
+    },
+    "systems": null,
+    "data_configs": [],
+    "evaluators": null,
+    "engine": {
+        "search_strategy": null,
+        "host": null,
+        "target": null,
+        "evaluator": null,
+        "plot_pareto_frontier": false,
+        "no_artifacts": true,
+        "evaluate_input_model": true,
+        "output_dir": "D:\\workspace\\project\\olive-recipes\\meta-llama-Llama-3.1-8B\\VitisAI\\models\\Llama-3.1-8B-vai",
+        "packaging_config": null,
+        "cache_config": null,
+        "cache_dir": "cache",
+        "clean_cache": false,
+        "clean_evaluation_cache": false,
+        "enable_shared_cache": false,
+        "log_severity_level": 1,
+        "ort_log_severity_level": 3,
+        "ort_py_log_severity_level": 3,
+        "log_to_file": false
+    },
+    "passes": {
+        "qq": [
+            {
+                "type": "quarkquantization",
+                "config": {
+                    "quant_scheme": "w_uint4_per_group_asym",
+                    "quant_algo": "awq",
+                    "dataset": "pileval_for_awq_benchmark",
+                    "data_type": "float32",
+                    "num_calib_data": 128,
+                    "model_export": [
+                        "hf_format"
+                    ],
+                    "exclude_layers": [],
+                    "quant_config": {
+                        "name": "awq",
+                        "scaling_layers": [
+                            {
+                                "prev_op": "input_layernorm",
+                                "layers": [
+                                    "self_attn.q_proj",
+                                    "self_attn.k_proj",
+                                    "self_attn.v_proj"
+                                ],
+                                "inp": "self_attn.q_proj",
+                                "module2inspect": "self_attn"
+                            },
+                            {
+                                "prev_op": "self_attn.v_proj",
+                                "layers": [
+                                    "self_attn.o_proj"
+                                ],
+                                "inp": "self_attn.o_proj"
+                            },
+                            {
+                                "prev_op": "post_attention_layernorm",
+                                "layers": [
+                                    "mlp.gate_proj",
+                                    "mlp.up_proj"
+                                ],
+                                "inp": "mlp.gate_proj",
+                                "module2inspect": "mlp"
+                            },
+                            {
+                                "prev_op": "mlp.up_proj",
+                                "layers": [
+                                    "mlp.down_proj"
+                                ],
+                                "inp": "mlp.down_proj"
+                            }
+                        ],
+                        "model_decoder_layers": "model.layers"
+                    }
+                },
+                "host": null,
+                "evaluator": null
+            }
+        ],
+        "mg": [
+            {
+                "type": "vitisgeneratemodelllm",
+                "config": {
+                    "packed_const": false,
+                    "cpu_only": false
+                },
+                "host": null,
+                "evaluator": null
+            }
+        ]
+    },
+    "auto_optimizer_config": {
+        "opt_level": 0,
+        "disable_auto_optimizer": false,
+        "precisions": null,
+        "excluded_passes": null
+    },
+    "workflow_host": null
+}

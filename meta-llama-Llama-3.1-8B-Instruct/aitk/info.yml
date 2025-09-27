@@ -24,12 +24,12 @@ recipes:
         - npu
       ep: OpenVINOExecutionProvider
       aitk:
-        oliveFile: "llama3/openvino/Meta-Llama-3.1-8B_context_ov_dynamic_sym_bkp_int8_sym.json"
+        oliveFile: "llama3/openvino/Llama-3.1-8B-Instruct_context_ov_dynamic_sym_bkp_int8_sym.json"
     - file: "llama3_1_dml_config.json"
       device: gpu
       ep: DmlExecutionProvider
 aitk:
     modelInfo:
-        id: "huggingface/meta-llama/Llama-3.1-8B"
+        id: "huggingface/meta-llama/Llama-3.1-8B-Instruct"
         version: 1
         p0: false

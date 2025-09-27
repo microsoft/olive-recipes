@@ -1,5 +1,5 @@
 {
-    "input_model": { "type": "HfModel", "model_path": "meta-llama/Llama-3.1-8B" },
+    "input_model": { "type": "HfModel", "model_path": "meta-llama/Llama-3.1-8B-Instruct" },
     "systems": {
         "local_system": { "type": "LocalSystem", "accelerators": [ { "execution_providers": [ "OpenVINOExecutionProvider" ] } ] }
     },
@@ -27,5 +27,5 @@
     "target": "local_system",
     "cache_dir": "cache",
     "evaluate_input_model": false,
-    "output_dir": "model/llama3_1"
+    "output_dir": "model/llama3_1_instruct"
 }
