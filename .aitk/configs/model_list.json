@@ -368,6 +368,26 @@
             "version": 3
         },
         {
+            "displayName": "meta-llama/Llama-3.1-8B-Instruct",
+            "icon": "meta",
+            "modelLink": "https://huggingface.co/meta-llama/Llama-3.1-8B-Instruct",
+            "id": "huggingface/meta-llama/Llama-3.1-8B-Instruct",
+            "runtimes": [
+                "QNN",
+                "AMDNPU",
+                "NvidiaTRTRTX",
+                "IntelCPU",
+                "IntelGPU",
+                "IntelNPU",
+                "DML"
+            ],
+            "architecture": "Transformer",
+            "status": "Ready",
+            "relativePath": "meta-llama-Llama-3.1-8B-Instruct/aitk",
+            "version": 1,
+            "p0": false
+        },
+        {
             "displayName": "mistralai/Mistral-7B-Instruct-v0.2",
             "icon": "mistralai",
             "modelLink": "https://huggingface.co/mistralai/Mistral-7B-Instruct-v0.2",
