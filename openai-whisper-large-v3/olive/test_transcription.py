@@ -9,7 +9,6 @@ import numpy as np
 import onnxruntime as ort
 import librosa
 from transformers import WhisperProcessor, WhisperForConditionalGeneration
-from pathlib import Path
 
 model_id = "openai/whisper-large-v3"
 
