@@ -27,7 +27,6 @@ def run_olive_workflow(config_path: Path):
 def _ensure_decoder_with_past_outputs(model: onnx.ModelProto, num_layers: int):
     """Ensure decoder_with_past outputs ONLY decoder present KVs (NOT encoder).
 
-    Matches Optimum's Seq2SeqModelPatcher behavior:
     - Outputs: logits + decoder present KVs only (65 total)
     - No encoder present KVs (encoder cache is constant)
     """
@@ -37,7 +36,6 @@ def _ensure_decoder_with_past_outputs(model: onnx.ModelProto, num_layers: int):
             [
                 f"present.{i}.decoder.key",
                 f"present.{i}.decoder.value",
-                # NOT including encoder present (matches Optimum line 697)
             ]
         )
 
