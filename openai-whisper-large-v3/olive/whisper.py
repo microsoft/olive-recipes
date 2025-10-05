@@ -109,7 +109,6 @@ def fix_dynamic_axes(models_dir: Path, model_id: str):
         )
         decoder_cfg.fix_dynamic_axes(decoder_path)
 
-    decoder_with_past_path = models_dir / "decoder_with_past" / "model.onnx"
     if decoder_with_past_path.exists():
         decoder_past_cfg = WhisperOnnxConfig(
             cfg,
