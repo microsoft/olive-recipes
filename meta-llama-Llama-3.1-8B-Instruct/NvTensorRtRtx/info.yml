@@ -1,0 +1,6 @@
+arch: llama
+recipes:
+  - name: Llama3.1-8B-Instruct_Model_Builder_INT4
+    file: Llama-3.1-8B-Instruct_model_builder_int4.json
+    devices: gpu
+    eps: NvTensorRTRTXExecutionProvider
