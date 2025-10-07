@@ -1,4 +1,4 @@
-optimum[exporters]
-onnxruntime
 librosa
 olive-ai
+onnxruntime
+optimum[exporters]
