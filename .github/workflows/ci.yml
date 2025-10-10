@@ -1,8 +1,9 @@
-﻿name: Olive Recipes CI
+name: Olive Recipes CI
 
 on:
   schedule:
     - cron: '0 15 * * 5'
+  # Temporary: Remove these 3 lines after testing is complete
   push:
     branches:
       - recipes-ci
@@ -68,7 +69,7 @@ jobs:
         run: |
           python -m olive run --config ${{ matrix.config }}
           python -c "
-          from olive.common import WorkflowOutput
+          from olive.workflows.run import WorkflowOutput
           import sys
           try:
               output = WorkflowOutput.from_json('olive-output/output.json')
@@ -155,7 +156,7 @@ jobs:
         run: |
           python -m olive run --config ${{ matrix.config }}
           python -c "
-          from olive.common import WorkflowOutput
+          from olive.workflows.run import WorkflowOutput
           import sys
           try:
               output = WorkflowOutput.from_json('olive-output/output.json')
@@ -230,7 +231,7 @@ jobs:
           HUGGING_FACE_HUB_TOKEN: ${{ secrets.HUGGING_FACE_HUB_TOKEN }}
         run: |
           python -m olive run --config ${{ matrix.config }}
-          python -c "from olive.common import WorkflowOutput; import sys; output = WorkflowOutput.from_json('olive-output/output.json'); sys.exit(0 if output.has_output_model() else 1)"
+          python -c "from olive.workflows.run import WorkflowOutput; import sys; output = WorkflowOutput.from_json('olive-output/output.json'); sys.exit(0 if output.has_output_model() else 1)"
       
       - name: Upload artifacts
         if: always()
@@ -239,3 +240,4 @@ jobs:
           name: windows-cpu-${{ matrix.name }}-output
           path: ${{ matrix.path }}/olive-output/
           retention-days: 7
+
