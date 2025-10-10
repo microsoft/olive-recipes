@@ -3,6 +3,9 @@
 on:
   schedule:
     - cron: '0 15 * * 5'
+  push:
+    branches:
+      - recipes-ci
   workflow_dispatch:
     inputs:
       debug_mode:
