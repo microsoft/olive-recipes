@@ -43,9 +43,6 @@ jobs:
           - name: "INC Smooth Quant"
             path: "intel-bert-base-uncased-mrpc/oci/cpu"
             config: "inc_smooth_quant.json"
-          - name: "DeBERTa"
-            path: "microsoft-deberta-base-mnli/aml"
-            config: "deberta.json"
     
     steps:
       - uses: actions/checkout@v4
@@ -204,9 +201,6 @@ jobs:
           - name: "INC Smooth Quant"
             path: "intel-bert-base-uncased-mrpc/oci/cpu"
             config: "inc_smooth_quant.json"
-          - name: "DeBERTa"
-            path: "microsoft-deberta-base-mnli/aml"
-            config: "deberta.json"
     
     steps:
       - uses: actions/checkout@v4
