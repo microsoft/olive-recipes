@@ -73,7 +73,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: linux-cpu-${{ matrix.name }}-output
-          path: ${{ matrix.path }}/olive-output/
+          path: ${{ matrix.path }}/models/
           retention-days: 7
 
   linux-gpu:
@@ -152,7 +152,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: linux-gpu-${{ matrix.name }}-output
-          path: ${{ matrix.path }}/olive-output/
+          path: ${{ matrix.path }}/models/
           retention-days: 7
 
   windows-cpu:
@@ -205,6 +205,6 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: windows-cpu-${{ matrix.name }}-output
-          path: ${{ matrix.path }}/olive-output/
+          path: ${{ matrix.path }}/models/
           retention-days: 7
 
