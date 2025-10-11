@@ -54,9 +54,6 @@ jobs:
       - name: Install Olive
         run: pip install git+https://github.com/microsoft/Olive.git@main
       
-      - name: Install optimum for HuggingFace export
-        run: pip install optimum[exporters]
-      
       - name: Install requirements
         working-directory: ${{ matrix.path }}
         run: |
@@ -144,9 +141,6 @@ jobs:
       - name: Install Olive
         run: pip install git+https://github.com/microsoft/Olive.git@main
       
-      - name: Install optimum for HuggingFace export
-        run: pip install optimum[exporters]
-      
       - name: Install requirements
         working-directory: ${{ matrix.path }}
         run: |
@@ -215,15 +209,12 @@ jobs:
         with:
           python-version: ${{ env.PYTHON_VERSION }}
       
-      - name: Install Olive from main branch
+      - name: Install Olive
         run: pip install git+https://github.com/microsoft/Olive.git@main
-
-      - name: Install optimum for HuggingFace export
-        run: pip install optimum[exporters]
-
-      - name: Install recipe-specific requirements
+      
+      - name: Install requirements
         working-directory: ${{ matrix.path }}
-        shell: powershell
+        shell: pwsh
         run: |
           if (Test-Path requirements.txt) { pip install -r requirements.txt }
       
