@@ -127,8 +127,8 @@ jobs:
       - name: Install Olive
         run: pip install git+https://github.com/microsoft/Olive.git@main
 
-      - name: Install ONNX Runtime GPU
-        run: pip install onnxruntime-gpu
+      - name: Install ONNX Runtime GPU with TensorRT
+        run: pip install onnxruntime-gpu --extra-index-url https://aiinfra.pkgs.visualstudio.com/PublicPackages/_packaging/onnxruntime-cuda-12/pypi/simple/
 
       - name: Install optimum for HuggingFace export
         run: pip install optimum[exporters]
