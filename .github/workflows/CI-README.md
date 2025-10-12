@@ -13,7 +13,7 @@ Simple CI pipeline for testing Olive recipes.
 
 **Linux CPU (3)**:
 - PTQ
-- INC Smooth Quant  
+- INC Smooth Quant
 - DeBERTa
 
 **Linux GPU (9)**:
