@@ -8,6 +8,9 @@ recipes:
     - file: "resnet_qdq_amd.json"
       device: npu
       ep: VitisAIExecutionProvider
+    - file: "resnet_migraphx.json"
+      device: gpu
+      ep: MIGraphXExecutionProvider
     - file: "resnet_context_ov_static.json"
       devices:
         - npu

@@ -28,6 +28,7 @@
             "runtimes": [
                 "QNN",
                 "AMDNPU",
+                "MIGraphX",
                 "NvidiaTRTRTX",
                 "IntelCPU",
                 "IntelGPU",
@@ -652,6 +653,7 @@
         "Intel NPU": "IntelNPU",
         "Intel GPU": "IntelGPU",
         "AMD NPU": "AMDNPU",
+        "MIGraphX": "MIGraphX",
         "NVIDIA GPU": "NvidiaGPU",
         "NVIDIA TensorRT for RTX": "NvidiaTRTRTX",
         "DirectML": "DML",
@@ -665,6 +667,7 @@
         "IntelNPU": "Intel NPU",
         "IntelGPU": "Intel GPU",
         "AMDNPU": "AMD NPU",
+        "MIGraphX": "MIGraphX",
         "NvidiaGPU": "NVIDIA GPU",
         "NvidiaTRTRTX": "NVIDIA TensorRT for RTX",
         "DML": "DirectML",
