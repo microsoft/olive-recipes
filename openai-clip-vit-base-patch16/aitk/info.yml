@@ -20,6 +20,9 @@ recipes:
     - file: "openai_clip_dml.json"
       device: gpu
       ep: DmlExecutionProvider
+    - file: "openai_clip_migraphx.json"
+      device: gpu
+      ep: MIGraphXExecutionProvider
 aitk:
     modelInfo:
         id: "huggingface/openai/clip-vit-base-patch16"
