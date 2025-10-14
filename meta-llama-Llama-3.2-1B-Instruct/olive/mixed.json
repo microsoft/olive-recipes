@@ -37,6 +37,8 @@
             "precision": "int4"
         }
     },
+    "evaluator": "evaluator",
+    "evaluate_input_model": false,
     "target": "local_system",
     "log_severity_level": 1,
     "output_dir": "models/llama-3.2-1b-mixed",
