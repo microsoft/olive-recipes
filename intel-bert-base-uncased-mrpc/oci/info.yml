@@ -1,11 +1,17 @@
 keywords:
-    olive-ci
+    - olive-ci
+    - inc_smooth_quant
+    - latency
+    - accuracy
+    - search
 ep:
-    CPUExecutionProvider
-    CUDAExecutionProvider
+    - CPUExecutionProvider
+    - CUDAExecutionProvider
 device:
-    cpu
-    gpu
+    - cpu
+    - gpu
 name: intel-bert-base-uncased-mrpc
-recipes:
-features: search, evaluator, data-config
+features:
+    - search
+    - evaluator
+    - data-config

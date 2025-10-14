@@ -1,0 +1,40 @@
+{
+    "input_model": {
+        "type": "HfModel",
+        "task": "text-generation",
+        "model_path": "facebook/opt-125m"
+    },
+    "data_configs": [
+        {
+            "name": "train_data",
+            "type": "HuggingfaceContainer",
+            "load_dataset_config": {
+                "params": {
+                    "data_name": "wikitext",
+                    "subset": "wikitext-2-raw-v1",
+                    "split": "train",
+                    "trust_remote_code": true
+                }
+            },
+            "pre_process_data_config": {
+                "params": {
+                    "text_cols": ["text"],
+                    "strategy": "join",
+                    "add_special_tokens": false,
+                    "max_seq_len": 2048,
+                    "max_samples": 128,
+                    "joiner": "\n\n",
+                    "trust_remote_code": true
+                }
+            }
+        }
+    ],
+    "passes": {
+        "s": {
+            "type": "SliceGPT",
+            "sparsity": 0.4,
+            "calibration_data_config": "train_data"
+        }
+    },
+    "output_dir": "models"
+}

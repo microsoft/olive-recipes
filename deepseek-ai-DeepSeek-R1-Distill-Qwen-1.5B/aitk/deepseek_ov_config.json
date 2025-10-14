@@ -8,6 +8,7 @@
             "type": "LocalSystem",
             "accelerators": [
                 {
+                    "device":"npu",
                     "execution_providers": [
                         "OpenVINOExecutionProvider"
                     ]
@@ -48,7 +49,6 @@
         }
     },
     "search_strategy": false,
-    "host": "local_system",
     "target": "local_system",
     "cache_dir": "cache",
     "evaluate_input_model": false,

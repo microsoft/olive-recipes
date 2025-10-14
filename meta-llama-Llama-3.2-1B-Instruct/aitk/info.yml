@@ -20,8 +20,8 @@ recipes:
     - file: "llama3_2_ov_config.json"
       devices:
         - cpu
-        - gpu
         - npu
+        - gpu
       ep: OpenVINOExecutionProvider
       aitk:
         oliveFile: "llama3/openvino/Llama-3.2-1B-Instruct_context_ov_dynamic_sym_bkp_int8_sym.json"
@@ -37,5 +37,5 @@ recipes:
 aitk:
     modelInfo:
         id: "huggingface/meta-llama/Llama-3.2-1B-Instruct"
-        version: 1
+        version: 3
         p0: true

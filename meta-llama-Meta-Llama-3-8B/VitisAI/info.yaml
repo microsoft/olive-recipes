@@ -4,4 +4,3 @@ recipes:
     file: Meta-Llama-3-8B_quark_vitisai_llm.json
     devices: npu
     eps: VitisAIExecutionProvider
-    

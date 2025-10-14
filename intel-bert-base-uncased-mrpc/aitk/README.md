@@ -12,6 +12,12 @@ This workflow performs BERT optimization on NPU with ONNX Runtime QDQ. It perfor
 
 - PyTorch Model -> Onnx Model -> Static shaped Onnx Model -> Quantized Onnx Model
 
+## Intel® Workflows
+
+This workflow performs quantization with OpenVINO NNCF. It performs the optimization pipeline:
+
+- *HuggingFace Model -> OpenVINO Model -> Quantized OpenVINO model -> Quantized encapsulated ONNX OpenVINO IR model*
+
 ## Results
 
 On a Snapdragon(R) X 12-core X1E80100:

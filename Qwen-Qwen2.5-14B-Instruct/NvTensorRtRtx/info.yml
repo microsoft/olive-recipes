@@ -1,0 +1,6 @@
+arch: qwen2
+recipes:
+  - name: Qwen2.5-14B-Instruct_Model_Builder_INT4
+    file: Qwen2.5-14B-Instruct_model_builder_int4.json
+    devices: gpu
+    eps: NvTensorRTRTXExecutionProvider

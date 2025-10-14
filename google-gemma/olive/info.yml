@@ -1,0 +1,9 @@
+keywords:
+    olive
+recipes:
+    - file: "README.md"
+      device: cpu
+      ep: CPUExecutionProvider
+    - file: "README.md"
+      device: gpu
+      ep: CUDAExecutionProvider

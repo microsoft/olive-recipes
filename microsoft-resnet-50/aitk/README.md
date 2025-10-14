@@ -12,6 +12,12 @@ This workflow performs ResNet optimization with QDQ in one workflow. It performs
 
 - *PyTorch Model -> Onnx Model -> Quantized Onnx Model*
 
+## OpenVINO Quantization Workflows with OpenVINO NNCF
+
+This workflow performs quantization with OpenVINO NNCF. It performs the optimization pipeline:
+
+- *HuggingFace Model -> OpenVINO Model -> Quantized OpenVINO Model -> Quantized encapsulated ONNX OpenVINO IR Model*
+
 ## Evaluation result
 
 The quantization uses 256 samples from train split of imagenet-1k dataset and the evaluations uses 256 samples from test split of imagenet-1k dataset.

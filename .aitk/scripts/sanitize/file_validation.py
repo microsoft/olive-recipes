@@ -20,9 +20,9 @@ from .constants import (
     outputModelModelBuilderPath,
     outputModelRelativePath,
 )
+from .model_info import ModelInfo
 from .model_parameter import ModelParameter
 from .utils import GlobalVars, open_ex, printError, printProcess, printWarning
-from .model_info import ModelInfo
 
 
 def check_case(path: Path) -> bool:
@@ -100,13 +100,13 @@ def readCheckOliveConfig(oliveJsonFile: str, model: ModelInfo):
         return
     if not checkSystem(oliveJsonFile, oliveJson[OlivePropertyNames.Systems][target]):
         return
-    
+
     # check host
-    # TODO remove later
-    if not model.p0 and "clip" not in model.id.lower():
-        if OlivePropertyNames.Host in oliveJson:
-            if oliveJson[OlivePropertyNames.Host] == target:
-                printError(f"{oliveJsonFile} should not use same host as target. You should either remove it or setup a separate one")
+    if OlivePropertyNames.Host in oliveJson:
+        if oliveJson[OlivePropertyNames.Host] == target:
+            printError(
+                f"{oliveJsonFile} should not use same host as target. You should either remove it or setup a separate one"
+            )
 
     # cache / output / evaluate_input_model
     if OlivePropertyNames.CleanCache in oliveJson and oliveJson[OlivePropertyNames.CleanCache]:

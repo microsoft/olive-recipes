@@ -1,0 +1,7 @@
+keywords:
+    olive-ci
+ep:
+    CUDAExecutionProvider
+device:
+    gpu
+name: tiiuae-falcon-7b

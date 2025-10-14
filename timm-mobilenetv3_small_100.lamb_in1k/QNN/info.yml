@@ -1,0 +1,7 @@
+keywords:
+    olive
+recipes:
+    - file: "mobilenet_qnn_ep.json"
+      devices:
+        - npu
+      ep: QNNExecutionProvider

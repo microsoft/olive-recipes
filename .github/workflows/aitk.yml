@@ -2,9 +2,6 @@ name: "Workflow to verify AITK recipes"
 
 on:
   pull_request:
-    paths:
-      - '**/aitk/**'
-      - '.aitk/**'
 
 jobs:
   run-script:

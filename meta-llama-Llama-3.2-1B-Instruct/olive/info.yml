@@ -1,0 +1,13 @@
+keywords:
+  - dora
+  - loha
+  - lokr
+  - qlora
+  - lmeval
+  - rtn
+  - hqq
+arch: llama3
+devices:
+  - gpu
+  - cpu
+name: meta-llama-Llama-3.2-1B-Instruct

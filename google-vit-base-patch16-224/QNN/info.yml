@@ -1,0 +1,7 @@
+keywords:
+    QNN
+arch: vit
+recipes:
+    - file: "vit_qnn_fp32_ctx.json"
+      device: npu
+      ep: QNNExecutionProvider

@@ -46,7 +46,9 @@ This example performs Laion Clip optimization with QDQ in one workflow. It perfo
 
 ## Laion Clip optimization with OpenVINO
 
-This example performs Laion Clip optimization with OpenVINO in one workflow for Intel NPU.
+This workflow performs quantization with OpenVINO NNCF. It performs the optimization pipeline:
+
+- *HuggingFace Model -> OpenVINO Model -> Quantized OpenVINO model -> Quantized encapsulated ONNX OpenVINO IR model*
 
 ## Float downcasting for NVIDIA TRT for RTX GPU / DML for general GPU / WebGPU for general GPU
 

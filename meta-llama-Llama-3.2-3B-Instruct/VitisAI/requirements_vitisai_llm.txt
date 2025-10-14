@@ -21,4 +21,3 @@ transformers==4.50.0
 # Uncomment the below line if running model generation on a Windows system
 # --extra-index-url=https://pypi.amd.com/simple
 # model-generate==1.5.1
-

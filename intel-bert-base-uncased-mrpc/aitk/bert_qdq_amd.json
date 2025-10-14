@@ -153,7 +153,6 @@
     },
     "evaluator": "common_evaluator",
     "evaluate_input_model": false,
-    "host": "local_system",
     "target": "local_system",
     "cache_dir": "cache",
     "output_dir": "model/bert_ptq_qnn"

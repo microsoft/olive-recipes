@@ -1,0 +1,11 @@
+keywords:
+    openvino
+recipes:
+    - file: "Phi_4_mini_instruct_context_ov_dynamic_sym_gs128_bkp_int8_sym.json"
+      devices:
+        - gpu
+      ep: OpenVINOExecutionProvider
+    - file: "Phi-4-mini-instruct-gpu-context-dy.json"
+      devices:
+        - gpu
+      ep: OpenVINOExecutionProvider

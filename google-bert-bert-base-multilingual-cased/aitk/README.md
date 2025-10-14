@@ -11,6 +11,12 @@ This folder contains examples of BERT optimization using different workflows.
 This workflow quantizes the model. It performs the pipeline:
 - *HF Model-> ONNX Model ->Quantized Onnx Model*
 
+## Intel® Workflows
+
+This workflow performs quantization with OpenVINO NNCF. It performs the optimization pipeline:
+
+- *HuggingFace Model -> OpenVINO Model -> Quantized OpenVINO model -> Quantized encapsulated ONNX OpenVINO IR model*
+
 ### Latency / Throughput
 
 | Model Version         | Latency (ms/sample)  | Throughput (token per second)| Dataset       |

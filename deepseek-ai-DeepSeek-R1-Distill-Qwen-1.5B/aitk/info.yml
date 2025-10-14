@@ -17,10 +17,15 @@ recipes:
         runtimeOverwrite:
           executeEp: CUDAExecutionProvider
         evalRuntime: AMDNPU
+    - file: "deepseek_ov_gpu_config.json"
+      devices:
+        - gpu
+        - cpu
+      ep: OpenVINOExecutionProvider
+      aitk:
+          oliveFile: "deepseek/openvino/DeepSeek-R1-Distill-Qwen-1.5B-gpu-context-ov-dy-gs32-r1.json"
     - file: "deepseek_ov_config.json"
       devices:
-        - cpu
-        - gpu
         - npu
       ep: OpenVINOExecutionProvider
       aitk:
@@ -37,7 +42,7 @@ recipes:
 aitk:
     modelInfo:
         id: "huggingface/deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B"
-        version: 1
+        version: 3
         groupId: "huggingface/deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B"
         groupItemName: "1.5B"
         p0: true

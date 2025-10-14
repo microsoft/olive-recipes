@@ -4,4 +4,3 @@ recipes:
     file: Qwen2.5-1.5B-Instruct_quark_vitisai_llm.json
     devices: npu
     eps: VitisAIExecutionProvider
-    

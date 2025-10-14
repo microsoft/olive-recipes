@@ -1,0 +1,10 @@
+keywords:
+    olive
+arch: resnet
+recipes:
+    - file: "resnet_cpu.json"
+      device: cpu
+      ep: CPUExecutionProvider
+    - file: "resnet_ov_npu.json"
+      device: npu
+      ep: OpenVINOExecutionProvider

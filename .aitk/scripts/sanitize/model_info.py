@@ -33,6 +33,7 @@ class ModelInfo(BaseModel):
     relativePath: Optional[str] = None
     version: int = -1
     extension: Optional[bool] = None
+    template: Optional[bool] = None
     p0: Optional[bool] = None
 
     def Check(self):
@@ -51,12 +52,14 @@ class ModelInfo(BaseModel):
         return True
 
     def GetSortKey(self):
+        p0First = 0 if self.p0 else 1
         lowerName = self.displayName.lower()
+        msFirst = 0 if lowerName.startswith("microsoft") else 1
         match = re.search(r"-(\d+(?:\.\d+)?)b", lowerName)
         if match:
-            return (lowerName.replace(match.group(0), "-0b", 1), float(match.group(1)))
+            return (p0First, msFirst, lowerName.replace(match.group(0), "-0b", 1), float(match.group(1)))
         else:
-            return (lowerName, 0)
+            return (p0First, msFirst, lowerName, 0)
 
 
 class ModelList(BaseModelClass):
@@ -97,6 +100,11 @@ class ModelList(BaseModelClass):
             if not model.Check():
                 printError(f"{self._file} model {i} has error")
         self.SetupConstants()
+        for model in self.template_models:
+            if model.extension:
+                model.status = ModelStatusEnum.Hide
+            else:
+                model.template = True
         self.writeIfChanged()
 
         self.CheckDataset(self.LoginRequiredDatasets, "LoginRequiredDatasets")
