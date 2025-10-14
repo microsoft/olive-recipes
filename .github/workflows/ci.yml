@@ -138,9 +138,6 @@ jobs:
         run: |
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
-      - name: Upgrade transformers for Llama 3.2 support
-        run: pip install --upgrade --force-reinstall transformers>=4.43.0
-
       - name: Run Olive workflow
         working-directory: ${{ matrix.path }}
         env:

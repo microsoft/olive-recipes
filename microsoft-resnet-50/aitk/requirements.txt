@@ -2,6 +2,7 @@
 # For the full requirements, see AITK
 olive-ai
 onnxruntime-gpu
+onnxruntime-genai-cuda
 pillow
 requests
 torchvision
