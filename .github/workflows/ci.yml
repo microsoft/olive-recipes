@@ -3,7 +3,6 @@ name: Olive Recipes CI
 on:
   schedule:
     - cron: '0 15 * * 5'
-  # Temporary: Remove these 3 lines after testing is complete
   push:
     branches:
       - recipes-ci
@@ -132,13 +131,12 @@ jobs:
       - name: Install optimum for HuggingFace export
         run: pip install optimum[exporters]
 
-      - name: Install TransformerCompression without dependencies
-        run: pip install --no-deps git+https://github.com/microsoft/TransformerCompression
-
       - name: Install requirements
         working-directory: ${{ matrix.path }}
         run: |
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+          if [ -f requirements.txt ]; then
+            pip install -r requirements.txt
+          fi
 
       - name: Run Olive workflow
         working-directory: ${{ matrix.path }}
@@ -208,5 +206,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: windows-cpu-${{ matrix.name }}-output
-  #        path: ${{ matrix.path }}/models/
-  #        retention-days: 7
+          path: ${{ matrix.path }}/models/
+          retention-days: 7
