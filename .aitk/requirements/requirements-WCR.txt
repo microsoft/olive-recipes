@@ -65,13 +65,6 @@ onnxruntime-winml==1.23.0.dev2025091008
 onnxscript==0.3.2
 # optimum==1.26.0
 optimum==1.26.0
-<<<<<<< HEAD
---index-url https://aiinfra.pkgs.visualstudio.com/PublicPackages/_packaging/ORT-Nightly/pypi/simple
---extra-index-url https://pypi.org/simple
-# winrt-runtime==3.2.1
-winrt-runtime==3.2.1
-typing-extensions==4.14.1
-=======
 optuna==4.2.1
 packaging==24.2
 pandas==2.2.3
@@ -126,17 +119,9 @@ wcwidth==0.2.13
 widgetsnbextension==4.0.13
 # winrt-runtime==3.2.1
 winrt-runtime==3.2.1
->>>>>>> 014446d171668720d793754bd3073fbc38675bc7
 # winrt-Windows.Foundation==3.2.1
 winrt-Windows.Foundation==3.2.1
 # winrt-Windows.Foundation.Collections==3.2.1
 winrt-Windows.Foundation.Collections==3.2.1
-<<<<<<< HEAD
-./wasdk_microsoft_windows_ai_machinelearning-1.8.250812004.dev0-cp312-cp312-win_amd64.whl
-# download:wasdk_microsoft_windows_ai_machinelearning-1.8.250812004.dev0-cp312-cp312-win_amd64.whl
-./wasdk_microsoft_windows_applicationmodel_dynamicdependency_bootstrap-1.8.250812004.dev0-cp312-cp312-win_amd64.whl
-# download:wasdk_microsoft_windows_applicationmodel_dynamicdependency_bootstrap-1.8.250812004.dev0-cp312-cp312-win_amd64.whl
-=======
 xxhash==3.5.0
 yarl==1.20.1
->>>>>>> 014446d171668720d793754bd3073fbc38675bc7
