@@ -44,7 +44,7 @@ jobs:
             path: "intel-bert-base-uncased-mrpc/oci/cpu"
             config: "inc_smooth_quant.json"
           - name: "ResNet-50 Session Param Tuning"
-            path: "microsoft-resnet-50/oci"
+            path: "microsoft-resnet-50/olive"
             config: "resnet_cpu.json"
 
     steps:
