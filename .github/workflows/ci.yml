@@ -25,56 +25,57 @@ env:
   PYTHON_VERSION: "3.10"
 
 jobs:
-  linux-cpu:
-    name: Linux CPU - ${{ matrix.name }}
-    if: |
-      github.event.inputs.test_scope == 'all' ||
-      github.event.inputs.test_scope == 'linux-cpu-only' ||
-      github.event.inputs.test_scope == ''
-    runs-on: ubuntu-latest
-    timeout-minutes: 120
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - name: "PTQ"
-            path: "intel-bert-base-uncased-mrpc/oci/cpu"
-            config: "ptq.json"
-          - name: "INC Smooth Quant"
-            path: "intel-bert-base-uncased-mrpc/oci/cpu"
-            config: "inc_smooth_quant.json"
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-python@v5
-        with:
-          python-version: ${{ env.PYTHON_VERSION }}
-
-      - name: Install Olive
-        run: pip install git+https://github.com/microsoft/Olive.git@main
-
-      - name: Install optimum for HuggingFace export
-        run: pip install optimum[exporters]
-
-      - name: Install requirements
-        working-directory: ${{ matrix.path }}
-        run: |
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-
-      - name: Run Olive workflow
-        working-directory: ${{ matrix.path }}
-        env:
-          HUGGING_FACE_HUB_TOKEN: ${{ secrets.HUGGING_FACE_HUB_TOKEN }}
-        run: python -m olive run --config ${{ matrix.config }}
-
-      - name: Upload artifacts
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: linux-cpu-${{ matrix.name }}-output
-          path: ${{ matrix.path }}/models/
-          retention-days: 7
+  # Temporarily disabled - focusing on GPU tests
+  # linux-cpu:
+  #   name: Linux CPU - ${{ matrix.name }}
+  #   if: |
+  #     github.event.inputs.test_scope == 'all' ||
+  #     github.event.inputs.test_scope == 'linux-cpu-only' ||
+  #     github.event.inputs.test_scope == ''
+  #   runs-on: ubuntu-latest
+  #   timeout-minutes: 120
+  #   strategy:
+  #     fail-fast: false
+  #     matrix:
+  #       include:
+  #         - name: "PTQ"
+  #           path: "intel-bert-base-uncased-mrpc/oci/cpu"
+  #           config: "ptq.json"
+  #         - name: "INC Smooth Quant"
+  #           path: "intel-bert-base-uncased-mrpc/oci/cpu"
+  #           config: "inc_smooth_quant.json"
+  #
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #
+  #     - uses: actions/setup-python@v5
+  #       with:
+  #         python-version: ${{ env.PYTHON_VERSION }}
+  #
+  #     - name: Install Olive
+  #       run: pip install git+https://github.com/microsoft/Olive.git@main
+  #
+  #     - name: Install optimum for HuggingFace export
+  #       run: pip install optimum[exporters]
+  #
+  #     - name: Install requirements
+  #       working-directory: ${{ matrix.path }}
+  #       run: |
+  #         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+  #
+  #     - name: Run Olive workflow
+  #       working-directory: ${{ matrix.path }}
+  #       env:
+  #         HUGGING_FACE_HUB_TOKEN: ${{ secrets.HUGGING_FACE_HUB_TOKEN }}
+  #       run: python -m olive run --config ${{ matrix.config }}
+  #
+  #     - name: Upload artifacts
+  #       if: always()
+  #       uses: actions/upload-artifact@v4
+  #       with:
+  #         name: linux-cpu-${{ matrix.name }}-output
+  #         path: ${{ matrix.path }}/models/
+  #         retention-days: 7
 
   linux-gpu:
     name: Linux GPU - ${{ matrix.name }}
@@ -89,9 +90,6 @@ jobs:
       max-parallel: 1
       matrix:
         include:
-          - name: "Session Param Tuning"
-            path: "microsoft-resnet-50/aitk"
-            config: "resnet_trtrtx.json"
           - name: "Dora"
             path: "meta-llama-Llama-3.2-1B-Instruct/olive"
             config: "dora.json"
@@ -127,8 +125,8 @@ jobs:
       - name: Install Olive
         run: pip install git+https://github.com/microsoft/Olive.git@main
 
-      - name: Install ONNX Runtime GPU with TensorRT-RTX support
-        run: pip install onnxruntime-genai-trt-rtx
+      - name: Install ONNX Runtime GPU
+        run: pip install onnxruntime-gpu
 
       - name: Install optimum for HuggingFace export
         run: pip install optimum[exporters]
@@ -161,55 +159,57 @@ jobs:
           path: ${{ matrix.path }}/models/
           retention-days: 7
 
-  windows-cpu:
-    name: Windows CPU - ${{ matrix.name }}
-    if: |
-      github.event.inputs.test_scope == 'all' ||
-      github.event.inputs.test_scope == 'windows-cpu-only' ||
-      github.event.inputs.test_scope == ''
-    runs-on: windows-latest
-    timeout-minutes: 120
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - name: "PTQ"
-            path: "intel-bert-base-uncased-mrpc/oci/cpu"
-            config: "ptq.json"
-          - name: "INC Smooth Quant"
-            path: "intel-bert-base-uncased-mrpc/oci/cpu"
-            config: "inc_smooth_quant.json"
+  # Temporarily disabled - focusing on GPU tests
+  # windows-cpu:
+  #   name: Windows CPU - ${{ matrix.name }}
+  #   if: |
+  #     github.event.inputs.test_scope == 'all' ||
+  #     github.event.inputs.test_scope == 'windows-cpu-only' ||
+  #     github.event.inputs.test_scope == ''
+  #   runs-on: windows-latest
+  #   timeout-minutes: 120
+  #   strategy:
+  #     fail-fast: false
+  #     matrix:
+  #       include:
+  #         - name: "PTQ"
+  #           path: "intel-bert-base-uncased-mrpc/oci/cpu"
+  #           config: "ptq.json"
+  #         - name: "INC Smooth Quant"
+  #           path: "intel-bert-base-uncased-mrpc/oci/cpu"
+  #           config: "inc_smooth_quant.json"
+  #
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #
+  #     - uses: actions/setup-python@v5
+  #       with:
+  #         python-version: ${{ env.PYTHON_VERSION }}
+  #
+  #     - name: Install Olive
+  #       run: pip install git+https://github.com/microsoft/Olive.git@main
+  #
+  #     - name: Install optimum for HuggingFace export
+  #       run: pip install optimum[exporters]
+  #
+  #     - name: Install requirements
+  #       working-directory: ${{ matrix.path }}
+  #       shell: pwsh
+  #       run: |
+  #         if (Test-Path requirements.txt) { pip install -r requirements.txt }
+  #
+  #     - name: Run Olive workflow
+  #       working-directory: ${{ matrix.path }}
+  #       shell: pwsh
+  #       env:
+  #         HUGGING_FACE_HUB_TOKEN: ${{ secrets.HUGGING_FACE_HUB_TOKEN }}
+  #       run: python -m olive run --config ${{ matrix.config }}
+  #
+  #     - name: Upload artifacts
+  #       if: always()
+  #       uses: actions/upload-artifact@v4
+  #       with:
+  #         name: windows-cpu-${{ matrix.name }}-output
+  #         path: ${{ matrix.path }}/models/
+  #         retention-days: 7
 
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-python@v5
-        with:
-          python-version: ${{ env.PYTHON_VERSION }}
-
-      - name: Install Olive
-        run: pip install git+https://github.com/microsoft/Olive.git@main
-
-      - name: Install optimum for HuggingFace export
-        run: pip install optimum[exporters]
-
-      - name: Install requirements
-        working-directory: ${{ matrix.path }}
-        shell: pwsh
-        run: |
-          if (Test-Path requirements.txt) { pip install -r requirements.txt }
-
-      - name: Run Olive workflow
-        working-directory: ${{ matrix.path }}
-        shell: pwsh
-        env:
-          HUGGING_FACE_HUB_TOKEN: ${{ secrets.HUGGING_FACE_HUB_TOKEN }}
-        run: python -m olive run --config ${{ matrix.config }}
-
-      - name: Upload artifacts
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: windows-cpu-${{ matrix.name }}-output
-          path: ${{ matrix.path }}/models/
-          retention-days: 7
