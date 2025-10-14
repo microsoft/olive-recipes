@@ -12,7 +12,8 @@
                 "IntelCPU",
                 "IntelGPU",
                 "IntelNPU",
-                "DML"
+                "DML",
+                "WebGPU"
             ],
             "architecture": "Transformer",
             "status": "Ready",
@@ -32,7 +33,8 @@
                 "IntelCPU",
                 "IntelGPU",
                 "IntelNPU",
-                "DML"
+                "DML",
+                "WebGPU"
             ],
             "architecture": "CNN",
             "status": "Ready",
@@ -169,146 +171,6 @@
             "p0": true
         },
         {
-            "displayName": "microsoft/Phi-3-mini-128k-instruct",
-            "icon": "ms",
-            "modelLink": "https://huggingface.co/microsoft/Phi-3-mini-128k-instruct",
-            "id": "huggingface/microsoft/Phi-3-mini-128k-instruct",
-            "groupId": "huggingface/microsoft/Phi-3-mini-4k-instruct",
-            "groupItemName": "128K",
-            "runtimes": [
-                "IntelGPU"
-            ],
-            "architecture": "Transformer",
-            "status": "Ready",
-            "relativePath": "microsoft-Phi-3-mini-128k-instruct/aitk",
-            "version": 2
-        },
-        {
-            "displayName": "microsoft/Phi-3-mini-4k-instruct",
-            "icon": "ms",
-            "modelLink": "https://huggingface.co/microsoft/Phi-3-mini-4k-instruct",
-            "id": "huggingface/microsoft/Phi-3-mini-4k-instruct",
-            "groupId": "huggingface/microsoft/Phi-3-mini-4k-instruct",
-            "groupItemName": "4K",
-            "runtimes": [
-                "IntelGPU",
-                "IntelNPU"
-            ],
-            "architecture": "Transformer",
-            "status": "Ready",
-            "relativePath": "microsoft-Phi-3-mini-4k-instruct/aitk",
-            "version": 2
-        },
-        {
-            "displayName": "microsoft/Phi-3.5-mini-instruct",
-            "icon": "ms",
-            "modelLink": "https://huggingface.co/microsoft/Phi-3.5-mini-instruct",
-            "id": "huggingface/microsoft/Phi-3.5-mini-instruct",
-            "runtimes": [
-                "QNN",
-                "AMDNPU",
-                "NvidiaTRTRTX",
-                "IntelCPU",
-                "IntelGPU",
-                "IntelNPU",
-                "DML",
-                "WebGPU"
-            ],
-            "architecture": "Transformer",
-            "status": "Ready",
-            "relativePath": "microsoft-Phi-3.5-mini-instruct/aitk",
-            "version": 1,
-            "p0": true
-        },
-        {
-            "displayName": "microsoft/Phi-4-mini-instruct",
-            "icon": "ms",
-            "modelLink": "https://huggingface.co/microsoft/Phi-4-mini-instruct",
-            "id": "huggingface/microsoft/Phi-4-mini-instruct",
-            "runtimes": [
-                "IntelGPU",
-                "IntelNPU"
-            ],
-            "architecture": "Transformer",
-            "status": "Ready",
-            "relativePath": "microsoft-Phi-4-mini-instruct/aitk",
-            "version": 2
-        },
-        {
-            "displayName": "microsoft/Phi-4-mini-reasoning",
-            "icon": "ms",
-            "modelLink": "https://huggingface.co/microsoft/Phi-4-mini-reasoning",
-            "id": "huggingface/microsoft/Phi-4-mini-reasoning",
-            "runtimes": [
-                "IntelGPU",
-                "IntelNPU"
-            ],
-            "architecture": "Transformer",
-            "status": "Ready",
-            "relativePath": "microsoft-Phi-4-mini-reasoning/aitk",
-            "version": 2
-        },
-        {
-            "displayName": "microsoft/Phi-4-reasoning",
-            "icon": "ms",
-            "modelLink": "https://huggingface.co/microsoft/Phi-4-reasoning",
-            "id": "huggingface/microsoft/Phi-4-reasoning",
-            "runtimes": [
-                "IntelNPU"
-            ],
-            "architecture": "Transformer",
-            "status": "Ready",
-            "relativePath": "microsoft-Phi-4-reasoning/aitk",
-            "version": 2
-        },
-        {
-            "displayName": "microsoft/Phi-4-reasoning-plus",
-            "icon": "ms",
-            "modelLink": "https://huggingface.co/microsoft/Phi-4-reasoning-plus",
-            "id": "huggingface/microsoft/Phi-4-reasoning-plus",
-            "runtimes": [
-                "IntelNPU"
-            ],
-            "architecture": "Transformer",
-            "status": "Ready",
-            "relativePath": "microsoft-Phi-4-reasoning-plus/aitk",
-            "version": 2
-        },
-        {
-            "displayName": "Microsoft/ResNet-50",
-            "icon": "ms",
-            "modelLink": "https://huggingface.co/microsoft/resnet-50",
-            "id": "huggingface/microsoft/resnet-50",
-            "runtimes": [
-                "QNN",
-                "AMDNPU",
-                "NvidiaTRTRTX",
-                "IntelCPU",
-                "IntelGPU",
-                "IntelNPU",
-                "DML",
-                "WebGPU"
-            ],
-            "architecture": "CNN",
-            "status": "Ready",
-            "relativePath": "microsoft-resnet-50/aitk",
-            "version": 1,
-            "p0": true
-        },
-        {
-            "displayName": "mistralai/Mistral-7B-Instruct-v0.3",
-            "icon": "mistralai",
-            "modelLink": "https://huggingface.co/mistralai/Mistral-7B-Instruct-v0.3",
-            "id": "huggingface/mistralai/Mistral-7B-Instruct-v0.3",
-            "runtimes": [
-                "IntelGPU"
-            ],
-            "architecture": "Transformer",
-            "status": "Ready",
-            "relativePath": "mistralai-Mistral-7B-Instruct-v0.3/aitk",
-            "version": 2
-        },
-        {
             "displayName": "openai/clip-vit-base-patch16",
             "icon": "OpenAI",
             "modelLink": "https://huggingface.co/openai/clip-vit-base-patch16",
@@ -364,7 +226,8 @@
                 "IntelCPU",
                 "IntelGPU",
                 "IntelNPU",
-                "DML"
+                "DML",
+                "WebGPU"
             ],
             "architecture": "Transformer",
             "status": "Ready",
@@ -589,30 +452,7 @@
             "architecture": "Transformer",
             "status": "Ready",
             "relativePath": "Qwen-Qwen2.5-0.5B-Instruct/aitk",
-            "version": 2
-        },
-        {
-            "displayName": "Qwen/Qwen2.5-1.5B-Instruct",
-            "icon": "qwen",
-            "modelLink": "https://huggingface.co/Qwen/Qwen2.5-1.5B-Instruct",
-            "id": "huggingface/Qwen/Qwen2.5-1.5B-Instruct",
-            "groupId": "huggingface/Qwen/Qwen2.5-1.5B-Instruct",
-            "groupItemName": "1.5B",
-            "runtimes": [
-                "QNN",
-                "AMDNPU",
-                "NvidiaTRTRTX",
-                "IntelCPU",
-                "IntelGPU",
-                "IntelNPU",
-                "DML",
-                "WebGPU"
-            ],
-            "architecture": "Transformer",
-            "status": "Ready",
-            "relativePath": "Qwen-Qwen2.5-1.5B-Instruct/aitk",
-            "version": 1,
-            "p0": true
+            "version": 3
         },
         {
             "displayName": "Qwen/Qwen2.5-3B-Instruct",
