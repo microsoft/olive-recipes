@@ -10,8 +10,8 @@
         }
     },
     "evaluators": {
-        "evaluator": { 
-            "type": "LMEvaluator", 
+        "evaluator": {
+            "type": "LMEvaluator",
             "tasks": [ "arc_challenge", "arc_easy", "mmlu", "hellaswag", "mmlu_stem", "openbookqa" ],
             "batch_size": 32,
             "provider_options": { "enable_skip_layer_norm_strict_mode": "1" }
@@ -22,10 +22,10 @@
             "type": "SelectiveMixedPrecision",
             "algorithm": "k_quant_down"
         },
-        "g": { 
-            "type": "gptq", 
-            "bits": 4, 
-            "sym": false, 
+        "g": {
+            "type": "gptq",
+            "bits": 4,
+            "sym": false,
             "group_size": 32,
             "lm_head": true
         },
