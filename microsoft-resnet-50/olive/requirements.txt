@@ -1,2 +1,5 @@
 datasets
 onnxruntime
+torch
+torchvision
+transformers
