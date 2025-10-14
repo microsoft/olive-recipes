@@ -55,7 +55,7 @@
                                 {
                                     "OpenVINO": {
                                         "device_type": "NPU",
-                                        "enable_causallm": "True", 
+                                        "enable_causallm": "True",
                                         "load_config": "{\"NPU\":{\"MAX_PROMPT_LEN\":\"1024\",\"MIN_RESPONSE_LEN\":\"512\"}}"
                                     }
                                 }
