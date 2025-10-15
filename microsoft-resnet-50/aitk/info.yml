@@ -26,7 +26,7 @@ recipes:
 aitk:
     modelInfo:
         id: "huggingface/microsoft/resnet-50"
-        version: 3
+        version: 4
         architecture: CNN
         displayName: "Microsoft/ResNet-50"
         p0: true
