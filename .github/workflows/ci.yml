@@ -25,7 +25,7 @@ env:
 
 jobs:
   linux-cpu:
-    name: Linux CPU - ${{ matrix.name }} (PyTorch ${{ matrix.pytorch_version }})
+    name: Linux CPU - ${{ matrix.test.name }} (PyTorch ${{ matrix.pytorch_version }})
     if: |
       github.event.inputs.test_scope == 'all' ||
       github.event.inputs.test_scope == 'linux-cpu-only' ||
@@ -36,7 +36,7 @@ jobs:
       fail-fast: false
       matrix:
         pytorch_version: ["pinned", "latest"]
-        include:
+        test:
           - name: "PTQ"
             path: "intel-bert-base-uncased-mrpc/oci/cpu"
             config: "ptq.json"
@@ -61,7 +61,7 @@ jobs:
         run: pip install optimum[exporters]
 
       - name: Install requirements
-        working-directory: ${{ matrix.path }}
+        working-directory: ${{ matrix.test.path }}
         run: |
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
@@ -75,17 +75,17 @@ jobs:
           python -c "import torch; print(f'PyTorch version: {torch.__version__}'); print(f'CUDA available: {torch.cuda.is_available()}')"
 
       - name: Run Olive workflow
-        working-directory: ${{ matrix.path }}
+        working-directory: ${{ matrix.test.path }}
         env:
           HUGGING_FACE_HUB_TOKEN: ${{ secrets.HUGGING_FACE_HUB_TOKEN }}
-        run: python -m olive run --config ${{ matrix.config }}
+        run: python -m olive run --config ${{ matrix.test.config }}
 
       - name: Upload artifacts
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: linux-cpu-${{ matrix.name }}-output
-          path: ${{ matrix.path }}/models/
+          name: linux-cpu-${{ matrix.test.name }}-${{ matrix.pytorch_version }}-output
+          path: ${{ matrix.test.path }}/models/
           retention-days: 7
 
   # ========================================
@@ -189,7 +189,7 @@ jobs:
   #         retention-days: 7
 
   windows-cpu:
-    name: Windows CPU - ${{ matrix.name }} (PyTorch ${{ matrix.pytorch_version }})
+    name: Windows CPU - ${{ matrix.test.name }} (PyTorch ${{ matrix.pytorch_version }})
     if: |
       github.event.inputs.test_scope == 'all' ||
       github.event.inputs.test_scope == 'windows-cpu-only' ||
@@ -200,7 +200,7 @@ jobs:
       fail-fast: false
       matrix:
         pytorch_version: ["pinned", "latest"]
-        include:
+        test:
           - name: "PTQ"
             path: "intel-bert-base-uncased-mrpc/oci/cpu"
             config: "ptq.json"
@@ -222,7 +222,7 @@ jobs:
         run: pip install optimum[exporters]
 
       - name: Install requirements
-        working-directory: ${{ matrix.path }}
+        working-directory: ${{ matrix.test.path }}
         shell: pwsh
         run: |
           if (Test-Path requirements.txt) { pip install -r requirements.txt }
@@ -239,17 +239,17 @@ jobs:
           python -c "import torch; print(f'PyTorch version: {torch.__version__}'); print(f'CUDA available: {torch.cuda.is_available()}')"
 
       - name: Run Olive workflow
-        working-directory: ${{ matrix.path }}
+        working-directory: ${{ matrix.test.path }}
         shell: pwsh
         env:
           HUGGING_FACE_HUB_TOKEN: ${{ secrets.HUGGING_FACE_HUB_TOKEN }}
           PYTHONIOENCODING: utf-8
-        run: python -m olive run --config ${{ matrix.config }}
+        run: python -m olive run --config ${{ matrix.test.config }}
 
       - name: Upload artifacts
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: windows-cpu-${{ matrix.name }}-output
-          path: ${{ matrix.path }}/models/
+          name: windows-cpu-${{ matrix.test.name }}-${{ matrix.pytorch_version }}-output
+          path: ${{ matrix.test.path }}/models/
           retention-days: 7
