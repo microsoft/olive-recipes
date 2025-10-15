@@ -11,13 +11,14 @@ Simple CI pipeline for testing Olive recipes.
 
 ## Recipes Tested
 
-**Linux CPU (3)**:
+**Linux CPU (4)**:
 - PTQ
 - INC Smooth Quant
 - DeBERTa
+ TensorRT
 
 **Linux GPU (9)**:
-- TensorRT, Dora, HQQ, Lmeval, Lmeval-ONNX, Loha, Lokr, QLoRA, RTN
+-  Dora, HQQ, Lmeval, Lmeval-ONNX, Loha, Lokr, QLoRA, RTN
 
 **Windows CPU (3)**:
 - Same as Linux CPU
@@ -36,8 +37,8 @@ python -c "from olive.common import WorkflowOutput; print(WorkflowOutput.from_js
 ## Manual Trigger
 
 ```bash
-gh workflow run ci-simple.yml
-gh workflow run ci-simple.yml -f test_scope=linux-cpu-only
+gh workflow run ci.yml
+gh workflow run ci.yml -f test_scope=linux-cpu-only
 ```
 
 ## Requirements

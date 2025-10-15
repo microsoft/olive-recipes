@@ -25,7 +25,7 @@ env:
 
 jobs:
   linux-cpu:
-    name: Linux CPU - ${{ matrix.test.name }} (PyTorch ${{ matrix.pytorch_version }})
+    name: Linux CPU - ${{ matrix.test.name }}
     if: |
       github.event.inputs.test_scope == 'all' ||
       github.event.inputs.test_scope == 'linux-cpu-only' ||
@@ -35,7 +35,6 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        pytorch_version: ["pinned", "latest"]
         test:
           - name: "PTQ"
             path: "intel-bert-base-uncased-mrpc/oci/cpu"
@@ -65,11 +64,6 @@ jobs:
         run: |
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
-      - name: Upgrade to latest PyTorch
-        if: matrix.pytorch_version == 'latest'
-        run: |
-          pip install --upgrade torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
-
       - name: Print PyTorch version
         run: |
           python -c "import torch; print(f'PyTorch version: {torch.__version__}'); print(f'CUDA available: {torch.cuda.is_available()}')"
@@ -84,15 +78,14 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: linux-cpu-${{ matrix.test.name }}-${{ matrix.pytorch_version }}-output
+          name: linux-cpu-${{ matrix.test.name }}-output
           path: ${{ matrix.test.path }}/models/
           retention-days: 7
 
   # ========================================
-  # GPU TESTS TEMPORARILY DISABLED
-  # Will re-enable once pool hardware is upgraded
+  # GPU TESTS TEMPORARILY DISABLED and Will re-enable once pool hardware is upgraded
   # ========================================
-  
+
   # linux-gpu:
   #   name: Linux GPU - ${{ matrix.name }}
   #   if: |
@@ -189,7 +182,7 @@ jobs:
   #         retention-days: 7
 
   windows-cpu:
-    name: Windows CPU - ${{ matrix.test.name }} (PyTorch ${{ matrix.pytorch_version }})
+    name: Windows CPU - ${{ matrix.test.name }}
     if: |
       github.event.inputs.test_scope == 'all' ||
       github.event.inputs.test_scope == 'windows-cpu-only' ||
@@ -199,7 +192,6 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        pytorch_version: ["pinned", "latest"]
         test:
           - name: "PTQ"
             path: "intel-bert-base-uncased-mrpc/oci/cpu"
@@ -227,12 +219,6 @@ jobs:
         run: |
           if (Test-Path requirements.txt) { pip install -r requirements.txt }
 
-      - name: Upgrade to latest PyTorch
-        if: matrix.pytorch_version == 'latest'
-        shell: pwsh
-        run: |
-          pip install --upgrade torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
-
       - name: Print PyTorch version
         shell: pwsh
         run: |
@@ -250,6 +236,6 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: windows-cpu-${{ matrix.test.name }}-${{ matrix.pytorch_version }}-output
+          name: windows-cpu-${{ matrix.test.name }}-output
           path: ${{ matrix.test.path }}/models/
           retention-days: 7
