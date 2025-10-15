@@ -83,7 +83,7 @@ jobs:
       github.event.inputs.test_scope == 'all' ||
       github.event.inputs.test_scope == 'linux-gpu-only' ||
       github.event.inputs.test_scope == ''
-    runs-on: [ self-hosted, 1ES.Pool=olive-github-ubuntu2204-cuda-A100 ]
+    runs-on: [ self-hosted, 1ES.Pool=olive-github-ubuntu2204-cuda-A10 ]
     timeout-minutes: 180
     strategy:
       fail-fast: false
@@ -121,6 +121,16 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Print system and GPU information
+        run: |
+          echo "=== System Information ==="
+          uname -a
+          echo "=== Azure VM Metadata ==="
+          curl -H Metadata:true --noproxy "*" "http://169.254.169.254/metadata/instance?api-version=2021-02-01" | jq '.' || echo "Metadata not available"
+          echo "=== GPU Information ==="
+          nvidia-smi --query-gpu=name,compute_cap,driver_version,memory.total --format=csv
+          nvidia-smi
 
       - name: Install Olive
         run: pip install git+https://github.com/microsoft/Olive.git@main
