@@ -83,7 +83,7 @@ jobs:
       github.event.inputs.test_scope == 'all' ||
       github.event.inputs.test_scope == 'linux-gpu-only' ||
       github.event.inputs.test_scope == ''
-    runs-on: [ self-hosted, 1ES.Pool=olive-github-ubuntu2204-cuda-A10 ]
+    runs-on: [ self-hosted, 1ES.Pool=olive-github-ubuntu2204-cuda-A100 ]
     timeout-minutes: 180
     strategy:
       fail-fast: false
