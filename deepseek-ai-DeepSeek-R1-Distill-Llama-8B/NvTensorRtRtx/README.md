@@ -8,7 +8,7 @@ The olive recipe `DeepSeek-R1-Distill-Llama-8B_model_builder_int4.json` uses `Mo
 
 ### Setup
 
-1. Install Olive 
+1. Install Olive
 
 2. Install onnxruntime-genai package that has support for NvTensorRTRTXExecutionProvider.
 
