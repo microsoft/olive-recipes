@@ -6,6 +6,7 @@ keywords:
   - lmeval
   - rtn
   - hqq
+  - mixed-precision
 arch: llama3
 devices:
   - gpu
