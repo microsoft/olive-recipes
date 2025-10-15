@@ -83,7 +83,7 @@ jobs:
       github.event.inputs.test_scope == 'all' ||
       github.event.inputs.test_scope == 'linux-gpu-only' ||
       github.event.inputs.test_scope == ''
-    runs-on: [ self-hosted, 1ES.Pool=olive-github-ubuntu2204-cuda-A10 ]
+    runs-on: ["self-hosted", "1ES.Pool=olive-github-ubuntu2204-cuda-A10"]
     timeout-minutes: 180
     strategy:
       fail-fast: false
@@ -116,21 +116,26 @@ jobs:
             config: "rtn.json"
 
     steps:
+      - name: DEBUG - Print system and GPU information
+        run: |
+          echo "=========================================="
+          echo "DEBUG: This step is running!"
+          echo "=========================================="
+          uname -a || true
+          echo "--- Attempting to get Azure VM metadata ---"
+          curl -H Metadata:true --noproxy "*" "http://169.254.169.254/metadata/instance?api-version=2021-02-01" 2>/dev/null | jq '.' || echo "Metadata not available"
+          echo "--- GPU Information ---"
+          nvidia-smi --query-gpu=name,compute_cap,driver_version,memory.total --format=csv || echo "nvidia-smi failed"
+          nvidia-smi || echo "nvidia-smi not found"
+          echo "=========================================="
+          echo "DEBUG: Step completed!"
+          echo "=========================================="
+
       - uses: actions/checkout@v4
 
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ env.PYTHON_VERSION }}
-
-      - name: Print system and GPU information
-        run: |
-          echo "=== System Information ==="
-          uname -a
-          echo "=== Azure VM Metadata ==="
-          curl -H Metadata:true --noproxy "*" "http://169.254.169.254/metadata/instance?api-version=2021-02-01" | jq '.' || echo "Metadata not available"
-          echo "=== GPU Information ==="
-          nvidia-smi --query-gpu=name,compute_cap,driver_version,memory.total --format=csv
-          nvidia-smi
 
       - name: Install Olive
         run: pip install git+https://github.com/microsoft/Olive.git@main
