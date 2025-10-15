@@ -65,7 +65,12 @@ def save_optimized_onnx_submodel(submodel_name, provider, model_info):
                 conversion_footprint = footprint
                 if sd_config.only_conversion:
                     optimizer_footprint = footprint
-            elif from_pass == "OrtTransformersOptimization".lower() or from_pass == "OnnxStaticQuantization".lower() or from_pass == "EPContextBinaryGenerator".lower() or from_pass == "DynamicToFixedShape".lower():
+            elif (
+                from_pass == "OrtTransformersOptimization".lower()
+                or from_pass == "OnnxStaticQuantization".lower()
+                or from_pass == "EPContextBinaryGenerator".lower()
+                or from_pass == "DynamicToFixedShape".lower()
+            ):
                 optimizer_footprint = footprint
 
         assert conversion_footprint
@@ -124,7 +129,7 @@ def save_onnx_pipeline(
 
         # Copy the QNN context bin if present
         src_ctx_path = Path(str(src_path).replace(".onnx", "_qnn.bin"))
-        if(src_ctx_path.exists()):
+        if src_ctx_path.exists():
             dst_ctx_path = optimized_model_dir / submodel_name / "model_ctx_qnn.bin"
             shutil.copyfile(src_ctx_path, dst_ctx_path)
 

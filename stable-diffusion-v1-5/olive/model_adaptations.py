@@ -40,9 +40,7 @@ class Conv2dLinear(torch.nn.Module):
         )
 
         # Copy the weights from the Linear layer to the Conv2D layer
-        self.conv.weight.data.copy_(
-            linear.weight.data.view(self.out_features, self.in_features, 1, 1)
-        )
+        self.conv.weight.data.copy_(linear.weight.data.view(self.out_features, self.in_features, 1, 1))
 
         # Copy the bias if it exists
         if linear.bias is not None:
@@ -88,9 +86,7 @@ class SHAAttention(nn.Module):
 
         # Infer dim_head from to_q.out_features and heads
         if orig_attn.to_q.out_features % self.heads != 0:
-            raise ValueError(
-                "to_q.out_features is not divisible by heads. Cannot infer dim_head."
-            )
+            raise ValueError("to_q.out_features is not divisible by heads. Cannot infer dim_head.")
         self.dim_head = orig_attn.to_q.out_features // self.heads
         self.scale = 1 / math.sqrt(self.dim_head)
         self.rescale_output_factor_inv = 1 / orig_attn.rescale_output_factor
@@ -148,49 +144,31 @@ class SHAAttention(nn.Module):
         # Copy weights from the original shared Linear projections to the separate Conv2D projections
         for i in range(self.heads):
             # Query Projection
-            q_weight = orig_attn.to_q.weight.data[
-                i * self.dim_head : (i + 1) * self.dim_head, :
-            ].clone()
-            q_weight = q_weight.unsqueeze(-1).unsqueeze(
-                -1
-            )  # Shape: (dim_head, in_features, 1, 1)
+            q_weight = orig_attn.to_q.weight.data[i * self.dim_head : (i + 1) * self.dim_head, :].clone()
+            q_weight = q_weight.unsqueeze(-1).unsqueeze(-1)  # Shape: (dim_head, in_features, 1, 1)
             self.q_proj_sha[i].weight.data.copy_(q_weight)
             if orig_attn.to_q.bias is not None:
                 self.q_proj_sha[i].bias.data.copy_(
-                    orig_attn.to_q.bias.data[
-                        i * self.dim_head : (i + 1) * self.dim_head
-                    ].clone()
+                    orig_attn.to_q.bias.data[i * self.dim_head : (i + 1) * self.dim_head].clone()
                 )
 
         for i in range(self.kv_heads):
             # Key Projection
-            k_weight = orig_attn.to_k.weight.data[
-                i * self.dim_head : (i + 1) * self.dim_head, :
-            ].clone()
-            k_weight = k_weight.unsqueeze(-1).unsqueeze(
-                -1
-            )  # Shape: (dim_head, in_features, 1, 1)
+            k_weight = orig_attn.to_k.weight.data[i * self.dim_head : (i + 1) * self.dim_head, :].clone()
+            k_weight = k_weight.unsqueeze(-1).unsqueeze(-1)  # Shape: (dim_head, in_features, 1, 1)
             self.k_proj_sha[i].weight.data.copy_(k_weight)
             if orig_attn.to_k.bias is not None:
                 self.k_proj_sha[i].bias.data.copy_(
-                    orig_attn.to_k.bias.data[
-                        i * self.dim_head : (i + 1) * self.dim_head
-                    ].clone()
+                    orig_attn.to_k.bias.data[i * self.dim_head : (i + 1) * self.dim_head].clone()
                 )
 
             # Value Projection
-            v_weight = orig_attn.to_v.weight.data[
-                i * self.dim_head : (i + 1) * self.dim_head, :
-            ].clone()
-            v_weight = v_weight.unsqueeze(-1).unsqueeze(
-                -1
-            )  # Shape: (dim_head, in_features, 1, 1)
+            v_weight = orig_attn.to_v.weight.data[i * self.dim_head : (i + 1) * self.dim_head, :].clone()
+            v_weight = v_weight.unsqueeze(-1).unsqueeze(-1)  # Shape: (dim_head, in_features, 1, 1)
             self.v_proj_sha[i].weight.data.copy_(v_weight)
             if orig_attn.to_v.bias is not None:
                 self.v_proj_sha[i].bias.data.copy_(
-                    orig_attn.to_v.bias.data[
-                        i * self.dim_head : (i + 1) * self.dim_head
-                    ].clone()
+                    orig_attn.to_v.bias.data[i * self.dim_head : (i + 1) * self.dim_head].clone()
                 )
 
         del orig_attn.to_q
@@ -239,16 +217,10 @@ class SHAAttention(nn.Module):
 
         # Prepare for attention computation
         attn_outputs = []
-        for head_idx, (q, k, v) in enumerate(
-            zip(query_states, key_states, value_states)
-        ):
+        for head_idx, (q, k, v) in enumerate(zip(query_states, key_states, value_states)):
             q_flat = q.permute(0, 2, 3, 1)  # (bsz, H, W, dim_head)
-            k_flat = k.view(
-                bsz, 1, self.dim_head, -1
-            )  # (bsz, 1, dim_head, H_enc*W_enc)
-            v_flat = v.view(
-                bsz, 1, self.dim_head, -1
-            )  # (bsz, 1, dim_head, H_enc*W_enc)
+            k_flat = k.view(bsz, 1, self.dim_head, -1)  # (bsz, 1, dim_head, H_enc*W_enc)
+            v_flat = v.view(bsz, 1, self.dim_head, -1)  # (bsz, 1, dim_head, H_enc*W_enc)
 
             attn_scores = torch.matmul(q_flat, k_flat) * self.scale
             # attn_scores: (bsz, H, W, H_enc*W_enc)
@@ -347,9 +319,7 @@ def replace_attention_modules(model: nn.Module):
         model (nn.Module): The model in which to replace Attention modules.
 
     """
-    traverse_and_replace(
-        model, attention_processor.Attention, lambda orig_attn: SHAAttention(orig_attn)
-    )
+    traverse_and_replace(model, attention_processor.Attention, lambda orig_attn: SHAAttention(orig_attn))
 
 
 def replace_gelu_and_approx_gelu_with_conv2d(activation_module: nn.Module) -> nn.Module:
@@ -362,9 +332,7 @@ def replace_gelu_and_approx_gelu_with_conv2d(activation_module: nn.Module) -> nn
         nn.Module: The activation module with Conv2D projection.
 
     """
-    assert isinstance(activation_module, GELU) or isinstance(
-        activation_module, ApproximateGELU
-    )
+    assert isinstance(activation_module, GELU) or isinstance(activation_module, ApproximateGELU)
     dim_in = activation_module.proj.in_features
     dim_out = activation_module.proj.out_features
     bias = activation_module.proj.bias is not None
@@ -397,39 +365,25 @@ class QcGEGLU(nn.Module):
         super().__init__()
         # Extract dimensions from the original GEGLU
         dim_in = original_geglu.proj.in_features
-        dim_out = (
-            original_geglu.proj.out_features // 2
-        )  # GEGLU splits output into two parts
+        dim_out = original_geglu.proj.out_features // 2  # GEGLU splits output into two parts
         bias = original_geglu.proj.bias is not None
 
         # Define separate Conv2D layers for hidden projection and gate projection
-        self.hidden_proj = nn.Conv2d(
-            in_channels=dim_in, out_channels=dim_out, kernel_size=1, bias=bias
-        )
-        self.gate_proj = nn.Conv2d(
-            in_channels=dim_in, out_channels=dim_out, kernel_size=1, bias=bias
-        )
+        self.hidden_proj = nn.Conv2d(in_channels=dim_in, out_channels=dim_out, kernel_size=1, bias=bias)
+        self.gate_proj = nn.Conv2d(in_channels=dim_in, out_channels=dim_out, kernel_size=1, bias=bias)
 
         # Initialize weights and biases from the original GEGLU's Linear layer
         with torch.no_grad():
             # Original Linear weights shape: [dim_out*2, dim_in]
-            linear_weight = (
-                original_geglu.proj.weight.data
-            )  # Shape: [dim_out*2, dim_in]
-            linear_bias = (
-                original_geglu.proj.bias.data if bias else None
-            )  # Shape: [dim_out*2]
+            linear_weight = original_geglu.proj.weight.data  # Shape: [dim_out*2, dim_in]
+            linear_bias = original_geglu.proj.bias.data if bias else None  # Shape: [dim_out*2]
 
             # Assign weights to hidden_proj and gate_proj Conv2D layers
-            self.hidden_proj.weight.copy_(
-                linear_weight[:dim_out, :].view(dim_out, dim_in, 1, 1)
-            )
+            self.hidden_proj.weight.copy_(linear_weight[:dim_out, :].view(dim_out, dim_in, 1, 1))
             if bias:
                 self.hidden_proj.bias.copy_(linear_bias[:dim_out])  # type: ignore
 
-            self.gate_proj.weight.copy_(
-                linear_weight[dim_out:, :].view(dim_out, dim_in, 1, 1)
-            )
+            self.gate_proj.weight.copy_(linear_weight[dim_out:, :].view(dim_out, dim_in, 1, 1))
             if bias:
                 self.gate_proj.bias.copy_(linear_bias[dim_out:])  # type: ignore
 
@@ -464,9 +418,7 @@ def replace_geglu_with_conv2d(activation_module: nn.Module) -> nn.Module:
         qc_geglu = QcGEGLU(activation_module)
         return qc_geglu
     else:
-        raise TypeError(
-            f"Unsupported activation module type for GEGLU replacement: {type(activation_module)}"
-        )
+        raise TypeError(f"Unsupported activation module type for GEGLU replacement: {type(activation_module)}")
 
 
 def replace_activations_with_conv2d(model: nn.Module):
@@ -480,9 +432,7 @@ def replace_activations_with_conv2d(model: nn.Module):
     """
     # Replace GELU and ApproximateGELU
     traverse_and_replace(model, GELU, replace_gelu_and_approx_gelu_with_conv2d)
-    traverse_and_replace(
-        model, ApproximateGELU, replace_gelu_and_approx_gelu_with_conv2d
-    )
+    traverse_and_replace(model, ApproximateGELU, replace_gelu_and_approx_gelu_with_conv2d)
 
     # Replace GEGLU
     traverse_and_replace(model, GEGLU, replace_geglu_with_conv2d)
@@ -513,11 +463,7 @@ def replace_feedforward_with_conv2d(feedforward_module: nn.Module) -> nn.Module:
                 )
                 # Copy weights from Linear to Conv2d
                 with torch.no_grad():
-                    conv.weight.copy_(
-                        module.weight.data.view(
-                            module.out_features, module.in_features, 1, 1
-                        )
-                    )
+                    conv.weight.copy_(module.weight.data.view(module.out_features, module.in_features, 1, 1))
                     if module.bias is not None:
                         conv.bias.copy_(module.bias.data)
                 # Append the Conv2d layer instead of Linear
@@ -529,9 +475,7 @@ def replace_feedforward_with_conv2d(feedforward_module: nn.Module) -> nn.Module:
         feedforward_module.net = new_net
         return feedforward_module
     else:
-        raise TypeError(
-            f"Unsupported module type for FeedForward replacement: {type(feedforward_module)}"
-        )
+        raise TypeError(f"Unsupported module type for FeedForward replacement: {type(feedforward_module)}")
 
 
 def replace_feedforward_modules(model: nn.Module):
@@ -611,9 +555,7 @@ def optimized_operate_on_continuous_inputs(self, hidden_states):
     return hidden_states, inner_dim
 
 
-def optimized_get_output_for_continuous_inputs(
-    self, hidden_states, residual, batch_size, height, width, inner_dim
-):
+def optimized_get_output_for_continuous_inputs(self, hidden_states, residual, batch_size, height, width, inner_dim):
     """Similar to optimized_operate_on_continuous_inputs"""
     hidden_states = self.proj_out(hidden_states)
     return hidden_states + residual
@@ -626,9 +568,7 @@ def get_timestep_embedding(sample: torch.Tensor, timestep: torch.Tensor):
     embedding_dim = 320  # TODO: Extract from last unet layers
     MAX_PERIOD = 10000
     half_dim = embedding_dim // 2
-    exponent = -math.log(MAX_PERIOD) * torch.arange(
-        start=0, end=half_dim, dtype=torch.float32, device=timestep.device
-    )
+    exponent = -math.log(MAX_PERIOD) * torch.arange(start=0, end=half_dim, dtype=torch.float32, device=timestep.device)
     exponent = exponent / half_dim
 
     emb = torch.exp(exponent)

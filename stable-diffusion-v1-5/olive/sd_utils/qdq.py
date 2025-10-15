@@ -25,22 +25,22 @@ def update_qdq_config(config: dict, provider: str, submodel_name: str):
         used_passes = {"convert"}
         config["evaluator"] = None
     elif submodel_name == "text_encoder":
-        if(provider == "qnn"):
+        if provider == "qnn":
             used_passes = {"convert", "dynamic_shape_to_fixed", "surgery", "cb"}
         else:
             used_passes = {"convert", "dynamic_shape_to_fixed", "surgery", "optimize_qdq", "quantization"}
     elif submodel_name == "unet":
-        if(provider == "qnn"):
+        if provider == "qnn":
             used_passes = {"convert", "dynamic_shape_to_fixed", "optimize_qdq", "quantization", "cb"}
         else:
             used_passes = {"convert", "dynamic_shape_to_fixed", "optimize_qdq", "quantization"}
     elif submodel_name == "vae_encoder":
-        if(provider == "qnn"):
+        if provider == "qnn":
             used_passes = {"convert", "dynamic_shape_to_fixed"}
         else:
             used_passes = {"convert", "dynamic_shape_to_fixed", "quantization"}
     else:
-        if(provider == "qnn"):
+        if provider == "qnn":
             used_passes = {"convert", "dynamic_shape_to_fixed", "quantization", "cb"}
         else:
             used_passes = {"convert", "dynamic_shape_to_fixed", "quantization"}
@@ -62,7 +62,7 @@ def update_qdq_config(config: dict, provider: str, submodel_name: str):
             config["passes"]["quantization"]["per_channel"] = True
             config["passes"]["quantization"]["weight_symmetric"] = True
 
-        if(submodel_name == "unet"):
+        if submodel_name == "unet":
             config["input_model"]["model_loader"] = "unet_load_qnn"
     else:
         config["systems"]["local_system"]["accelerators"][0]["device"] = "cpu"

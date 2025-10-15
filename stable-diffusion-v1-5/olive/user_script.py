@@ -266,6 +266,7 @@ def unet_load(model_name):
         merge_lora_weights(model, model_name, "unet")
     return model
 
+
 def unet_load_qnn(model_name):
     base_model_id = get_base_model_name(model_name)
     model = UNet2DConditionModel.from_pretrained(base_model_id, subfolder="unet")
@@ -273,6 +274,7 @@ def unet_load_qnn(model_name):
         merge_lora_weights(model, model_name, "unet")
     monkey_patch_model(model)
     return model
+
 
 def unet_conversion_inputs(model=None):
     return tuple(unet_inputs(1, torch.float32, True).values())
