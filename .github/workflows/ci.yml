@@ -25,7 +25,7 @@ env:
 
 jobs:
   linux-cpu:
-    name: Linux CPU - ${{ matrix.name }}
+    name: Linux CPU - ${{ matrix.name }} (PyTorch ${{ matrix.pytorch_version }})
     if: |
       github.event.inputs.test_scope == 'all' ||
       github.event.inputs.test_scope == 'linux-cpu-only' ||
@@ -35,6 +35,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        pytorch_version: ["pinned", "latest"]
         include:
           - name: "PTQ"
             path: "intel-bert-base-uncased-mrpc/oci/cpu"
@@ -63,6 +64,11 @@ jobs:
         working-directory: ${{ matrix.path }}
         run: |
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+
+      - name: Upgrade to latest PyTorch
+        if: matrix.pytorch_version == 'latest'
+        run: |
+          pip install --upgrade torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
 
       - name: Print PyTorch version
         run: |
@@ -183,7 +189,7 @@ jobs:
   #         retention-days: 7
 
   windows-cpu:
-    name: Windows CPU - ${{ matrix.name }}
+    name: Windows CPU - ${{ matrix.name }} (PyTorch ${{ matrix.pytorch_version }})
     if: |
       github.event.inputs.test_scope == 'all' ||
       github.event.inputs.test_scope == 'windows-cpu-only' ||
@@ -193,6 +199,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        pytorch_version: ["pinned", "latest"]
         include:
           - name: "PTQ"
             path: "intel-bert-base-uncased-mrpc/oci/cpu"
@@ -219,6 +226,18 @@ jobs:
         shell: pwsh
         run: |
           if (Test-Path requirements.txt) { pip install -r requirements.txt }
+
+      - name: Upgrade to latest PyTorch
+        if: matrix.pytorch_version == 'latest'
+        shell: pwsh
+        run: |
+          pip install --upgrade torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
+
+      - name: Print PyTorch version
+        shell: pwsh
+        run: |
+          python -c "import torch; print(f'PyTorch version: {torch.__version__}'); print(f'CUDA available: {torch.cuda.is_available()}')"
+
       - name: Run Olive workflow
         working-directory: ${{ matrix.path }}
         shell: pwsh
