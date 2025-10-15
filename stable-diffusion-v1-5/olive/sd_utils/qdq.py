@@ -26,7 +26,7 @@ def update_qdq_config(config: dict, provider: str, submodel_name: str):
         config["evaluator"] = None
     elif submodel_name == "text_encoder":
         if(provider == "qnn"):
-            used_passes = {"convert", "dynamic_shape_to_fixed", "cb"}
+            used_passes = {"convert", "dynamic_shape_to_fixed", "surgery", "cb"}
         else:
             used_passes = {"convert", "dynamic_shape_to_fixed", "surgery", "optimize_qdq", "quantization"}
     elif submodel_name == "unet":
