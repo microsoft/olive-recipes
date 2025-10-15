@@ -209,6 +209,7 @@ jobs:
         shell: pwsh
         env:
           HUGGING_FACE_HUB_TOKEN: ${{ secrets.HUGGING_FACE_HUB_TOKEN }}
+          PYTHONIOENCODING: utf-8
         run: python -m olive run --config ${{ matrix.config }}
 
       - name: Upload artifacts
