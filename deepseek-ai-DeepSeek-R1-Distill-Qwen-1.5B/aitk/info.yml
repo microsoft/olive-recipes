@@ -39,6 +39,9 @@ recipes:
     - file: "deepseek_webgpu_config.json"
       device: gpu
       ep: WebGpuExecutionProvider
+    - file: "deepseek_migraphx_config.json"
+      device: gpu
+      ep: MIGraphXExecutionProvider
 aitk:
     modelInfo:
         id: "huggingface/deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B"

@@ -89,6 +89,7 @@ class EPNames(Enum):
     CUDAExecutionProvider = "CUDAExecutionProvider"
     QNNExecutionProvider = "QNNExecutionProvider"
     OpenVINOExecutionProvider = "OpenVINOExecutionProvider"
+    MIGraphXExecutionProvider = "MIGraphXExecutionProvider"
     VitisAIExecutionProvider = "VitisAIExecutionProvider"
     NvTensorRTRTXExecutionProvider = "NvTensorRTRTXExecutionProvider"
     DmlExecutionProvider = "DmlExecutionProvider"

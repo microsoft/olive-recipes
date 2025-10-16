@@ -1,0 +1,131 @@
+{
+    "input_model": {
+        "type": "HfModel",
+        "model_path": "Intel/bert-base-uncased-mrpc",
+        "task": "text-classification",
+        "load_kwargs": {
+            "attn_implementation": "eager"
+        }
+    },
+    "systems": {
+        "host_system": {
+            "type": "LocalSystem",
+            "accelerators": [
+                {
+                    "device": "cpu",
+                    "execution_providers": [
+                        "CPUExecutionProvider"
+                    ]
+                }
+            ]
+        },
+        "target_system": {
+            "type": "LocalSystem",
+            "accelerators": [
+                {
+                    "device": "gpu",
+                    "execution_providers": [
+                        "MIGraphXExecutionProvider"
+                    ]
+                }
+            ]
+        }
+    },
+    "data_configs": [
+        {
+            "name": "glue_mrpc_eval",
+            "type": "HuggingfaceContainer",
+            "load_dataset_config": {
+                "data_name": "glue",
+                "subset": "mrpc",
+                "split": "validation"
+            },
+            "pre_process_data_config": {
+                "max_length": 128,
+                "padding": "max_length",
+                "input_cols": [
+                    "sentence1",
+                    "sentence2"
+                ],
+                "max_samples": 100
+            },
+            "dataloader_config": {
+                "batch_size": 1
+            }
+        }
+    ],
+    "evaluators": {
+        "common_evaluator": {
+            "metrics": [
+                {
+                    "name": "accuracy",
+                    "type": "accuracy",
+                    "data_config": "glue_mrpc_eval",
+                    "sub_types": [
+                        {
+                            "name": "accuracy_score",
+                            "priority": 1
+                        },
+                        {
+                            "name": "f1_score"
+                        }
+                    ]
+                },
+                {
+                    "name": "latency",
+                    "type": "latency",
+                    "data_config": "glue_mrpc_eval",
+                    "sub_types": [
+                        {
+                            "name": "avg",
+                            "priority": 2
+                        }
+                    ]
+                }
+            ]
+        }
+    },
+    "passes": {
+        "conversion": {
+            "type": "OnnxConversion",
+            "target_opset": 20,
+            "save_as_external_data": true
+        },
+        "transformer_optimizer": {
+            "type": "OrtTransformersOptimization",
+            "model_type": "bert",
+            "opt_level": 0,
+            "float16": true,
+            "use_gpu": true,
+            "keep_io_types": false,
+            "optimization_options": {
+                "enable_gelu": true,
+                "enable_layer_norm": true,
+                "enable_attention": true,
+                "use_multi_head_attention": true,
+                "enable_skip_layer_norm": false,
+                "enable_embed_layer_norm": false,
+                "enable_bias_skip_layer_norm": false,
+                "enable_bias_gelu": false,
+                "enable_gelu_approximation": false,
+                "enable_qordered_matmul": false,
+                "enable_shape_inference": true,
+                "enable_gemm_fast_gelu": false,
+                "enable_nhwc_conv": false,
+                "enable_group_norm": false,
+                "enable_bias_splitgelu": false,
+                "enable_packed_qkv": true,
+                "enable_packed_kv": true,
+                "enable_bias_add": false,
+                "enable_rotary_embeddings": true
+            },
+            "save_as_external_data": true
+        }
+    },
+    "evaluator": "common_evaluator",
+    "evaluate_input_model": false,
+    "host": "host_system",
+    "target": "target_system",
+    "cache_dir": "cache",
+    "output_dir": "model/bert_migraphx"
+}

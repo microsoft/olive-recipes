@@ -26,6 +26,9 @@ recipes:
     - file: "bert_webgpu.json"
       device: gpu
       ep: WebGpuExecutionProvider
+    - file: "bert_migraphx.json"
+      device: gpu
+      ep: MIGraphXExecutionProvider
 aitk:
     modelInfo:
         id: "huggingface/Intel/bert-base-uncased-mrpc"
