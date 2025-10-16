@@ -13,12 +13,12 @@ Automated CI pipeline for testing Olive recipe optimization workflows with the l
 
 ## Recipes Tested
 
-### **Linux CPU (3 tests)** 
-- **PTQ** - Post-Training Quantization on Intel BERT (~1.6x speedup)
-- **INC Smooth Quant** - Intel Neural Compressor Smooth Quantization (~2.3x speedup)
-- **ResNet-50 Session Param Tuning** - Image classification optimization (~2.2x speedup, 87.89% accuracy)
+### **Linux CPU (3 tests)**
+- **PTQ** - Post-Training Quantization on Intel BERT
+- **INC Smooth Quant** - Intel Neural Compressor Smooth Quantization
+- **ResNet-50 Session Param Tuning** - Image classification optimization
 
-### **Windows CPU (2 tests)** 
+### **Windows CPU (2 tests)**
 - **PTQ** - Post-Training Quantization on Intel BERT
 - **INC Smooth Quant** - Known to fail due to upstream Olive/INC dtype mismatch bug
 
@@ -26,8 +26,7 @@ Automated CI pipeline for testing Olive recipe optimization workflows with the l
 - Dora, HQQ, Lmeval, Lmeval-ONNX, Loha, Lokr, QLoRA, RTN
 - **Status**: Commented out, waiting for pool hardware upgrade
 - **Issue**: Pool has Tesla M60 (CUDA 5.2) instead of A10 (CUDA 8.6)
-- **Contact**: Xiaoyu/Jambay/Changming for pool SKU update to Standard_NC40ads_H100_v5
-- **Ready**: Full configuration preserved, easy to re-enable once pool is fixed
+
 
 ## Test Flow
 
@@ -81,10 +80,6 @@ gh workflow run ci.yml -f test_scope=all
 ### Secrets
 - `HUGGING_FACE_HUB_TOKEN` - Required for accessing gated HuggingFace models
 
-### GPU Pool (When Re-enabled)
-- Contact infrastructure team for pool upgrades
-- Required: CUDA capability ≥ 7.0 (Volta or newer)
-- Current issue: Tesla M60 has CUDA 5.2 (too old for PyTorch)
 
 ## Adding New Recipes
 
@@ -97,5 +92,3 @@ matrix:
       path: "model-name/folder"
       config: "config.json"
 ```
-
-
