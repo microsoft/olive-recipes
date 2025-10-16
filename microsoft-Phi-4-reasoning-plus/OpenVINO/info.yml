@@ -1,0 +1,7 @@
+keywords:
+    openvino
+recipes:
+    - file: "Phi-4-Phi-4-reasoning-plus_context_ov_dynamic_sym_gs128_bkp_int8_sym.json"
+      devices:
+        - gpu
+      ep: OpenVINOExecutionProvider

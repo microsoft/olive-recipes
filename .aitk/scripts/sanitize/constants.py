@@ -89,30 +89,36 @@ class EPNames(Enum):
     CUDAExecutionProvider = "CUDAExecutionProvider"
     QNNExecutionProvider = "QNNExecutionProvider"
     OpenVINOExecutionProvider = "OpenVINOExecutionProvider"
+    MIGraphXExecutionProvider = "MIGraphXExecutionProvider"
     VitisAIExecutionProvider = "VitisAIExecutionProvider"
     NvTensorRTRTXExecutionProvider = "NvTensorRTRTXExecutionProvider"
     DmlExecutionProvider = "DmlExecutionProvider"
+    WebGpuExecutionProvider = "WebGpuExecutionProvider"
 
 
 class OliveDeviceTypes(Enum):
     Any = "any"
     CPU = "cpu"
-    GPU = "gpu"
     NPU = "npu"
+    GPU = "gpu"
 
 
 # Pass name is case insensitive, so we use lower case for all pass names
+# Should sort by value
 class OlivePassNames:
+    OnnxFloatToFloat16 = "onnxfloattofloat16"
+    ModelBuilder = "modelbuilder"
     OnnxConversion = "onnxconversion"
+    OnnxDynamicQuantization = "onnxdynamicquantization"
     OnnxQuantization = "onnxquantization"
     OnnxStaticQuantization = "onnxstaticquantization"
-    OnnxDynamicQuantization = "onnxdynamicquantization"
-    ModelBuilder = "modelbuilder"
     OpenVINOConversion = "openvinoconversion"
+    OpenVINOEncapsulation = "openvinoencapsulation"
     OpenVINOOptimumConversion = "openvinooptimumconversion"
     OpenVINOQuantization = "openvinoquantization"
-    OpenVINOEncapsulation = "openvinoencapsulation"
     OrtTransformersOptimization = "orttransformersoptimization"
+    QuarkQuantization = "quarkquantization"
+
 
 # Should sort by value
 class OlivePropertyNames:
@@ -123,6 +129,7 @@ class OlivePropertyNames:
     DataConfig = "data_config"
     DataConfigs = "data_configs"
     DataName = "data_name"
+    Dataset = "dataset"
     Device = "device"
     Engine = "engine"
     EvaluateInputModel = "evaluate_input_model"
@@ -135,6 +142,7 @@ class OlivePropertyNames:
     MaxSamples = "max_samples"
     Metrics = "metrics"
     Name = "name"
+    NumCalibData = "num_calib_data"
     OutputDir = "output_dir"
     Passes = "passes"
     Precision = "precision"

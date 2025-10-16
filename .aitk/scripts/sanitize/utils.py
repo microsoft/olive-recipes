@@ -25,9 +25,12 @@ class GlobalVars:
     gitignoreCheck = []
     modelProjectCheck = []
     extensionCheck = 0
+    templateCheck = 0
     # Should align with number of LLM models
     inferenceModelCheck = []
     requirementsCheck = []
+    copyCheck = 0
+    licenseCheck = 0
     venvRequirementsCheck = set()
 
     olivePath = None
@@ -40,9 +43,11 @@ class GlobalVars:
         RuntimeEnum.IntelNPU: EPNames.OpenVINOExecutionProvider,
         RuntimeEnum.IntelGPU: EPNames.OpenVINOExecutionProvider,
         RuntimeEnum.AMDNPU: EPNames.VitisAIExecutionProvider,
+        RuntimeEnum.AMDGPU: EPNames.MIGraphXExecutionProvider,
         RuntimeEnum.NvidiaGPU: EPNames.CUDAExecutionProvider,
         RuntimeEnum.NvidiaTRTRTX: EPNames.NvTensorRTRTXExecutionProvider,
         RuntimeEnum.DML: EPNames.DmlExecutionProvider,
+        RuntimeEnum.WebGPU: EPNames.WebGpuExecutionProvider,
     }
     RuntimeToOliveDeviceType = {
         RuntimeEnum.CPU: OliveDeviceTypes.CPU,
@@ -52,8 +57,10 @@ class GlobalVars:
         RuntimeEnum.IntelNPU: OliveDeviceTypes.NPU,
         RuntimeEnum.IntelGPU: OliveDeviceTypes.GPU,
         RuntimeEnum.AMDNPU: OliveDeviceTypes.NPU,
+        RuntimeEnum.AMDGPU: OliveDeviceTypes.GPU,
         RuntimeEnum.NvidiaGPU: OliveDeviceTypes.GPU,
         RuntimeEnum.DML: OliveDeviceTypes.GPU,
+        RuntimeEnum.WebGPU: OliveDeviceTypes.GPU,
     }
     RuntimeToDisplayName = {
         RuntimeEnum.CPU: "CPU",
@@ -63,9 +70,11 @@ class GlobalVars:
         RuntimeEnum.IntelNPU: "Intel NPU",
         RuntimeEnum.IntelGPU: "Intel GPU",
         RuntimeEnum.AMDNPU: "AMD NPU",
+        RuntimeEnum.AMDGPU: "AMD GPU",
         RuntimeEnum.NvidiaGPU: "NVIDIA GPU",
         RuntimeEnum.NvidiaTRTRTX: "NVIDIA TensorRT for RTX",
         RuntimeEnum.DML: "DirectML",
+        RuntimeEnum.WebGPU: "WebGPU",
     }
 
     @classmethod
@@ -75,6 +84,10 @@ class GlobalVars:
         if len(cls.gitignoreCheck) != len(cls.modelProjectCheck) - cls.extensionCheck:
             printError(
                 f"Gitignore check {len(cls.gitignoreCheck)} does not match model project check {len(cls.modelProjectCheck)} - {cls.extensionCheck}"
+            )
+        if cls.licenseCheck != len(cls.modelProjectCheck) - cls.extensionCheck - cls.templateCheck:
+            printError(
+                f"License check {cls.licenseCheck} does not match model project check {len(cls.modelProjectCheck)} - {cls.extensionCheck} - {cls.templateCheck}"
             )
         # We add this test to make sure the sanity check is working: i.e. paths are checked and files are checked
         with open_ex(os.path.join(configDir, "checks.json"), "w") as file:

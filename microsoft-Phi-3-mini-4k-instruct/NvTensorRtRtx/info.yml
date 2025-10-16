@@ -1,0 +1,6 @@
+arch: phi3
+recipes:
+  - name: Phi-3-mini-4k-instruct_Model_Builder_INT4
+    file: Phi-3-mini-4k-instruct_model_builder_int4.json
+    devices: gpu
+    eps: NvTensorRTRTXExecutionProvider

@@ -1,0 +1,9 @@
+keywords:
+    - aml-registry
+    - olive-ci
+    - search
+name: microsoft-deberta-base-mnli
+recipes: deberta.json
+features:
+    - aml-registry
+    - search

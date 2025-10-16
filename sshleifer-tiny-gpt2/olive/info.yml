@@ -1,0 +1,6 @@
+keywords:
+  - sparsegpt
+devices:
+  - gpu
+  - cpu
+name: sshleifer-tiny-gpt2

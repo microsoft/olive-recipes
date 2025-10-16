@@ -1,7 +1,2 @@
 # This file will be installed together with AITK runtime requirements
 # For the full requirements, see AITK
-olive-ai
-cachetools==5.5.0
-nltk>=3.9.1
-accelerate>=1.4.0
-pillow>=10.0.1

@@ -1,0 +1,2 @@
+olive-ai
+onnxruntime-genai --pre --extra-index-url https://aiinfra.pkgs.visualstudio.com/PublicPackages/_packaging/ORT-Nightly/pypi/simple

@@ -1,0 +1,31 @@
+{
+    "Name": "Llama-3.1-8B-Instruct",
+    "PromptTemplate": {
+        "assistant": "{Content}",
+        "prompt": "<|start_header_id|>user<|end_header_id|>\n{Content}<|start_header_id|>assistant<|end_header_id|>\n"
+    },
+    "ParameterSchema": {
+        "enabled": [
+            {
+                "name": "max_tokens",
+                "default": 512
+            },
+            {
+                "name": "temperature",
+                "default": 0.6
+            },
+            {
+                "name": "top_p",
+                "default": 0.9
+            },
+            {
+                "name": "top_k",
+                "default": 5
+            },
+            {
+                "name": "random_seed",
+                "default": 42
+            }
+        ]
+    }
+}

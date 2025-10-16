@@ -17,6 +17,6 @@ recipes:
 aitk:
     modelInfo:
         id: "huggingface/microsoft/Phi-3-mini-4k-instruct"
-        version: 2
+        version: 3
         groupId: "huggingface/microsoft/Phi-3-mini-4k-instruct"
         groupItemName: "4K"

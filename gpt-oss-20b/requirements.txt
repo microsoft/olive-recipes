@@ -1,0 +1,3 @@
+--extra-index-url https://aiinfra.pkgs.visualstudio.com/PublicPackages/_packaging/ORT-Nightly/pypi/simple
+olive-ai
+onnxruntime-genai-cuda

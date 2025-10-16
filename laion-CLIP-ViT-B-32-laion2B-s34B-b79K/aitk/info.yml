@@ -2,14 +2,9 @@ keywords:
     aitk
 arch: clip
 recipes:
-    - file: "laion_clip_text_qnn.json"
+    - file: "laion_clip_qnn.json"
       device: npu
       ep: QNNExecutionProvider
-      name: "laion-CLIP-ViT-B-32-laion2B-s34B-b79K (Text)"
-    - file: "laion_clip_vision_qnn.json"
-      device: npu
-      ep: QNNExecutionProvider
-      name: "laion-CLIP-ViT-B-32-laion2B-s34B-b79K (Vision)"
     - file: "laion_clip_qdq_amd.json"
       device: npu
       ep: VitisAIExecutionProvider
@@ -25,8 +20,11 @@ recipes:
     - file: "laion_clip_dml.json"
       device: gpu
       ep: DmlExecutionProvider
+    - file: "laion_clip_migraphx.json"
+      device: gpu
+      ep: MIGraphXExecutionProvider
 aitk:
     modelInfo:
         id: "huggingface/laion/CLIP-ViT-B-32-laion2B-s34B-b79K"
-        version: 2
+        version: 5
         p0: true

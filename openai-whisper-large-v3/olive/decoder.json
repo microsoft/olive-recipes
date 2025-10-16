@@ -1,0 +1,22 @@
+{
+    "input_model": {
+        "type": "PyTorchModel",
+        "model_path": "openai/whisper-large-v3",
+        "model_loader": "get_decoder",
+        "model_script": "user_script.py",
+        "io_config": "get_decoder_io_config",
+        "dummy_inputs_func": "get_decoder_dummy_inputs"
+    },
+    "passes": {
+        "convert": { "type": "OnnxConversion" },
+        "onnx_dynamic_quantization": {
+            "type": "OnnxDynamicQuantization",
+            "per_channel": false,
+            "reduce_range": false,
+            "op_types_to_quantize": ["MatMul", "Gemm", "Gather"],
+            "MatMulConstBOnly": false
+        }
+    },
+    "no_artifacts": true,
+    "output_dir": "models/decoder"
+}

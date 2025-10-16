@@ -57,4 +57,3 @@ olive run --config DeepSeek-R1-Distill-Qwen-7B_quark_vitisai_llm.json
 
 ✅ Optimized model saved in: `models/DeepSeek-R1-Distill-Qwen-7B-vai/`
 > **Note:** Output model is saved in `output_dir` mentioned in the json files.
-

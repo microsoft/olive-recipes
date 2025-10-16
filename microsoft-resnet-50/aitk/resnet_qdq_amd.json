@@ -21,7 +21,7 @@
         }
     },
     "systems": {
-        "qnn_system": {
+        "target_system": {
             "type": "LocalSystem",
             "accelerators": [
                 {
@@ -138,8 +138,7 @@
             "quant_type": "OnnxStaticQuantization"
         }
     },
-    "host": "qnn_system",
-    "target": "qnn_system",
+    "target": "target_system",
     "evaluator": "common_evaluator",
     "cache_dir": "cache",
     "output_dir": "model/resnet_ptq_qnn",

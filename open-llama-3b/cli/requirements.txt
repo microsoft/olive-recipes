@@ -1,0 +1,5 @@
+olive-ai
+onnxruntime-genai-cuda
+onnxruntime-gpu
+optimum
+transformers

@@ -1,0 +1,7 @@
+keywords:
+    QNN
+arch: vit
+recipes:
+    - file: "vit_base_patch16_224_context_ov_static.json"
+      device: npu
+      ep: OpenVINOExecutionProvider

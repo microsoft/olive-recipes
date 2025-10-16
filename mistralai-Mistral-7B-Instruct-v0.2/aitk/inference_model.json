@@ -1,0 +1,9 @@
+{
+    "Name": "Mistral-7B-Instruct-v0.2",
+    "PromptTemplate": {
+        "system": "<s>",
+        "user": "[INST]\n{Content}\n[/INST]",
+        "assistant": "{Content}</s>",
+        "prompt": "[INST]\n{Content}\n[/INST]"
+    }
+}

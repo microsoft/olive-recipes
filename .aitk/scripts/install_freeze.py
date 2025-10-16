@@ -12,26 +12,37 @@ from model_lab import RuntimeEnum
 # - `# copy:`: copy from cache to folder in runtime like `# copy:a/*.dll;b;pre`, `# copy:a/*.dll;b;post`
 # - `# download:`: download from release and save it to cache folder like `# download:onnxruntime-genai-cuda-0.7.0-cp39-cp39-win_amd64.whl`
 uvpipInstallPrefix = "# uvpip:install"
-depsPrefix = "# deps:"
 cudaExtraUrl = "--extra-index-url https://download.pytorch.org/whl/cu128"
 torchCudaVersion = "torch==2.7.0+cu128"
-onnxruntimeWinmlVersion = f"{uvpipInstallPrefix} onnxruntime-winml==1.22.0.post1 --extra-index-url https://aiinfra.pkgs.visualstudio.com/PublicPackages/_packaging/ORT-Nightly/pypi/simple --no-deps;post"
-onnxruntimeGenaiWinmlVersion = f"{uvpipInstallPrefix} onnxruntime-genai-winml==0.8.3 --extra-index-url https://aiinfra.pkgs.visualstudio.com/PublicPackages/_packaging/ORT-Nightly/pypi/simple --no-deps;post"
+onnxruntimeWinmlVersion = f"{uvpipInstallPrefix} onnxruntime-winml==1.22.0.post2 --extra-index-url https://aiinfra.pkgs.visualstudio.com/PublicPackages/_packaging/ORT-Nightly/pypi/simple --no-deps;post"
+onnxruntimeGenaiWinmlVersion = f"{uvpipInstallPrefix} onnxruntime-genai-winml==0.10.0 --extra-index-url https://aiinfra.pkgs.visualstudio.com/PublicPackages/_packaging/ORT-Nightly/pypi/simple --no-deps;post"
 evaluateVersion = "evaluate==0.4.3"
 scikitLearnVersion = "scikit-learn==1.6.1"
 optimumVersion = "optimum==1.26.0"
+winrtPackage = [
+    "--index-url https://aiinfra.pkgs.visualstudio.com/PublicPackages/_packaging/ORT-Nightly/pypi/simple",
+    "--extra-index-url https://pypi.org/simple",
+    "winrt-runtime==3.2.1",
+    "winrt-Windows.Foundation==3.2.1",
+    "winrt-Windows.Foundation.Collections==3.2.1",
+    "winui3-Microsoft.Windows.AI.MachineLearning==1!1.8.250702007.dev4",
+    "winui3-Microsoft.Windows.ApplicationModel.DynamicDependency.Bootstrap==1!1.8.250702007.dev4",
+]
+
 # if from git: "git+https://github.com/microsoft/Olive.git@COMMIT_ID#egg=olive_ai
 oliveAi = (
-    "olive-ai@git+https://github.com/microsoft/Olive.git@8ff071c0ae9b1c38c0619ee72e8cb031957c63c4#egg=olive-ai"
+    "olive-ai==0.9.3"
 )
 torchVision = "torchvision==0.22.0"
+amdQuark = "AMD__Quark_py3.10.17"
+
 
 def get_requires(name: str, args):
     # TODO for this case, need to install via Model Lab first
+    viaModelLab = False
     if name.startswith(uvpipInstallPrefix):
         name = name.split(" ")[2].strip()
-    elif name.startswith(depsPrefix):
-        name = name.split(":")[1].strip()
+        viaModelLab = True
 
     if "#egg=" in name:
         package_name = name.split("#egg=")[1]
@@ -50,7 +61,32 @@ def get_requires(name: str, args):
                 break
     except subprocess.CalledProcessError:
         pass
-    return [req for req in requires if req]
+    return [req for req in requires if req], package_name, viaModelLab
+
+
+def get_name_outputFile(python: str, configs_dir: str, input_runtime: str):
+    if input_runtime:
+        if "/" in input_runtime:
+            folder, name = input_runtime.split("/")
+            runtime = f"{folder}__{name}"
+            outputFile = path.join(configs_dir, "requirements", folder, f"{name}.txt")
+        else:
+            outputFile = path.join(configs_dir, "requirements", f"requirements-{input_runtime}.txt")
+            runtime = RuntimeEnum(input_runtime)
+        return runtime, outputFile
+
+    pythonSegs = python.split("-")
+    if "__" in python:
+        folder_name = pythonSegs[-4].split("__")
+        folder = folder_name[0]
+        name = f"{folder_name[1]}_py{pythonSegs[-1]}"
+        runtime = f"{folder}__{name}"
+        outputFile = path.join(configs_dir, "requirements", folder, f"{name}.txt")
+    else:
+        runtime = pythonSegs[-4]
+        outputFile = path.join(configs_dir, "requirements", f"requirements-{runtime}.txt")
+        runtime = RuntimeEnum(runtime)
+    return runtime, outputFile
 
 
 def main():
@@ -65,6 +101,16 @@ def main():
         ],
         RuntimeEnum.IntelNPU: [
             "torch==2.6.0",
+        ],
+        amdQuark: [
+            "transformers==4.50.0",
+            "amd-quark==0.9",
+            "--extra-index-url=https://pypi.amd.com/simple",
+            "model-generate==1.5.1",
+            # olive.passes.quark_quantizer.torch.language_modeling.llm_utils.model_preparation
+            "psutil==7.0.0",
+            # ValueError: Using a `device_map`, `tp_plan`, `torch.device` context manager or setting `torch.set_default_device(device)` requires `accelerate`. You can install it with `pip install accelerate`
+            "accelerate==1.10.1",
         ],
     }
     shared_conversion = [
@@ -86,7 +132,9 @@ def main():
         RuntimeEnum.NvidiaGPU: shared_conversion,
         RuntimeEnum.WCR: shared_both,
         RuntimeEnum.WCR_CUDA: shared_both,
+        RuntimeEnum.WCR_INIT: [onnxruntimeWinmlVersion],
         RuntimeEnum.QNN_LLLM: shared_ipynb,
+        amdQuark: shared_conversion,
     }
     # torchvision, onnxruntime and genai go here. others should go feature
     post = {
@@ -112,6 +160,10 @@ def main():
         RuntimeEnum.NvidiaGPU: [
             "torchvision==0.22.0+cu128",
             "onnxruntime-gpu==1.21.0",
+            # 0.8.X is not working for DML LLM because
+            # File "onnxruntime_genai\models\builder.py", line 571, in make_tensor_proto_from_tensor
+            #    data_type=self.to_onnx_dtype[tensor.dtype],
+            # KeyError: torch.uint8
             "onnxruntime-genai-cuda==0.7.0",
             optimumVersion,
         ],
@@ -122,6 +174,7 @@ def main():
             evaluateVersion,
             scikitLearnVersion,
             optimumVersion,
+            *winrtPackage,
         ],
         RuntimeEnum.WCR_CUDA: [
             "torchvision==0.22.0+cu128",
@@ -130,24 +183,22 @@ def main():
             evaluateVersion,
             scikitLearnVersion,
             optimumVersion,
+            *winrtPackage,
         ],
         RuntimeEnum.QNN_LLLM: [
-            "# deps:onnxruntime-winml",
+            # for onnxruntime-winml
+            "numpy==2.2.4",
             onnxruntimeGenaiWinmlVersion,
         ],
     }
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("--runtime", "-r", default="", help=",".join([k.value for k in RuntimeEnum]))
-    parser.add_argument("--python", "-p", required=True, type=str, help="python path. TODO: input twice")
+    parser.add_argument("--python", "-p", required=True, type=str, help="python path")
+    parser.add_argument("--runtime", "-r", required=True, type=str, help="runtime name")
     args = parser.parse_args()
 
-    if not args.runtime:
-        pythonSegs = args.python.split("-")
-        args.runtime = pythonSegs[-4]
-        print(args.runtime)
-
-    runtime = RuntimeEnum(args.runtime)
+    configs_dir = path.dirname(path.dirname(__file__))
+    runtime, outputFile = get_name_outputFile(args.python, configs_dir, args.runtime)
 
     # prepare file
     configs_dir = path.dirname(path.dirname(__file__))
@@ -184,31 +235,36 @@ def main():
     freeze_dict_used = set()
 
     # write result
-    outputFile = path.join(configs_dir, "requirements", f"requirements-{args.runtime}.txt")
     with open(outputFile, "w", newline="\n") as f:
+
+        def get_write_require(req: str):
+            if req in freeze_dict:
+                if req not in freeze_dict_used:
+                    f.write(f"{req}=={freeze_dict[req]}\n")
+                    freeze_dict_used.add(req)
+                    write_requires_recursively(req)
+                return True
+            return False
+
         def write_requires_recursively(name: str):
-            requires = get_requires(name, args)
-            print(f"Requires for {name}: {requires}")
+            requires, package_name, viaModelLab = get_requires(name, args)
+            print(f"Requires for {name} by {package_name}: {requires}")
+            freeze_dict_used.add(package_name)
+
             for req in requires:
-                if req in freeze_dict:
-                    if req not in freeze_dict_used:
-                        f.write(f"{req}=={freeze_dict[req]}\n")
-                        freeze_dict_used.add(req)
-                        write_requires_recursively(req)
-                else:
-                    newReq = req.replace("-", "_")
-                    if newReq in freeze_dict:
-                        if newReq not in freeze_dict_used:
-                            f.write(f"{newReq}=={freeze_dict[newReq]}\n")
-                            freeze_dict_used.add(newReq)
-                            write_requires_recursively(newReq)
-                    else:
-                        raise Exception(f"Cannot find {req} in pip freeze")
+                if get_write_require(req):
+                    continue
+                newReq = req.replace("-", "_")
+                if get_write_require(newReq):
+                    continue
+                # in QNN for onnxruntime-genai
+                if req == "onnxruntime":
+                    if get_write_require("onnxruntime-qnn"):
+                        continue
+                raise Exception(f"Cannot find {req} in pip freeze")
 
         for name in all:
-            if (
-                name.startswith("#") and not name.startswith(uvpipInstallPrefix) and not name.startswith(depsPrefix)
-            ) or name.startswith("--"):
+            if (name.startswith("#") and not name.startswith(uvpipInstallPrefix)) or name.startswith("--"):
                 f.write(name + "\n")
                 continue
             if not name.startswith("#"):
@@ -224,8 +280,7 @@ def main():
     with open(outputFile, "r") as f:
         lines = f.readlines()
     unique_lines = list(dict.fromkeys(lines))  # Preserve order and remove duplicates
-    with open(outputFile, "w", newline="\n") as f:
-        f.writelines(unique_lines)
+    assert len(lines) == len(unique_lines), "Duplicate lines found."
 
 
 if __name__ == "__main__":

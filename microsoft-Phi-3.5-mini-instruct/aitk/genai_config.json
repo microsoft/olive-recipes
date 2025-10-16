@@ -125,7 +125,7 @@
                             "past_key_values.30.key",
                             "past_key_values.30.value",
                             "past_key_values.31.key",
-                            "past_key_values.31.value",  
+                            "past_key_values.31.value",
                             "/model/embed_tokens/Gather/output_0_QuantizeLinear_Output",
                             "past_seq_len",
                             "total_seq_len"
@@ -281,7 +281,7 @@
                             "past_key_values.30.key",
                             "past_key_values.30.value",
                             "past_key_values.31.key",
-                            "past_key_values.31.value",  
+                            "past_key_values.31.value",
                             "/model/embed_tokens/Gather/output_0_QuantizeLinear_Output",
                             "past_seq_len",
                             "total_seq_len"

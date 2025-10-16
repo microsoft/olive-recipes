@@ -1,12 +1,13 @@
 # Llama-3.2-1B-Instruct Model Optimization
 
-This repository demonstrates the optimization of the [Llama-3.2-1B-Instruct](https://huggingface.co/meta-llama/Llama-3.2-1B-Instruct) model using **post-training quantization (PTQ)** techniques. The optimization process is divided into three main workflows:
+This repository demonstrates the optimization of the [Llama-3.2-1B-Instruct](https://huggingface.co/meta-llama/Llama-3.2-1B-Instruct) model using **post-training quantization (PTQ)** techniques. The optimization process is divided into these workflows:
 
 - QDQ for AMD NPU
 - PTQ + AOT for QNN NPU
    + This process extends the QDQ flow and compiling specifically for **Qualcomm NPUs**
-- OpenVINO for Intel NPU
+- OpenVINO for Intel® CPU/GPU/NPU
    + This process uses OpenVINO specific passes like `OpenVINOOptimumConversion`, `OpenVINOIoUpdate` and `OpenVINOEncapsulation`
+- Float downcasting for NVIDIA TRT for RTX GPU
 - DML for general GPU
    + This process uses AutoAWQ and ModelBuilder
 
@@ -143,7 +144,7 @@ Olive will run the AOT compilation step in the **AOT Compilation Python Environm
 
 > ⚠️ If optimization fails due to out of memory, please remove `calibration_providers` in config file.
 
-> ⚠️ If optimization fails during context binary generation, rerun the command. The process will resume from the last completed step.
+> ⚠️ If optimization fails during context binary generation (EPContextBinaryGenerator pass, usually exit status 3221225477), rerun the command. The process will resume from the last completed step.
 
 ### **Inference**
 
@@ -160,3 +161,9 @@ pip install "onnxruntime-genai>=0.7.0rc2"
 Execute the provided `inference_sample.ipynb` notebook.
 
 
+
+## Intel® Workflows
+
+These workflows performs quantization with Optimum Intel®. It performs the optimization pipeline:
+
+- *HuggingFace Model -> Quantized OpenVINO model -> Quantized encapsulated ONNX OpenVINO IR model*

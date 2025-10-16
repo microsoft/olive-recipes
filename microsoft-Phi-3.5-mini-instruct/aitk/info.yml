@@ -17,19 +17,30 @@ recipes:
         runtimeOverwrite:
           executeEp: CUDAExecutionProvider
         evalRuntime: AMDNPU
+    - file: "phi3_5_ov_gpu_config.json"
+      devices:
+        - gpu
+        - cpu
+      ep: OpenVINOExecutionProvider
+      aitk:
+        oliveFile: "phi3_5/openvino/Phi-3.5-mini-instruct-gpu-context-ov-dynamic.json"
     - file: "phi3_5_ov_config.json"
       devices:
-        - cpu
-        - gpu
         - npu
       ep: OpenVINOExecutionProvider
       aitk:
         oliveFile: "phi3_5/openvino/Phi-3.5-mini-instruct-npu-context-ov-dynamic-sym-gs128-bkp-int8-sym.json"
+    - file: "phi3_5_trtrtx_config.json"
+      device: gpu
+      ep: NvTensorRTRTXExecutionProvider
     - file: "phi3_5_dml_config.json"
       device: gpu
       ep: DmlExecutionProvider
+    - file: "phi3_5_migraphx_config.json"
+      device: gpu
+      ep: MIGraphXExecutionProvider
 aitk:
     modelInfo:
         id: "huggingface/microsoft/Phi-3.5-mini-instruct"
-        version: 1
+        version: 3
         p0: true

@@ -1,5 +1,6 @@
 keywords:
-    aitk
+    - aitk
+    - session_params_tuning
 arch: bert
 recipes:
     - file: "bert_qdq_qnn.json"
@@ -22,8 +23,11 @@ recipes:
     - file: "bert_dml.json"
       device: gpu
       ep: DmlExecutionProvider
+    - file: "bert_migraphx.json"
+      device: gpu
+      ep: MIGraphXExecutionProvider
 aitk:
     modelInfo:
         id: "huggingface/Intel/bert-base-uncased-mrpc"
-        version: 1
+        version: 3
         p0: true

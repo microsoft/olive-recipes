@@ -17,16 +17,19 @@ class CLIPDataset(Dataset):
         model_name,
         dataset_name,
         start=0,
-        end=500,
+        length=500,
         image_size=(224, 224),
     ):
-        assert 0 <= start < end
+        assert 0 <= start
+        assert length > 0
+        end = start + length
+
         self.start = start
         self.end = end
         self.model_name = model_name
         self.dataset_name = dataset_name
         self.processor = CLIPProcessor.from_pretrained(self.model_name)
-        self.length = self.end - self.start
+        self.length = length
         self.image_size = image_size
         self.dataset = load_dataset(self.dataset_name, split=f"test[{0}:{self.end + 10}]")
 

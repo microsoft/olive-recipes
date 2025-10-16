@@ -19,7 +19,7 @@ def get_imagenet_label_map():
     import json
     cache_file = Path(f"./cache/data/imagenet_class_index.json")
     if not cache_file.exists():
-        import requests        
+        import requests
         imagenet_class_index_url = (
             "https://raw.githubusercontent.com/pytorch/vision/main/gallery/assets/imagenet_class_index.json"
         )
