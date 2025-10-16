@@ -8,6 +8,7 @@
             "runtimes": [
                 "QNN",
                 "AMDNPU",
+                "AMDGPU",
                 "NvidiaTRTRTX",
                 "IntelCPU",
                 "IntelGPU",
@@ -28,6 +29,7 @@
             "runtimes": [
                 "QNN",
                 "AMDNPU",
+                "AMDGPU",
                 "NvidiaTRTRTX",
                 "IntelCPU",
                 "IntelGPU",
@@ -37,7 +39,7 @@
             "architecture": "CNN",
             "status": "Ready",
             "relativePath": "microsoft-resnet-50/aitk",
-            "version": 3,
+            "version": 4,
             "p0": true
         },
         {
@@ -50,6 +52,7 @@
             "runtimes": [
                 "QNN",
                 "AMDNPU",
+                "AMDGPU",
                 "NvidiaTRTRTX",
                 "IntelCPU",
                 "IntelGPU",
@@ -70,6 +73,7 @@
             "runtimes": [
                 "QNN",
                 "AMDNPU",
+                "AMDGPU",
                 "NvidiaTRTRTX",
                 "IntelCPU",
                 "IntelGPU",
@@ -90,6 +94,7 @@
             "runtimes": [
                 "QNN",
                 "AMDNPU",
+                "AMDGPU",
                 "NvidiaTRTRTX",
                 "IntelCPU",
                 "IntelGPU",
@@ -99,7 +104,7 @@
             "architecture": "Transformer",
             "status": "Ready",
             "relativePath": "google-vit-base-patch16-224/aitk",
-            "version": 3,
+            "version": 4,
             "p0": true
         },
         {
@@ -110,6 +115,7 @@
             "runtimes": [
                 "QNN",
                 "AMDNPU",
+                "AMDGPU",
                 "NvidiaTRTRTX",
                 "IntelCPU",
                 "IntelGPU",
@@ -130,6 +136,7 @@
             "runtimes": [
                 "QNN",
                 "AMDNPU",
+                "AMDGPU",
                 "NvidiaTRTRTX",
                 "IntelCPU",
                 "IntelGPU",
@@ -139,7 +146,7 @@
             "architecture": "Transformer",
             "status": "Ready",
             "relativePath": "laion-CLIP-ViT-B-32-laion2B-s34B-b79K/aitk",
-            "version": 4,
+            "version": 5,
             "p0": true
         },
         {
@@ -150,6 +157,7 @@
             "runtimes": [
                 "QNN",
                 "AMDNPU",
+                "AMDGPU",
                 "NvidiaTRTRTX",
                 "IntelCPU",
                 "IntelGPU",
@@ -170,6 +178,7 @@
             "runtimes": [
                 "QNN",
                 "AMDNPU",
+                "AMDGPU",
                 "NvidiaTRTRTX",
                 "IntelCPU",
                 "IntelGPU",
@@ -179,7 +188,7 @@
             "architecture": "Transformer",
             "status": "Ready",
             "relativePath": "openai-clip-vit-base-patch16/aitk",
-            "version": 4,
+            "version": 5,
             "p0": true
         },
         {
@@ -190,6 +199,7 @@
             "runtimes": [
                 "QNN",
                 "AMDNPU",
+                "AMDGPU",
                 "NvidiaTRTRTX",
                 "IntelCPU",
                 "IntelGPU",
@@ -199,7 +209,7 @@
             "architecture": "Transformer",
             "status": "Ready",
             "relativePath": "openai-clip-vit-base-patch32/aitk",
-            "version": 4,
+            "version": 5,
             "p0": true
         },
         {
@@ -212,6 +222,7 @@
             "runtimes": [
                 "QNN",
                 "AMDNPU",
+                "AMDGPU",
                 "NvidiaTRTRTX",
                 "IntelCPU",
                 "IntelGPU",
@@ -652,6 +663,7 @@
         "Intel NPU": "IntelNPU",
         "Intel GPU": "IntelGPU",
         "AMD NPU": "AMDNPU",
+        "AMD GPU": "AMDGPU",
         "NVIDIA GPU": "NvidiaGPU",
         "NVIDIA TensorRT for RTX": "NvidiaTRTRTX",
         "DirectML": "DML",
@@ -665,6 +677,7 @@
         "IntelNPU": "Intel NPU",
         "IntelGPU": "Intel GPU",
         "AMDNPU": "AMD NPU",
+        "AMDGPU": "AMD GPU",
         "NvidiaGPU": "NVIDIA GPU",
         "NvidiaTRTRTX": "NVIDIA TensorRT for RTX",
         "DML": "DirectML",
