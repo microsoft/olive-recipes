@@ -1,6 +1,3 @@
 -r ../requirements.txt
 onnx==1.18.0
 onnxruntime
-# Explicitly pin torch to 2.8.0 to prevent upgrades
-torch==2.8.0
-torchvision
