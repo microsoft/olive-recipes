@@ -1,4 +1,6 @@
 name: Olive Recipes CI
+permissions:
+  contents: read
 
 on:
   schedule:
