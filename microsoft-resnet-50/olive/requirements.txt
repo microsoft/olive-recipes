@@ -1,4 +1,7 @@
 datasets
 onnxruntime
+# psutil required for Olive's session_params_tuning pass
+psutil
+# Pin to PyTorch 2.8.0 for compatibility - 2.9.0 breaks dummy input generation
 torch==2.8.0
 torchvision
