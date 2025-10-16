@@ -1,7 +1,6 @@
-# Qwen2.5-1.5B-Instruct Model Optimization
+# DeepSeek-R1-Distill-Qwen-1.5B Model Optimization
 
-This repository demonstrates the optimization of the [Qwen2.5-1.5B-Instruct](https://huggingface.co/Qwen/Qwen2.5-1.5B-Instruct) model using **post-training quantization (PTQ)** techniques.
-
+This repository demonstrates the optimization of the [DeepSeek-R1-Distill-Qwen-1.5B](https://huggingface.co/deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B) model using **post-training quantization (PTQ)** techniques. The optimization process is divided into these workflows:
 
 ### Quantization Python Environment Setup
 Quantization is resource-intensive and requires GPU acceleration. In an x64 Python environment, install the required packages:
@@ -35,7 +34,9 @@ pip install -r https://raw.githubusercontent.com/microsoft/onnxruntime/refs/head
 pip install --index-url https://aiinfra.pkgs.visualstudio.com/PublicPackages/_packaging/ORT-Nightly/pypi/simple "onnxruntime-qnn==1.22.2" --no-deps
 ```
 
-Replace `/path/to/qnn/env/bin` in [config.json](config.json) with the path to the directory containing your QNN environment's Python executable. This path can be found by running the following command in the environment:
+### QNN-GPU: Run the Quantization Config
+
+Replace `/path/to/qnn/env/bin` in [config_gpu.json](config_gpu.json) with the path to the directory containing your QNN environment's Python executable. This path can be found by running the following command in the environment:
 
 ```bash
 # Linux
@@ -46,30 +47,13 @@ command -v python
 
 This command will return the path to the Python executable. Set the parent directory of the executable as the `/path/to/qnn/env/bin` in the config file.
 
-### Run the Quantization + Compilation Config
-Activate the **Quantization Python Environment** and run the workflow:
-
-```bash
-olive run --config config.json
-```
-
-Olive will run the AOT compilation step in the **AOT Compilation Python Environment** specified in the config file using a subprocess. All other steps will run in the **Quantization Python Environment** natively.
-
-✅ Optimized model saved in: `models/qwen_2.5_1.5b_Instruct/`
-
-> ⚠️ If optimization fails during context binary generation, rerun the command. The process will resume from the last completed step.
-
-### QNN-GPU: Run the Quantization Config
-
-Replace `/path/to/qnn/env/bin` in [config_gpu.json](config_gpu.json) with the path to the directory containing your QNN environment's Python executable.
-
 Activate the **Quantization Python Environment** and run the workflow:
 
 ```bash
 olive run --config config_gpu.json
 ```
 
-✅ Optimized model saved in: `models/qwen_2.5_1.5b_Instruct/`
+✅ Optimized model saved in: `models/deepseek-R1_1.5b/`
 
 ### QNN-GPU: Run the Context Binary Compilation Config
 
@@ -81,6 +65,6 @@ Activate the **AOT Python Environment** and run the workflow:
 olive run --config config_gpu_ctxbin.json
 ```
 
-✅ Optimized model saved in: `models/qwen_2.5_1.5b_Instruct/`
+✅ Optimized model saved in: `models/deepseek-R1_1.5b/`
 
 > ⚠️ If optimization fails during context binary generation, rerun the command. The process will resume from the last completed step.
