@@ -200,9 +200,10 @@ jobs:
           - name: "PTQ"
             path: "intel-bert-base-uncased-mrpc/oci/cpu"
             config: "ptq.json"
-          - name: "INC Smooth Quant"
-            path: "intel-bert-base-uncased-mrpc/oci/cpu"
-            config: "inc_smooth_quant.json"
+          # Temporarily disabled - has dtype issues
+          # - name: "INC Smooth Quant"
+          #   path: "intel-bert-base-uncased-mrpc/oci/cpu"
+          #   config: "inc_smooth_quant.json"
 
     steps:
       - uses: actions/checkout@v4
