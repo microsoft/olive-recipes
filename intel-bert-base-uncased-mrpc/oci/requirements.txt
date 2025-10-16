@@ -12,4 +12,6 @@ pytorch_lightning
 scikit-learn==1.5.2
 scipy
 tabulate
+torch==2.8.0
+torchvision
 transformers
