@@ -3,19 +3,7 @@
         "type": "HfModel",
         "model_path": "Intel/bert-base-uncased-mrpc",
         "task": "text-classification",
-        "load_kwargs": { "attn_implementation": "eager" },
-        "io_config": {
-            "input_names": ["input_ids", "attention_mask", "token_type_ids"],
-            "output_names": ["logits"],
-            "input_shapes": [[1, 128], [1, 128], [1, 128]],
-            "input_types": ["int64", "int64", "int64"],
-            "dynamic_axes": {
-                "input_ids": {"0": "batch_size", "1": "sequence"},
-                "attention_mask": {"0": "batch_size", "1": "sequence"},
-                "token_type_ids": {"0": "batch_size", "1": "sequence"},
-                "logits": {"0": "batch_size"}
-            }
-        }
+        "load_kwargs": { "attn_implementation": "eager" }
     },
     "systems": {
         "local_system": {

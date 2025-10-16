@@ -1,6 +1,3 @@
 datasets
 onnxruntime
-psutil
-torch
 torchvision
-transformers
