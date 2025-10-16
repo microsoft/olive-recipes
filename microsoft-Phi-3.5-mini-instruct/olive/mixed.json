@@ -1,0 +1,44 @@
+{
+    "input_model": {
+        "type": "HfModel",
+        "model_path": "microsoft/Phi-3.5-mini-instruct"
+    },
+    "systems": {
+        "local_system": {
+            "type": "LocalSystem",
+            "accelerators": [ { "execution_providers": [ "CUDAExecutionProvider" ] } ]
+        }
+    },
+    "evaluators": {
+        "evaluator": {
+            "type": "LMEvaluator",
+            "tasks": [ "arc_challenge", "arc_easy", "mmlu", "hellaswag", "mmlu_stem", "openbookqa" ],
+            "batch_size": 32,
+            "provider_options": { "enable_skip_layer_norm_strict_mode": "1" }
+        }
+    },
+    "passes": {
+        "s": {
+            "type": "SelectiveMixedPrecision",
+            "algorithm": "k_quant_down"
+        },
+        "g": {
+            "type": "gptq",
+            "bits": 4,
+            "sym": false,
+            "group_size": 32,
+            "lm_head": true
+        },
+        "m": {
+            "type": "ModelBuilder",
+            "precision": "int4"
+        }
+    },
+    "evaluator": "evaluator",
+    "evaluate_input_model": false,
+    "target": "local_system",
+    "log_severity_level": 1,
+    "output_dir": "models/phi3.5-mini-mixed",
+    "cache_dir": "cache",
+    "no_artifacts": true
+}

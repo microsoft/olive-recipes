@@ -25,7 +25,7 @@
         "d": {
             "train_data_config": "train_data",
             "type": "dora",
-            "torch_dtype": "bfloat16",
+            "torch_dtype": "float16",
             "training_args": {
                 "per_device_train_batch_size": 16,
                 "per_device_eval_batch_size": 16,
@@ -36,7 +36,12 @@
             "alpha": 16,
             "eval_data_config": "eval_data"
         },
-        "m": { "type": "ModelBuilder", "precision": "fp16" },
+        "c": {
+            "type": "OnnxConversion",
+            "use_dynamo_exporter": true,
+            "save_metadata_for_token_generation": true,
+            "torch_dtype": "float16"
+        },
         "o": {
             "type": "OrtTransformersOptimization",
             "model_type": "gpt2",
@@ -44,7 +49,8 @@
             "keep_io_types": false,
             "float16": true
         },
-        "e": { "type": "ExtractAdapters", "adapter_type": "dora" }
+        "e": { "type": "ExtractAdapters", "adapter_type": "dora" },
+        "m": { "type": "ModelBuilder", "metadata_only": true, "precision": "fp16" }
     },
     "host": "local_system",
     "target": "local_system",
