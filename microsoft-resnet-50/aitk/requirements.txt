@@ -1,7 +1,6 @@
 # This file will be installed together with AITK runtime requirements
 # For the full requirements, see AITK
 olive-ai
-onnxruntime-genai-cuda
 onnxruntime-gpu
 pillow
 requests
