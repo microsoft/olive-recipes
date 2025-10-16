@@ -74,11 +74,17 @@ jobs:
       - name: Verify output models
         working-directory: ${{ matrix.test.path }}
         run: |
-          if [ ! -d "models" ] || [ -z "$(ls -A models)" ]; then
-            echo "Error: No output models found in models/ directory"
+          if [ ! -d "models" ]; then
+            echo "Error: models/ directory not found"
             exit 1
           fi
-          echo "Output models verified"
+          # Check for actual ONNX model files
+          onnx_count=$(find models -name "*.onnx" -type f | wc -l)
+          if [ "$onnx_count" -eq 0 ]; then
+            echo "Error: No .onnx model files found in models/ directory"
+            exit 1
+          fi
+          echo "Output models verified ($onnx_count .onnx files found)"
 
   # ========================================
   # GPU TESTS TEMPORARILY DISABLED and Will re-enable once pool hardware is upgraded
@@ -229,8 +235,14 @@ jobs:
         working-directory: ${{ matrix.test.path }}
         shell: pwsh
         run: |
-          if (-not (Test-Path "models") -or -not (Get-ChildItem "models")) {
-            Write-Error "Error: No output models found in models/ directory"
+          if (-not (Test-Path "models")) {
+            Write-Error "Error: models/ directory not found"
             exit 1
           }
-          Write-Host "Output models verified"
+          # Check for actual ONNX model files
+          $onnxFiles = Get-ChildItem -Path "models" -Filter "*.onnx" -Recurse -File
+          if ($onnxFiles.Count -eq 0) {
+            Write-Error "Error: No .onnx model files found in models/ directory"
+            exit 1
+          }
+          Write-Host "Output models verified ($($onnxFiles.Count) .onnx files found)"
