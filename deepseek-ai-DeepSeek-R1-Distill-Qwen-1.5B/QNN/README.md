@@ -36,6 +36,20 @@ pip install --index-url https://aiinfra.pkgs.visualstudio.com/PublicPackages/_pa
 
 ### QNN-GPU: Run the Quantization Config
 
+Running QNN-GPU configs requires features and fixes that are not available in the released Olive version 0.9.3.
+To ensure compatibility, please install Olive directly from the source at the required commit:
+
+```bash
+pip install git+https://github.com/microsoft/Olive.git@da24463e14ed976503dc5871572b285bc5ddc4b2
+```
+
+If you previously installed Olive via PyPI or pinned it to version 0.9.3, please uninstall it first and then use the above
+commit to install:
+
+```bash
+pip uninstall olive
+```
+
 Replace `/path/to/qnn/env/bin` in [config_gpu.json](config_gpu.json) with the path to the directory containing your QNN environment's Python executable. This path can be found by running the following command in the environment:
 
 ```bash
