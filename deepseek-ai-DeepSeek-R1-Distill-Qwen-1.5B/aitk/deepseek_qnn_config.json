@@ -113,7 +113,7 @@
                 "MatMulNBits"
             ],
             "save_as_external_data": true,
-            "extra_option": {
+            "extra_options": {
                 "CalibStridedMinMax": 4
             }
         },
