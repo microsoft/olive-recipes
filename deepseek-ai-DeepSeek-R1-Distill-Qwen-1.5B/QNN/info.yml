@@ -1,0 +1,13 @@
+keywords:
+    qnn
+arch: deepseek
+recipes:
+    - file: "config_gpu.json"
+      devices:
+        - gpu
+      ep: QNNExecutionProvider
+    - file: "config_gpu_ctxbin.json"
+      devices:
+        - gpu
+      ep: QNNExecutionProvider
+name: DeepSeek-R1-Distill-Qwen-1.5B
