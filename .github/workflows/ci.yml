@@ -65,34 +65,11 @@ jobs:
         run: |
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
-      - name: Run Olive workflow
+      - name: Run Olive workflow and verify output
         working-directory: ${{ matrix.test.path }}
         env:
           HUGGING_FACE_HUB_TOKEN: ${{ secrets.HUGGING_FACE_HUB_TOKEN }}
-        run: python -m olive run --config ${{ matrix.test.config }}
-
-      - name: Verify output models
-        working-directory: ${{ matrix.test.path }}
-        run: |
-          python -c "
-          from olive import run, WorkflowOutput
-          import sys
-
-          # Load the workflow output
-          workflow_output = WorkflowOutput.from_run('${{ matrix.test.config }}')
-
-          # Check if optimization produced any results
-          if not workflow_output.has_output_model():
-              print('Error: No optimized models were produced')
-              sys.exit(1)
-
-          # Get the best model
-          best_model = workflow_output.get_best_candidate()
-          print(f'Output models verified')
-          print(f'  Best model path: {best_model.model_path}')
-          print(f'  Model type: {best_model.model_type}')
-          print(f'  Metrics: {best_model.metrics_value}')
-          "
+        run: python ${{ github.workspace }}/.github/scripts/verify_model.py ${{ matrix.test.config }}
 
   # ========================================
   # GPU TESTS TEMPORARILY DISABLED and Will re-enable once pool hardware is upgraded
@@ -232,34 +209,10 @@ jobs:
         run: |
           if (Test-Path requirements.txt) { pip install -r requirements.txt }
 
-      - name: Run Olive workflow
+      - name: Run Olive workflow and verify output
         working-directory: ${{ matrix.test.path }}
         shell: pwsh
         env:
           HUGGING_FACE_HUB_TOKEN: ${{ secrets.HUGGING_FACE_HUB_TOKEN }}
           PYTHONIOENCODING: utf-8
-        run: python -m olive run --config ${{ matrix.test.config }}
-
-      - name: Verify output models
-        working-directory: ${{ matrix.test.path }}
-        shell: pwsh
-        run: |
-          python -c @"
-          from olive import run, WorkflowOutput
-          import sys
-
-          # Load the workflow output
-          workflow_output = WorkflowOutput.from_run('${{ matrix.test.config }}')
-
-          # Check if optimization produced any results
-          if not workflow_output.has_output_model():
-              print('Error: No optimized models were produced')
-              sys.exit(1)
-
-          # Get the best model
-          best_model = workflow_output.get_best_candidate()
-          print(f'Output models verified')
-          print(f'  Best model path: {best_model.model_path}')
-          print(f'  Model type: {best_model.model_type}')
-          print(f'  Metrics: {best_model.metrics_value}')
-          "@
+        run: python ${{ github.workspace }}/.github/scripts/verify_model.py ${{ matrix.test.config }}
