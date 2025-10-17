@@ -31,6 +31,9 @@ recipes:
     - file: "llama3_2_dml_config.json"
       device: gpu
       ep: DmlExecutionProvider
+    - file: "llama3_2_migraphx_config.json"
+      device: gpu
+      ep: MIGraphXExecutionProvider
 aitk:
     modelInfo:
         id: "huggingface/meta-llama/Llama-3.2-1B-Instruct"

@@ -84,8 +84,7 @@
         "st": {
             "type": "StaticLLM",
             "batch_size": 1,
-            "context_length": 1,
-	        "target": "gpu"
+            "context_length": 1
         }
     },
     "target": "target_system",

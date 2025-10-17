@@ -20,8 +20,11 @@ recipes:
     - file: "laion_clip_dml.json"
       device: gpu
       ep: DmlExecutionProvider
+    - file: "laion_clip_migraphx.json"
+      device: gpu
+      ep: MIGraphXExecutionProvider
 aitk:
     modelInfo:
         id: "huggingface/laion/CLIP-ViT-B-32-laion2B-s34B-b79K"
-        version: 4
+        version: 5
         p0: true
