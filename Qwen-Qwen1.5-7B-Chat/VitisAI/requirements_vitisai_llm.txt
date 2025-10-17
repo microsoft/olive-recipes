@@ -16,7 +16,7 @@ onnxruntime-genai==0.7.1
 optimum
 sentencepiece
 tabulate
-transformers==4.50.0
+transformers==4.53.0
 
 # Uncomment the below line if running model generation on a Windows system
 # --extra-index-url=https://pypi.amd.com/simple
