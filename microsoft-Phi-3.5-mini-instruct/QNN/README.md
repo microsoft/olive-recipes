@@ -72,7 +72,7 @@ If you previously installed Olive via PyPI or pinned it to version 0.9.3, please
 commit to install:
 
 ```bash
-pip uninstall olive
+pip uninstall olive-ai
 ```
 
 Replace `/path/to/qnn/env/bin` in [config_gpu.json](config_gpu.json) with the path to the directory containing your QNN environment's Python executable.
