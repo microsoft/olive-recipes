@@ -8,7 +8,6 @@ on:
   push:
     branches:
       - main
-      - recipes-ci
   workflow_dispatch:
     inputs:
       test_scope:
