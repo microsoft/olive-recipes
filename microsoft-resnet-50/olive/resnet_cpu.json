@@ -20,7 +20,7 @@
                 "streaming": true
             },
             "pre_process_data_config": { "type": "dataset_pre_process", "size": 256, "cache_key": "imagenet" },
-            "post_process_data_config": { "type": "imagenet_post_fun" }
+            "post_process_data_config": { "type": "dataset_post_process" }
         }
     ],
     "evaluators": {

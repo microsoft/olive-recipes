@@ -1,2 +1,5 @@
 datasets
 onnxruntime
+# psutil required for Olive's session_params_tuning pass
+psutil
+torchvision
