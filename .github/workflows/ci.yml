@@ -57,8 +57,8 @@ jobs:
       - name: Install Olive
         run: pip install git+https://github.com/microsoft/Olive.git@main
 
-      - name: Install optimum for HuggingFace export
-        run: pip install optimum[exporters]
+      - name: Install optimum-onnx for HuggingFace export
+        run: pip install optimum-onnx
 
       - name: Install requirements
         working-directory: ${{ matrix.test.path }}
@@ -141,8 +141,8 @@ jobs:
   #     - name: Install ONNX Runtime GPU
   #       run: pip install onnxruntime-gpu
   #
-  #     - name: Install optimum for HuggingFace export
-  #       run: pip install optimum[exporters]
+  #     - name: Install optimum-onnx for HuggingFace export
+  #       run: pip install optimum-onnx
   #
   #     - name: Install requirements
   #       working-directory: ${{ matrix.path }}
@@ -151,11 +151,11 @@ jobs:
   #           pip install -r requirements.txt
   #         fi
   #
-  #     - name: Run Olive workflow
+  #     - name: Run Olive workflow and verify output
   #       working-directory: ${{ matrix.path }}
   #       env:
   #         HUGGING_FACE_HUB_TOKEN: ${{ secrets.HUGGING_FACE_HUB_TOKEN }}
-  #       run: python -m olive run --config ${{ matrix.config }}
+  #       run: python ${{ github.workspace }}/.github/scripts/verify_model.py ${{ matrix.config }}
   #
   #     - name: Cleanup GPU
   #       if: always()
@@ -200,8 +200,8 @@ jobs:
       - name: Install Olive
         run: pip install git+https://github.com/microsoft/Olive.git@main
 
-      - name: Install optimum for HuggingFace export
-        run: pip install optimum[exporters]
+      - name: Install optimum-onnx for HuggingFace export
+        run: pip install optimum-onnx
 
       - name: Install requirements
         working-directory: ${{ matrix.test.path }}
