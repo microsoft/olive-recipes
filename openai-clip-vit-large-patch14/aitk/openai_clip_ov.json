@@ -123,5 +123,5 @@
     "cache_dir": "cache",
     "evaluator": "common_evaluator",
     "evaluate_input_model": false,
-    "output_dir": "model/clip_vit_base_patch16_context_ov_static"
+    "output_dir": "model/clip_vit_large_patch14_context_ov_static"
 }
