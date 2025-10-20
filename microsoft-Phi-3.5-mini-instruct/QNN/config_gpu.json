@@ -8,7 +8,7 @@
             "type": "PythonEnvironment",
             "python_environment_path": "/path/to/qnn/env/bin",
             "accelerators": [
-                {
+                {   "device": "gpu",
                     "execution_providers": [
                         "QNNExecutionProvider"
                     ]
@@ -55,14 +55,9 @@
         "g": {
             "type": "GptqQuantizer",
             "sym": true,
-            "group_size": -1,
-            "desc_act": true,
+            "group_size": 32,
+            "desc_act": false,
             "data_config": "wikitext2_train_joined"
-        },
-        "cs": {
-            "type": "CaptureSplitInfo",
-            "num_splits": 4,
-            "unique_embeds_lm_head_splits": true
         },
         "mb": {
             "type": "ModelBuilder",
@@ -71,17 +66,8 @@
             "int4_accuracy_level": 4,
             "int4_op_types_to_quantize": [
                 "MatMul",
-                "Gather"
+                "Gemm"
             ]
-        },
-        "mq": {
-            "type": "MatMulNBitsToQDQ",
-            "use_int4": true,
-            "add_zero_point": true,
-            "nodes_to_exclude": [
-                "/lm_head/MatMul_Q4"
-            ],
-            "save_as_external_data": true
         },
         "gs": {
             "type": "GraphSurgeries",
@@ -91,56 +77,19 @@
                 },
                 {
                     "surgeon": "AttentionMaskToSequenceLengths"
-                },
-                {
-                    "surgeon": "SimplifiedLayerNormToL2Norm"
                 }
             ],
             "save_as_external_data": true
         },
-        "sq": {
-            "type": "OnnxStaticQuantization",
-            "data_config": "wikitext2_train_act",
-            "activation_type": "uint16",
-            "precision": "uint8",
-            "calibration_providers": [
-                "CUDAExecutionProvider"
-            ],
-            "quant_preprocess": true,
-            "op_types_to_exclude": [
-                "GatherBlockQuantized",
-                "GroupQueryAttention",
-                "MatMulNBits"
-            ],
-            "save_as_external_data": true,
-            "extra_options": {
-                "CalibStridedMinMax": 4
-            }
-        },
-        "sp": {
-            "type": "SplitModel"
-        },
         "st": {
             "type": "StaticLLM",
             "batch_size": 1,
-            "context_length": 64
-        },
-        "cb": {
-            "type": "EPContextBinaryGenerator",
-            "provider_options": {
-                "htp_performance_mode": "burst",
-                "htp_graph_finalization_optimization_mode": "3",
-                "soc_model": "60"
-            },
-            "weight_sharing": true
-        },
-        "cp": {
-            "type": "ComposeOnnxModels"
+            "context_length": 1
         }
     },
     "target": "target_system",
     "log_severity_level": 1,
-    "output_dir": "model/phi3_5",
+    "output_dir": "models/phi3.5-mini-instruct",
     "cache_dir": "cache",
     "no_artifacts": true,
     "evaluate_input_model": false
