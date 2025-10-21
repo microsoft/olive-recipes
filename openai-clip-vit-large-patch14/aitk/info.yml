@@ -27,4 +27,4 @@ aitk:
     modelInfo:
         id: "huggingface/openai/clip-vit-large-patch14"
         version: 1
-        p0: true
+        p0: false
