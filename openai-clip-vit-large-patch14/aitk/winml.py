@@ -7,7 +7,7 @@ def _get_ep_paths() -> dict[str, str]:
     )
     import winui3.microsoft.windows.ai.machinelearning as winml
     eps = {}
-    with initialize(options=InitializeOptions.ON_NO_MATCH_SHOW_UI):
+    with initialize(options = InitializeOptions.ON_NO_MATCH_SHOW_UI):
         catalog = winml.ExecutionProviderCatalog.get_default()
         providers = catalog.find_all_providers()
         for provider in providers:

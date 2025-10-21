@@ -99,7 +99,7 @@ def prepare_calibration_data(dataloader, init_steps):
 
 
 @Registry.register_dataset()
-def conceptual_captions_dataset(data_name, opt_init_steps=200, max_train_samples=1000, **kwargs):
+def conceptual_captions_dataset(data_name,opt_init_steps=200, max_train_samples=1000, **kwargs):
     """Prepare a vision-text dataset for quantization."""
     dataset = load_dataset(data_name, trust_remote_code=True)
     model_path = kwargs.get("model_path")
