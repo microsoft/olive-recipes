@@ -157,36 +157,26 @@ class SplitHeadSamVisionSdpaAttention(nn.Module):
         return rel_h[:, :, :, :, None] + rel_w[:, :, :, None, :]
 
     def forward(self, hidden_states: torch.Tensor, output_attentions=None) -> tuple[torch.Tensor, torch.Tensor]:
-        x = hidden_states
-        batch_size, height, width, _ = x.shape
+        batch_size, height, width, _ = hidden_states.shape
 
         key = (
-            self.k(x)
+            self.k(hidden_states)
             .reshape(batch_size, height * width, self.num_heads, -1)
             .permute(0, 2, 1, 3)
             .reshape(batch_size * self.num_heads, height * width, -1)
         )
         value = (
-            self.v(x)
+            self.v(hidden_states)
             .reshape(batch_size, height * width, self.num_heads, -1)
             .permute(0, 2, 1, 3)
             .reshape(batch_size * self.num_heads, height * width, -1)
         )
         query = (
-            self.q(x)
+            self.q(hidden_states)
             .reshape(batch_size, height * width, self.num_heads, -1)
             .permute(0, 2, 1, 3)
             .reshape(batch_size * self.num_heads, height * width, -1)
         )
-
-        # # qkv with shape (3, batch_size, nHead, height * width, channel)
-        # qkv = (
-        #     self.model.qkv(hidden_states)
-        #     .reshape(batch_size, height * width, 3, self.model.num_attention_heads, -1)
-        #     .permute(2, 0, 3, 1, 4)
-        # )
-        # # q, k, v with shape (batch_size * nHead, height * width, channel)
-        # query, key, value = qkv.reshape(3, batch_size * self.model.num_attention_heads, height * width, -1).unbind(0)
 
         attn_weights = (query * self.model.scale) @ key.transpose(-2, -1)
 

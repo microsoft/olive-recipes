@@ -27,7 +27,8 @@
             ]
         },
         "target_system": {
-            "type": "LocalSystem",
+            "type": "PythonEnvironment",
+            "python_environment_path": "/path/to/qnn/env/bin",
             "accelerators": [
                 {
                     "execution_providers": [
