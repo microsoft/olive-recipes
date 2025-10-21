@@ -66,4 +66,3 @@ Uses `DmlExecutionProvider` for general GPU support via DirectML.
 | **Intel NPU**<br/>Core Ultra 5 228V<br/>32.0 GB RAM  | Flickr30k (10 samples) | 100.0 | 71.24 | 72.38 | - | - | 13.88 | 14.10 | 13.52 |
 | **DML**<br/>Intel(R) Core(TM) i9-10900X CPU @ 3.70GHz (3.70 GHz)<br/>32.0 GB RAM   | Flickr30k (10 samples) | 100.0 | 11.37 | - | 12.09 | 10.99 | 87.62 | 91.38 | 81.50 |
 | **NVIDIA**<br/>Intel(R) Core(TM) i9-10900X CPU @ 3.70GHz (3.70 GHz) <br/>NVIDIA GeForce RTX 4080<br/>32.0 GB RAM  | Flickr30k (10 samples) | 100.0 | 10.46 | - | 20.33 | 8.98 | 107.77 | 119.52 | 87.15 |
-
