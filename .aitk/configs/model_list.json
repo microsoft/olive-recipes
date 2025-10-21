@@ -230,8 +230,8 @@
             "architecture": "Transformer",
             "status": "Ready",
             "relativePath": "openai-clip-vit-large-patch14/aitk",
-            "version": 5,
-            "p0": true
+            "version": 1,
+            "p0": false
         },
         {
             "displayName": "Qwen/Qwen2.5-1.5B-Instruct",
