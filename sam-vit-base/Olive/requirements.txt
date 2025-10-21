@@ -1,6 +1,6 @@
-transformers
 datasets
 olive-ai
 onnx
-torchvision
 torch
+torchvision
+transformers

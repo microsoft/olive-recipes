@@ -1,11 +1,11 @@
-import torch.nn.functional as F
-from torch import nn
-import torch
 from typing import Optional
 
+import torch
+from torch import nn
+
+
 class Conv2DInplaceLinear(nn.Module):
-    """
-    An implementation of Linear / Conv1D that uses a 1x1 Conv2D op instead.
+    """An implementation of Linear / Conv1D that uses a 1x1 Conv2D op instead.
 
     The Conv2D implementation for Qualcomm DSPs is faster than the Linear/Conv1D implementation.
     """
@@ -21,7 +21,7 @@ class Conv2DInplaceLinear(nn.Module):
         elif isinstance(mod, torch.nn.Conv1d):
             weight, bias = mod.weight.T, mod.bias
         else:
-            raise NotImplementedError()
+            raise NotImplementedError
 
         out_features, in_features = weight.shape
         linear = Conv2DInplaceLinear(
@@ -76,9 +76,10 @@ class Conv2DInplaceLinear(nn.Module):
             pass
         return x
 
+
 class SplitHeadSamVisionSdpaAttention(nn.Module):
     def __init__(self, attention_block):
-        super().__init__()        
+        super().__init__()
         self.out_feature, self.in_feature = (
             attention_block.qkv.weight.shape[0] // 3,
             attention_block.qkv.weight.shape[1],
@@ -93,8 +94,8 @@ class SplitHeadSamVisionSdpaAttention(nn.Module):
         self.use_rel_pos = attention_block.use_rel_pos
         self.model = attention_block
 
-        for chunk, projList in enumerate([self.q, self.k, self.v]):
-            projList.conv2d.weight.data.copy_(
+        for chunk, proj_list in enumerate([self.q, self.k, self.v]):
+            proj_list.conv2d.weight.data.copy_(
                 attention_block.qkv.weight[
                     (chunk) * self.out_feature : (chunk + 1) * self.out_feature,
                     :,
@@ -103,11 +104,9 @@ class SplitHeadSamVisionSdpaAttention(nn.Module):
                 ]
             )
 
-            assert projList.conv2d.bias is not None
-            projList.conv2d.bias.data.copy_(
-                attention_block.qkv.bias[
-                    (chunk) * self.out_feature : (chunk + 1) * self.out_feature,
-                ]
+            assert proj_list.conv2d.bias is not None
+            proj_list.conv2d.bias.data.copy_(
+                attention_block.qkv.bias[(chunk) * self.out_feature : (chunk + 1) * self.out_feature,]
             )
 
     def get_decomposed_rel_pos(
@@ -118,10 +117,10 @@ class SplitHeadSamVisionSdpaAttention(nn.Module):
         q_size: tuple[int, int],
         k_size: tuple[int, int],
     ) -> torch.Tensor:
-        """
-        Calculate decomposed Relative Positional Embeddings from :paper:`mvitv2`.
+        """Calculate decomposed Relative Positional Embeddings from :paper:`mvitv2`.
+
         https://github.com/facebookresearch/mvit/blob/19786631e330df9f3622e5402b4a419a263a2c80/mvit/models/attention.py
-    
+
         Args:
             query (`torch.Tensor`):
                 query q in the attention layer with shape (batch_size, query_height * query_width, channel).
@@ -133,55 +132,53 @@ class SplitHeadSamVisionSdpaAttention(nn.Module):
                 spatial sequence size of query q with (query_height, query_width).
             k_size (tuple):
                 spatial sequence size of key k with (key_height, key_width).
-    
+
         Returns:
             decomposed_rel_pos (`torch.Tensor`):
                 decomposed relative position embeddings.
+
         """
         query_height, query_width = q_size
         key_height, key_width = k_size
         relative_position_height = self.model.get_rel_pos(query_height, key_height, rel_pos_h)
         relative_position_width = self.model.get_rel_pos(query_width, key_width, rel_pos_w)
-    
+
         batch_size, _, dim = query.shape
         reshaped_query = query.reshape(batch_size, query_height, query_width, dim)
-    
+
         # Original
         # rel_h = torch.einsum("bhwc,hkc->bhwk", reshaped_query, relative_position_height)
         # rel_w = torch.einsum("bhwc,wkc->bhwk", reshaped_query, relative_position_width)
-    
+
         # Using MatMul
         rel_h = reshaped_query @ relative_position_height.transpose(1, 2)
         rel_w = (reshaped_query.transpose(1, 2) @ relative_position_width.transpose(1, 2)).transpose(1, 2)
-    
-        decomposed_rel_pos = rel_h[:, :, :, :, None] + rel_w[:, :, :, None, :]
-    
-        return decomposed_rel_pos
-    
+
+        return rel_h[:, :, :, :, None] + rel_w[:, :, :, None, :]
+
     def forward(self, hidden_states: torch.Tensor, output_attentions=None) -> tuple[torch.Tensor, torch.Tensor]:
         x = hidden_states
         batch_size, height, width, _ = x.shape
-        B, H, W = batch_size, height, width
 
         key = (
             self.k(x)
-            .reshape(B, H * W, self.num_heads, -1)
+            .reshape(batch_size, height * width, self.num_heads, -1)
             .permute(0, 2, 1, 3)
-            .reshape(B * self.num_heads, H * W, -1)
+            .reshape(batch_size * self.num_heads, height * width, -1)
         )
         value = (
             self.v(x)
-            .reshape(B, H * W, self.num_heads, -1)
+            .reshape(batch_size, height * width, self.num_heads, -1)
             .permute(0, 2, 1, 3)
-            .reshape(B * self.num_heads, H * W, -1)
+            .reshape(batch_size * self.num_heads, height * width, -1)
         )
         query = (
             self.q(x)
-            .reshape(B, H * W, self.num_heads, -1)
+            .reshape(batch_size, height * width, self.num_heads, -1)
             .permute(0, 2, 1, 3)
-            .reshape(B * self.num_heads, H * W, -1)
+            .reshape(batch_size * self.num_heads, height * width, -1)
         )
-        
+
         # # qkv with shape (3, batch_size, nHead, height * width, channel)
         # qkv = (
         #     self.model.qkv(hidden_states)
@@ -195,7 +192,11 @@ class SplitHeadSamVisionSdpaAttention(nn.Module):
 
         if self.use_rel_pos:
             decomposed_rel_pos = self.get_decomposed_rel_pos(
-                query, self.model.rel_pos_h, self.model.rel_pos_w, (height, width), (height, width)
+                query,
+                self.model.rel_pos_h,
+                self.model.rel_pos_w,
+                (height, width),
+                (height, width),
             )
             decomposed_rel_pos = decomposed_rel_pos.reshape_as(attn_weights)
             attn_weights = attn_weights + decomposed_rel_pos
@@ -210,10 +211,9 @@ class SplitHeadSamVisionSdpaAttention(nn.Module):
         attn_output = self.model.proj(attn_output)
         return attn_output, attn_weights
 
+
 class Conv2DInplaceLinearSAMMLPBlock(nn.Module):
-    """
-    SAM MLPBlock that uses 1x1 Conv2D in place of linear layers.
-    """
+    """SAM MLPBlock that uses 1x1 Conv2D in place of linear layers."""
 
     def __init__(self, mlp_block) -> None:
         super().__init__()
@@ -231,46 +231,57 @@ class ModSamVisionLayer(nn.Module):
         self.model = model
         self.attn = SplitHeadSamVisionSdpaAttention(self.model.attn)
         self.mlp = Conv2DInplaceLinearSAMMLPBlock(self.model.mlp)
-        
+
     def window_partition(self, hidden_states: torch.Tensor, window_size: int) -> tuple[torch.Tensor, tuple[int, int]]:
         batch_size, height, width, channel = hidden_states.shape
-    
+
         pad_h = (window_size - height % window_size) % window_size
         pad_w = (window_size - width % window_size) % window_size
 
-        # hidden_states = F.pad(hidden_states, (0, 0, 0, pad_w, 0, pad_h), mode = 'constant', value = 0.0)
-        
         c1 = torch.zeros((batch_size, pad_h, width, channel))
         c2 = torch.zeros((batch_size, height + pad_h, pad_w, channel))
 
-        hidden_states = torch.concatenate((hidden_states, c1), axis = 1)
-        hidden_states = torch.concatenate((hidden_states, c2), axis = 2)
-        
+        hidden_states = torch.concatenate((hidden_states, c1), axis=1)
+        hidden_states = torch.concatenate((hidden_states, c2), axis=2)
+
         pad_height, pad_width = height + pad_h, width + pad_w
-    
+
         hidden_states = hidden_states.reshape(
-            pad_height // window_size, window_size, pad_width // window_size, window_size, channel
+            pad_height // window_size,
+            window_size,
+            pad_width // window_size,
+            window_size,
+            channel,
         )
         windows = hidden_states.permute(0, 2, 1, 3, 4).contiguous().reshape(-1, window_size, window_size, channel)
         return windows, (pad_height, pad_width)
-    
+
     def window_unpartition(
-        self, windows: torch.Tensor, window_size: int, padding_shape: tuple[int, int], original_shape: tuple[int, int]
+        self,
+        windows: torch.Tensor,
+        window_size: int,
+        padding_shape: tuple[int, int],
+        original_shape: tuple[int, int],
     ) -> torch.Tensor:
         pad_height, pad_width = padding_shape
         height, width = original_shape
         batch_size = windows.shape[0] // (pad_height * pad_width // window_size // window_size)
         hidden_states = windows.reshape(
-            pad_height // window_size, pad_width // window_size, window_size, window_size, -1
+            pad_height // window_size,
+            pad_width // window_size,
+            window_size,
+            window_size,
+            -1,
         )
-        hidden_states = (
-            hidden_states.permute(0, 2, 1, 3, 4).contiguous().reshape(batch_size, pad_height, pad_width, -1)
-        )
-    
-        hidden_states = hidden_states[:, :height, :width, :].contiguous()
-        return hidden_states
-    
-    def forward(self, hidden_states: torch.Tensor, output_attentions: Optional[bool] = False,) -> tuple[torch.FloatTensor]:
+        hidden_states = hidden_states.permute(0, 2, 1, 3, 4).contiguous().reshape(batch_size, pad_height, pad_width, -1)
+
+        return hidden_states[:, :height, :width, :].contiguous()
+
+    def forward(
+        self,
+        hidden_states: torch.Tensor,
+        output_attentions: Optional[bool] = False,
+    ) -> tuple[torch.FloatTensor]:
         residual = hidden_states
         hidden_states = self.model.layer_norm1(hidden_states)
         # Window partition
@@ -283,12 +294,15 @@ class ModSamVisionLayer(nn.Module):
         )
         # Reverse window partition
         if self.model.window_size > 0:
-            hidden_states = self.window_unpartition(hidden_states, self.model.window_size, padding_shape, (height, width))
+            hidden_states = self.window_unpartition(
+                hidden_states, self.model.window_size, padding_shape, (height, width)
+            )
 
         hidden_states = residual + hidden_states
         layernorm_output = self.model.layer_norm2(hidden_states)
         hidden_states = hidden_states + self.mlp(layernorm_output)
         return hidden_states, attn_weights
+
 
 class ModSamModel(nn.Module):
     def __init__(self, model):
@@ -298,7 +312,7 @@ class ModSamModel(nn.Module):
             self.model.vision_encoder.layers[i] = ModSamVisionLayer(self.model.vision_encoder.layers[i])
 
     def forward(self, pixel_values, input_points):
-        return self.model(pixel_values = pixel_values, input_points = input_points)
+        return self.model(pixel_values=pixel_values, input_points=input_points)
 
 
 class ModSamVisionEncoder(nn.Module):
@@ -307,7 +321,8 @@ class ModSamVisionEncoder(nn.Module):
         self.vision_encoder = ModSamModel(model).model.vision_encoder
 
     def forward(self, pixel_values):
-        return self.vision_encoder(pixel_values = pixel_values)
+        return self.vision_encoder(pixel_values=pixel_values)
+
 
 class ModSamMaskPointDecoder(nn.Module):
     def __init__(self, model):
@@ -315,7 +330,8 @@ class ModSamMaskPointDecoder(nn.Module):
         self.model = model
 
     def forward(self, input_points, image_embeddings):
-        return self.model(input_points = input_points, input_boxes = input_boxes, image_embeddings = image_embeddings)
+        return self.model(input_points=input_points, image_embeddings=image_embeddings)
+
 
 class ModSamMaskBoxDecoder(nn.Module):
     def __init__(self, model):
@@ -323,4 +339,4 @@ class ModSamMaskBoxDecoder(nn.Module):
         self.model = model
 
     def forward(self, input_boxes, image_embeddings):
-        return self.model(input_boxes = input_boxes, image_embeddings = image_embeddings)
+        return self.model(input_boxes=input_boxes, image_embeddings=image_embeddings)
