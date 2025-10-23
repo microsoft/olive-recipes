@@ -56,5 +56,5 @@ olive run --config sam_mask_box_decoder_qnn_fp16.json
 Execute SAM model in **AOT Compilation Python Environment** using following command:
 
 ```bash
-python sam_mask_generator.py --model_ve path/to/encoder_model.onnx --model_md path/to/decoder_model.onnx --image_path car.png --output_path car_mask.png
+python sam_mask_generator.py --model_ve path/to/encoder_model.onnx --model_md path/to/decoder_model.onnx --image_path car.png --point_x 450 --point_y 600 --output_path car_mask.png
 ```
