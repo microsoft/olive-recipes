@@ -412,9 +412,9 @@ def main():
     }
 
     with torch.no_grad():
-        torch.onnx.export(encoder, en_inputs, "sam21_vision_encoder.onnx", opset_version=20, do_constant_folding=True)
+        torch.onnx.export(encoder, en_inputs, "sam21_vision_encoder.onnx", opset_version=20, do_constant_folding=True, dynamo = False)
     with torch.no_grad():
-        torch.onnx.export(decoder, de_inputs, "sam21_mask_decoder.onnx", opset_version=20, do_constant_folding=True)
+        torch.onnx.export(decoder, de_inputs, "sam21_mask_decoder.onnx", opset_version=20, do_constant_folding=True, dynamo = False)
 
     encoder_onnx_model = onnx.load("sam21_vision_encoder.onnx")
     simplified_encoder_onnx_model, check = simplify(encoder_onnx_model)

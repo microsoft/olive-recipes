@@ -1,7 +1,7 @@
 {
     "input_model": {
         "type": "ONNXModel",
-        "model_path": "sam21_vision_encoder_sim.onnx"
+        "model_path": "sam21_vision_encoder.onnx"
     },
     "systems": {
         "local_system": {

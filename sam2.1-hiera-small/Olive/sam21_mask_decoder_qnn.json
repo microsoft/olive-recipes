@@ -1,7 +1,7 @@
 {
     "input_model": {
         "type": "ONNXModel",
-        "model_path": "sam21_mask_decoder_sim.onnx"
+        "model_path": "sam21_mask_decoder.onnx"
     },
     "systems": {
         "host_system": {

@@ -5,6 +5,7 @@
 
 
 class ModelConfig:
+    model_name = "facebook/sam2.1-hiera-small"
     data_dir = "quantization_dataset_100"
     ve_input_name = "pixel_values"
     ve_channel_size = 3
