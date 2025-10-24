@@ -7,3 +7,7 @@ recipes:
     - file: "README.md"
       device: gpu
       ep: CUDAExecutionProvider
+    - name: gemma-3-1b-it_model_builder_cpu_FP32
+      file: gemma-3-1b-it_model_builder_cpu_fp32.json
+      devices: cpu
+      eps: CPUExecutionProvider
