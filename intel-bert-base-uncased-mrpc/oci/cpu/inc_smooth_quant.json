@@ -1,5 +1,9 @@
 {
-    "input_model": { "type": "HfModel", "model_path": "Intel/bert-base-uncased-mrpc", "task": "text-classification" },
+    "input_model": {
+        "type": "HfModel",
+        "model_path": "Intel/bert-base-uncased-mrpc",
+        "task": "text-classification"
+    },
     "data_configs": [
         {
             "name": "glue_mrpc",

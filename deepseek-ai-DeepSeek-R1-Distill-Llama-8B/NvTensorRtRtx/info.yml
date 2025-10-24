@@ -1,0 +1,6 @@
+arch: llama
+recipes:
+  - name: DeepSeek-R1-Distill-Llama-8B_Model_Builder_INT4
+    file: DeepSeek-R1-Distill-Llama-8B_model_builder_int4.json
+    devices: gpu
+    eps: NvTensorRTRTXExecutionProvider

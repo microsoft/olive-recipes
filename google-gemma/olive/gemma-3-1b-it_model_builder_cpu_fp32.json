@@ -1,0 +1,18 @@
+{
+    "input_model": {
+        "type": "HfModel",
+        "model_path": "google/gemma-3-1b-it",
+        "task": "text-generation"
+    },
+    "systems": {
+        "local_system": {
+            "type": "LocalSystem",
+            "accelerators": [ { "device": "cpu", "execution_providers": [ "CPUExecutionProvider" ] } ]
+        }
+    },
+    "engine": { "target": "local_system" },
+    "passes": {
+        "builder": { "type": "ModelBuilder", "precision": "fp32"}
+
+    }
+}
