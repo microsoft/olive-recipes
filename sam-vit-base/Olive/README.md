@@ -19,7 +19,7 @@ Model compilation using QNN Execution Provider requires a Python environment wit
 pip install olive-ai onnxruntime-qnn torch torchvision transformers
 ```
 
-Replace `/path/to/qnn/env/bin` in [sam_vision_encoder_qnn_w8a8.json](sam_vision_encoder_qnn_w8a8.json) with the path to the directory containing your QNN environment's Python executable. This path can be found by running the following command in the environment:
+Replace `/path/to/qnn/env/bin` in [sam_vision_encoder_qnn_w8a8.json](sam_vision_encoder_qnn_w8a8.json) and [sam_mask_decoder_qnn_fp16.json](sam_mask_decoder_qnn_fp16.json) with the path to the directory containing your QNN environment's Python executable. This path can be found by running the following command in the environment:
 
 ```bash
 # Linux
@@ -48,6 +48,10 @@ For Box based Decoder Model:
 ```bash
 olive run --config sam_mask_box_decoder_qnn_fp16.json
 ```
+For Point and Box based Decoder Model:
+```bash
+olive run --config sam_mask_decoder_qnn_fp16.json
+```
 
 > ⚠️ If optimization fails during context binary generation, rerun the command. The process will resume from the last completed step.
 
@@ -56,5 +60,5 @@ olive run --config sam_mask_box_decoder_qnn_fp16.json
 Execute SAM model in **AOT Compilation Python Environment** using following command:
 
 ```bash
-python sam_mask_generator.py --model_ve path/to/encoder_model.onnx --model_md path/to/decoder_model.onnx --image_path car.png --point_x 450 --point_y 600 --output_path car_mask.png
+python sam_mask_generator.py --model_ve path/to/encoder_model.onnx --model_md path/to/decoder_model.onnx --image_path car.png --box_x 40 --box_y 235 --box_w 940 --box_h 490 --output_path car_mask.png
 ```
