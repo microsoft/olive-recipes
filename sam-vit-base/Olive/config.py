@@ -14,3 +14,5 @@ class ModelConfig:
     mask_point_input_shapes = ((1, 1, 2), (256, 64, 64))
     mask_box_input_names = ("input_boxes", "image_embeddings")
     mask_box_input_shapes = ((1, 4), (256, 64, 64))
+    mask_input_names = ("input_points", "input_labels", "image_embeddings")
+    mask_input_shapes = ((1, 2, 2), (1, 2), (256, 64, 64))

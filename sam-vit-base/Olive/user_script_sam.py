@@ -18,6 +18,7 @@ from model_patches import (
     ModSamMaskBoxDecoder,
     ModSamMaskPointDecoder,
     ModSamVisionEncoder,
+    ModSamMaskdecoder,
 )
 from olive.data.registry import Registry
 from transformers import SamModel, SamProcessor
@@ -98,6 +99,13 @@ def random_mask_box_decoder_inputs(batch_size, torch_dtype):
     }
 
 
+def random_mask_decoder_inputs(batch_size, torch_dtype):
+    return {
+        input_name: torch.rand((batch_size, *input_shape), dtype=torch_dtype)
+        for input_name, input_shape in zip(ModelConfig.mask_input_names, ModelConfig.mask_input_shapes)
+    }
+
+
 def vision_encoder_inputs(model=None):
     return tuple(ve_inputs(1, torch.float32).values())
 
@@ -108,6 +116,10 @@ def mask_point_decoder_inputs(model=None):
 
 def mask_box_decoder_inputs(model=None):
     return tuple(random_mask_box_decoder_inputs(1, torch.float32).values())
+
+
+def mask_decoder_inputs(model=None):
+    return tuple(random_mask_decoder_inputs(1, torch.float32).values())
 
 
 @Registry.register_dataloader()
@@ -145,6 +157,11 @@ def sam_mask_box_decoder_load(model_name):
     return ModSamMaskBoxDecoder(model)
 
 
+def sam_mask_decoder_load(model_name):
+    model = SamModel.from_pretrained(ModelConfig.model_name)
+    return ModSamMaskdecoder(model)
+
+
 def ve_generate_quant_data(num_samples):
     p = Path(ModelConfig.data_dir)
     if p.is_dir() and (len(p.glob("*images.npz")) >= num_samples):
@@ -177,15 +194,18 @@ def md_generate_quant_data(num_samples):
         if i >= num_samples:
             break
         image = sample["image"]
-        point = [[[[np.random.randint(image.size[0]), np.random.randint(image.size[0])]]]]
-        inputs = processor(image, input_points=point, return_tensors="pt")
+        point = np.random.randint(image.size[0], (1, *(ModelConfig.mask_input_shapes[0])))
+        labels = np.random.randint(-1, 3, (1, *(ModelConfig.mask_input_shapes[1])))
+        inputs = processor(image, input_points=point.tolist(), input_labels=labels.tolist(), return_tensors="pt")
         pixel_values = inputs["pixel_values"]
         input_points = inputs["input_points"].detach().cpu().numpy()
+        input_labels = inputs["input_labels"].detach().cpu().numpy()
         image_embeddings = (
             model.vision_encoder(pixel_values=pixel_values.to(device)).last_hidden_state.detach().cpu().numpy()
         )
         np.savez(
             f"{ModelConfig.data_dir}/input_{i}_points.npz",
             input_points=input_points,
+            input_labels=input_labels,
             image_embeddings=image_embeddings,
         )

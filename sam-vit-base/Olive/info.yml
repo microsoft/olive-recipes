@@ -17,4 +17,9 @@ recipes:
     devices:
     - npu
     ep: QNNExecutionProvider
+
+  - file: "sam_mask_decoder_qnn_fp16.json"
+    devices:
+    - npu
+    ep: QNNExecutionProvider
 name: sam-vit-base
