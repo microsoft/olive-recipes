@@ -45,7 +45,32 @@
             "target_device": "npu",
             "keep_ov_dynamic_dims": true,
             "ov_version": "2025.2",
-            "reuse_cache": true
+            "reuse_cache": true,
+            "genai_config_override": {
+                "model": {
+                    "context_length": 4224,
+                    "decoder": {
+                        "session_options": {
+                            "provider_options": [
+                                {
+                                    "OpenVINO": {
+                                        "device_type": "NPU",
+                                        "enable_causallm": "True",
+                                        "load_config": "{\"NPU\":{\"MAX_PROMPT_LEN\":\"4096\",\"MIN_RESPONSE_LEN\":\"128\"}}"
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                },
+                "search": {
+                    "do_sample": true,
+                    "max_length": 4224,
+                    "repetition_penalty": 1.1,
+                    "top_k": 40,
+                    "top_p": 0.9
+                }
+            }
         }
     },
     "search_strategy": false,
