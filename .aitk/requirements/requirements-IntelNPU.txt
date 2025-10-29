@@ -54,16 +54,16 @@ ninja==1.11.1.4
 # nncf==2.16.0
 nncf==2.16.0
 numpy==1.26.4
-# olive-ai==0.9.3
-olive-ai==0.9.3
+# olive-ai@git+https://github.com/microsoft/Olive.git@3a9384bffab55b9a44cb39d4b4d8463dbe030225
+olive-ai@git+https://github.com/microsoft/Olive.git@3a9384bffab55b9a44cb39d4b4d8463dbe030225
 # onnx==1.17.0
 onnx==1.17.0
-onnx-ir==0.1.5
+onnx-ir==0.1.10
 # onnxruntime==1.21.0
 onnxruntime==1.21.0
 # onnxruntime-genai==0.7.0
 onnxruntime-genai==0.7.0
-onnxscript==0.3.2
+onnxscript==0.5.4
 # openvino==2025.1.0
 openvino==2025.1.0
 openvino-telemetry==2025.1.0

@@ -55,14 +55,14 @@ multiprocess==0.70.16
 nest-asyncio==1.6.0
 networkx==3.5
 numpy==2.2.4
-# olive-ai==0.9.3
-olive-ai==0.9.3
+# olive-ai@git+https://github.com/microsoft/Olive.git@3a9384bffab55b9a44cb39d4b4d8463dbe030225
+olive-ai@git+https://github.com/microsoft/Olive.git@3a9384bffab55b9a44cb39d4b4d8463dbe030225
 # onnx==1.17.0
 onnx==1.17.0
-onnx-ir==0.1.5
+onnx-ir==0.1.10
 onnxruntime-genai-winml==0.10.0
 onnxruntime-winml==1.23.0.dev2025091008
-onnxscript==0.3.2
+onnxscript==0.5.4
 # optimum==1.26.0
 optimum==1.26.0
 optuna==4.2.1
