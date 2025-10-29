@@ -8,6 +8,7 @@ on:
   push:
     branches:
       - main
+      - recipes-ci
   workflow_dispatch:
     inputs:
       test_scope:
@@ -27,6 +28,8 @@ jobs:
   linux-cpu:
     name: Linux CPU - ${{ matrix.test.name }}
     if: |
+      github.event_name == 'push' ||
+      github.event_name == 'schedule' ||
       github.event.inputs.test_scope == 'all' ||
       github.event.inputs.test_scope == 'linux-cpu-only' ||
       github.event.inputs.test_scope == ''
@@ -77,6 +80,8 @@ jobs:
   linux-gpu:
     name: Linux GPU - ${{ matrix.name }}
     if: |
+      github.event_name == 'push' ||
+      github.event_name == 'schedule' ||
       github.event.inputs.test_scope == 'all' ||
       github.event.inputs.test_scope == 'linux-gpu-only' ||
       github.event.inputs.test_scope == ''
@@ -165,6 +170,8 @@ jobs:
   windows-cpu:
     name: Windows CPU - ${{ matrix.test.name }}
     if: |
+      github.event_name == 'push' ||
+      github.event_name == 'schedule' ||
       github.event.inputs.test_scope == 'all' ||
       github.event.inputs.test_scope == 'windows-cpu-only' ||
       github.event.inputs.test_scope == ''
