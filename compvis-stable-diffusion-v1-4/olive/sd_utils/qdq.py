@@ -150,7 +150,7 @@ class OnnxStableDiffusionPipelineWithSave(OnnxStableDiffusionPipeline):
         for i, t in enumerate(self.progress_bar(self.scheduler.timesteps)):
             latent_model_input = latents
             latent_model_input = self.scheduler.scale_model_input(torch.from_numpy(latent_model_input), t)
-            latent_model_input = latent_model_input.cpu().numpy()
+            latent_model_input = latent_model_input.cpu().numpy().astype(np.float32)
 
             # predict the noise residual
             timestep = np.array([t], dtype=timestep_dtype)
@@ -197,7 +197,7 @@ class OnnxStableDiffusionPipelineWithSave(OnnxStableDiffusionPipeline):
         # it seems likes there is a strange result for using half-precision vae decoder if batchsize>1
         if self.save_data_dir:
             np.savez(self.save_data_dir / "latent.npz", latent_sample=latents[0:1])
-        image = np.concatenate([self.vae_decoder(latent_sample=latents[i : i + 1])[0] for i in range(latents.shape[0])])
+        image = np.concatenate([self.vae_decoder(latent_sample=latents[i : i + 1].astype(np.float32))[0] for i in range(latents.shape[0])])
         if self.save_data_dir:
             np.savez(self.save_data_dir / "output_img.npz", sample=image)
 
@@ -229,27 +229,48 @@ class OnnxStableDiffusionPipelineWithSave(OnnxStableDiffusionPipeline):
         return StableDiffusionPipelineOutput(images=image, nsfw_content_detected=has_nsfw_concept)
 
 
+def register_execution_providers():
+    import subprocess
+    import sys
+    import json
+
+    worker_script = os.path.abspath('winml.py')
+    result = subprocess.check_output([sys.executable, worker_script], text=True)
+    paths = json.loads(result)
+    for item in paths.items():
+        ort.register_execution_provider_library(item[0], item[1])
+
+
+def add_ep_for_device(session_options, ep_name, device_type, ep_options=None):
+    ep_devices = ort.get_ep_devices()
+    for ep_device in ep_devices:
+        if ep_device.ep_name == ep_name and ep_device.device.type == device_type:
+            print(f"Adding {ep_name} for {device_type}")
+            session_options.add_provider_for_devices([ep_device], {} if ep_options is None else ep_options)
+            break
+
+
 def get_qdq_pipeline(model_dir, common_args, qdq_args, script_dir):
+    register_execution_providers()
+
     ort.set_default_logger_severity(3)
 
     print("Loading models into ORT session...")
-    sess_options = ort.SessionOptions()
     provider_options = [{}]
 
     provider = common_args.provider
 
     provider_map = {
-        "cpu": "CPUExecutionProvider",
-        "cuda": "CUDAExecutionProvider",
-        "qnn": "QNNExecutionProvider",
+        "cpu": ("CPUExecutionProvider", ort.OrtHardwareDeviceType.CPU),
+        "qnn": ("QNNExecutionProvider", ort.OrtHardwareDeviceType.NPU),
     }
     assert provider in provider_map, f"Unsupported provider: {provider}"
 
-    if provider == "qnn":
-        provider_options[0]["backend_path"] = "QnnHtp.dll"
+    sess_options = ort.SessionOptions()
+    add_ep_for_device(sess_options, provider_map[provider][0], provider_map[provider][1])
 
     pipeline = OnnxStableDiffusionPipelineWithSave.from_pretrained(
-        model_dir, provider=provider_map[provider], sess_options=sess_options, provider_options=provider_options
+        model_dir, sess_options=sess_options, provider_options=provider_options
     )
     if qdq_args.save_data:
         pipeline.save_data_dir = script_dir / qdq_args.data_dir / common_args.prompt

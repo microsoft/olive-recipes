@@ -5,6 +5,11 @@ onnx
 peft==0.10.0
 pillow
 tabulate
-torch
+# 2.9.0 not work due to RuntimeError: # Failed to convert 'dynamic_axes' to 'dynamic_shapes'. Please provide 'dynamic_shapes' directly. Refer to the documentation for 'torch.export.export' for more information on dynamic shapes.
+torch==2.7.0
 # StableDiffusionSafetyChecker vision_model ignores attn_implementation
 transformers<4.43.0
+
+# for winml, use venv from AITK instead
+onnxruntime
+olive-ai
