@@ -426,6 +426,22 @@
             "version": 3
         },
         {
+            "displayName": "OFA-Sys/chinese-clip-vit-base-patch16",
+            "icon": "OFASys",
+            "modelLink": "https://huggingface.co/OFA-Sys/chinese-clip-vit-base-patch16",
+            "id": "huggingface/OFA-Sys/chinese-clip-vit-base-patch16",
+            "runtimes": [
+                "IntelCPU",
+                "IntelGPU",
+                "IntelNPU"
+            ],
+            "architecture": "Transformer",
+            "status": "Ready",
+            "relativePath": "OFA-Sys-chinese-clip-vit-base-patch16/aitk",
+            "version": 1,
+            "p0": false
+        },
+        {
             "displayName": "openai/clip-vit-large-patch14",
             "icon": "OpenAI",
             "modelLink": "https://huggingface.co/openai/clip-vit-large-patch14",
@@ -640,7 +656,8 @@
         "nlphuji/flickr30k": "https://huggingface.co/datasets/nlphuji/flickr30k",
         "timm/mini-imagenet": "https://huggingface.co/datasets/timm/mini-imagenet",
         "wikipedia": "https://huggingface.co/datasets/wikimedia/wikipedia",
-        "google-research-datasets/conceptual_captions": "https://huggingface.co/datasets/google-research-datasets/conceptual_captions"
+        "google-research-datasets/conceptual_captions": "https://huggingface.co/datasets/google-research-datasets/conceptual_captions",
+        "Mtoper/Flicker30k_CN": "https://huggingface.co/datasets/Mtoper/Flicker30k_CN"
     },
     "LoginRequiredDatasets": [
         "imagenet-1k"
@@ -664,6 +681,9 @@
             "train",
             "validation",
             "test"
+        ],
+        "Mtoper/Flicker30k_CN": [
+            "train"
         ]
     },
     "DatasetSubset": {

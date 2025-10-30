@@ -21,6 +21,7 @@ class IconEnum(Enum):
     qwen = "qwen"
     mistralai = "mistralai"
     HuggingFace = "HuggingFace"
+    OFASys = "OFASys"
 
 
 class ArchitectureEnum(Enum):
