@@ -19,7 +19,7 @@ Model compilation using QNN Execution Provider requires a Python environment wit
 pip install olive-ai onnxruntime-qnn torch torchvision transformers
 ```
 
-Replace `/path/to/qnn/env/bin` in [sam_vision_encoder_qnn_w8a8.json](sam_vision_encoder_qnn_w8a8.json) and [sam_mask_decoder_qnn_fp16.json](sam_mask_decoder_qnn_fp16.json) with the path to the directory containing your QNN environment's Python executable. This path can be found by running the following command in the environment:
+Replace `/path/to/qnn/env/bin` in [sam_vision_encoder_qnn_w8a8_ctx.json](sam_vision_encoder_qnn_w8a8_ctx.json) and [sam_mask_decoder_qnn_fp16_ctx.json](sam_mask_decoder_qnn_fp16_ctx.json) with the path to the directory containing your QNN environment's Python executable. This path can be found by running the following command in the environment:
 
 ```bash
 # Linux
@@ -35,7 +35,7 @@ Activate the **Quantization Python Environment** and run the workflow:
 
 For Encoder Model:
 ```bash
-olive run --config sam_vision_encoder_qnn_w8a8.json
+olive run --config sam_vision_encoder_qnn_w8a8_ctx.json
 ```
 
 For Decoder Model provides two types of inputs, Point and Bounbary Box. Based on requirement use one of the following workflows.
@@ -50,7 +50,7 @@ olive run --config sam_mask_box_decoder_qnn_fp16.json
 ```
 For Point and Box based Decoder Model:
 ```bash
-olive run --config sam_mask_decoder_qnn_fp16.json
+olive run --config sam_mask_decoder_qnn_fp16_ctx.json
 ```
 
 > ⚠️ If optimization fails during context binary generation, rerun the command. The process will resume from the last completed step.

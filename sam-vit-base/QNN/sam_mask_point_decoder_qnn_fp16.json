@@ -2,11 +2,11 @@
     "input_model": {
         "type": "PyTorchModel",
         "model_path": "facebook/sam-vit-base",
-        "model_loader": "sam_mask_box_decoder_load",
-        "model_script": "user_script_sam.py",
+        "model_loader": "sam_mask_point_decoder_load",
+        "model_script": "user_script.py",
         "io_config": {
             "input_names": [
-                "input_boxes",
+                "input_points",
                 "image_embeddings"
             ],
             "output_names": [
@@ -14,7 +14,7 @@
                 "pred_masks"
             ]
         },
-        "dummy_inputs_func": "mask_box_decoder_inputs"
+        "dummy_inputs_func": "mask_point_decoder_inputs"
     },
     "systems": {
         "local_system": {
@@ -34,12 +34,12 @@
     "data_configs": [
         {
             "name": "latency_data_config",
-            "user_script": "user_script_sam.py",
+            "user_script": "user_script.py",
             "load_dataset_config": {
                 "type": "local_dataset"
             },
             "dataloader_config": {
-                "type": "mask_box_decoder_data_loader",
+                "type": "mask_point_decoder_data_loader",
                 "batch_size": 1
             }
         }
@@ -79,6 +79,6 @@
     "evaluate_input_model": false,
     "host": "local_system",
     "target": "target_system",
-    "cache_dir": "cache_olive_mask_box_decoder_fp16",
-    "output_dir": "model/sam_olive_mask_box_decoder_fp16"
+    "cache_dir": "cache_olive_mask_point_decoder_fp16",
+    "output_dir": "model/sam_olive_mask_point_decoder_fp16"
 }
