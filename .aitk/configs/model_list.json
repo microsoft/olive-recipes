@@ -427,7 +427,7 @@
         },
         {
             "displayName": "OFA-Sys/chinese-clip-vit-base-patch16",
-            "icon": "OFASys",
+            "icon": "HuggingFace",
             "modelLink": "https://huggingface.co/OFA-Sys/chinese-clip-vit-base-patch16",
             "id": "huggingface/OFA-Sys/chinese-clip-vit-base-patch16",
             "runtimes": [
@@ -657,7 +657,7 @@
         "timm/mini-imagenet": "https://huggingface.co/datasets/timm/mini-imagenet",
         "wikipedia": "https://huggingface.co/datasets/wikimedia/wikipedia",
         "google-research-datasets/conceptual_captions": "https://huggingface.co/datasets/google-research-datasets/conceptual_captions",
-        "Mtoper/Flicker30k_CN": "https://huggingface.co/datasets/Mtoper/Flicker30k_CN"
+        "AIMClab-RUC/COCO-CN": "https://huggingface.co/datasets/AIMClab-RUC/COCO-CN"
     },
     "LoginRequiredDatasets": [
         "imagenet-1k"
@@ -681,9 +681,6 @@
             "train",
             "validation",
             "test"
-        ],
-        "Mtoper/Flicker30k_CN": [
-            "train"
         ]
     },
     "DatasetSubset": {

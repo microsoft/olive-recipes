@@ -22,7 +22,7 @@
             "user_script": "openai_clip_ov.py",
             "load_dataset_config": {
                 "type": "conceptual_captions_dataset",
-                "data_name": "Mtoper/Flicker30k_CN",
+                "data_name": "AIMClab-RUC/COCO-CN",
                 "model_path": "OFA-Sys/chinese-clip-vit-base-patch16"
             },
             "dataloader_config": {
@@ -36,7 +36,7 @@
             "load_dataset_config": {
                 "type": "clip_dataset",
                 "model_name": "OFA-Sys/chinese-clip-vit-base-patch16",
-                "dataset_name": "Mtoper/Flicker30k_CN",
+                "dataset_name": "AIMClab-RUC/COCO-CN",
                 "start": 10,
                 "length": 10
             },
