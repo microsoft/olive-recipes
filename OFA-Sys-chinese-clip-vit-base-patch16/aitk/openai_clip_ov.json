@@ -32,13 +32,13 @@
         },
         {
             "name": "metric_data_config",
-            "user_script": "user_script.py",
+            "user_script": "openai_clip_ov.py",
             "load_dataset_config": {
                 "type": "clip_dataset",
                 "model_name": "OFA-Sys/chinese-clip-vit-base-patch16",
                 "dataset_name": "AIMClab-RUC/COCO-CN",
-                "start": 10,
-                "length": 10
+                "start": 200,
+                "length": 100
             },
             "dataloader_config": { "type": "no_auto_batch_dataloader" },
             "post_process_data_config": { "type": "clip_post_process" }
@@ -87,8 +87,7 @@
                         "smooth_quant_alpha": 0.6
                     }
                 }
-            ],
-            "reuse_cache": true
+            ]
         },
         "io_update": {
             "type": "OpenVINOIoUpdate",
@@ -108,14 +107,12 @@
                     77
                 ]
             ],
-            "static": true,
-            "reuse_cache": true
+            "static": true
         },
         "encapsulation": {
             "type": "OpenVINOEncapsulation",
             "target_device": "npu",
-            "ov_version": "2025.1",
-            "reuse_cache": true
+            "ov_version": "2025.1"
         }
     },
     "search_strategy": false,
