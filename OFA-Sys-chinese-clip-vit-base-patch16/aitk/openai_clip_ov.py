@@ -258,11 +258,14 @@ class CLIPDataset(Dataset):
         return self.length
 
     def __getitem__(self, idx):
+        text = [item[1] for item in self.coco_cn[self.start + idx : self.start + idx + 10]]
         text_inputs = self.processor(
-            text=[item[1] for item in self.coco_cn[self.start + idx :  self.start + idx + 10]],
+            text=text,
             return_tensors="np",
             padding="max_length",
             truncation=True,
+            # the model has no predefined maximum length
+            max_length=77,
         )
 
         image_id = self.coco_cn[self.start + idx][0]
