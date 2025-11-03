@@ -3,7 +3,7 @@ keywords:
   qnn
 arch: vit
 recipes:
-  - file: "sam_vision_encoder_qnn_w8a8.json"
+  - file: "sam_vision_encoder_qnn_w8a8_ctx.json"
     device:
     - npu
     ep: QNNExecutionProvider
@@ -18,7 +18,7 @@ recipes:
     - npu
     ep: QNNExecutionProvider
 
-  - file: "sam_mask_decoder_qnn_fp16.json"
+  - file: "sam_mask_decoder_qnn_fp16_ctx.json"
     devices:
     - npu
     ep: QNNExecutionProvider
