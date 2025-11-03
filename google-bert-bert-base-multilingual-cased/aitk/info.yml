@@ -20,6 +20,9 @@ recipes:
     - file: "bert-base-multilingual-cased_dml.json"
       device: gpu
       ep: DmlExecutionProvider
+    - file: "bert-base-multilingual-cased_migraphx.json"
+      device: gpu
+      ep: MIGraphXExecutionProvider
 aitk:
     modelInfo:
         id: "huggingface/google-bert/bert-base-multilingual-cased"
