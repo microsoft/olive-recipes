@@ -3,12 +3,12 @@ keywords:
   qnn
 arch: hiera
 recipes:
-  - file: "sam21_mask_decoder_qnn.json"
+  - file: "sam21_mask_decoder_qnn_ctx.json"
     device:
     - npu
     ep: QNNExecutionProvider
 
-  - file: "sam21_vision_encoder_qnn.json"
+  - file: "sam21_vision_encoder_qnn_ctx.json"
     devices:
     - npu
     ep: QNNExecutionProvider

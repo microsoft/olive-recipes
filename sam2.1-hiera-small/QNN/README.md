@@ -19,7 +19,7 @@ Model compilation using QNN Execution Provider requires a Python environment wit
 pip install olive-ai onnxruntime-qnn torch torchvision transformers
 ```
 
-Replace `/path/to/qnn/env/bin` in [sam21_vision_encoder_qnn.json](sam21_vision_encoder_qnn.json) and [sam21_mask_decoder_qnn.json](sam21_mask_decoder_qnn.json) with the path to the directory containing your QNN environment's Python executable. This path can be found by running the following command in the environment:
+Replace `/path/to/qnn/env/bin` in [sam21_vision_encoder_qnn_ctx.json](sam21_vision_encoder_qnn_ctx.json) and [sam21_mask_decoder_qnn_ctx.json](sam21_mask_decoder_qnn_ctx.json) with the path to the directory containing your QNN environment's Python executable. This path can be found by running the following command in the environment:
 
 ```bash
 # Linux
@@ -42,12 +42,12 @@ Activate the **Quantization Python Environment** and run the workflow:
 
 For Encoder Model:
 ```bash
-olive run --config sam21_vision_encoder_qnn.json
+olive run --config sam21_vision_encoder_qnn_ctx.json
 ```
 
 For Decoder Model:
 ```bash
-olive run --config sam21_mask_decoder_qnn.json
+olive run --config sam21_mask_decoder_qnn_ctx.json
 ```
 
 > ⚠️ If optimization fails during context binary generation, rerun the command. The process will resume from the last completed step.

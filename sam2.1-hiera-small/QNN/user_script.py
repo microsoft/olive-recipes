@@ -104,7 +104,7 @@ def md_data_loader(dataset, batch_size, *args, **kwargs):
 
 def ve_generate_quant_data(num_samples):
     p = Path(ModelConfig.data_dir)
-    if p.is_dir() and (len(p.glob("*images.npz")) >= num_samples):
+    if p.is_dir() and (len([f for f in p.glob("*images.npz")]) >= num_samples):
         return
 
     processor = Sam2Processor.from_pretrained(ModelConfig.model_name)
