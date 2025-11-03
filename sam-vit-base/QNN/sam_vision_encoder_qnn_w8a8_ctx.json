@@ -104,6 +104,7 @@
             "provider_options": {
                 "htp_performance_mode": "burst",
                 "htp_graph_finalization_optimization_mode": "3",
+                "offload_graph_io_quantization": "0",
                 "soc_model": "60"
             },
             "weight_sharing": false

@@ -164,7 +164,7 @@ def sam_mask_decoder_load(model_name):
 
 def ve_generate_quant_data(num_samples):
     p = Path(ModelConfig.data_dir)
-    if p.is_dir() and (len(p.glob("*images.npz")) >= num_samples):
+    if p.is_dir() and (len([f for f in p.glob("*images.npz")]) >= num_samples):
         return
 
     processor = SamProcessor.from_pretrained(ModelConfig.model_name)
@@ -182,7 +182,7 @@ def ve_generate_quant_data(num_samples):
 
 def md_generate_quant_data(num_samples):
     p = Path(ModelConfig.data_dir)
-    if p.is_dir() and (len(p.glob("*points.npz")) >= num_samples):
+    if p.is_dir() and (len([f for f in p.glob("*points.npz")]) >= num_samples):
         return
 
     model = SamModel.from_pretrained(ModelConfig.model_name).to(device)
