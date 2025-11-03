@@ -8,6 +8,9 @@ recipes:
     - file: "resnet_qdq_amd.json"
       device: npu
       ep: VitisAIExecutionProvider
+    - file: "resnet_migraphx.json"
+      device: gpu
+      ep: MIGraphXExecutionProvider
     - file: "resnet_context_ov_static.json"
       devices:
         - npu
@@ -23,7 +26,7 @@ recipes:
 aitk:
     modelInfo:
         id: "huggingface/microsoft/resnet-50"
-        version: 3
+        version: 4
         architecture: CNN
         displayName: "Microsoft/ResNet-50"
         p0: true

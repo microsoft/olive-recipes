@@ -1,0 +1,6 @@
+keywords:
+  - mixed-precision
+arch: qwen2
+devices:
+  - gpu
+name: Qwen-Qwen2.5-1.5B-Instruct

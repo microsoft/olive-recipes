@@ -112,10 +112,7 @@
                 "GroupQueryAttention",
                 "MatMulNBits"
             ],
-            "save_as_external_data": true,
-            "extra_option": {
-                "CalibStridedMinMax": 4
-            }
+            "save_as_external_data": true
         },
         "sp": {
             "type": "SplitModel"
