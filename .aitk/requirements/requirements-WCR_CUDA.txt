@@ -56,8 +56,8 @@ multiprocess==0.70.16
 nest-asyncio==1.6.0
 networkx==3.5
 numpy==2.2.4
-# olive-ai==0.9.3
-olive-ai==0.9.3
+# olive-ai==0.10.0
+olive-ai==0.10.0
 # onnx==1.17.0
 onnx==1.17.0
 onnx-ir==0.1.5

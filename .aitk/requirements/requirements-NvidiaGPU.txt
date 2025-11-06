@@ -34,8 +34,8 @@ multidict==6.6.4
 multiprocess==0.70.16
 networkx==3.4.2
 numpy==2.2.4
-# olive-ai==0.9.3
-olive-ai==0.9.3
+# olive-ai==0.10.0
+olive-ai==0.10.0
 # onnx==1.17.0
 onnx==1.17.0
 onnx-ir==0.1.5

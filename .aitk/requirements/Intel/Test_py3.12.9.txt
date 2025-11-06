@@ -29,8 +29,8 @@ ninja==1.11.1.4
 # nncf==2.16.0
 nncf==2.16.0
 numpy==1.26.4
-# olive-ai==0.9.3
-olive-ai==0.9.3
+# olive-ai==0.10.0
+olive-ai==0.10.0
 # onnx==1.17.0
 onnx==1.17.0
 onnx-ir==0.1.5
