@@ -1,6 +1,6 @@
 # TIMM Model Optimization (Quantization)
 
-This folder contains examples of **TIMM (PyTorch Image Models) optimization** using **Olive workflows**, focusing on **ONNX quantization** with AMD Quark ONNX quantizer.
+This folder contains examples of **TIMM (PyTorch Image Models) optimization** using **Olive workflows**, focusing on **ONNX quantization** with QuarkQuantization pass.
 
 ## **Optimization Workflow**
 
