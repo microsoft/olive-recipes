@@ -34,6 +34,7 @@ oliveAi = (
     "olive-ai==0.10.0"
 )
 torchVision = "torchvision==0.22.0"
+# TODO it is an example
 amdQuark = "AMD__Quark_py3.10.17"
 
 
