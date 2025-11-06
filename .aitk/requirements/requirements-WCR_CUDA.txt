@@ -60,10 +60,10 @@ numpy==2.2.4
 olive-ai==0.10.0
 # onnx==1.17.0
 onnx==1.17.0
-onnx-ir==0.1.5
+onnx-ir==0.1.10
 onnxruntime-genai-winml==0.10.0
 onnxruntime-winml==1.23.0.dev2025091008
-onnxscript==0.3.2
+onnxscript==0.5.3
 # optimum==1.26.0
 optimum==1.26.0
 optuna==4.2.1

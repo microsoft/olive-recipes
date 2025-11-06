@@ -37,10 +37,10 @@ numpy==2.2.4
 # olive-ai==0.10.0
 olive-ai==0.10.0
 onnx==1.17.0
-onnx-ir==0.1.5
+onnx-ir==0.1.10
 # onnxruntime-qnn==1.21.1
 onnxruntime-qnn==1.21.1
-onnxscript==0.3.2
+onnxscript==0.5.3
 optuna==4.2.1
 packaging==24.2
 pandas==2.2.3
