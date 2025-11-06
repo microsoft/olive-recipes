@@ -269,6 +269,7 @@ def get_qdq_pipeline(model_dir, common_args, qdq_args, script_dir):
     sess_options = ort.SessionOptions()
     add_ep_for_device(sess_options, provider_map[provider][0], provider_map[provider][1])
 
+    # Official OnnxStableDiffusionPipeline also works
     pipeline = OnnxStableDiffusionPipelineWithSave.from_pretrained(
         model_dir, sess_options=sess_options, provider_options=provider_options
     )
