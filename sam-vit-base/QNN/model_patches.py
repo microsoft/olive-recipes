@@ -356,7 +356,7 @@ class ModSamPromptEncoder(nn.Module):
             point_embedding + self.model.point_embed[1].weight[None, None, :, :],
             point_embedding,
         )
-        
+
         point_embedding = torch.where(
             (labels == 2)[:, :, :, None],
             point_embedding + self.model.point_embed[2].weight[None, None, :, :],
