@@ -43,7 +43,7 @@ class ZipManager:
         self.zip_path = zip_path
         self.zip_file = None
         self.is_open = False
-        
+
     def open(self):
         """Manually open ZIP file"""
         if self.zip_path and Path(self.zip_path).exists() and not self.is_open:
@@ -56,7 +56,7 @@ class ZipManager:
                 print(f"Error opening ZIP: {e}")
                 return False
         return False
-    
+
     def close(self):
         """Manually close ZIP file"""
         if self.is_open and self.zip_file:
@@ -66,7 +66,7 @@ class ZipManager:
                 print(f"Closed ZIP: {self.zip_path}")
             except Exception as e:
                 print(f"Error closing ZIP: {e}")
-    
+
     def read_file(self, filename):
         """Read file from ZIP"""
         if not self.is_open:
@@ -80,7 +80,7 @@ class ZipManager:
         except Exception as e:
             print(f"Error reading {filename}: {e}")
             return None
-    
+
     def load_image(self, filename):
         """Load PIL Image from ZIP"""
         image_data = self.read_file(filename)
@@ -90,11 +90,11 @@ class ZipManager:
             except Exception as e:
                 print(f"Error creating image from {filename}: {e}")
         return None
-    
+
     def __enter__(self):
         self.open()
         return self
-    
+
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.close()
 
@@ -153,7 +153,7 @@ def prepare_calibration_data(dataloader: list[list[str]], init_steps: int, colla
 def get_coco_cn(target_folder, split="train") -> list[list[str]]:
     if not target_folder.exists():
         """Extract tar.gz files from a Hugging Face dataset"""
-        
+
         # Download only the tar.gz file
         print("Downloading coco-cn-version1805v1.1.tar.gz...")
         tar_path = hf_hub_download(
@@ -161,12 +161,12 @@ def get_coco_cn(target_folder, split="train") -> list[list[str]]:
             filename="coco-cn-version1805v1.1.tar.gz",
             repo_type="dataset"
         )
-        
+
         # Extract the tar.gz file
         print(f"Extracting to {target_folder}...")
         with tarfile.open(tar_path, 'r:gz') as tar:
             tar.extractall(path=target_folder)
-            
+
         print("Extraction completed!")
 
     with open(target_folder / "coco-cn-version1805v1.1" / f"coco-cn_{split}.txt", "r", encoding="utf-8") as f:
