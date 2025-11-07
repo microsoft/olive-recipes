@@ -30,6 +30,8 @@ Then download and generate data:
 1. `olive run --config whisper_large_v3_turbo_encoder_qdq.json`
 2. `olive run --config whisper_large_v3_turbo_decoder_qdq.json`
 
+(Optional) Use whisper_large_v3_turbo_encoder_qdq_ctx.json and whisper_large_v3_turbo_decoder_qdq_ctx.json to create onnx models with QNN context binaries embedded in them.
+
 ### Evaluation
 
 Evaluate model using the librispeech test-clean dataset
