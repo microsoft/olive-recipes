@@ -48,6 +48,7 @@
             "reuse_cache": true,
             "genai_config_override": {
                 "model": {
+                    "context_length": 4224,
                     "decoder": {
                         "session_options": {
                             "provider_options": [
@@ -55,12 +56,15 @@
                                     "OpenVINO": {
                                         "device_type": "NPU",
                                         "enable_causallm": "True",
-                                        "load_config": "{\"NPU\":{\"MAX_PROMPT_LEN\":\"3072\",\"MIN_RESPONSE_LEN\":\"1024\"}}"
+                                        "load_config": "{\"NPU\":{\"MAX_PROMPT_LEN\":\"4096\",\"MIN_RESPONSE_LEN\":\"128\"}}"
                                     }
                                 }
                             ]
                         }
                     }
+                },
+                "search": {
+                    "max_length": 4224
                 }
             }
         }
