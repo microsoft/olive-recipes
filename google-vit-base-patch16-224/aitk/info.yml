@@ -23,9 +23,6 @@ recipes:
     - file: "vit-base-patch16-224_migraphx.json"
       device: gpu
       ep: MIGraphXExecutionProvider
-    - file: "vit-base-patch16-224_qnn_gpu.json"
-      device: gpu
-      ep: QNNExecutionProvider
 aitk:
     modelInfo:
         id: "huggingface/google/vit-base-patch16-224"

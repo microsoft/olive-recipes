@@ -1,7 +1,7 @@
 {
     "input_model": {
         "type": "HfModel",
-        "model_path": "openai/clip-vit-base-patch16",
+        "model_path": "openai/clip-vit-base-patch32",
         "task": "zero-shot-image-classification",
         "load_kwargs": {
             "attn_implementation": "eager"
@@ -72,44 +72,11 @@
             ]
         }
     },
-    "data_configs": [
-        {
-            "name": "quant_data_config",
-            "user_script": "user_script.py",
-            "load_dataset_config": {
-                "type": "clip_dataset",
-                "model_name": "openai/clip-vit-base-patch16",
-                "dataset_name": "nlphuji/flickr30k",
-                "start": 0,
-                "length": 100
-            },
-            "dataloader_config": {
-                "type": "no_auto_batch_dataloader"
-            }
-        },
-        {
-            "name": "metric_data_config",
-            "user_script": "user_script.py",
-            "load_dataset_config": {
-                "type": "clip_dataset",
-                "model_name": "openai/clip-vit-base-patch16",
-                "dataset_name": "nlphuji/flickr30k",
-                "start": 100,
-                "length": 100
-            },
-            "dataloader_config": {
-                "type": "no_auto_batch_dataloader"
-            },
-            "post_process_data_config": {
-                "type": "clip_post_process"
-            }
-        }
-    ],
     "passes": {
         "conversion": {
             "type": "OnnxConversion",
             "target_opset": 20,
-            "save_as_external_data": true
+            "save_as_external_data": false
         },
         "surgery": {
             "type": "GraphSurgeries",
@@ -127,6 +94,6 @@
     "evaluate_input_model": false,
     "target": "target_system",
     "clean_cache": false,
-    "output_dir": "model/clip_qnn",
+    "output_dir": "output",
     "cache_dir": "cache"
 }

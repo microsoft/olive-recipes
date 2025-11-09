@@ -23,9 +23,6 @@ recipes:
     - file: "bert-base-multilingual-cased_migraphx.json"
       device: gpu
       ep: MIGraphXExecutionProvider
-    - file: "bert-base-multilingual-cased_qnn_gpu.json"
-      device: gpu
-      ep: QNNExecutionProvider
 aitk:
     modelInfo:
         id: "huggingface/google-bert/bert-base-multilingual-cased"

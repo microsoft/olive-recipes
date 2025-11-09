@@ -8,6 +8,6 @@ recipes:
     - file: "resnet_qnn_fp32_ctx.json"
       device: npu
       ep: QNNExecutionProvider
-    - file: "resnet_qnn_fp32_gpu.json"
+    - file: "resnet_qnn_gpu.json"
       device: gpu
       ep: QNNExecutionProvider

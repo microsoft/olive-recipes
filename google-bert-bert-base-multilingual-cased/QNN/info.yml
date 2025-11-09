@@ -1,0 +1,7 @@
+keywords:
+    QNN
+arch: bert
+recipes:
+    - file: "config_qnn_gpu.json"
+      device: gpu
+      ep: QNNExecutionProvider

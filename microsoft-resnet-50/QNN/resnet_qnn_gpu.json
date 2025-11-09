@@ -15,29 +15,13 @@
             "accelerators": [ { "device": "gpu", "execution_providers": [ "QNNExecutionProvider" ] } ]
         }
     },
-    "data_configs": [
-        {
-            "name": "quantize_data_config",
-            "type": "HuggingfaceContainer",
-            "user_script": "imagenet.py",
-            "load_dataset_config": {
-                "data_name": "imagenet-1k",
-                "split": "validation",
-                "streaming": true,
-                "trust_remote_code": true
-            },
-            "pre_process_data_config": { "type": "dataset_pre_process", "size": 256, "cache_key": "imagenet" },
-            "post_process_data_config": { "type": "imagenet_post_fun" }
-        }
-    ],
     "passes": {
         "conversion": { "device": "cpu", "type": "OnnxConversion", "target_opset": 20 },
         "add_metadata": { "type": "AddOliveMetadata", "graph_name": "resnet-50" }
     },
     "host": "qnn_system",
     "target": "qnn_system",
-    "output_dir": "models/resnet_fp32",
+    "output_dir": "output",
     "evaluate_input_model": false,
-    "clean_cache": false,
-    "cache_dir": "cache/resnet"
+    "cache_dir": "cache"
 }
