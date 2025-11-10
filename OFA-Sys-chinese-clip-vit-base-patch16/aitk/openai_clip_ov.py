@@ -188,16 +188,21 @@ def get_coco_cn(target_folder, split="train") -> list[list[str]]:
 def conceptual_captions_dataset(data_name, opt_init_steps=200, **kwargs):
     """Prepare a vision-text dataset for quantization."""
     if data_name != "AIMClab-RUC/COCO-CN":
-        raise ValueError(f"Unsupported data_name: {data_name}")
+        raise ValueError(
+            f"Unsupported value for 'data_name': {data_name}. Only 'AIMClab-RUC/COCO-CN' is supported for this dataset."
+        )
     if COCO_VAL2014_PATH is None or COCO_TRAIN2014_PATH is None:
-        raise ValueError("COCO_VAL2014_PATH and COCO_TRAIN2014_PATH must be set to the zip file paths of MS-COCO dataset.")
+        raise ValueError(
+            "Missing required MS-COCO dataset zip file paths: 'COCO_VAL2014_PATH' and/or 'COCO_TRAIN2014_PATH' are not set. "
+            "Please set both variables to the correct zip file paths before loading the dataset."
+        )
 
     coco_cn = get_coco_cn(COCO_CN_CACHE_FOLDER)
 
     model_path = kwargs.get("model_path")
     if not model_path:
         raise ValueError(
-            "The 'model_path' parameter is required in data_configs.load_dataset_config but was not provided."
+            "Missing required parameter: 'model_path'. Please provide the path to the pretrained ChineseCLIP model in 'data_configs.load_dataset_config'."
         )
     model = ChineseCLIPModel.from_pretrained(model_path)
     processor = ChineseCLIPProcessor.from_pretrained(model_path)
