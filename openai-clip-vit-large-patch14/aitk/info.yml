@@ -1,0 +1,30 @@
+keywords:
+    aitk
+arch: clip
+recipes:
+    - file: "openai_clip_qnn.json"
+      device: npu
+      ep: QNNExecutionProvider
+    - file: "openai_clip_qdq_amd.json"
+      device: npu
+      ep: VitisAIExecutionProvider
+    - file: "openai_clip_ov.json"
+      devices:
+        - npu
+        - cpu
+        - gpu
+      ep: OpenVINOExecutionProvider
+    - file: "openai_clip_trtrtx.json"
+      device: gpu
+      ep: NvTensorRTRTXExecutionProvider
+    - file: "openai_clip_dml.json"
+      device: gpu
+      ep: DmlExecutionProvider
+    - file: "openai_clip_migraphx.json"
+      device: gpu
+      ep: MIGraphXExecutionProvider
+aitk:
+    modelInfo:
+        id: "huggingface/openai/clip-vit-large-patch14"
+        version: 1
+        p0: false

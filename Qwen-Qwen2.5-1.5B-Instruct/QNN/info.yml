@@ -1,8 +1,18 @@
 keywords:
     foundry-local
     qnn
-ep:
-    QNNExecutionProvider
-device:
-    npu
+arch: qwen2
+recipes:
+    - file: "config.json"
+      devices:
+        - npu
+      ep: QNNExecutionProvider
+    - file: "config_gpu.json"
+      devices:
+        - gpu
+      ep: QNNExecutionProvider
+    - file: "config_gpu_ctxbin.json"
+      devices:
+        - gpu
+      ep: QNNExecutionProvider
 name: qwen2.5-1.5b-instruct
