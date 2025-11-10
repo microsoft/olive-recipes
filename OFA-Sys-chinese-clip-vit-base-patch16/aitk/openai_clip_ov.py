@@ -254,6 +254,12 @@ class CLIPDataset(Dataset):
         self.cocoTrain.open()
         assert self.cocoTrain.is_open
 
+    def __del__(self):
+        # Ensure ZIP files are closed when the object is deleted
+        if hasattr(self, "cocoVal") and self.cocoVal is not None:
+            self.cocoVal.close()
+        if hasattr(self, "cocoTrain") and self.cocoTrain is not None:
+            self.cocoTrain.close()
     def __len__(self):
         return self.length
 
