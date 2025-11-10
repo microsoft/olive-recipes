@@ -1,35 +1,61 @@
 {
     "input_model": {
         "type": "HfModel",
-        "model_path": "google-bert/bert-base-multilingual-cased",
-        "task": "feature-extraction",
+        "model_path": "laion/CLIP-ViT-B-32-laion2B-s34B-b79K",
+        "task": "zero-shot-image-classification",
+        "load_kwargs": {
+            "attn_implementation": "eager"
+        },
         "io_config": {
             "input_names": [
                 "input_ids",
-                "attention_mask",
-                "token_type_ids"
+                "pixel_values",
+                "attention_mask"
             ],
             "input_shapes": [
                 [
-                    1,
-                    128
+                    10,
+                    77
                 ],
                 [
                     1,
-                    128
+                    3,
+                    224,
+                    224
                 ],
                 [
-                    1,
-                    128
+                    10,
+                    77
                 ]
             ],
             "input_types": [
                 "int64",
-                "int64",
+                "float32",
                 "int64"
             ],
             "output_names": [
-                "last_hidden_state"
+                "logits_per_image",
+                "logits_per_text",
+                "text_embeds",
+                "image_embeds"
+            ],
+            "output_shapes": [
+                [
+                    1,
+                    10
+                ],
+                [
+                    10,
+                    1
+                ],
+                [
+                    10,
+                    512
+                ],
+                [
+                    1,
+                    512
+                ]
             ]
         }
     },
@@ -56,10 +82,11 @@
             "type": "GraphSurgeries",
             "surgeries": [
                 {
-                    "surgeon": "ReplaceAttentionMaskValue"
+                    "surgeon": "MatMulAddToGemm"
                 },
                 {
-                    "surgeon": "MatMulAddToGemm"
+                    "surgeon": "ReplaceAttentionMaskValue",
+                    "replacement": -50.0
                 }
             ]
         }
@@ -67,5 +94,6 @@
     "target": "target_system",
     "cache_dir": "cache",
     "output_dir": "output",
-    "evaluate_input_model": false
+    "evaluate_input_model": false,
+    "clean_cache": true
 }

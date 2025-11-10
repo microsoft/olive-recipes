@@ -91,9 +91,9 @@
             ]
         }
     },
-    "evaluate_input_model": false,
     "target": "target_system",
-    "clean_cache": false,
+    "cache_dir": "cache",
     "output_dir": "output",
-    "cache_dir": "cache"
+    "evaluate_input_model": false,
+    "clean_cache": true
 }

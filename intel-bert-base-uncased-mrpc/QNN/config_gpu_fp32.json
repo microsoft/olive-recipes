@@ -1,23 +1,10 @@
 {
     "input_model": {
         "type": "HfModel",
-        "model_path": "google/vit-base-patch16-224",
-        "task": "image-classification",
-        "io_config": {
-            "input_names": [
-                "pixel_values"
-            ],
-            "input_shapes": [
-                [
-                    1,
-                    3,
-                    224,
-                    224
-                ]
-            ],
-            "output_names": [
-                "logits"
-            ]
+        "model_path": "Intel/bert-base-uncased-mrpc",
+        "task": "text-classification",
+        "load_kwargs": {
+            "attn_implementation": "eager"
         }
     },
     "systems": {
@@ -39,9 +26,26 @@
             "target_opset": 20,
             "save_as_external_data": false
         },
+        "onnx_simplify": {
+            "type": "OnnxPeepholeOptimizer"
+        },
+        "dynamic_shape_to_fixed": {
+            "type": "DynamicToFixedShape",
+            "dim_param": [
+                "batch_size",
+                "sequence_length"
+            ],
+            "dim_value": [
+                1,
+                128
+            ]
+        },
         "surgery": {
             "type": "GraphSurgeries",
             "surgeries": [
+                {
+                    "surgeon": "ReplaceAttentionMaskValue"
+                },
                 {
                     "surgeon": "MatMulAddToGemm"
                 }
@@ -49,7 +53,8 @@
         }
     },
     "target": "target_system",
+    "cache_dir": "cache",
     "output_dir": "output",
     "evaluate_input_model": false,
-    "cache_dir": "cache"
+    "clean_cache": true
 }

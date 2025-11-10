@@ -26,7 +26,7 @@ pip uninstall olive-ai
 To run the config:
 
 ```bash
-olive run --config resnet_qnn_gpu.json
+olive run --config config_gpu_fp32.json
 ```
 
 ✅ Optimized model saved in: `output/`
