@@ -4,7 +4,7 @@ This folder contains examples of **TIMM (PyTorch Image Models) optimization** us
 
 ## **Optimization Workflow**
 
-This example optimizes `timm/mobilenetv3_small_100.lamb_in1k` for **CPU execution** by:
+This example optimizes `timm/mobilenetv3_small_100.lamb_in1k` for **CPU or NPU execution** by:
 - *Converting PyTorch model to ONNX*
 - *Applying ONNX quantization*
 

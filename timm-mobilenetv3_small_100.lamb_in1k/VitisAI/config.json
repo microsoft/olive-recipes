@@ -11,6 +11,16 @@
             "dynamic_axes": { "x": { "0": "batch_size" }, "output": { "0": "batch_size" } }
         }
     },
+    "systems": {
+        "host_system": {
+            "type": "LocalSystem",
+            "accelerators": [ { "device": "cpu", "execution_providers": [ "CPUExecutionProvider" ] } ]
+        },
+        "target_system": {
+            "type": "LocalSystem",
+            "accelerators": [ { "device": "npu", "execution_providers": [ "VitisAIExecutionProvider" ] } ]
+        }
+    },
     "passes": {
         "conversion": {
             "type": "OnnxConversion",
