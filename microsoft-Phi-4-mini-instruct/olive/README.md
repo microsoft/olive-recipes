@@ -16,10 +16,17 @@ To run the mixed precision quantization recipe, execute the following command:
 olive run --config mixed.json
 ```
 
-**Note**: Evaluation requires a machine with CUDA enabled GPU. If you don't have a GPU, you can skip the evaluation step by modifying the `mixed.json` file to remove the `"evaluator": "evaluator"` line.
+To run the mixed precision quantization with embedding quantization and weight tying, execute the following command:
+
+```bash
+olive run --config mixed-tied.json
+```
+
+**Note**: Evaluation requires a machine with CUDA enabled GPU. If you don't have a GPU, you can skip the evaluation step by modifying the config json file to remove the `"evaluator": "evaluator"` line.
 
 ## Results
 | model           | arc_challenge | arc_easy | mmlu  | hellaswag | mmlu_stem | openbookqa | model_size_gb |
 |-----------------|---------------|----------|-------|-----------|-----------|------------|---------------|
 | Original (fp16) | 0.585         | 0.803    | 0.669 | 0.728     | 0.598     | 0.426      | 8.314         |
 | Mixed           | 0.593         | 0.801    | 0.664 | 0.721     | 0.592     | 0.424      | 3.844         |
+| Mixed Tied      | 0.578         | 0.806    | 0.649 | 0.721     | 0.594     | 0.426      | 3.285         |
