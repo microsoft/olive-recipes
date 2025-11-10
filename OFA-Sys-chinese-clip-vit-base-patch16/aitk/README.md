@@ -1,10 +1,10 @@
-# Openai Clip optimization
+# Chinese CLIP optimization
 
-This folder contains examples of Openai Clip optimization using different workflows.
+This folder contains examples of Chinese CLIP optimization using different workflows.
 
 - OpenVINO for Intel® CPU/GPU/NPU
 
-## Openai Clip optimization with OpenVINO
+## Chinese CLIP optimization with OpenVINO
 
 This workflow performs quantization with OpenVINO NNCF. It performs the optimization pipeline:
 
