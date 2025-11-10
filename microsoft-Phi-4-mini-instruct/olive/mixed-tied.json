@@ -1,0 +1,62 @@
+{
+    "input_model": {
+        "type": "HfModel",
+        "model_path": "microsoft/Phi-4-mini-instruct"
+    },
+    "systems": {
+        "local_system": {
+            "type": "LocalSystem",
+            "accelerators": [ { "execution_providers": [ "CUDAExecutionProvider" ] } ]
+        }
+    },
+    "evaluators": {
+        "evaluator": {
+            "type": "LMEvaluator",
+            "tasks": [ "arc_challenge", "arc_easy", "mmlu", "hellaswag", "mmlu_stem", "openbookqa" ],
+            "batch_size": 32,
+            "provider_options": { "enable_skip_layer_norm_strict_mode": "1" }
+        }
+    },
+    "passes": {
+        "s": {
+            "type": "SelectiveMixedPrecision",
+            "algorithm": "k_quant_mixed"
+        },
+        "g": {
+            "type": "gptq",
+            "bits": 4,
+            "sym": false,
+            "group_size": 32
+        },
+        "r": {
+            "type": "rtn",
+            "bits": 8,
+            "sym": false,
+            "group_size": 32,
+            "lm_head": true,
+            "embeds": true
+        },
+        "m": {
+            "type": "OnnxConversion",
+            "torch_dtype": "float16",
+            "save_metadata_for_token_generation": true
+        },
+        "wt": {
+            "type": "GraphSurgeries",
+            "surgeries": [ { "surgeon": "TieWordEmbeddings" } ],
+            "save_as_external_data": true
+        },
+        "mb": {
+            "type": "ModelBuilder",
+            "precision": "int",
+            "metadata_only": true
+        }
+    },
+    "evaluator": "evaluator",
+    "evaluate_input_model": false,
+    "target": "local_system",
+    "log_severity_level": 0,
+    "output_dir": "models2/qwen2.5-1.5b-mixed-tied",
+    "cache_dir": "cache",
+    "no_artifacts": true
+}
