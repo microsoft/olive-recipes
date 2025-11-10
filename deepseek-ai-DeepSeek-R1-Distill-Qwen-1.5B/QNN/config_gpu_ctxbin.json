@@ -1,7 +1,7 @@
 {
     "input_model": {
         "type": "OnnxModel",
-        "model_path": "/path/to/model/onnx"
+        "model_path": "models\\deepseek-R1_1.5b\\model"
     },
     "systems": {
         "qnn_system": {
@@ -22,7 +22,7 @@
         }
     },
     "target": "qnn_system",
-    "output_dir": "/path/to/model",
+    "output_dir": "models\\deepseek-R1_1.5b_ctxbin",
     "cache_dir": "cache",
     "no_artifacts": false
 }
