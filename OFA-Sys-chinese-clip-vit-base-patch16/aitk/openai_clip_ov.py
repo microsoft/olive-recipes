@@ -115,37 +115,32 @@ def prepare_calibration_data(dataloader: list[list[str]], init_steps: int, colla
 
     Iterate over the dataloader, fetching batches and storing the relevant data.
     """
-    cocoVal = ZipManager(COCO_VAL2014_PATH)
-    cocoVal.open()
-    cocoTrain = ZipManager(COCO_TRAIN2014_PATH)
-    cocoTrain.open()
-    data = []
-    with tqdm(total=init_steps) as pbar:
-        for imageId, caption in dataloader:
-            image = None
-            if cocoVal.is_open and imageId.startswith("COCO_val2014_"):
-                image = cocoVal.load_image("val2014/" + imageId + ".jpg")
-            elif cocoTrain.is_open and imageId.startswith("COCO_train2014_"):
-                image = cocoTrain.load_image("train2014/" + imageId + ".jpg")
-            if image is None:
-                continue
-            # print(f"Processing image {imageId} with caption: {caption}")
-            batch = collate_fn(image, caption)
-            if batch:
-                pbar.update(1)
-                with torch.no_grad():
-                    data.append(
-                        {
-                            "input_ids": batch["input_ids"].to("cpu"),
-                            "pixel_values": batch["pixel_values"].to("cpu"),
-                            "attention_mask": batch["attention_mask"].to("cpu"),
-                        }
-                    )
-                    if len(data) == init_steps:
-                        break
-    cocoVal.close()
-    cocoTrain.close()
-    return data
+    with ZipManager(COCO_VAL2014_PATH) as cocoVal, ZipManager(COCO_TRAIN2014_PATH) as cocoTrain:
+        data = []
+        with tqdm(total=init_steps) as pbar:
+            for imageId, caption in dataloader:
+                image = None
+                if cocoVal.is_open and imageId.startswith("COCO_val2014_"):
+                    image = cocoVal.load_image("val2014/" + imageId + ".jpg")
+                elif cocoTrain.is_open and imageId.startswith("COCO_train2014_"):
+                    image = cocoTrain.load_image("train2014/" + imageId + ".jpg")
+                if image is None:
+                    continue
+                # print(f"Processing image {imageId} with caption: {caption}")
+                batch = collate_fn(image, caption)
+                if batch:
+                    pbar.update(1)
+                    with torch.no_grad():
+                        data.append(
+                            {
+                                "input_ids": batch["input_ids"].to("cpu"),
+                                "pixel_values": batch["pixel_values"].to("cpu"),
+                                "attention_mask": batch["attention_mask"].to("cpu"),
+                            }
+                        )
+                        if len(data) == init_steps:
+                            break
+        return data
 
 
 # Return [id, caption] pairs
