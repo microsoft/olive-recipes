@@ -201,8 +201,8 @@ def conceptual_captions_dataset(data_name, opt_init_steps=200, **kwargs):
 
     model_path = kwargs.get("model_path")
     if not model_path:
-        raise ValueError(
-            "Missing required parameter: 'model_path'. Please provide the path to the pretrained ChineseCLIP model in 'data_configs.load_dataset_config'."
+       raise ValueError(
+            "The 'model_path' parameter is required in data_configs.load_dataset_config but was not provided."
         )
     model = ChineseCLIPModel.from_pretrained(model_path)
     processor = ChineseCLIPProcessor.from_pretrained(model_path)
