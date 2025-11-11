@@ -1,3 +1,11 @@
+#
+# Modifications copyright(c) 2025 Advanced Micro Devices,Inc. All rights reserved.
+# SPDX-License-Identifier: MIT
+#
+# -------------------------------------------------------------------------
+# Copyright (c) Microsoft Corporation. All rights reserved.
+# Licensed under the MIT License.
+# --------------------------------------------------------------------------
 from collections import OrderedDict
 from functools import lru_cache
 from random import Random
