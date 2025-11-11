@@ -1,0 +1,48 @@
+arch:
+  - whisper
+recipes:
+  - file: "whisper_large_v3_turbo_encoder_fp32.json"
+    devices:
+        - cpu
+        - npu
+    eps:
+        - CPUExecutionProvider
+        - QNNExecutionProvider
+
+  - file: "whisper_large_v3_turbo_decoder_fp32.json"
+    devices:
+        - cpu
+        - npu
+    eps:
+        - CPUExecutionProvider
+        - QNNExecutionProvider
+
+  - file: "whisper_large_v3_turbo_encoder_qdq.json"
+    devices:
+        - cpu
+        - npu
+    eps:
+        - CPUExecutionProvider
+        - QNNExecutionProvider
+
+  - file: "whisper_large_v3_turbo_decoder_qdq.json"
+    devices:
+        - cpu
+        - npu
+    eps:
+        - CPUExecutionProvider
+        - QNNExecutionProvider
+
+  - file: "whisper_large_v3_turbo_encoder_qdq_ctx.json"
+    devices:
+        - npu
+    eps:
+        - QNNExecutionProvider
+
+  - file: "whisper_large_v3_turbo_decoder_qdq_ctx.json"
+    devices:
+        - npu
+    eps:
+        - QNNExecutionProvider
+
+name: openai-whisper-large-v3-turbo
