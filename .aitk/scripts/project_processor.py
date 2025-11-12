@@ -24,6 +24,8 @@ org_to_icon = {
     "Qwen": IconEnum.qwen,
     "meta-llama": IconEnum.Meta,
     "mistralai": IconEnum.mistralai,
+    # TODO add
+    "OFA-Sys": IconEnum.HuggingFace,
 }
 
 

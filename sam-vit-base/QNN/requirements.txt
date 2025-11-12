@@ -1,0 +1,7 @@
+datasets
+olive-ai
+onnx
+onnxruntime
+torch<2.9 #req onnx export dynamo default false
+torchvision<0.24.0 #req onnx export dynamo default false
+transformers

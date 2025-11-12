@@ -73,6 +73,7 @@
             "id": "huggingface/google-bert/bert-base-multilingual-cased",
             "runtimes": [
                 "QNN",
+                "QNNGPU",
                 "AMDNPU",
                 "AMDGPU",
                 "NvidiaTRTRTX",
@@ -427,6 +428,22 @@
             "version": 3
         },
         {
+            "displayName": "OFA-Sys/chinese-clip-vit-base-patch16",
+            "icon": "HuggingFace",
+            "modelLink": "https://huggingface.co/OFA-Sys/chinese-clip-vit-base-patch16",
+            "id": "huggingface/OFA-Sys/chinese-clip-vit-base-patch16",
+            "runtimes": [
+                "IntelCPU",
+                "IntelGPU",
+                "IntelNPU"
+            ],
+            "architecture": "Transformer",
+            "status": "Ready",
+            "relativePath": "OFA-Sys-chinese-clip-vit-base-patch16/aitk",
+            "version": 1,
+            "p0": false
+        },
+        {
             "displayName": "openai/clip-vit-large-patch14",
             "icon": "OpenAI",
             "modelLink": "https://huggingface.co/openai/clip-vit-large-patch14",
@@ -641,7 +658,8 @@
         "nlphuji/flickr30k": "https://huggingface.co/datasets/nlphuji/flickr30k",
         "timm/mini-imagenet": "https://huggingface.co/datasets/timm/mini-imagenet",
         "wikipedia": "https://huggingface.co/datasets/wikimedia/wikipedia",
-        "google-research-datasets/conceptual_captions": "https://huggingface.co/datasets/google-research-datasets/conceptual_captions"
+        "google-research-datasets/conceptual_captions": "https://huggingface.co/datasets/google-research-datasets/conceptual_captions",
+        "AIMClab-RUC/COCO-CN": "https://huggingface.co/datasets/AIMClab-RUC/COCO-CN"
     },
     "LoginRequiredDatasets": [
         "imagenet-1k"
