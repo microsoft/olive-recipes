@@ -3,6 +3,7 @@
 This folder contains a sample use case of Olive to optimize a Phi-3-mini-instruct models using OpenVINO tools.
 
 - Intel® GPU: [Phi 3 mini 128k Instruct Dynamic Shape Model](https://huggingface.co/microsoft/Phi-3-mini-128k-instruct)
+- NVModelOptQuantization for NVIDIA TRT for RTX GPU
 
 ## Quantization Workflows
 

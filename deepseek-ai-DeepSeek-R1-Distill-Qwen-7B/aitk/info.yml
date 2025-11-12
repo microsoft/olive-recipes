@@ -17,6 +17,8 @@ recipes:
     - file: "deepseek_trtrtx.json"
       device: gpu
       ep: NvTensorRTRTXExecutionProvider
+      aitk:
+          oliveFile: "NvTensorRtRtx/DeepSeek-R1-Distill-Qwen-7B_nvmo_int4_rtn.json"
 aitk:
     modelInfo:
         id: "huggingface/deepseek-ai/DeepSeek-R1-Distill-Qwen-7B"
