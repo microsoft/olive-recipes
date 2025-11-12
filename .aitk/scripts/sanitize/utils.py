@@ -33,7 +33,6 @@ class GlobalVars:
     licenseCheck = 0
     venvRequirementsCheck = set()
 
-    olivePath = None
     oliveCheck = 0
     RuntimeToEPName = {
         RuntimeEnum.CPU: EPNames.CPUExecutionProvider,
