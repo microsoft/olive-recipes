@@ -408,6 +408,7 @@
             "modelLink": "https://huggingface.co/mistralai/Mistral-7B-Instruct-v0.2",
             "id": "huggingface/mistralai/Mistral-7B-Instruct-v0.2",
             "runtimes": [
+                "NvidiaTRTRTX",
                 "IntelGPU",
                 "IntelNPU"
             ],
