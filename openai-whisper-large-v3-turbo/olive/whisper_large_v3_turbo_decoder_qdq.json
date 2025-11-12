@@ -1,0 +1,70 @@
+{
+    "input_model": {
+        "type": "PyTorchModel",
+        "model_path": "openai/whisper-large-v3-turbo",
+        "model_loader": "model_loader",
+        "model_script": "whisper_decoder_load.py",
+        "io_config": {
+            "input_names": ["input_ids",
+                            "attention_mask",
+                            "k_cache_self_0_in",
+                            "v_cache_self_0_in",
+                            "k_cache_self_1_in",
+                            "v_cache_self_1_in",
+                            "k_cache_self_2_in",
+                            "v_cache_self_2_in",
+                            "k_cache_self_3_in",
+                            "v_cache_self_3_in",
+                            "k_cache_cross_0",
+                            "v_cache_cross_0",
+                            "k_cache_cross_1",
+                            "v_cache_cross_1",
+                            "k_cache_cross_2",
+                            "v_cache_cross_2",
+                            "k_cache_cross_3",
+                            "v_cache_cross_3",
+                            "position_ids" ],
+            "output_names": ["logits",
+                            "k_cache_self_0_out",
+                            "v_cache_self_0_out",
+                            "k_cache_self_1_out",
+                            "v_cache_self_1_out",
+                            "k_cache_self_2_out",
+                            "v_cache_self_2_out",
+                            "k_cache_self_3_out",
+                            "v_cache_self_3_out"]
+        },
+        "dummy_inputs_func": "generate_dummy_inputs"
+    },
+    "systems": {
+        "local_system": {
+            "type": "LocalSystem",
+            "accelerators": [ { "device": "cpu", "execution_providers": [ "CPUExecutionProvider" ] } ]
+        }
+    },
+    "data_configs": [
+        {
+            "name": "quantize_data_config",
+            "user_script": "whisper_decoder_load.py",
+            "load_dataset_config": { "type": "local_dataset" },
+            "dataloader_config": { "type": "decoder_data_loader",
+                                   "data_path": ".\\data\\quantization_data" }
+        }
+    ],
+    "passes": {
+        "convert": { "type": "OnnxConversion", "target_opset": 20 },
+        "quantization": {
+            "type": "OnnxStaticQuantization",
+            "data_config": "quantize_data_config",
+            "activation_type": "uint16",
+            "precision": "uint8",
+            "calibrate_method": "MinMax",
+            "quant_preprocess": true
+        }
+    },
+    "log_severity_level": 0,
+    "host": "local_system",
+    "target": "local_system",
+    "cache_dir": "cache",
+    "output_dir": "models/whisper_decoder_qdq"
+}

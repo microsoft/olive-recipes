@@ -93,7 +93,7 @@ def _rewrite(dirpath: Path, arch_table: List[str], device_table: List[str], ep_t
     lines = _merge_lines(lines, "<!-- begin_device_models -->", "<!-- end_device_models -->", device_table)
     lines = _merge_lines(lines, "<!-- begin_ep_models -->", "<!-- end_ep_models -->", ep_table)
 
-    content = "\n".join(lines)
+    content = "\n".join(lines) + "\n"
     readme_filepath = dirpath / "README.md"
     readme_filepath.write_text(content, encoding="utf-8")
 

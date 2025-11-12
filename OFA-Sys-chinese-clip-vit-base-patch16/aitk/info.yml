@@ -1,0 +1,15 @@
+keywords:
+    aitk
+arch: clip
+recipes:
+    - file: "openai_clip_ov.json"
+      devices:
+        - npu
+        - cpu
+        - gpu
+      ep: OpenVINOExecutionProvider
+aitk:
+    modelInfo:
+        id: "huggingface/OFA-Sys/chinese-clip-vit-base-patch16"
+        version: 1
+        p0: false

@@ -1,0 +1,11 @@
+audio2numpy==0.1.2
+evaluate==0.4.6
+hf-xet
+jiwer==3.0.3
+librosa==0.11.0
+olive-ai
+onnxruntime
+onnxruntime-qnn
+PySocks==1.7.1
+qai_hub_models==0.39.1
+sounddevice==0.5.2
