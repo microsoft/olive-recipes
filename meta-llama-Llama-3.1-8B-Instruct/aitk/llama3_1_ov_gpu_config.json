@@ -3,7 +3,7 @@
     "systems": {
         "local_system": {
             "type": "LocalSystem",
-            "accelerators": [ { "execution_providers": [ "OpenVINOExecutionProvider" ] } ]
+            "accelerators": [ { "device":"gpu", "execution_providers": [ "OpenVINOExecutionProvider" ] } ]
         }
     },
     "passes": {
@@ -35,9 +35,8 @@
         }
     },
     "search_strategy": false,
-    "host": "local_system",
+    "target": "local_system",
     "cache_dir": "cache",
-    "clean_cache": true,
     "evaluate_input_model": false,
-    "output_dir": "models/Llama-3.1-8B-Instruct_windowsML-ov-int4-GRw"
+    "output_dir": "model/Llama-3.1-8B-Instruct_windowsML-ov-int4-GRw"
 }

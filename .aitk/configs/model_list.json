@@ -18,7 +18,7 @@
             "architecture": "Transformer",
             "status": "Ready",
             "relativePath": "microsoft-Phi-3.5-mini-instruct/aitk",
-            "version": 3,
+            "version": 4,
             "p0": true
         },
         {
@@ -62,7 +62,7 @@
             "architecture": "Transformer",
             "status": "Ready",
             "relativePath": "deepseek-ai-DeepSeek-R1-Distill-Qwen-1.5B/aitk",
-            "version": 3,
+            "version": 4,
             "p0": true
         },
         {
@@ -167,7 +167,7 @@
             "architecture": "Transformer",
             "status": "Ready",
             "relativePath": "meta-llama-Llama-3.2-1B-Instruct/aitk",
-            "version": 3,
+            "version": 4,
             "p0": true
         },
         {
@@ -232,7 +232,7 @@
             "architecture": "Transformer",
             "status": "Ready",
             "relativePath": "Qwen-Qwen2.5-1.5B-Instruct/aitk",
-            "version": 3,
+            "version": 4,
             "p0": true
         },
         {
@@ -400,7 +400,7 @@
             "architecture": "Transformer",
             "status": "Ready",
             "relativePath": "meta-llama-Llama-3.1-8B-Instruct/aitk",
-            "version": 1,
+            "version": 2,
             "p0": false
         },
         {
