@@ -117,6 +117,7 @@ def main():
     shared_conversion = [
         "huggingface-hub[hf_xet]==0.34.4",
         # sticking to ONNX IR version 10 which can still be consumed by ORT v1.22.0
+        # TODO ort now supports IR version 11 onnx==1.18.0
         "onnx==1.17.0",
         oliveAi,
         "tabulate==0.9.0",
