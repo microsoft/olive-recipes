@@ -373,6 +373,7 @@
             "groupId": "huggingface/deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B",
             "groupItemName": "14B",
             "runtimes": [
+                "NvidiaTRTRTX",
                 "IntelGPU"
             ],
             "architecture": "Transformer",
