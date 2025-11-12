@@ -274,6 +274,7 @@
             "modelLink": "https://huggingface.co/microsoft/Phi-4",
             "id": "huggingface/microsoft/Phi-4",
             "runtimes": [
+                "NvidiaTRTRTX",
                 "IntelGPU"
             ],
             "architecture": "Transformer",
@@ -488,6 +489,7 @@
             "groupId": "huggingface/Qwen/Qwen2.5-1.5B-Instruct",
             "groupItemName": "0.5B",
             "runtimes": [
+                "NvidiaTRTRTX",
                 "IntelGPU",
                 "IntelNPU"
             ],
@@ -519,6 +521,7 @@
             "groupId": "huggingface/Qwen/Qwen2.5-1.5B-Instruct",
             "groupItemName": "7B",
             "runtimes": [
+                "NvidiaTRTRTX",
                 "IntelGPU",
                 "IntelNPU"
             ],
@@ -550,6 +553,7 @@
             "groupId": "huggingface/Qwen/Qwen2.5-Coder-1.5B-Instruct",
             "groupItemName": "0.5B",
             "runtimes": [
+                "NvidiaTRTRTX",
                 "IntelGPU",
                 "IntelNPU"
             ],
