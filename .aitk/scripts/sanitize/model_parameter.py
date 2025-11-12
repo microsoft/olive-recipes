@@ -587,7 +587,7 @@ class ModelParameter(BaseModelClass):
             if (
                 self.runtime
                 and self.runtime.displayNames
-                and self.runtime.displayNames[0] == GlobalVars.RuntimeToDisplayName[RuntimeEnum.DML]
+                and self.runtime.displayNames[0] in [GlobalVars.RuntimeToDisplayName[RuntimeEnum.DML], GlobalVars.RuntimeToDisplayName[RuntimeEnum.AMDGPU]]
             ):
                 return
             printWarning(f"{self._file} does not have oliveFile")
