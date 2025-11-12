@@ -44,8 +44,8 @@ onnxruntime-genai-cuda==0.7.0
 # onnxruntime-gpu==1.21.0
 onnxruntime-gpu==1.21.0
 onnxscript==0.5.3
-# optimum==1.26.0
-optimum==1.26.0
+# optimum==1.26.1
+optimum==1.26.1
 optuna==4.3.0
 packaging==24.2
 pandas==2.2.3
