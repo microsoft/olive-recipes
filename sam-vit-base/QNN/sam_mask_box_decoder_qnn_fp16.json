@@ -1,0 +1,84 @@
+{
+    "input_model": {
+        "type": "PyTorchModel",
+        "model_path": "facebook/sam-vit-base",
+        "model_loader": "sam_mask_box_decoder_load",
+        "model_script": "user_script.py",
+        "io_config": {
+            "input_names": [
+                "input_boxes",
+                "image_embeddings"
+            ],
+            "output_names": [
+                "iou_scores",
+                "pred_masks"
+            ]
+        },
+        "dummy_inputs_func": "mask_box_decoder_inputs"
+    },
+    "systems": {
+        "local_system": {
+            "type": "LocalSystem"
+        },
+        "target_system": {
+            "type": "LocalSystem",
+            "accelerators": [
+                {
+                    "execution_providers": [
+                        "QNNExecutionProvider"
+                    ]
+                }
+            ]
+        }
+    },
+    "data_configs": [
+        {
+            "name": "latency_data_config",
+            "user_script": "user_script.py",
+            "load_dataset_config": {
+                "type": "local_dataset"
+            },
+            "dataloader_config": {
+                "type": "mask_box_decoder_data_loader",
+                "batch_size": 1
+            }
+        }
+    ],
+    "evaluators": {
+        "common_evaluator": {
+            "metrics": [
+                {
+                    "name": "latency",
+                    "type": "latency",
+                    "data_config": "latency_data_config",
+                    "sub_types": [
+                        {
+                            "name": "avg",
+                            "priority": 1
+                        }
+                    ]
+                }
+            ]
+        }
+    },
+    "passes": {
+        "convert": {
+            "type": "OnnxConversion",
+            "config": {
+                "target_opset": 20,
+                "optimize": true,
+                "dynamic": false
+            }
+        },
+        "f16": {
+            "type": "OnnxFloatToFloat16",
+            "save_as_external_data": true
+        }
+    },
+    "log_severity_level": 0,
+    "evaluate_input_model": false,
+    "host": "local_system",
+    "target": "target_system",
+    "cache_dir": "cache_olive_mask_box_decoder_fp16",
+    "output_dir": "model/sam_olive_mask_box_decoder_fp16"
+}

@@ -579,9 +579,9 @@ class ModelParameter(BaseModelClass):
             printWarning(f"{self._file}'s olive json should have two data configs for evaluation")
 
     def checkOliveFile(self, oliveJson: Any, modelInfo: ModelInfo):
-        if not GlobalVars.olivePath:
-            return
         if modelInfo.extension:
+            return
+        if modelInfo.template:
             return
         if not self.oliveFile:
             if (
@@ -593,8 +593,16 @@ class ModelParameter(BaseModelClass):
             printWarning(f"{self._file} does not have oliveFile")
             return
 
-        with open_ex(os.path.join(GlobalVars.olivePath, "examples", self.oliveFile), "r") as file:
-            oliveFileJson = json.load(file)
+        if self._file:
+            # relative to aitk folder
+            oliveFile = Path(self._file).parent.parent / self.oliveFile
+            if not oliveFile.exists():
+                printWarning(f"{self._file}'s oliveFile {self.oliveFile} does not exist")
+                return
+            with open_ex(oliveFile, "r") as file:
+                oliveFileJson = json.load(file)
+        else:
+            raise Exception("Internal error: _file is not set")
 
         diff = DeepDiff(
             oliveFileJson[OlivePropertyNames.Passes],
@@ -635,7 +643,7 @@ class ModelParameter(BaseModelClass):
 
         if diff:
             path = Path(self._file if self._file else "UNKNOWN")
-            printError(f"{"/".join(path.parts[-3:])} different from {self.oliveFile}\r\n{diff}")
+            printWarning(f"{"/".join(path.parts[-3:])} different from {self.oliveFile}\r\n{diff}")
         GlobalVars.oliveCheck += 1
 
     def checkDebugInfo(self, oliveJson: Any):
