@@ -4,7 +4,6 @@ This repository demonstrates the optimization of the [DeepSeek-R1-Distill-Llama-
 
 - OpenVINO for Intel® GPU/NPU
    + This process uses OpenVINO specific passes like `OpenVINOOptimumConversion`, `OpenVINOIoUpdate` and `OpenVINOEncapsulation`
-- NVModelOptQuantization for NVIDIA TRT for RTX GPU
 
 ## Intel® Workflows
 
