@@ -29,8 +29,8 @@ ninja==1.11.1.4
 # nncf==2.16.0
 nncf==2.16.0
 numpy==1.26.4
-# git+https://github.com/microsoft/Olive.git@271e2b9b504aa1c142bdf9d44f03414ebf7557ee#egg=olive_ai
-git+https://github.com/microsoft/Olive.git@271e2b9b504aa1c142bdf9d44f03414ebf7557ee#egg=olive_ai
+# olive-ai==0.10.1
+olive-ai==0.10.1
 # onnx==1.17.0
 onnx==1.17.0
 onnx-ir==0.1.10
