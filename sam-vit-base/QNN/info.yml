@@ -1,0 +1,25 @@
+keywords:
+  olive-ai
+  qnn
+arch: vit
+recipes:
+  - file: "sam_vision_encoder_qnn_w8a8_ctx.json"
+    device:
+    - npu
+    ep: QNNExecutionProvider
+
+  - file: "sam_mask_box_decoder_qnn_fp16.json"
+    devices:
+    - npu
+    ep: QNNExecutionProvider
+
+  - file: "sam_mask_point_decoder_qnn_fp16.json"
+    devices:
+    - npu
+    ep: QNNExecutionProvider
+
+  - file: "sam_mask_decoder_qnn_fp16_ctx.json"
+    devices:
+    - npu
+    ep: QNNExecutionProvider
+name: sam-vit-base
