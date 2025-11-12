@@ -28,6 +28,7 @@
             "id": "huggingface/microsoft/resnet-50",
             "runtimes": [
                 "QNN",
+                "QNNGPU",
                 "AMDNPU",
                 "AMDGPU",
                 "NvidiaTRTRTX",
@@ -95,6 +96,7 @@
             "id": "huggingface/google/vit-base-patch16-224",
             "runtimes": [
                 "QNN",
+                "QNNGPU",
                 "AMDNPU",
                 "AMDGPU",
                 "NvidiaTRTRTX",
@@ -116,6 +118,7 @@
             "id": "huggingface/Intel/bert-base-uncased-mrpc",
             "runtimes": [
                 "QNN",
+                "QNNGPU",
                 "AMDNPU",
                 "AMDGPU",
                 "NvidiaTRTRTX",
@@ -137,6 +140,7 @@
             "id": "huggingface/laion/CLIP-ViT-B-32-laion2B-s34B-b79K",
             "runtimes": [
                 "QNN",
+                "QNNGPU",
                 "AMDNPU",
                 "AMDGPU",
                 "NvidiaTRTRTX",
@@ -179,6 +183,7 @@
             "id": "huggingface/openai/clip-vit-base-patch16",
             "runtimes": [
                 "QNN",
+                "QNNGPU",
                 "AMDNPU",
                 "AMDGPU",
                 "NvidiaTRTRTX",
@@ -200,6 +205,7 @@
             "id": "huggingface/openai/clip-vit-base-patch32",
             "runtimes": [
                 "QNN",
+                "QNNGPU",
                 "AMDNPU",
                 "AMDGPU",
                 "NvidiaTRTRTX",

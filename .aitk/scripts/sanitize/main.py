@@ -125,6 +125,7 @@ def main():
                     printError(f"{oliveJsonFile} not exists or is not a valid olive json file")
                     continue
 
+                print(f"-----------------Checking model {oliveJsonFile}")
                 # check parameter
                 modelParameter.Check(parameterTemplate, oliveJson, modelList, model)
                 hasLLM = hasLLM or modelParameter.isLLM

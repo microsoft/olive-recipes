@@ -109,7 +109,7 @@
         "conversion": {
             "type": "OnnxConversion",
             "target_opset": 20,
-            "save_as_external_data": false
+            "save_as_external_data": true
         },
         "surgery": {
             "type": "GraphSurgeries",

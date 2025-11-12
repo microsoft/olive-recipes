@@ -23,6 +23,9 @@ recipes:
     - file: "resnet_dml.json"
       device: gpu
       ep: DmlExecutionProvider
+    - file: "resnet_qnn_gpu.json"
+      device: gpu
+      ep: QNNExecutionProvider
 aitk:
     modelInfo:
         id: "huggingface/microsoft/resnet-50"
