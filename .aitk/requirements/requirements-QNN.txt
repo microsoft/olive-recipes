@@ -38,8 +38,7 @@ numpy==2.2.4
 olive-ai==0.10.1
 onnx==1.17.0
 onnx-ir==0.1.10
-# onnxruntime-qnn==1.21.1
-onnxruntime-qnn==1.21.1
+# uvpip:install onnxruntime-qnn==1.22.0.dev20250402004 --extra-index-url https://aiinfra.pkgs.visualstudio.com/PublicPackages/_packaging/ORT-Nightly/pypi/simple --no-deps;post
 onnxscript==0.5.3
 optuna==4.2.1
 packaging==24.2
