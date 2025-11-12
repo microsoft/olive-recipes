@@ -28,9 +28,6 @@
         }
     },
     "passes": {
-        "q": {
-            "type": "AutoAWQQuantizer"
-        },
         "mb": {
             "type": "ModelBuilder",
             "precision": "int4"
