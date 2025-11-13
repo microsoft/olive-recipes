@@ -11,6 +11,7 @@ recipes:
       device: npu
       ep: VitisAIExecutionProvider
       aitk:
+        oliveFile: "VitisAI/DeepSeek-R1-Distill-Qwen-1.5B_quark_vitisai_llm.json"
         requirementsPatches:
           - AutoGptq
         runtimeOverwrite:

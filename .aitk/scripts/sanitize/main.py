@@ -47,7 +47,9 @@ def main():
     modelList.Check()
 
     # check each model
-    for model in modelList.allModels():
+    # alphabetical order for easy debugging
+    all_models_sort = sorted(modelList.allModels(), key=lambda m: m.id.lower())
+    for model in all_models_sort:
         modelDir = shouldCheckModel(str(rootDir), configDir, model)
         if modelDir:
             if not check_case(Path(modelDir)):

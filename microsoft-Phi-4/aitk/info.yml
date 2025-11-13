@@ -7,7 +7,7 @@ recipes:
         - gpu
       ep: OpenVINOExecutionProvider
       aitk:
-          oliveFile: "phi4/openvino/phi_4/phi_4_gpu_context_dy.json"
+          oliveFile: "OpenVINO/phi_4_gpu_context_dy.json"
           requirementsPatches:
           - Nightly
     - file: "phi4_trtrtx.json"

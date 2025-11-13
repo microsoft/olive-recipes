@@ -5,10 +5,13 @@ recipes:
     - file: "qwen2_5_qnn_config.json"
       device: npu
       ep: QNNExecutionProvider
+      aitk:
+        oliveFile: "QNN/config.json"
     - file: "qwen2_5_vitis_ai_config.json"
       device: npu
       ep: VitisAIExecutionProvider
       aitk:
+        oliveFile: "VitisAI/Qwen2.5-1.5B-Instruct_quark_vitisai_llm.json"
         requirementsPatches:
           - AutoGptq
         runtimeOverwrite:

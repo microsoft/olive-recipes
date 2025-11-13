@@ -6,12 +6,12 @@ recipes:
       device: npu
       ep: QNNExecutionProvider
       aitk:
-        oliveFile: "phi3_5/qnn_config.json"
+        oliveFile: "QNN/config.json"
     - file: "llama3_1_vitis_ai_config.json"
       device: npu
       ep: VitisAIExecutionProvider
       aitk:
-        oliveFile: "phi3_5/qdq_config_vitis_ai.json"
+        oliveFile: "VitisAI/Llama-3.1-8B-Instruct_quark_vitisai_llm.json"
         requirementsPatches:
           - AutoGptq
         runtimeOverwrite:
@@ -29,6 +29,8 @@ recipes:
     - file: "llama3_1_trtrtx_config.json"
       device: gpu
       ep: NvTensorRTRTXExecutionProvider
+      aitk:
+        oliveFile: "NvTensorRtRtx/Llama-3.1-8B-Instruct_model_builder_int4.json"
     - file: "llama3_1_dml_config.json"
       device: gpu
       ep: DmlExecutionProvider
