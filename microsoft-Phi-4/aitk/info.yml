@@ -8,8 +8,6 @@ recipes:
       ep: OpenVINOExecutionProvider
       aitk:
           oliveFile: "OpenVINO/phi_4_gpu_context_dy.json"
-          requirementsPatches:
-          - Nightly
     - file: "phi4_trtrtx.json"
       device: gpu
       ep: NvTensorRTRTXExecutionProvider

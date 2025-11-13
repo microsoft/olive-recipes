@@ -336,7 +336,6 @@ class ModelParameter(BaseModelClass):
                 evaluateUsedInExecute=True,
             )
             self.executeRuntimeFeatures = ["AutoGptq"]
-            self.pyEnvRuntimeFeatures = ["Nightly"]
 
         if self.runtimeOverwrite and not self.runtimeOverwrite.Check(oliveJson):
             printError(f"{self._file} runtime overwrite has error")
