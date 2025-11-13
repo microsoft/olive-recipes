@@ -1,0 +1,20 @@
+arch:
+  - whisper
+recipes:
+  - file: "encoder_decoder_init.json"
+    devices:
+        - cpu
+        - gpu
+    eps:
+        - CPUExecutionProvider
+        - CUDAExecutionProvider
+
+  - file: "decoder.json"
+    devices:
+        - cpu
+        - gpu
+    eps:
+        - CPUExecutionProvider
+        - CUDAExecutionProvider
+
+name: openai-whisper-large-v3-turbo
