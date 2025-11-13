@@ -1,5 +1,7 @@
 import json
 from pathlib import Path
+
+from .generator_common import create_model_parameter
 from .model_info import ModelList
 from .utils import isLLM_by_id, open_ex
 from .generator_common import create_model_parameter
