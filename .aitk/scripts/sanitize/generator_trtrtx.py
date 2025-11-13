@@ -1,7 +1,9 @@
 from pathlib import Path
+
+from .generator_common import create_model_parameter
 from .model_info import ModelList
 from .utils import isLLM_by_id
-from .generator_common import create_model_parameter
+
 
 def generator_trtrtx(id: str, recipe, folder: Path, modelList: ModelList):
     aitk = recipe.get("aitk", {})
