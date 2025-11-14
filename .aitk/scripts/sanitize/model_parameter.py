@@ -285,7 +285,7 @@ class ModelParameter(BaseModelClass):
         )
 
         if currentEp == EPNames.QNNExecutionProvider.value and currentOliveDeviceType == OliveDeviceTypes.Any.value:
-            currentOliveDeviceType = OliveDeviceTypes.NPU
+            currentOliveDeviceType = OliveDeviceTypes.NPU.value
 
         currentRuntimeRPC = GlobalVars.GetRuntimeRPC(currentEp, currentOliveDeviceType)
         # use any for default
