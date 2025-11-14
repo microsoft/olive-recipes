@@ -27,5 +27,6 @@ def requirements_check():
     req_is_subset(WCR_INIT_lines, WCR_lines)
     req_is_subset(QNN_LLM_lines, WCR_lines)
 
+
 if __name__ == "__main__":
     requirements_check()

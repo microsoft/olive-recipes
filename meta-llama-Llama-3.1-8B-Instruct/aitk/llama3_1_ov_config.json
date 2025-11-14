@@ -24,14 +24,17 @@
             },
             "ov_quant_config": {
                 "weight_format": "int4",
-                "group_size": 128,
+                "group_size": -1,
                 "dataset": "wikitext2",
                 "ratio": 1,
-                "sym": true,
-                "trust_remote_code": true,
+                "all-layers": true,
                 "awq": true,
                 "scale_estimation": true,
-                "backup_precision": "int8_sym"
+                "sym": true,
+                "all_layers": true,
+                "trust_remote_code": true,
+                "backup_precision": "int8_asym",
+                "sensitivity_metric": "weight_quantization_error"
             }
         },
         "io_update": {

@@ -7,9 +7,12 @@ recipes:
         - gpu
       ep: OpenVINOExecutionProvider
       aitk:
-          oliveFile: "phi4/openvino/phi_4/phi_4_gpu_context_dy.json"
-          requirementsPatches:
-          - Nightly
+          oliveFile: "OpenVINO/phi_4_gpu_context_dy.json"
+    - file: "phi4_trtrtx.json"
+      device: gpu
+      ep: NvTensorRTRTXExecutionProvider
+      aitk:
+          oliveFile: "NvTensorRtRtx/phi-4_model_builder_int4.json"
 aitk:
     modelInfo:
         id: "huggingface/microsoft/Phi-4"

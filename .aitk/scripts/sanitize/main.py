@@ -32,16 +32,8 @@ def shouldCheckModel(rootDir: str, configDir: str, model: ModelInfo) -> str | No
 def main():
     argparser = argparse.ArgumentParser(description="Check model lab configs")
     argparser.add_argument("-v", "--verbose", action="store_true", help="Verbose mode")
-    argparser.add_argument(
-        "-o",
-        "--olive",
-        default="",
-        type=str,
-        help="Path to olive repo to check json files",
-    )
     args = argparser.parse_args()
     GlobalVars.verbose = args.verbose
-    GlobalVars.olivePath = args.olive
 
     # need to resolve due to d:\ vs D:\
     rootDir = Path(__file__).parent.parent.parent.parent.resolve(strict=False)
@@ -55,7 +47,9 @@ def main():
     modelList.Check()
 
     # check each model
-    for model in modelList.allModels():
+    # alphabetical order for easy debugging
+    all_models_sort = sorted(modelList.allModels(), key=lambda m: m.id.lower())
+    for model in all_models_sort:
         modelDir = shouldCheckModel(str(rootDir), configDir, model)
         if modelDir:
             if not check_case(Path(modelDir)):
@@ -166,8 +160,7 @@ def main():
                     newContent = json.dumps(inferenceModelData, indent=4, ensure_ascii=False)
                     BaseModelClass.writeJsonIfChanged(newContent, inferenceModelFile, fileContent)
 
-    if GlobalVars.olivePath:
-        printWarning(f"Total {GlobalVars.oliveCheck} config files checked against olive json files")
+    printWarning(f"Total {GlobalVars.oliveCheck} config files checked against olive json files")
 
     GlobalVars.Check(configDir)
 

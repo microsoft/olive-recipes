@@ -3,6 +3,7 @@
 This folder contains a sample use case of Olive to optimize a [microsoft/Phi-4](https://huggingface.co/microsoft/Phi-4) model using OpenVINO tools.
 
 - Intel® GPU: [Phi4 Dynamic shape model](#phi4_ov_config)
+- ModelBuilder for NVIDIA TRT for RTX GPU
 
 ## Quantization Workflows
 

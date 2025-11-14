@@ -27,7 +27,7 @@
         }
     ],
     "passes": {
-        "builder": { "type": "ModelBuilder", "precision": "fp16" }
+        "builder": { "type": "ModelBuilder", "precision": "fp16", "enable_cuda_graph": true }
     },
     "target": "local_system",
     "log_severity_level": 1,

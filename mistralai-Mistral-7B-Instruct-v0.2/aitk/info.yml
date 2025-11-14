@@ -5,13 +5,14 @@ recipes:
     - file: "Mistral_7B_Instruct_v0.2_gpu_context_ov_dy.json"
       device: gpu
       ep: OpenVINOExecutionProvider
-      aitk:
-          oliveFile: "mistral/openvino/Mistral_7B_Instruct_v0.2_gpu_context_ov_dy.json"
     - file: "Mistral_7B_Instruct_v0.2_npu_context_ov_dy.json"
       device: npu
       ep: OpenVINOExecutionProvider
+    - file: "Mistral_7B_Instruct_v0.2_trtrtx.json"
+      device: gpu
+      ep: NvTensorRTRTXExecutionProvider
       aitk:
-          oliveFile: "mistral/openvino/Mistral_7B_Instruct_v0.2_npu_context_ov_dy_sym_gs128_bkp_int8_sym.json"
+          oliveFile: "NvTensorRtRtx/Mistral-7B-Instruct-v0.2_model_builder_int4.json"
 aitk:
     modelInfo:
         id: "huggingface/mistralai/Mistral-7B-Instruct-v0.2"
