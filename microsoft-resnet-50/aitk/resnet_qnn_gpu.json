@@ -21,7 +21,7 @@
         }
     },
     "systems": {
-        "qnn_system": {
+        "target_system": {
             "type": "LocalSystem",
             "accelerators": [
                 {
@@ -35,41 +35,22 @@
     },
     "data_configs": [
         {
-            "name": "quantize_data_config",
+            "name": "evaluate_data_config",
             "type": "HuggingfaceContainer",
             "user_script": "imagenet.py",
             "load_dataset_config": {
-                "data_name": "timm/mini-imagenet",
-                "split": "train",
-                "streaming": true,
-                "trust_remote_code": true
-            },
-            "pre_process_data_config": {
-                "type": "dataset_pre_process",
-                "size": 64,
-                "cache_key": "imagedata_quantization"
-            },
-            "post_process_data_config": {
-                "type": "dataset_post_process"
-            }
-        },
-        {
-            "name": "evaluation_data_config",
-            "type": "HuggingfaceContainer",
-            "user_script": "imagenet.py",
-            "load_dataset_config": {
-                "data_name": "timm/mini-imagenet",
+                "data_name": "imagenet-1k",
                 "split": "validation",
                 "streaming": true,
                 "trust_remote_code": true
             },
             "pre_process_data_config": {
                 "type": "dataset_pre_process",
-                "size": 1000,
-                "cache_key": "imagedata_evaluation"
+                "size": 256,
+                "cache_key": "imagenet"
             },
             "post_process_data_config": {
-                "type": "dataset_post_process"
+                "type": "imagenet_post_fun"
             }
         }
     ],
@@ -77,30 +58,104 @@
         "common_evaluator": {
             "metrics": [
                 {
-                    "name": "accuracy",
+                    "name": "accuracy_qnn",
                     "type": "accuracy",
-                    "data_config": "evaluation_data_config",
+                    "data_config": "evaluate_data_config",
                     "sub_types": [
                         {
                             "name": "accuracy_score",
                             "priority": 1,
                             "metric_config": {
                                 "task": "multiclass",
-                                "num_classes": 1001
+                                "num_classes": 1000
                             }
                         }
-                    ]
+                    ],
+                    "user_config": {
+                        "inference_settings": {
+                            "onnx": {
+                                "session_options": {
+                                    "extra_session_config": {
+                                        "session.disable_cpu_ep_fallback": "0"
+                                    }
+                                },
+                                "execution_provider": "QNNExecutionProvider",
+                                "provider_options": [
+                                    {
+                                        "backend_path": "QnnGpu.dll"
+                                    }
+                                ]
+                            }
+                        }
+                    }
                 },
                 {
-                    "name": "latency",
+                    "name": "accuracy_cpu",
+                    "type": "accuracy",
+                    "data_config": "evaluate_data_config",
+                    "sub_types": [
+                        {
+                            "name": "accuracy_score",
+                            "priority": 2,
+                            "metric_config": {
+                                "task": "multiclass",
+                                "num_classes": 1000
+                            }
+                        }
+                    ],
+                    "user_config": {
+                        "inference_settings": {
+                            "onnx": {
+                                "execution_provider": "CPUExecutionProvider"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "latency_qnn",
                     "type": "latency",
-                    "data_config": "evaluation_data_config",
+                    "data_config": "evaluate_data_config",
                     "sub_types": [
                         {
                             "name": "avg",
-                            "priority": 2
+                            "priority": 3
                         }
-                    ]
+                    ],
+                    "user_config": {
+                        "inference_settings": {
+                            "onnx": {
+                                "session_options": {
+                                    "extra_session_config": {
+                                        "session.disable_cpu_ep_fallback": "0"
+                                    }
+                                },
+                                "execution_provider": "QNNExecutionProvider",
+                                "provider_options": [
+                                    {
+                                        "backend_path": "QnnGpu.dll"
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "latency_cpu",
+                    "type": "latency",
+                    "data_config": "evaluate_data_config",
+                    "sub_types": [
+                        {
+                            "name": "avg",
+                            "priority": 4
+                        }
+                    ],
+                    "user_config": {
+                        "inference_settings": {
+                            "onnx": {
+                                "execution_provider": "CPUExecutionProvider"
+                            }
+                        }
+                    }
                 }
             ]
         }
@@ -114,10 +169,10 @@
         },
         "add_metadata": {
             "type": "AddOliveMetadata",
-            "graph_name": "resnet-50"
+            "graph_name": "main_graph"
         }
     },
-    "target": "qnn_system",
+    "target": "target_system",
     "evaluator": "common_evaluator",
     "output_dir": "model/resnet_qnn_gpu",
     "evaluate_input_model": false,

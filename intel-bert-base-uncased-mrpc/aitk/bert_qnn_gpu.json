@@ -3,12 +3,41 @@
         "type": "HfModel",
         "model_path": "Intel/bert-base-uncased-mrpc",
         "task": "text-classification",
+        "io_config": {
+            "input_names": [
+                "input_ids",
+                "attention_mask",
+                "token_type_ids"
+            ],
+            "input_shapes": [
+                [
+                    1,
+                    128
+                ],
+                [
+                    1,
+                    128
+                ],
+                [
+                    1,
+                    128
+                ]
+            ],
+            "input_types": [
+                "int64",
+                "int64",
+                "int64"
+            ],
+            "output_names": [
+                "logits"
+            ]
+        },
         "load_kwargs": {
             "attn_implementation": "eager"
         }
     },
     "systems": {
-        "local_system": {
+        "target_system": {
             "type": "LocalSystem",
             "accelerators": [
                 {
@@ -21,27 +50,6 @@
         }
     },
     "data_configs": [
-        {
-            "name": "glue_mrpc",
-            "type": "HuggingfaceContainer",
-            "load_dataset_config": {
-                "data_name": "glue",
-                "subset": "mrpc",
-                "split": "validation"
-            },
-            "pre_process_data_config": {
-                "max_length": 128,
-                "padding": "max_length",
-                "input_cols": [
-                    "sentence1",
-                    "sentence2"
-                ],
-                "max_samples": 100
-            },
-            "dataloader_config": {
-                "batch_size": 1
-            }
-        },
         {
             "name": "glue_mrpc_eval",
             "type": "HuggingfaceContainer",
@@ -128,7 +136,7 @@
         }
     },
     "evaluate_input_model": false,
-    "target": "local_system",
+    "target": "target_system",
     "evaluator": "common_evaluator",
     "cache_dir": "cache",
     "output_dir": "model/bert_qnn_gpu"
