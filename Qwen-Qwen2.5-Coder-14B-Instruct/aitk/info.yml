@@ -6,8 +6,11 @@ recipes:
       devices:
         - gpu
       ep: OpenVINOExecutionProvider
+    - file: "qwen2_5_trtrtx.json"
+      device: gpu
+      ep: NvTensorRTRTXExecutionProvider
       aitk:
-          oliveFile: "qwen2_5/openvino/Qwen2.5-Coder-14B-Instruct-gpu-context-dy.json"
+          oliveFile: "NvTensorRtRtx/Qwen2.5-Coder-14B-Instruct_model_builder_int4.json"
 aitk:
     modelInfo:
         id: "huggingface/Qwen/Qwen2.5-Coder-14B-Instruct"

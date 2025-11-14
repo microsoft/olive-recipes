@@ -34,13 +34,12 @@ multidict==6.6.4
 multiprocess==0.70.16
 networkx==3.5
 numpy==2.2.4
-# olive-ai@git+https://github.com/microsoft/Olive.git@3a9384bffab55b9a44cb39d4b4d8463dbe030225
-olive-ai@git+https://github.com/microsoft/Olive.git@3a9384bffab55b9a44cb39d4b4d8463dbe030225
+# olive-ai==0.10.1
+olive-ai==0.10.1
 onnx==1.17.0
 onnx-ir==0.1.10
-# onnxruntime-qnn==1.21.1
-onnxruntime-qnn==1.21.1
-onnxscript==0.5.4
+# uvpip:install onnxruntime-qnn==1.22.0.dev20250402004 --extra-index-url https://aiinfra.pkgs.visualstudio.com/PublicPackages/_packaging/ORT-Nightly/pypi/simple --no-deps;post
+onnxscript==0.5.3
 optuna==4.2.1
 packaging==24.2
 pandas==2.2.3
@@ -69,7 +68,7 @@ torchmetrics==1.7.0
 # torchvision==0.22.0
 torchvision==0.22.0
 tqdm==4.67.1
-transformers==4.50.3
+transformers==4.51.3
 typing-extensions==4.15.0
 typing-inspection==0.4.1
 tzdata==2025.2

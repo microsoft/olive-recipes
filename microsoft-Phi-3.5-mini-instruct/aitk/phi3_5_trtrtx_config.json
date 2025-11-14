@@ -27,7 +27,20 @@
         }
     ],
     "passes": {
-        "builder": { "type": "ModelBuilder", "precision": "fp16" }
+        "mb": {
+            "type": "ModelBuilder",
+            "precision": "int4",
+            "int4_block_size": 32,
+            "int4_algo_config": "rtn",
+            "int4_is_symmetric": true,
+            "enable_cuda_graph": true
+        },
+        "mq": {
+            "type": "MatMulNBitsToQDQ",
+            "use_int4": true,
+            "add_zero_point": false,
+            "save_as_external_data": true
+        }
     },
     "target": "local_system",
     "log_severity_level": 1,

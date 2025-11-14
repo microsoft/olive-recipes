@@ -34,8 +34,8 @@ multidict==6.6.4
 multiprocess==0.70.16
 networkx==3.4.2
 numpy==2.2.4
-# olive-ai@git+https://github.com/microsoft/Olive.git@3a9384bffab55b9a44cb39d4b4d8463dbe030225
-olive-ai@git+https://github.com/microsoft/Olive.git@3a9384bffab55b9a44cb39d4b4d8463dbe030225
+# olive-ai==0.10.1
+olive-ai==0.10.1
 # onnx==1.17.0
 onnx==1.17.0
 onnx-ir==0.1.10
@@ -43,9 +43,9 @@ onnx-ir==0.1.10
 onnxruntime-genai-cuda==0.7.0
 # onnxruntime-gpu==1.21.0
 onnxruntime-gpu==1.21.0
-onnxscript==0.5.4
-# optimum==1.26.0
-optimum==1.26.0
+onnxscript==0.5.3
+# optimum==1.26.1
+optimum==1.26.1
 optuna==4.3.0
 packaging==24.2
 pandas==2.2.3

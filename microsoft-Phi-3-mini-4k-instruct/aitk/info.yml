@@ -6,14 +6,15 @@ recipes:
       devices:
         - gpu
       ep: OpenVINOExecutionProvider
-      aitk:
-          oliveFile: "phi3/openvino/Phi-3-mini-4k-instruct-gpu-context-ov-dy.json"
     - file: "phi3_ov_npu_config.json"
       devices:
         - npu
       ep: OpenVINOExecutionProvider
+    - file: "phi3_trtrtx.json"
+      device: gpu
+      ep: NvTensorRTRTXExecutionProvider
       aitk:
-          oliveFile: "phi3/openvino/Phi_3_mini_4k_instruct_npu_context_ov_dynamic_sym_gs128_bkp_int8_sym.json"
+          oliveFile: "NvTensorRtRtx/Phi-3-mini-4k-instruct_model_builder_int4.json"
 aitk:
     modelInfo:
         id: "huggingface/microsoft/Phi-3-mini-4k-instruct"
