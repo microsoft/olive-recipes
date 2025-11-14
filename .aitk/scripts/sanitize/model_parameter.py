@@ -283,6 +283,10 @@ class ModelParameter(BaseModelClass):
         currentOliveDeviceType = system[OlivePropertyNames.Accelerators][0].get(
             OlivePropertyNames.Device, OliveDeviceTypes.Any.value
         )
+
+        if currentEp == EPNames.QNNExecutionProvider.value and currentOliveDeviceType == OliveDeviceTypes.Any.value:
+            currentOliveDeviceType = OliveDeviceTypes.NPU.value
+
         currentRuntimeRPC = GlobalVars.GetRuntimeRPC(currentEp, currentOliveDeviceType)
         # use any for default
         if currentEp == EPNames.OpenVINOExecutionProvider.value:

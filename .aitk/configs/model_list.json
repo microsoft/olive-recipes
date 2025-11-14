@@ -710,6 +710,7 @@
     "DisplayNameToRuntimeRPC": {
         "CPU": "CPU",
         "Qualcomm NPU": "QNN",
+        "Qualcomm GPU": "QNNGPU",
         "Intel Any": "IntelAny",
         "Intel CPU": "IntelCPU",
         "Intel NPU": "IntelNPU",
@@ -724,6 +725,7 @@
     "RuntimeToDisplayName": {
         "CPU": "CPU",
         "QNN": "Qualcomm NPU",
+        "QNNGPU": "Qualcomm GPU",
         "IntelAny": "Intel Any",
         "IntelCPU": "Intel CPU",
         "IntelNPU": "Intel NPU",
