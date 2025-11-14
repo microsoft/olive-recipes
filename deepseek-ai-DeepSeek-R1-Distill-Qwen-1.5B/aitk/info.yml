@@ -34,9 +34,6 @@ recipes:
     - file: "deepseek_dml_config.json"
       device: gpu
       ep: DmlExecutionProvider
-    - file: "deepseek_migraphx_config.json"
-      device: gpu
-      ep: MIGraphXExecutionProvider
     - file: "deepseek_qnn_gpu_config.json"
       device: gpu
       ep: QNNExecutionProvider

@@ -34,9 +34,6 @@ recipes:
     - file: "llama3_2_dml_config.json"
       device: gpu
       ep: DmlExecutionProvider
-    - file: "llama3_2_migraphx_config.json"
-      device: gpu
-      ep: MIGraphXExecutionProvider
     - file: "llama3_2_qnn_gpu_config.json"
       device: gpu
       ep: QNNExecutionProvider
