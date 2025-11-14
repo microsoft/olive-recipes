@@ -7,6 +7,7 @@
             "id": "huggingface/microsoft/Phi-3.5-mini-instruct",
             "runtimes": [
                 "QNN",
+                "QNNGPU",
                 "AMDNPU",
                 "AMDGPU",
                 "NvidiaTRTRTX",
@@ -162,6 +163,7 @@
             "id": "huggingface/meta-llama/Llama-3.2-1B-Instruct",
             "runtimes": [
                 "QNN",
+                "QNNGPU",
                 "AMDNPU",
                 "AMDGPU",
                 "NvidiaTRTRTX",
@@ -229,6 +231,7 @@
             "groupItemName": "1.5B",
             "runtimes": [
                 "QNN",
+                "QNNGPU",
                 "AMDNPU",
                 "AMDGPU",
                 "NvidiaTRTRTX",
