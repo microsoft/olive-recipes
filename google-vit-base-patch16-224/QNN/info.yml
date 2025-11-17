@@ -5,3 +5,6 @@ recipes:
     - file: "vit_qnn_fp32_ctx.json"
       device: npu
       ep: QNNExecutionProvider
+    - file: "config_gpu_fp32.json"
+      device: gpu
+      ep: QNNExecutionProvider

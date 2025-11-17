@@ -6,12 +6,12 @@ recipes:
       device: npu
       ep: QNNExecutionProvider
       aitk:
-        oliveFile: "phi3_5/qnn_config.json"
+        oliveFile: "QNN/config.json"
     - file: "phi3_5_vitis_ai_config.json"
       device: npu
       ep: VitisAIExecutionProvider
       aitk:
-        oliveFile: "phi3_5/qdq_config_vitis_ai.json"
+        oliveFile: "VitisAI/Phi-3.5-mini-instruct_quark_vitisai_llm.json"
         requirementsPatches:
           - AutoGptq
         runtimeOverwrite:
@@ -22,25 +22,20 @@ recipes:
         - gpu
         - cpu
       ep: OpenVINOExecutionProvider
-      aitk:
-        oliveFile: "phi3_5/openvino/Phi-3.5-mini-instruct-gpu-context-ov-dynamic.json"
     - file: "phi3_5_ov_config.json"
       devices:
         - npu
       ep: OpenVINOExecutionProvider
-      aitk:
-        oliveFile: "phi3_5/openvino/Phi-3.5-mini-instruct-npu-context-ov-dynamic-sym-gs128-bkp-int8-sym.json"
     - file: "phi3_5_trtrtx_config.json"
       device: gpu
       ep: NvTensorRTRTXExecutionProvider
+      aitk:
+        oliveFile: "NvTensorRtRtx/Phi-3.5-mini-instruct_model_builder_int4.json"
     - file: "phi3_5_dml_config.json"
       device: gpu
       ep: DmlExecutionProvider
-    - file: "phi3_5_migraphx_config.json"
-      device: gpu
-      ep: MIGraphXExecutionProvider
 aitk:
     modelInfo:
         id: "huggingface/microsoft/Phi-3.5-mini-instruct"
-        version: 3
+        version: 4
         p0: true

@@ -8,7 +8,6 @@
             "runtimes": [
                 "QNN",
                 "AMDNPU",
-                "AMDGPU",
                 "NvidiaTRTRTX",
                 "IntelCPU",
                 "IntelGPU",
@@ -18,7 +17,7 @@
             "architecture": "Transformer",
             "status": "Ready",
             "relativePath": "microsoft-Phi-3.5-mini-instruct/aitk",
-            "version": 3,
+            "version": 4,
             "p0": true
         },
         {
@@ -52,7 +51,6 @@
             "runtimes": [
                 "QNN",
                 "AMDNPU",
-                "AMDGPU",
                 "NvidiaTRTRTX",
                 "IntelCPU",
                 "IntelGPU",
@@ -62,7 +60,7 @@
             "architecture": "Transformer",
             "status": "Ready",
             "relativePath": "deepseek-ai-DeepSeek-R1-Distill-Qwen-1.5B/aitk",
-            "version": 3,
+            "version": 4,
             "p0": true
         },
         {
@@ -157,7 +155,6 @@
             "runtimes": [
                 "QNN",
                 "AMDNPU",
-                "AMDGPU",
                 "NvidiaTRTRTX",
                 "IntelCPU",
                 "IntelGPU",
@@ -167,7 +164,7 @@
             "architecture": "Transformer",
             "status": "Ready",
             "relativePath": "meta-llama-Llama-3.2-1B-Instruct/aitk",
-            "version": 3,
+            "version": 4,
             "p0": true
         },
         {
@@ -222,7 +219,6 @@
             "runtimes": [
                 "QNN",
                 "AMDNPU",
-                "AMDGPU",
                 "NvidiaTRTRTX",
                 "IntelCPU",
                 "IntelGPU",
@@ -400,7 +396,7 @@
             "architecture": "Transformer",
             "status": "Ready",
             "relativePath": "meta-llama-Llama-3.1-8B-Instruct/aitk",
-            "version": 1,
+            "version": 2,
             "p0": false
         },
         {
@@ -710,6 +706,7 @@
     "DisplayNameToRuntimeRPC": {
         "CPU": "CPU",
         "Qualcomm NPU": "QNN",
+        "Qualcomm GPU": "QNNGPU",
         "Intel Any": "IntelAny",
         "Intel CPU": "IntelCPU",
         "Intel NPU": "IntelNPU",
@@ -724,6 +721,7 @@
     "RuntimeToDisplayName": {
         "CPU": "CPU",
         "QNN": "Qualcomm NPU",
+        "QNNGPU": "Qualcomm GPU",
         "IntelAny": "Intel Any",
         "IntelCPU": "Intel CPU",
         "IntelNPU": "Intel NPU",

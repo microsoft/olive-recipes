@@ -5,7 +5,6 @@ Model parameter configuration classes
 from __future__ import annotations
 
 import json
-import os
 import re
 from pathlib import Path
 from typing import Any, Dict, Iterator, List, Optional
@@ -284,6 +283,10 @@ class ModelParameter(BaseModelClass):
         currentOliveDeviceType = system[OlivePropertyNames.Accelerators][0].get(
             OlivePropertyNames.Device, OliveDeviceTypes.Any.value
         )
+
+        if currentEp == EPNames.QNNExecutionProvider.value and currentOliveDeviceType == OliveDeviceTypes.Any.value:
+            currentOliveDeviceType = OliveDeviceTypes.NPU.value
+
         currentRuntimeRPC = GlobalVars.GetRuntimeRPC(currentEp, currentOliveDeviceType)
         # use any for default
         if currentEp == EPNames.OpenVINOExecutionProvider.value:
@@ -337,7 +340,6 @@ class ModelParameter(BaseModelClass):
                 evaluateUsedInExecute=True,
             )
             self.executeRuntimeFeatures = ["AutoGptq"]
-            self.pyEnvRuntimeFeatures = ["Nightly"]
 
         if self.runtimeOverwrite and not self.runtimeOverwrite.Check(oliveJson):
             printError(f"{self._file} runtime overwrite has error")
@@ -587,7 +589,14 @@ class ModelParameter(BaseModelClass):
             if (
                 self.runtime
                 and self.runtime.displayNames
-                and self.runtime.displayNames[0] == GlobalVars.RuntimeToDisplayName[RuntimeEnum.DML]
+                and self.runtime.displayNames[0]
+                in [
+                    GlobalVars.RuntimeToDisplayName[RuntimeEnum.DML],
+                    GlobalVars.RuntimeToDisplayName[RuntimeEnum.AMDGPU],
+                    GlobalVars.RuntimeToDisplayName[RuntimeEnum.IntelCPU],
+                    GlobalVars.RuntimeToDisplayName[RuntimeEnum.IntelGPU],
+                    GlobalVars.RuntimeToDisplayName[RuntimeEnum.IntelNPU],
+                ]
             ):
                 return
             printWarning(f"{self._file} does not have oliveFile")
