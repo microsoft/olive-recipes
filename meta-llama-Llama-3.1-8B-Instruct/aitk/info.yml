@@ -23,8 +23,8 @@ recipes:
       ep: OpenVINOExecutionProvider
     - file: "llama3_1_ov_gpu_config.json"
       devices:
-        - cpu
         - gpu
+        - cpu
       ep: OpenVINOExecutionProvider
     - file: "llama3_1_trtrtx_config.json"
       device: gpu
