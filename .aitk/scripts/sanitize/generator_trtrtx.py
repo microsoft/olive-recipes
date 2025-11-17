@@ -1,12 +1,12 @@
 import json
 from pathlib import Path
 
+from .constants import OlivePassNames, OlivePropertyNames
 from .generator_common import create_model_parameter
 from .model_info import ModelList
+from .model_parameter import ModelParameter
 from .utils import isLLM_by_id, open_ex
-from .generator_common import create_model_parameter
-from .model_parameter import ModelParameter, RuntimeOverwrite
-from .constants import OlivePassNames, OlivePropertyNames, PhaseTypeEnum
+
 
 def generate_additional_config(configFile: Path, parameter: ModelParameter):
     with open_ex(configFile, "r") as f:
@@ -16,6 +16,7 @@ def generate_additional_config(configFile: Path, parameter: ModelParameter):
             if not parameter.executeRuntimeFeatures:
                 parameter.executeRuntimeFeatures = []
             parameter.executeRuntimeFeatures.append("NVModelOptQuantization")
+
 
 def generator_trtrtx(id: str, recipe, folder: Path, modelList: ModelList):
     aitk = recipe.get("aitk", {})
