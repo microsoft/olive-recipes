@@ -1,0 +1,19 @@
+{
+    "input_model": {
+        "type": "HfModel",
+        "model_path": "Qwen/Qwen2.5-VL-3B-Instruct"
+    },
+    "systems": {
+        "local_system": {
+            "type": "LocalSystem",
+            "accelerators": [ { "device": "gpu", "execution_providers": [ "CUDAExecutionProvider" ] } ]
+        }
+    },
+    "passes": {
+        "convert": { "type": "ModelBuilder", "precision": "bf16" }
+    },
+    "host": "local_system",
+    "target": "local_system",
+    "no_artifacts": true,
+    "output_dir": "models/text"
+}
