@@ -1,0 +1,6 @@
+arch: mobilenet
+recipes:
+    - file: "config.json"
+      devices:
+        - npu
+      ep: VitisAIExecutionProvider
