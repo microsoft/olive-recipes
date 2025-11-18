@@ -12,13 +12,13 @@ In start, there are two options:
 
 ### Display usage of "The next session"
 
-When this is selected and started, we will wait until the next started process that emits Windows AI events (see explaination in "Explore more tool") and start to show the resource usage of it.
+When this is selected and started, we will wait until the next started process that emits Windows ML events (see explaination in "Explore more tool") and start to show the resource usage of it.
 
 This option is ideal for testing a run-once app. In this case, you could start profiling and run the app and the resource usages will be shown up.
 
 ### Display usage of "Process Id or Name"
 
-When this is selected and started, we will show resource usage and Windows AI events of the process you speficied.
+When this is selected and started, we will show resource usage and Windows ML events of the process you speficied.
 
 This option is ideal for moniting a always-run app.
 
@@ -30,7 +30,7 @@ This plot shows usage of CPU, GPU, NPU and Memory. The usage will be updated onc
 
 ### Session plot
 
-In your app emits Windows AI events and VS Code is running in admin mode, we will show captured events here.
+In your app emits Windows ML events and VS Code is running in admin mode, we will show captured events here.
 
 Current the event typs are:
 
@@ -56,7 +56,7 @@ Get-Counter -Counter "\GPU Engine(pid_*_*)\Utilization Percentage"
 
 There is also an app to help you to capture them [Performance Monitor](https://learn.microsoft.com/en-us/troubleshoot/windows-server/support-tools/troubleshoot-issues-performance-monitor). 
 
-### Windows AI Events
+### Windows ML Events
 
 There are a bunch of different events for diagostic in [onnxruntime](https://onnxruntime.ai/docs/performance/tune-performance/logging_tracing.html). So when your app emits any of them, profiling will start to moniter it in "The next session" mode.
 
