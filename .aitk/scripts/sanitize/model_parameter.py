@@ -227,6 +227,7 @@ class ModelParameter(BaseModelClass):
     executeRuntimeFeatures: Optional[List[str]] = None
     evaluationRuntimeFeatures: Optional[List[str]] = None
     pyEnvRuntimeFeatures: Optional[List[str]] = None
+    # Default is False - CPU execution provider is only added when explicitly set to True
     addCpu: Optional[bool] = None
     addAmdNpu: Optional[ADMNPUConfig] = None
 
