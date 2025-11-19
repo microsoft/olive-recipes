@@ -70,24 +70,7 @@
                                 "num_classes": 1000
                             }
                         }
-                    ],
-                    "user_config": {
-                        "inference_settings": {
-                            "onnx": {
-                                "session_options": {
-                                    "extra_session_config": {
-                                        "session.disable_cpu_ep_fallback": "0"
-                                    }
-                                },
-                                "execution_provider": "QNNExecutionProvider",
-                                "provider_options": [
-                                    {
-                                        "backend_path": "QnnGpu.dll"
-                                    }
-                                ]
-                            }
-                        }
-                    }
+                    ]
                 },
                 {
                     "name": "latency",
@@ -98,24 +81,7 @@
                             "name": "avg",
                             "priority": 2
                         }
-                    ],
-                    "user_config": {
-                        "inference_settings": {
-                            "onnx": {
-                                "session_options": {
-                                    "extra_session_config": {
-                                        "session.disable_cpu_ep_fallback": "0"
-                                    }
-                                },
-                                "execution_provider": "QNNExecutionProvider",
-                                "provider_options": [
-                                    {
-                                        "backend_path": "QnnGpu.dll"
-                                    }
-                                ]
-                            }
-                        }
-                    }
+                    ]
                 }
             ]
         }
