@@ -1,0 +1,58 @@
+[
+    {
+        "name": "dora",
+        "os": "ubuntu",
+        "device": "cuda",
+        "requirements_file": "requirements.txt",
+        "command": "python -m olive run --config dora.json"
+    },
+    {
+        "name": "hqq",
+        "os": "ubuntu",
+        "device": "cuda",
+        "requirements_file": "requirements.txt",
+        "command": "python -m olive run --config hqq.json"
+    },
+    {
+        "name": "lmeval",
+        "os": "ubuntu",
+        "device": "cuda",
+        "requirements_file": "requirements.txt",
+        "command": "python -m olive run --config lmeval.json"
+    },
+    {
+        "name": "lmeval_onnx",
+        "os": "ubuntu",
+        "device": "cuda",
+        "requirements_file": "requirements.txt",
+        "command": "python -m olive run --config lmeval_onnx.json"
+    },
+    {
+        "name": "loha",
+        "os": "ubuntu",
+        "device": "cuda",
+        "requirements_file": "requirements.txt",
+        "command": "python -m olive run --config loha.json"
+    },
+    {
+        "name": "lokr",
+        "os": "ubuntu",
+        "device": "cuda",
+        "requirements_file": "requirements.txt",
+        "command": "python -m olive run --config lokr.json"
+    },
+    {
+        "name": "qlora",
+        "os": "ubuntu",
+        "device": "cuda",
+        "requirements_file": "requirements.txt",
+        "command": "python -m olive run --config qlora.json"
+    },
+    {
+        "name": "rtn",
+        "os": "ubuntu",
+        "device": "cuda",
+        "requirements_file": "requirements.txt",
+        "command": "python -m olive run --config rtn.json"
+    }
+]

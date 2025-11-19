@@ -6,6 +6,8 @@ concurrency:
   cancel-in-progress: true
 
 on:
+  schedule:
+    - cron: '0 15 * * 5'  # Run weekly on Fridays at 3 PM UTC
   workflow_dispatch:
   push:
     branches:

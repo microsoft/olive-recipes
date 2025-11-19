@@ -1,0 +1,9 @@
+[
+    {
+        "name": "resnet_cpu",
+        "os": "ubuntu",
+        "device": "cpu",
+        "requirements_file": "requirements.txt",
+        "command": "python -m olive run --config resnet_cpu.json"
+    }
+]
