@@ -58,7 +58,7 @@
         "common_evaluator": {
             "metrics": [
                 {
-                    "name": "accuracy_qnn",
+                    "name": "accuracy",
                     "type": "accuracy",
                     "data_config": "evaluate_data_config",
                     "sub_types": [
@@ -90,35 +90,13 @@
                     }
                 },
                 {
-                    "name": "accuracy_cpu",
-                    "type": "accuracy",
-                    "data_config": "evaluate_data_config",
-                    "sub_types": [
-                        {
-                            "name": "accuracy_score",
-                            "priority": 2,
-                            "metric_config": {
-                                "task": "multiclass",
-                                "num_classes": 1000
-                            }
-                        }
-                    ],
-                    "user_config": {
-                        "inference_settings": {
-                            "onnx": {
-                                "execution_provider": "CPUExecutionProvider"
-                            }
-                        }
-                    }
-                },
-                {
-                    "name": "latency_qnn",
+                    "name": "latency",
                     "type": "latency",
                     "data_config": "evaluate_data_config",
                     "sub_types": [
                         {
                             "name": "avg",
-                            "priority": 3
+                            "priority": 2
                         }
                     ],
                     "user_config": {
@@ -135,24 +113,6 @@
                                         "backend_path": "QnnGpu.dll"
                                     }
                                 ]
-                            }
-                        }
-                    }
-                },
-                {
-                    "name": "latency_cpu",
-                    "type": "latency",
-                    "data_config": "evaluate_data_config",
-                    "sub_types": [
-                        {
-                            "name": "avg",
-                            "priority": 4
-                        }
-                    ],
-                    "user_config": {
-                        "inference_settings": {
-                            "onnx": {
-                                "execution_provider": "CPUExecutionProvider"
                             }
                         }
                     }
