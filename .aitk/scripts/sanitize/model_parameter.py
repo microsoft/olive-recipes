@@ -227,8 +227,7 @@ class ModelParameter(BaseModelClass):
     executeRuntimeFeatures: Optional[List[str]] = None
     evaluationRuntimeFeatures: Optional[List[str]] = None
     pyEnvRuntimeFeatures: Optional[List[str]] = None
-    # it means default template does not use it
-    # for Cpu, None means add
+    # Default is False - CPU execution provider is only added when explicitly set to True
     addCpu: Optional[bool] = None
     addAmdNpu: Optional[ADMNPUConfig] = None
 
@@ -298,7 +297,7 @@ class ModelParameter(BaseModelClass):
         runtimeActions = None
 
         # CPU always last
-        if self.addCpu != False and currentRuntimeRPC != RuntimeEnum.CPU:
+        if self.addCpu and currentRuntimeRPC != RuntimeEnum.CPU:
             runtimeValues.append(GlobalVars.RuntimeToEPName[RuntimeEnum.CPU].value)
             runtimeDisplayNames.append(GlobalVars.RuntimeToDisplayName[RuntimeEnum.CPU])
             if runtimeActions is not None:
