@@ -86,9 +86,6 @@
             "type": "StaticLLM",
             "batch_size": 1,
             "context_length": 1
-        },
-        "cb": {
-            "type": "EPContextBinaryGenerator"
         }
     },
     "target": "target_system",
