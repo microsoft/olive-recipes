@@ -10,17 +10,26 @@ Note that the resource usage is updated once per second, so if the response is q
 
 In start, there are two options:
 
-### Display usage of "The next session"
+### Display session usage of "The next session"
 
 When this is selected and started, we will wait until the next started process that emits Windows ML events (see explaination in "Explore more tool") and start to show the resource usage of it.
 
 This option is ideal for testing a run-once app. In this case, you could start profiling and run the app and the resource usages will be shown up.
 
-### Display usage of "Process Id or Name"
+### Display session usage of "Process Id or Name"
 
 When this is selected and started, we will show resource usage and Windows ML events of the process you speficied.
 
 This option is ideal for moniting a always-run app.
+
+For Process Id or Name, it could be:
+
+- Process Id like 12345
+- Process Name like Inference.Service.Agent. The case sensitive name of app without .exe
+- Process Path like c:\Users\xxx\Inference.Service.Agent.exe
+
+For Process Name or Process Path, use the first match.
+
 
 After start, two plots could be active for your app:
 
