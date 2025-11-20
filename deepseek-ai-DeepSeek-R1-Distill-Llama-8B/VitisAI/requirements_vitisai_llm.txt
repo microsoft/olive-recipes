@@ -15,15 +15,12 @@ model-generate==1.5.1; sys_platform == 'win32'
 
 nltk
 numpy
+
+# Pin onnx version
+onnx==1.18.0
 onnxruntime==1.21.1
 onnxruntime-genai==0.7.1
 optimum
 sentencepiece
 tabulate
 transformers==4.50.0
-
-# Pin onnx version
-onnx==1.18.0
-
-
-
