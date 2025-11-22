@@ -7,7 +7,7 @@
             "input_names": [ "input_ids", "image_features" ],
             "input_shapes": [ [ 1, 64 ], [ 1, 256, 2560 ] ],
             "input_types": [ "int64", "float32" ],
-            "output_names": [ "/model/embed_tokens/Mul/output_0" ],
+            "output_names": [ "/model/embed_tokens/Mul_output_cast_0" ],
             "output_shapes": [ [ 1, 64, 2560 ] ],
             "dynamic_axes": {
                 "input_ids": { "0": "batch_size", "1": "seq_length" },
