@@ -13,11 +13,16 @@ This folder contains sample Olive configuration to optimize Qwen models for AMD 
 
 For LLMs - follow the below commands to generate the optimized model for VitisAI Execution Provider.
 
-**Note:** We’ve tested it on Linux with ROCm and on Linux with CUDA. It is also supported on Windows with CPU, though quantization may be slower. Support for Windows with CUDA/ROCm is planned for a future release.
+**Platform Support:**
+- ✅ **Linux with ROCm** - Supported
+- ✅ **Linux with CUDA** - Supported
+- ✅ **Windows with CUDA** - Supported
+- ✅ **Windows with CPU** - Supported (quantization will be slower)
+- ⏳ **Windows with ROCm** - Planned for future release
 
 For more details about quark, see the [Quark Documentation](https://quark.docs.amd.com/latest/)
 
-#### Create a Python 3.10 conda environment and run the below commands
+#### **Create a Python 3.10 conda environment and run the below commands**
 ```bash
 conda create -n olive python=3.10
 conda activate olive
@@ -29,24 +34,33 @@ pip install -e .
 pip install -r requirements.txt
 ```
 
-#### Install VitisAI LLM dependencies
+#### **Install VitisAI LLM dependencies**
 
 ```bash
-cd examples/qwen2_5/vitisai
+cd olive-recipes/Qwen-Qwen2.5-1.5B-Instruct/VitisAI
 pip install --force-reinstall -r requirements_vitisai_llm.txt
-
-# Note: If you're running model generation on a Windows system, please uncomment the following line in requirements_vitisai_llm.txt:
-# --extra-index-url=https://pypi.amd.com/simple
-# model-generate==1.5.1
 ```
-Make sure to install the correct version of PyTorch before running quantization. If using AMD GPUs, update PyTorch to use ROCm-compatible PyTorch build. For example see the below commands
 
+**Note:** The requirements file automatically installs the correct `model-generate` version for your platform (1.5.0 for Linux, 1.5.1 for Windows).
+
+#### **Install PyTorch**
+
+Make sure to install the correct version of PyTorch before running quantization:
+
+**For AMD GPUs (ROCm):**
 ```bash
 pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/rocm6.1
 
 python -c "import torch; print(torch.cuda.is_available())" # Must return `True`
 ```
-#### Generate optimized LLM model for VitisAI NPU
+
+**For NVIDIA GPUs (CUDA):**
+```bash
+pip install torch==2.7.1 torchvision==0.22.1 torchaudio==2.7.1 --index-url https://download.pytorch.org/whl/cu128
+
+python -c "import torch; print(torch.cuda.is_available())" # Must return `True`
+```
+#### **Generate optimized LLM model for VitisAI NPU**
 Follow the above setup instructions, then run the below command to generate the optimized LLM model for VitisAI EP
 
 ```bash
