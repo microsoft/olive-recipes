@@ -14,11 +14,16 @@ This folder contains sample Olive configuration to optimize Phi-4 models for AMD
 
 For LLMs - follow the below commands to generate the optimized model for VitisAI Execution Provider.
 
-**Note:** We’ve tested it on Linux with ROCm and on Linux with CUDA. It is also supported on Windows with CPU, though quantization may be slower. Support for Windows with CUDA/ROCm is planned for a future release.
+**Platform Support:**
+- ✅ **Linux with ROCm** - Supported
+- ✅ **Linux with CUDA** - Supported
+- ✅ **Windows with CUDA** - Supported
+- ✅ **Windows with CPU** - Supported (quantization will be slower)
+- ⏳ **Windows with ROCm** - Planned for future release
 
 For more details about quark, see the [Quark Documentation](https://quark.docs.amd.com/latest/)
 
-#### Create a Python 3.10 conda environment and run the below commands
+#### **Create a Python 3.10 conda environment and run the below commands**
 ```bash
 conda create -n olive python=3.10
 conda activate olive
@@ -30,10 +35,10 @@ pip install -e .
 pip install -r requirements.txt
 ```
 
-#### Install VitisAI LLM dependencies
+#### **Install VitisAI LLM dependencies**
 
 ```bash
-cd examples/phi4/vitisai
+cd olive-recipes/microsoft-Phi-4-mini-reasoning/VitisAI
 pip install --force-reinstall -r requirements_vitisai_llm.txt
 
 # Note: If you're running model generation on a Windows system, please uncomment the following line in requirements_vitisai_llm.txt:
@@ -48,7 +53,7 @@ pip3 install torch torchvision torchaudio --index-url https://download.pytorch.o
 
 python -c "import torch; print(torch.cuda.is_available())" # Must return `True`
 ```
-#### Generate optimized LLM model for VitisAI NPU
+#### **Generate optimized LLM model for VitisAI NPU**
 Follow the above setup instructions, then run the below command to generate the optimized LLM model for VitisAI EP
 
 ```bash

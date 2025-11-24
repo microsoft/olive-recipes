@@ -14,26 +14,26 @@ from model_lab import RuntimeEnum
 uvpipInstallPrefix = "# uvpip:install"
 cudaExtraUrl = "--extra-index-url https://download.pytorch.org/whl/cu128"
 torchCudaVersion = "torch==2.7.0+cu128"
-onnxruntimeWinmlVersion = f"{uvpipInstallPrefix} onnxruntime-winml==1.22.0.post2 --extra-index-url https://aiinfra.pkgs.visualstudio.com/PublicPackages/_packaging/ORT-Nightly/pypi/simple --no-deps;post"
+# TODO unused. need update later
+onnxruntimeWinmlVersion = f"{uvpipInstallPrefix} onnxruntime-winml==1.23.2.202510220036 --extra-index-url https://aiinfra.pkgs.visualstudio.com/PublicPackages/_packaging/ORT-Nightly/pypi/simple --no-deps;post"
 onnxruntimeGenaiWinmlVersion = f"{uvpipInstallPrefix} onnxruntime-genai-winml==0.10.0 --extra-index-url https://aiinfra.pkgs.visualstudio.com/PublicPackages/_packaging/ORT-Nightly/pypi/simple --no-deps;post"
 evaluateVersion = "evaluate==0.4.3"
 scikitLearnVersion = "scikit-learn==1.6.1"
-optimumVersion = "optimum==1.26.0"
+optimumVersion = "optimum==1.26.1"
 winrtPackage = [
     "--index-url https://aiinfra.pkgs.visualstudio.com/PublicPackages/_packaging/ORT-Nightly/pypi/simple",
     "--extra-index-url https://pypi.org/simple",
     "winrt-runtime==3.2.1",
     "winrt-Windows.Foundation==3.2.1",
     "winrt-Windows.Foundation.Collections==3.2.1",
-    "winui3-Microsoft.Windows.AI.MachineLearning==1!1.8.250702007.dev4",
-    "winui3-Microsoft.Windows.ApplicationModel.DynamicDependency.Bootstrap==1!1.8.250702007.dev4",
+    "wasdk-Microsoft.Windows.AI.MachineLearning==1.8.251106002",
+    "wasdk-Microsoft.Windows.ApplicationModel.DynamicDependency.Bootstrap==1.8.251106002",
 ]
 
 # if from git: "git+https://github.com/microsoft/Olive.git@COMMIT_ID#egg=olive_ai
-oliveAi = (
-    "olive-ai==0.9.3"
-)
+oliveAi = "olive-ai==0.10.1"
 torchVision = "torchvision==0.22.0"
+# TODO it is an example
 amdQuark = "AMD__Quark_py3.10.17"
 
 
@@ -116,6 +116,7 @@ def main():
     shared_conversion = [
         "huggingface-hub[hf_xet]==0.34.4",
         # sticking to ONNX IR version 10 which can still be consumed by ORT v1.22.0
+        # TODO ort now supports IR version 11 onnx==1.18.0
         "onnx==1.17.0",
         oliveAi,
         "tabulate==0.9.0",
@@ -152,7 +153,7 @@ def main():
             "openvino==2025.1.0",
             "nncf==2.16.0",
             "numpy==1.26.4",
-            "optimum[openvino]==1.24.0",
+            "optimum[openvino]==1.26.1",
             # TODO for model builder
             "onnxruntime-genai==0.7.0",
         ],

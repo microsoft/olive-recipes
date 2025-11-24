@@ -4,6 +4,7 @@ This folder contains a sample use case of Olive to optimize a Phi-3-mini-instruc
 
 - Intel® GPU: [Phi 3 Mini 4k Instruct Dynamic Shape Model](https://huggingface.co/microsoft/Phi-3-mini-4k-instruct)
 - Intel® NPU: [Phi 3 Mini 4k Instruct Dynamic Shape Model](https://huggingface.co/microsoft/Phi-3-mini-4k-instruct)
+- ModelBuilder for NVIDIA TRT for RTX GPU
 
 ## Quantization Workflows
 

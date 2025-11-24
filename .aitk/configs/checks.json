@@ -1,16 +1,16 @@
 {
-    "configCheck": 126,
-    "copyCheck": 208,
+    "configCheck": 127,
+    "copyCheck": 182,
     "extensionCheck": 1,
-    "gitignoreCheck": 36,
+    "gitignoreCheck": 37,
     "inferenceModelCheck": 25,
-    "ipynbCheck": 54,
-    "licenseCheck": 35,
-    "modelProjectCheck": 37,
-    "oliveCheck": 0,
-    "oliveJsonCheck": 126,
-    "pathCheck": 822,
-    "requirementsCheck": 36,
+    "ipynbCheck": 37,
+    "licenseCheck": 36,
+    "modelProjectCheck": 38,
+    "oliveCheck": 36,
+    "oliveJsonCheck": 127,
+    "pathCheck": 795,
+    "requirementsCheck": 37,
     "templateCheck": 1,
-    "venvRequirementsCheck": 12
+    "venvRequirementsCheck": 10
 }

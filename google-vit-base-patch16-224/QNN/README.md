@@ -16,3 +16,19 @@ You can test output model with provided scripts. It is also a example you can re
 ```
 python .\val_tiny_imagenet.py
 ```
+
+### QNN-GPU:
+
+Please install Olive directly using:
+
+```bash
+pip install olive-ai
+```
+
+To run the config:
+
+```bash
+olive run --config config_gpu_fp32.json
+```
+
+✅ Optimized model saved in: `output/`

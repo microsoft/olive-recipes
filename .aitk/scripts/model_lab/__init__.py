@@ -4,6 +4,7 @@ from enum import Enum
 class RuntimeEnum(Enum):
     CPU = "CPU"
     QNN = "QNN"
+    QNNGPU = "QNNGPU"
     AMDNPU = "AMDNPU"
     AMDGPU = "AMDGPU"
     NvidiaTRTRTX = "NvidiaTRTRTX"
