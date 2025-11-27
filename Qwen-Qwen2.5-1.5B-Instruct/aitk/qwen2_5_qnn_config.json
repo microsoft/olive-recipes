@@ -4,7 +4,7 @@
         "model_path": "Qwen/Qwen2.5-1.5B-Instruct"
     },
     "systems": {
-        "qnn_system": {
+        "target_system": {
             "type": "PythonEnvironment",
             "python_environment_path": "/path/to/qnn/env/bin",
             "accelerators": [
@@ -137,9 +137,9 @@
             "type": "ComposeOnnxModels"
         }
     },
-    "target": "qnn_system",
+    "target": "target_system",
     "log_severity_level": 1,
-    "output_dir": "model/qwen_2.5_1.5b_Instruct",
+    "output_dir": "model/qwen_2.5",
     "cache_dir": "cache",
     "no_artifacts": true,
     "evaluate_input_model": false
