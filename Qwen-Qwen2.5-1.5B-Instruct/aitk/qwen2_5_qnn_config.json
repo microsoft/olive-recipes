@@ -139,7 +139,7 @@
     },
     "target": "target_system",
     "log_severity_level": 1,
-    "output_dir": "model/qwen_2.5",
+    "output_dir": "model/qwen2_5",
     "cache_dir": "cache",
     "no_artifacts": true,
     "evaluate_input_model": false
