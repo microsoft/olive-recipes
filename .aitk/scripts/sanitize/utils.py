@@ -17,6 +17,7 @@ from .constants import EPNames, OliveDeviceTypes, OlivePropertyNames
 class GlobalVars:
     errorList = []
     verbose = False
+    olivePath = None
     # Initialize checks
     pathCheck = 0
     configCheck = []

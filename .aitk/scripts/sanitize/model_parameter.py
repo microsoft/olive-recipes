@@ -600,17 +600,21 @@ class ModelParameter(BaseModelClass):
                 return
             printWarning(f"{self._file} does not have oliveFile")
             return
-
-        if self._file:
+        if self.oliveFile.startswith("o:"):
+            if GlobalVars.olivePath:
+                oliveFile = Path(GlobalVars.olivePath) / "examples" / self.oliveFile[2:]
+            else:
+                return
+        elif self._file:
             # relative to aitk folder
             oliveFile = Path(self._file).parent.parent / self.oliveFile
             if not oliveFile.exists():
-                printWarning(f"{self._file}'s oliveFile {self.oliveFile} does not exist")
+                printError(f"{self._file}'s oliveFile {self.oliveFile} does not exist")
                 return
-            with open_ex(oliveFile, "r") as file:
-                oliveFileJson = json.load(file)
         else:
             raise Exception("Internal error: _file is not set")
+        with open_ex(oliveFile, "r") as file:
+            oliveFileJson = json.load(file)
 
         diff = DeepDiff(
             oliveFileJson[OlivePropertyNames.Passes],
