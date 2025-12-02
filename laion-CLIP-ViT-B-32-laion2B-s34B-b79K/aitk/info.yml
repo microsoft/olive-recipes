@@ -23,6 +23,9 @@ recipes:
     - file: "laion_clip_migraphx.json"
       device: gpu
       ep: MIGraphXExecutionProvider
+    - file: "laion_clip_qnn_gpu.json"
+      device: gpu
+      ep: QNNExecutionProvider
 aitk:
     modelInfo:
         id: "huggingface/laion/CLIP-ViT-B-32-laion2B-s34B-b79K"
