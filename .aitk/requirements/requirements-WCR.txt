@@ -112,7 +112,7 @@ transformers==4.51.3
 typing-extensions==4.15.0
 typing-inspection==0.4.1
 tzdata==2025.2
-urllib3==2.5.0
+urllib3==2.6.0
 wasdk-Microsoft.Windows.AI.MachineLearning==1.8.251106002
 wasdk-Microsoft.Windows.ApplicationModel.DynamicDependency.Bootstrap==1.8.251106002
 wcwidth==0.2.13
