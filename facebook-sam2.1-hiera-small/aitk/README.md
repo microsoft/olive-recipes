@@ -1,0 +1,12 @@
+# sam2.1-hiera-small Model Optimization
+
+This repository demonstrates the optimization of the [sam2.1-hiera-small](https://huggingface.co/facebook/sam2.1-hiera-small) model using **post-training quantization (PTQ)** techniques. The optimization process is divided into these workflows:
+
+- OpenVINO for Intel® NPU
+   + This process uses OpenVINO specific passes like `OpenVINOOptimumConversion`, `OpenVINOIoUpdate` and `OpenVINOEncapsulation`
+
+## Intel® Workflows
+
+These workflows performs quantization with Optimum Intel®. It performs the optimization pipeline:
+
+- *HuggingFace Model -> Quantized OpenVINO model -> Quantized encapsulated ONNX OpenVINO IR model*
