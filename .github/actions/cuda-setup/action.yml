@@ -2,6 +2,12 @@ name: Olive Recipes CI | Setup Composite Workflow for CUDA runs
 description: "Composite action to setup environment for CUDA workflows"
 
 inputs:
+  shell:
+    description: "Shell to use."
+    required: true
+    type: choice
+    options: [ "bash", "cmd" ]
+
   python_version:
     description: "Python version to use."
     required: true
@@ -25,6 +31,18 @@ runs:
       cache-dependency-path: |
         requirements.txt
         ${{ inputs.requirements_file }}
+
+  - name: Install Olive
+    shell: ${{ inputs.shell }}
+    run: python -m pip install git+https://github.com/microsoft/Olive.git@main
+
+  - name: Install ONNX Runtime GPU
+    shell: ${{ inputs.shell }}
+    run: python -m pip install onnxruntime-gpu
+
+  - name: Install optimum-onnx for HuggingFace export
+    shell: ${{ inputs.shell }}
+    run: python -m pip install optimum-onnx
 
   - name: Install requirements
     if: ${{ inputs.requirements_file }}

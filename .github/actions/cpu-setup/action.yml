@@ -32,6 +32,14 @@ runs:
         requirements.txt
         ${{ inputs.requirements_file }}
 
+  - name: Install Olive
+    shell: ${{ inputs.shell }}
+    run: python -m pip install git+https://github.com/microsoft/Olive.git@main
+
+  - name: Install optimum-onnx for HuggingFace export
+    shell: ${{ inputs.shell }}
+    run: python -m pip install optimum-onnx
+
   - name: Install requirements
     if: ${{ inputs.requirements_file }}
     shell: ${{ inputs.shell }}
