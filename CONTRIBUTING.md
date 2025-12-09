@@ -67,8 +67,8 @@ CI for Olive recipes can be configured to run automatically by adding `olive_ci.
 Each `olive_ci.json` is unique to the folder it contains and, at the minimum, should contain the following information for each root entry:
 
 * name [str]: a unique identifier to locate specific job
-* os [str]: options include ubuntu or windows
-* device [str]: options include cpu or gpu.
+* os [str]: options are ubuntu or windows
+* device [str]: options are cpu or cuda.
 * requirements_file [str]: relative file path to requirements file to use for this job. The job will use this file to setup the environment to run the commands.
 * command [str]: a list of commands concatenated by either '&&' (on unix-like platforms) or separated by ';' (on windows platforms). This entry can also point to a shell or python script which can implement more complicated/advanced logic to run. When referring to a shell or python script, the path is relative to the location of the corresponding `olive_ci.json` file.
 

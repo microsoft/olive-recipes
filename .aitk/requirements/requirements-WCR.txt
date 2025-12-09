@@ -60,7 +60,7 @@ olive-ai==0.10.1
 # onnx==1.17.0
 onnx==1.17.0
 onnx-ir==0.1.10
-onnxruntime-genai-winml==0.10.0
+onnxruntime-genai-winml==0.11.2
 onnxruntime-winml==1.23.2.202510220036
 onnxscript==0.5.3
 # optimum==1.26.1
@@ -112,7 +112,7 @@ transformers==4.51.3
 typing-extensions==4.15.0
 typing-inspection==0.4.1
 tzdata==2025.2
-urllib3==2.5.0
+urllib3==2.6.0
 wasdk-Microsoft.Windows.AI.MachineLearning==1.8.251106002
 wasdk-Microsoft.Windows.ApplicationModel.DynamicDependency.Bootstrap==1.8.251106002
 wcwidth==0.2.13

@@ -6,7 +6,7 @@
             "quant_scheme": "w_uint4_per_group_asym",
             "quant_algo": "awq",
             "dataset": "pileval_for_awq_benchmark",
-            "data_type": "float32",
+            "data_type": "bfloat16",
             "num_calib_data": 128,
             "model_export": [ "hf_format" ],
             "exclude_layers": [  ],
