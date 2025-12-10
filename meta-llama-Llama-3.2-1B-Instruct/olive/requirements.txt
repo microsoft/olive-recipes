@@ -7,3 +7,4 @@ olive-ai[lora]
 onnxruntime-genai-cuda
 optimum
 transformers==4.45.0
+peft==0.13.2
