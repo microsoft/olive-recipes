@@ -1,5 +1,5 @@
 {
-    "configCheck": 127,
+    "configCheck": 138,
     "copyCheck": 182,
     "extensionCheck": 1,
     "gitignoreCheck": 37,
@@ -8,8 +8,8 @@
     "licenseCheck": 36,
     "modelProjectCheck": 38,
     "oliveCheck": 36,
-    "oliveJsonCheck": 127,
-    "pathCheck": 795,
+    "oliveJsonCheck": 138,
+    "pathCheck": 861,
     "requirementsCheck": 37,
     "templateCheck": 1,
     "venvRequirementsCheck": 10
