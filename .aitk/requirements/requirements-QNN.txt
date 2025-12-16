@@ -12,7 +12,7 @@ colorlog==6.9.0
 # datasets==3.5.0
 datasets==3.5.0
 dill==0.3.8
-filelock==3.18.0
+filelock==3.20.1
 flatbuffers==25.2.10
 frozenlist==1.7.0
 fsspec==2024.12.0
