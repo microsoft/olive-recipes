@@ -1,0 +1,9 @@
+keywords:
+    foundry-local
+    qnn
+recipes:
+    - file: "config.json"
+      devices:
+        - npu
+      ep: QNNExecutionProvider
+name: Phi-4-reasoning
