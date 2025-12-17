@@ -5,7 +5,6 @@ Model parameter configuration classes
 from __future__ import annotations
 
 import json
-import os
 import re
 from pathlib import Path
 from typing import Any, Dict, Iterator, List, Optional
@@ -223,12 +222,12 @@ class ModelParameter(BaseModelClass):
     isQNNLLM: Optional[bool] = None
     # SET AUTOMATICALLY TO TRUE WHEN CUDAExecutionProvider
     isGPURequired: Optional[bool] = None
+    needHFLogin: Optional[bool] = None
     runtimeOverwrite: Optional[RuntimeOverwrite] = None
     executeRuntimeFeatures: Optional[List[str]] = None
     evaluationRuntimeFeatures: Optional[List[str]] = None
     pyEnvRuntimeFeatures: Optional[List[str]] = None
-    # it means default template does not use it
-    # for Cpu, None means add
+    # Default is False - CPU execution provider is only added when explicitly set to True
     addCpu: Optional[bool] = None
     addAmdNpu: Optional[ADMNPUConfig] = None
 
@@ -283,6 +282,10 @@ class ModelParameter(BaseModelClass):
         currentOliveDeviceType = system[OlivePropertyNames.Accelerators][0].get(
             OlivePropertyNames.Device, OliveDeviceTypes.Any.value
         )
+
+        if currentEp == EPNames.QNNExecutionProvider.value and currentOliveDeviceType == OliveDeviceTypes.Any.value:
+            currentOliveDeviceType = OliveDeviceTypes.NPU.value
+
         currentRuntimeRPC = GlobalVars.GetRuntimeRPC(currentEp, currentOliveDeviceType)
         # use any for default
         if currentEp == EPNames.OpenVINOExecutionProvider.value:
@@ -294,7 +297,7 @@ class ModelParameter(BaseModelClass):
         runtimeActions = None
 
         # CPU always last
-        if self.addCpu != False and currentRuntimeRPC != RuntimeEnum.CPU:
+        if self.addCpu and currentRuntimeRPC != RuntimeEnum.CPU:
             runtimeValues.append(GlobalVars.RuntimeToEPName[RuntimeEnum.CPU].value)
             runtimeDisplayNames.append(GlobalVars.RuntimeToDisplayName[RuntimeEnum.CPU])
             if runtimeActions is not None:
@@ -336,7 +339,6 @@ class ModelParameter(BaseModelClass):
                 evaluateUsedInExecute=True,
             )
             self.executeRuntimeFeatures = ["AutoGptq"]
-            self.pyEnvRuntimeFeatures = ["Nightly"]
 
         if self.runtimeOverwrite and not self.runtimeOverwrite.Check(oliveJson):
             printError(f"{self._file} runtime overwrite has error")
@@ -438,6 +440,11 @@ class ModelParameter(BaseModelClass):
             self.isGPURequired = True
         else:
             self.isGPURequired = None
+
+        # model builder uses AutoConfig.from_pretrained(hf_name, token=hf_token, trust_remote_code=True, **extra_kwargs) and trust_remote_code=True requires token
+        first_pass_value = next(iter(oliveJson[OlivePropertyNames.Passes].values()), None)
+        if first_pass_value and first_pass_value[OlivePropertyNames.Type].lower() == OlivePassNames.ModelBuilder:
+            self.needHFLogin = True
 
         self.checkPhase(oliveJson)
         self.CheckRuntimeInConversion(oliveJson, modelList, modelInfo)
@@ -575,22 +582,38 @@ class ModelParameter(BaseModelClass):
     def checkOliveFile(self, oliveJson: Any, modelInfo: ModelInfo):
         if modelInfo.extension:
             return
+        if modelInfo.template:
+            return
         if not self.oliveFile:
-            if self.runtime and self.runtime.displayNames and self.runtime.displayNames[0] == GlobalVars.RuntimeToDisplayName[RuntimeEnum.DML]:
+            if (
+                self.runtime
+                and self.runtime.displayNames
+                and self.runtime.displayNames[0]
+                in [
+                    GlobalVars.RuntimeToDisplayName[RuntimeEnum.DML],
+                    GlobalVars.RuntimeToDisplayName[RuntimeEnum.AMDGPU],
+                    GlobalVars.RuntimeToDisplayName[RuntimeEnum.IntelCPU],
+                    GlobalVars.RuntimeToDisplayName[RuntimeEnum.IntelGPU],
+                    GlobalVars.RuntimeToDisplayName[RuntimeEnum.IntelNPU],
+                ]
+            ):
                 return
             printWarning(f"{self._file} does not have oliveFile")
             return
-
-        # TODO should merge ones within olive-recipes
-        if self.oliveFile.startswith("r:"): # relative to
-            compareFile = os.path.join(os.path.dirname(self._file), self.oliveFile[2:])
-        elif self.oliveFile.startswith("i:"): # ignore
-            return
-        elif GlobalVars.olivePath:
-            compareFile = os.path.join(GlobalVars.olivePath, "examples", self.oliveFile)
+        if self.oliveFile.startswith("o:"):
+            if GlobalVars.olivePath:
+                oliveFile = Path(GlobalVars.olivePath) / "examples" / self.oliveFile[2:]
+            else:
+                return
+        elif self._file:
+            # relative to aitk folder
+            oliveFile = Path(self._file).parent.parent / self.oliveFile
+            if not oliveFile.exists():
+                printError(f"{self._file}'s oliveFile {self.oliveFile} does not exist")
+                return
         else:
-            return
-        with open_ex(compareFile, "r") as file:
+            raise Exception("Internal error: _file is not set")
+        with open_ex(oliveFile, "r") as file:
             oliveFileJson = json.load(file)
 
         diff = DeepDiff(
@@ -632,7 +655,7 @@ class ModelParameter(BaseModelClass):
 
         if diff:
             path = Path(self._file if self._file else "UNKNOWN")
-            printError(f"{"/".join(path.parts[-3:])} different from {self.oliveFile}\r\n{diff}")
+            printWarning(f"{"/".join(path.parts[-3:])} different from {self.oliveFile}\r\n{diff}")
         GlobalVars.oliveCheck += 1
 
     def checkDebugInfo(self, oliveJson: Any):

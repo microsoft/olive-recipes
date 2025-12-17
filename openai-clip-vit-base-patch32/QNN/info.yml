@@ -1,0 +1,7 @@
+keywords:
+    QNN
+arch: clip
+recipes:
+    - file: "config_gpu_fp32.json"
+      device: gpu
+      ep: QNNExecutionProvider

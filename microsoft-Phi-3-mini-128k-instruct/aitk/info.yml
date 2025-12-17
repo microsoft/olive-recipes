@@ -6,11 +6,14 @@ recipes:
       devices:
         - gpu
       ep: OpenVINOExecutionProvider
+    - file: "phi3_trtrtx.json"
+      device: gpu
+      ep: NvTensorRTRTXExecutionProvider
       aitk:
-          oliveFile: "phi3/openvino/Phi-3-mini-128k-instruct-gpu-context-ov-dy.json"
+          oliveFile: "NvTensorRtRtx/Phi-3-mini-128k-instruct_nvmo_int4_rtn.json"
 aitk:
     modelInfo:
         id: "huggingface/microsoft/Phi-3-mini-128k-instruct"
-        version: 2
+        version: 3
         groupId: "huggingface/microsoft/Phi-3-mini-4k-instruct"
         groupItemName: "128K"

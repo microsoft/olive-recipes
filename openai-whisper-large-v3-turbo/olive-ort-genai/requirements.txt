@@ -1,0 +1,7 @@
+librosa
+olive-ai
+onnxruntime-genai-cuda
+optimum[exporters]==1.27.0
+torch==2.7.0
+torchvision==0.22.0
+transformers==4.52.3

@@ -43,8 +43,8 @@
             "pre_process_data_config": {
                 "strategy": "line-by-line",
                 "add_special_tokens": true,
-                "max_samples": 256,
-                "max_seq_len": 4096
+                "max_samples": 128,
+                "max_seq_len": 512
             }
         }
     ],
@@ -112,10 +112,7 @@
                 "GroupQueryAttention",
                 "MatMulNBits"
             ],
-            "save_as_external_data": true,
-            "extra_option": {
-                "CalibStridedMinMax": 4
-            }
+            "save_as_external_data": true
         },
         "sp": {
             "type": "SplitModel"

@@ -5,9 +5,7 @@ recipes:
     - file: "mistral-7b-instruct-v0.3-ov.json"
       device: gpu
       ep: OpenVINOExecutionProvider
-      aitk:
-          oliveFile: "mistral/openvino/Mistral-7B-Instruct-v0.3-gpu-context-ov-dy.json"
 aitk:
     modelInfo:
         id: "huggingface/mistralai/Mistral-7B-Instruct-v0.3"
-        version: 2
+        version: 3

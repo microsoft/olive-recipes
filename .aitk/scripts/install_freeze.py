@@ -14,15 +14,28 @@ from model_lab import RuntimeEnum
 uvpipInstallPrefix = "# uvpip:install"
 cudaExtraUrl = "--extra-index-url https://download.pytorch.org/whl/cu128"
 torchCudaVersion = "torch==2.7.0+cu128"
-onnxruntimeWinmlVersion = f"{uvpipInstallPrefix} onnxruntime-winml==1.22.0.post1 --extra-index-url https://aiinfra.pkgs.visualstudio.com/PublicPackages/_packaging/ORT-Nightly/pypi/simple --no-deps;post"
-onnxruntimeGenaiWinmlVersion = f"{uvpipInstallPrefix} onnxruntime-genai-winml==0.8.3 --extra-index-url https://aiinfra.pkgs.visualstudio.com/PublicPackages/_packaging/ORT-Nightly/pypi/simple --no-deps;post"
+# TODO unused. need update later
+onnxruntimeWinmlVersion = f"{uvpipInstallPrefix} onnxruntime-winml==1.23.2.202510220036 --extra-index-url https://aiinfra.pkgs.visualstudio.com/PublicPackages/_packaging/ORT-Nightly/pypi/simple --no-deps;post"
+onnxruntimeGenaiWinmlVersion = f"{uvpipInstallPrefix} onnxruntime-genai-winml==0.10.0 --extra-index-url https://aiinfra.pkgs.visualstudio.com/PublicPackages/_packaging/ORT-Nightly/pypi/simple --no-deps;post"
 evaluateVersion = "evaluate==0.4.3"
 scikitLearnVersion = "scikit-learn==1.6.1"
-optimumVersion = "optimum==1.26.0"
+optimumVersion = "optimum==1.26.1"
+winrtPackage = [
+    "--index-url https://aiinfra.pkgs.visualstudio.com/PublicPackages/_packaging/ORT-Nightly/pypi/simple",
+    "--extra-index-url https://pypi.org/simple",
+    "winrt-runtime==3.2.1",
+    "winrt-Windows.Foundation==3.2.1",
+    "winrt-Windows.Foundation.Collections==3.2.1",
+    "wasdk-Microsoft.Windows.AI.MachineLearning==1.8.251106002",
+    "wasdk-Microsoft.Windows.ApplicationModel.DynamicDependency.Bootstrap==1.8.251106002",
+]
+
 # if from git: "git+https://github.com/microsoft/Olive.git@COMMIT_ID#egg=olive_ai
-oliveAi = "olive-ai@git+https://github.com/microsoft/Olive.git@8365802b68c32725418ae2c8999b9a90af0d41e0#egg=olive-ai"
+oliveAi = "olive-ai==0.10.1"
 torchVision = "torchvision==0.22.0"
+# TODO it is an example
 amdQuark = "AMD__Quark_py3.10.17"
+
 
 def get_requires(name: str, args):
     # TODO for this case, need to install via Model Lab first
@@ -51,7 +64,17 @@ def get_requires(name: str, args):
     return [req for req in requires if req], package_name, viaModelLab
 
 
-def get_name_outputFile(python: str, configs_dir: str):
+def get_name_outputFile(python: str, configs_dir: str, input_runtime: str):
+    if input_runtime:
+        if "/" in input_runtime:
+            folder, name = input_runtime.split("/")
+            runtime = f"{folder}__{name}"
+            outputFile = path.join(configs_dir, "requirements", folder, f"{name}.txt")
+        else:
+            outputFile = path.join(configs_dir, "requirements", f"requirements-{input_runtime}.txt")
+            runtime = RuntimeEnum(input_runtime)
+        return runtime, outputFile
+
     pythonSegs = python.split("-")
     if "__" in python:
         folder_name = pythonSegs[-4].split("__")
@@ -64,6 +87,7 @@ def get_name_outputFile(python: str, configs_dir: str):
         outputFile = path.join(configs_dir, "requirements", f"requirements-{runtime}.txt")
         runtime = RuntimeEnum(runtime)
     return runtime, outputFile
+
 
 def main():
     pre = {
@@ -86,12 +110,13 @@ def main():
             # olive.passes.quark_quantizer.torch.language_modeling.llm_utils.model_preparation
             "psutil==7.0.0",
             # ValueError: Using a `device_map`, `tp_plan`, `torch.device` context manager or setting `torch.set_default_device(device)` requires `accelerate`. You can install it with `pip install accelerate`
-            "accelerate==1.9.0",
-        ]
+            "accelerate==1.10.1",
+        ],
     }
     shared_conversion = [
         "huggingface-hub[hf_xet]==0.34.4",
         # sticking to ONNX IR version 10 which can still be consumed by ORT v1.22.0
+        # TODO ort now supports IR version 11 onnx==1.18.0
         "onnx==1.17.0",
         oliveAi,
         "tabulate==0.9.0",
@@ -108,6 +133,7 @@ def main():
         RuntimeEnum.NvidiaGPU: shared_conversion,
         RuntimeEnum.WCR: shared_both,
         RuntimeEnum.WCR_CUDA: shared_both,
+        RuntimeEnum.WCR_INIT: [onnxruntimeWinmlVersion],
         RuntimeEnum.QNN_LLLM: shared_ipynb,
         amdQuark: shared_conversion,
     }
@@ -127,7 +153,7 @@ def main():
             "openvino==2025.1.0",
             "nncf==2.16.0",
             "numpy==1.26.4",
-            "optimum[openvino]==1.24.0",
+            "optimum[openvino]==1.26.1",
             # TODO for model builder
             "onnxruntime-genai==0.7.0",
         ],
@@ -138,7 +164,7 @@ def main():
             # 0.8.X is not working for DML LLM because
             # File "onnxruntime_genai\models\builder.py", line 571, in make_tensor_proto_from_tensor
             #    data_type=self.to_onnx_dtype[tensor.dtype],
-            #KeyError: torch.uint8
+            # KeyError: torch.uint8
             "onnxruntime-genai-cuda==0.7.0",
             optimumVersion,
         ],
@@ -149,6 +175,7 @@ def main():
             evaluateVersion,
             scikitLearnVersion,
             optimumVersion,
+            *winrtPackage,
         ],
         RuntimeEnum.WCR_CUDA: [
             "torchvision==0.22.0+cu128",
@@ -157,6 +184,7 @@ def main():
             evaluateVersion,
             scikitLearnVersion,
             optimumVersion,
+            *winrtPackage,
         ],
         RuntimeEnum.QNN_LLLM: [
             # for onnxruntime-winml
@@ -167,10 +195,11 @@ def main():
 
     parser = argparse.ArgumentParser()
     parser.add_argument("--python", "-p", required=True, type=str, help="python path")
+    parser.add_argument("--runtime", "-r", required=True, type=str, help="runtime name")
     args = parser.parse_args()
 
     configs_dir = path.dirname(path.dirname(__file__))
-    runtime, outputFile = get_name_outputFile(args.python, configs_dir)
+    runtime, outputFile = get_name_outputFile(args.python, configs_dir, args.runtime)
 
     # prepare file
     configs_dir = path.dirname(path.dirname(__file__))
@@ -208,6 +237,7 @@ def main():
 
     # write result
     with open(outputFile, "w", newline="\n") as f:
+
         def get_write_require(req: str):
             if req in freeze_dict:
                 if req not in freeze_dict_used:
@@ -221,7 +251,7 @@ def main():
             requires, package_name, viaModelLab = get_requires(name, args)
             print(f"Requires for {name} by {package_name}: {requires}")
             freeze_dict_used.add(package_name)
-            
+
             for req in requires:
                 if get_write_require(req):
                     continue
@@ -235,9 +265,7 @@ def main():
                 raise Exception(f"Cannot find {req} in pip freeze")
 
         for name in all:
-            if (
-                name.startswith("#") and not name.startswith(uvpipInstallPrefix)
-            ) or name.startswith("--"):
+            if (name.startswith("#") and not name.startswith(uvpipInstallPrefix)) or name.startswith("--"):
                 f.write(name + "\n")
                 continue
             if not name.startswith("#"):

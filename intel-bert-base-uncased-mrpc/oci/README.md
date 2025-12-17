@@ -6,7 +6,7 @@ This folder contains recipe for BERT optimization using different workflows.
 
 Go to [How to run](#how-to-run)
 
-### BERT PTQ optimization 
+### BERT PTQ optimization
 
 This workflow performs the optimization pipeline:
 - *PyTorch Model -> Onnx Model -> Transformers Optimized Onnx Model -> Quantized Onnx Model -> ONNX Runtime performance tuning*

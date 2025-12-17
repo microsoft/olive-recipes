@@ -1,6 +1,22 @@
 keywords:
-    QNN
+    foundry-local
+    qnn
+arch: phi3
 recipes:
-    - file: "phi3_5_qnn_fp16.json"
-      device: npu
+    - file: "config.json"
+      devices:
+        - npu
       ep: QNNExecutionProvider
+    - file: "config_fp16.json"
+      devices:
+        - npu
+      ep: QNNExecutionProvider
+    - file: "config_gpu.json"
+      devices:
+        - gpu
+      ep: QNNExecutionProvider
+    - file: "config_gpu_ctxbin.json"
+      devices:
+        - gpu
+      ep: QNNExecutionProvider
+name: phi3.5-mini-instruct

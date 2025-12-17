@@ -4,6 +4,7 @@ This folder contains a sample use case of Olive to optimize a Mistral-7B-Instruc
 
 - Intel® NPU: [Mistral 7B Instruct v0.2 Dynamic Shape Model](https://huggingface.co/mistralai/Mistral-7B-Instruct-v0.2)
 - Intel® GPU: [Mistral 7B Instruct v0.2 Dynamic Shape Model](https://huggingface.co/mistralai/Mistral-7B-Instruct-v0.2)
+- ModelBuilder for NVIDIA TRT for RTX GPU
 
 ## Quantization Workflows
 

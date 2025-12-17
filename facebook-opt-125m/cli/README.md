@@ -10,6 +10,6 @@ python -m pip install -r requirements.txt
 ### Optimize the model
 
 ```
-olive optimize --precision int4 --provider CUDAExecutionProvider -m facebook/opt-125m -o opt_125_out 
+olive optimize --precision int4 --provider CUDAExecutionProvider -m facebook/opt-125m -o opt_125_out
 ```
 After running the above command, the model candidates and corresponding config will be saved in the output directory.

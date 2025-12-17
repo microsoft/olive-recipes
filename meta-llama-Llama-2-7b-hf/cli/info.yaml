@@ -1,0 +1,7 @@
+keywords:
+    olive-ai
+ep:
+    CUDAExecutionProvider
+device:
+    gpu
+name: meta-llama-Llama-2-7b-hf

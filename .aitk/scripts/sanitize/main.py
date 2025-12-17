@@ -32,13 +32,8 @@ def shouldCheckModel(rootDir: str, configDir: str, model: ModelInfo) -> str | No
 def main():
     argparser = argparse.ArgumentParser(description="Check model lab configs")
     argparser.add_argument("-v", "--verbose", action="store_true", help="Verbose mode")
-    argparser.add_argument(
-        "-o",
-        "--olive",
-        default="",
-        type=str,
-        help="Path to olive repo to check json files",
-    )
+    # for recipes not migrated https://github.com/microsoft/Olive/tree/rel-0.9.2/examples
+    argparser.add_argument("-o", "--olive", default="", help="Olive path to check recipes")
     args = argparser.parse_args()
     GlobalVars.verbose = args.verbose
     GlobalVars.olivePath = args.olive
@@ -52,8 +47,12 @@ def main():
     # check parameter template
     parameterTemplate = readCheckParameterTemplate(os.path.join(configDir, "parameter_template.json"))
 
+    modelList.Check()
+
     # check each model
-    for model in modelList.allModels():
+    # alphabetical order for easy debugging
+    all_models_sort = sorted(modelList.allModels(), key=lambda m: m.id.lower())
+    for model in all_models_sort:
         modelDir = shouldCheckModel(str(rootDir), configDir, model)
         if modelDir:
             if not check_case(Path(modelDir)):
@@ -68,8 +67,16 @@ def main():
             copyConfigFile = os.path.join(modelVerDir, "_copy.json.config")
             if os.path.exists(copyConfigFile):
                 copyConfig = CopyConfig.Read(copyConfigFile)
-                copyConfig.process(modelVerDir)
+                copyConfig.process(modelVerDir, pre=False)
                 copyConfig.writeIfChanged()
+
+            # check LICENSE
+            if not model.extension and not model.template:
+                licenseFile = os.path.join(modelVerDir, "..", "LICENSE")
+                if not os.path.exists(licenseFile):
+                    printError(f"{licenseFile} not exists.")
+                else:
+                    GlobalVars.licenseCheck += 1
 
             # get model space config
             modelSpaceConfig = ModelProjectConfig.Read(os.path.join(modelVerDir, "model_project.config"))
@@ -135,6 +142,8 @@ def main():
 
             if model.extension:
                 GlobalVars.extensionCheck += 1
+            if model.template:
+                GlobalVars.templateCheck += 1
 
             modelSpaceConfig.Check(model)
 
@@ -142,7 +151,7 @@ def main():
                 # check inference_model.json
                 inferenceModelFile = os.path.join(modelVerDir, "inference_model.json")
                 if not os.path.exists(inferenceModelFile):
-                    printWarning(f"{inferenceModelFile} not exists.")
+                    printWarning(f"{inferenceModelFile} does not exists.")
                 else:
                     GlobalVars.inferenceModelCheck.append(inferenceModelFile)
                     with open_ex(inferenceModelFile, "r") as file:
@@ -153,10 +162,8 @@ def main():
                     # Write back to file
                     newContent = json.dumps(inferenceModelData, indent=4, ensure_ascii=False)
                     BaseModelClass.writeJsonIfChanged(newContent, inferenceModelFile, fileContent)
-    modelList.Check()
 
-    if GlobalVars.olivePath:
-        printWarning(f"Total {GlobalVars.oliveCheck} config files checked against olive json files")
+    printWarning(f"Total {GlobalVars.oliveCheck} config files checked against olive json files")
 
     GlobalVars.Check(configDir)
 
@@ -171,13 +178,14 @@ def main():
     if len(GlobalVars.errorList) == 0:
         # If the output is not empty, there are uncommitted changes
         if bool(result.stdout.strip()):
-            printError("Please commit changes!")
+            printError("There are changes after sanitize.py, please commit changes or fix them up!")
 
     for filename, lineno, msg in GlobalVars.errorList:
         # Red text, with file and line number, clickable in terminal
         print(f"\033[31mERROR: {filename}:{lineno}: {msg}\033[0m")
     if GlobalVars.errorList:
         exit(1)
+
 
 if __name__ == "__main__":
     main()

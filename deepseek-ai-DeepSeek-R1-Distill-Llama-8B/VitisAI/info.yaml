@@ -4,4 +4,3 @@ recipes:
     file: DeepSeek-R1-Distill-Llama-8B_quark_vitisai_llm.json
     devices: npu
     eps: VitisAIExecutionProvider
-    

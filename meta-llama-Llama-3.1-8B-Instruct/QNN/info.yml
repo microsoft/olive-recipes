@@ -1,0 +1,8 @@
+keywords:
+    foundry-local
+    qnn
+ep:
+    QNNExecutionProvider
+device:
+    npu
+name: llama3.1-8b-instruct

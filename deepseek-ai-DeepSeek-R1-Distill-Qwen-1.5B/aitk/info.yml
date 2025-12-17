@@ -6,34 +6,35 @@ recipes:
       device: npu
       ep: QNNExecutionProvider
       aitk:
-        oliveFile: "phi3_5/qnn_config.json"
+        oliveFile: "../microsoft-Phi-3.5-mini-instruct/QNN/config.json"
     - file: "deepseek_vitis_ai_config.json"
       device: npu
       ep: VitisAIExecutionProvider
       aitk:
-        oliveFile: "r:../VitisAI/DeepSeek-R1-Distill-Qwen-1.5B_quark_vitisai_llm.json"
+        oliveFile: "VitisAI/DeepSeek-R1-Distill-Qwen-1.5B_quark_vitisai_llm.json"
         requirements: AMD/Quark_py3.10.17
         evalRuntime: AMDNPU
     - file: "deepseek_ov_gpu_config.json"
       devices:
-        - cpu
         - gpu
+        - cpu
       ep: OpenVINOExecutionProvider
-      aitk:
-          oliveFile: "deepseek/openvino/DeepSeek-R1-Distill-Qwen-1.5B-gpu-context-ov-dy-gs32-r1.json"
     - file: "deepseek_ov_config.json"
       devices:
         - npu
       ep: OpenVINOExecutionProvider
+    - file: "deepseek_trtrtx_config.json"
+      device: gpu
+      ep: NvTensorRTRTXExecutionProvider
       aitk:
-          oliveFile: "deepseek/openvino/DeepSeek-R1-Distill-Qwen-1.5B-npu-context-ov-dy-sym-gs128-bkp-int8-sym-r1.json"
+        oliveFile: "NvTensorRtRtx/DeepSeek-R1-Distill-Qwen-1.5B_model_builder_fp16.json"
     - file: "deepseek_dml_config.json"
       device: gpu
       ep: DmlExecutionProvider
 aitk:
     modelInfo:
         id: "huggingface/deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B"
-        version: 2
+        version: 4
         groupId: "huggingface/deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B"
         groupItemName: "1.5B"
         p0: true

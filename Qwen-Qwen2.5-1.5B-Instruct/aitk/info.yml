@@ -6,35 +6,35 @@ recipes:
       device: npu
       ep: QNNExecutionProvider
       aitk:
-        # not qwen2_5/qnn/qwen_2.5_1.5b_instruct_qnn_config.json because GPTQModel depends on device_smi which uses deprecated wmic
-        oliveFile: "phi3_5/qnn_config.json"
+        oliveFile: "QNN/config.json"
     - file: "qwen2_5_vitis_ai_config.json"
       device: npu
       ep: VitisAIExecutionProvider
       aitk:
-        oliveFile: "r:../VitisAI/Qwen2.5-1.5B-Instruct_quark_vitisai_llm.json"
+        oliveFile: "VitisAI/Qwen2.5-1.5B-Instruct_quark_vitisai_llm.json"
         requirements: AMD/Quark_py3.10.17
         evalRuntime: AMDNPU
     - file: "qwen2_5_ov_gpu_config.json"
       devices:
-        - cpu
         - gpu
+        - cpu
       ep: OpenVINOExecutionProvider
-      aitk:
-        oliveFile: "qwen2_5/openvino/Qwen2.5-1.5B-instruct-gpu-context-dy.json"
     - file: "qwen2_5_ov_config.json"
       devices:
         - npu
       ep: OpenVINOExecutionProvider
+    - file: "qwen2_5_trtrtx_config.json"
+      device: gpu
+      ep: NvTensorRTRTXExecutionProvider
       aitk:
-        oliveFile: "qwen2_5/openvino/Qwen2.5-1.5B-instruct_context_ov_dynamic_sym_bkp_int8_sym_r1.json"
+        oliveFile: "NvTensorRtRtx/Qwen2.5-1.5B-Instruct_model_builder_fp16.json"
     - file: "qwen2_5_dml_config.json"
       device: gpu
       ep: DmlExecutionProvider
 aitk:
     modelInfo:
         id: "huggingface/Qwen/Qwen2.5-1.5B-Instruct"
-        version: 2
+        version: 4
         groupId: "huggingface/Qwen/Qwen2.5-1.5B-Instruct"
         groupItemName: "1.5B"
         p0: true

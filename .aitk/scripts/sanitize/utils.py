@@ -17,6 +17,7 @@ from .constants import EPNames, OliveDeviceTypes, OlivePropertyNames
 class GlobalVars:
     errorList = []
     verbose = False
+    olivePath = None
     # Initialize checks
     pathCheck = 0
     configCheck = []
@@ -25,47 +26,58 @@ class GlobalVars:
     gitignoreCheck = []
     modelProjectCheck = []
     extensionCheck = 0
+    templateCheck = 0
     # Should align with number of LLM models
     inferenceModelCheck = []
     requirementsCheck = []
+    copyCheck = 0
+    licenseCheck = 0
     venvRequirementsCheck = set()
 
-    olivePath = None
     oliveCheck = 0
     RuntimeToEPName = {
         RuntimeEnum.CPU: EPNames.CPUExecutionProvider,
         RuntimeEnum.QNN: EPNames.QNNExecutionProvider,
+        RuntimeEnum.QNNGPU: EPNames.QNNExecutionProvider,
         RuntimeEnum.IntelAny: EPNames.OpenVINOExecutionProvider,
         RuntimeEnum.IntelCPU: EPNames.OpenVINOExecutionProvider,
         RuntimeEnum.IntelNPU: EPNames.OpenVINOExecutionProvider,
         RuntimeEnum.IntelGPU: EPNames.OpenVINOExecutionProvider,
         RuntimeEnum.AMDNPU: EPNames.VitisAIExecutionProvider,
+        RuntimeEnum.AMDGPU: EPNames.MIGraphXExecutionProvider,
         RuntimeEnum.NvidiaGPU: EPNames.CUDAExecutionProvider,
         RuntimeEnum.NvidiaTRTRTX: EPNames.NvTensorRTRTXExecutionProvider,
         RuntimeEnum.DML: EPNames.DmlExecutionProvider,
+        RuntimeEnum.WebGPU: EPNames.WebGpuExecutionProvider,
     }
     RuntimeToOliveDeviceType = {
         RuntimeEnum.CPU: OliveDeviceTypes.CPU,
         RuntimeEnum.QNN: OliveDeviceTypes.NPU,
+        RuntimeEnum.QNNGPU: OliveDeviceTypes.GPU,
         RuntimeEnum.IntelAny: OliveDeviceTypes.Any,
         RuntimeEnum.IntelCPU: OliveDeviceTypes.CPU,
         RuntimeEnum.IntelNPU: OliveDeviceTypes.NPU,
         RuntimeEnum.IntelGPU: OliveDeviceTypes.GPU,
         RuntimeEnum.AMDNPU: OliveDeviceTypes.NPU,
+        RuntimeEnum.AMDGPU: OliveDeviceTypes.GPU,
         RuntimeEnum.NvidiaGPU: OliveDeviceTypes.GPU,
         RuntimeEnum.DML: OliveDeviceTypes.GPU,
+        RuntimeEnum.WebGPU: OliveDeviceTypes.GPU,
     }
     RuntimeToDisplayName = {
         RuntimeEnum.CPU: "CPU",
         RuntimeEnum.QNN: "Qualcomm NPU",
+        RuntimeEnum.QNNGPU: "Qualcomm GPU",
         RuntimeEnum.IntelAny: "Intel Any",
         RuntimeEnum.IntelCPU: "Intel CPU",
         RuntimeEnum.IntelNPU: "Intel NPU",
         RuntimeEnum.IntelGPU: "Intel GPU",
         RuntimeEnum.AMDNPU: "AMD NPU",
+        RuntimeEnum.AMDGPU: "AMD GPU",
         RuntimeEnum.NvidiaGPU: "NVIDIA GPU",
         RuntimeEnum.NvidiaTRTRTX: "NVIDIA TensorRT for RTX",
         RuntimeEnum.DML: "DirectML",
+        RuntimeEnum.WebGPU: "WebGPU",
     }
 
     @classmethod
@@ -75,6 +87,10 @@ class GlobalVars:
         if len(cls.gitignoreCheck) != len(cls.modelProjectCheck) - cls.extensionCheck:
             printError(
                 f"Gitignore check {len(cls.gitignoreCheck)} does not match model project check {len(cls.modelProjectCheck)} - {cls.extensionCheck}"
+            )
+        if cls.licenseCheck != len(cls.modelProjectCheck) - cls.extensionCheck - cls.templateCheck:
+            printError(
+                f"License check {cls.licenseCheck} does not match model project check {len(cls.modelProjectCheck)} - {cls.extensionCheck} - {cls.templateCheck}"
             )
         # We add this test to make sure the sanity check is working: i.e. paths are checked and files are checked
         with open_ex(os.path.join(configDir, "checks.json"), "w") as file:
@@ -217,6 +233,6 @@ def get_eval_runtime(runtime: RuntimeEnum, isLLM: bool) -> RuntimeEnum:
 
 
 def get_eval_in_execute_runtime(runtime: RuntimeEnum) -> RuntimeEnum:
-    if runtime == RuntimeEnum.QNN:
+    if runtime == RuntimeEnum.QNN or runtime == RuntimeEnum.QNNGPU:
         return RuntimeEnum.QNN
     raise ValueError(f"Unsupported runtime for eval in execute: {runtime}")

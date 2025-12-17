@@ -1,0 +1,6 @@
+keywords:
+  - mixed-precision
+arch: phi4
+devices:
+  - gpu
+name: microsoft-Phi-4-mini-instruct

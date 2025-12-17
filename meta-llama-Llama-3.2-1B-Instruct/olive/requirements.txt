@@ -1,0 +1,9 @@
+bitsandbytes
+datasets
+lm_eval
+numpy<2.0
+olive-ai[inc,lora,gpu]
+olive-ai[lora]
+onnxruntime-genai-cuda
+optimum
+transformers==4.45.0
