@@ -10,7 +10,6 @@ recipes:
           requirements: Intel/Test_py3.12.9
           requirementsPatches:
             - Transformers4.49
-          oliveFile: "i:"
 aitk:
     modelInfo:
         id: "huggingface/Qwen/Qwen2.5-0.5B"
