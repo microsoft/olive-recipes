@@ -281,7 +281,7 @@ def main():
     with open(outputFile, "r") as f:
         lines = f.readlines()
     unique_lines = list(dict.fromkeys(lines))  # Preserve order and remove duplicates
-    #assert len(lines) == len(unique_lines), "Duplicate lines found."
+    assert len(lines) == len(unique_lines), "Duplicate lines found."
 
 
 if __name__ == "__main__":
