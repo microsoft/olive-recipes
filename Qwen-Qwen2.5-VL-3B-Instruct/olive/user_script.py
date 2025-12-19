@@ -34,6 +34,7 @@ def get_embedding_model(model_path=None):
         model_path,
         attn_implementation="sdpa",
         trust_remote_code=True,
+        torch_dtype=torch.float16,  # Use fp16 instead of bf16 for numpy compatibility
     )
 
     model.get_fused_input_embeddings, model.forward = (
@@ -56,25 +57,31 @@ def get_embedding_io_config(model_path=None):
 
 def get_embedding_dummy_inputs(model=None):
     # assume 2 batches, each with 1 image input (3577 logical patches)
+    # out_hidden_size: 2048 for 3B, 3584 for 7B
     batch_size, sequence_length, patches_per_image, out_hidden_size = (
         2,
         3606,
         3577,
-        3584,
+        2048,  # 3B model hidden_size
     )
     num_logical_patches = batch_size * patches_per_image
+
+    # Qwen2.5-VL special token IDs
+    vision_start_token_id = config.vision_start_token_id  # 151652
+    vision_end_token_id = config.vision_end_token_id  # 151653
+    image_token_id = config.image_token_id  # 151655
 
     inputs = {
         "input_ids": torch.randint(
             low=0,
-            high=config.image_token_id,
+            high=image_token_id,
             size=(batch_size, sequence_length),
             dtype=torch.int64,
         ),
         "image_features": torch.randn(
             num_logical_patches,
             out_hidden_size,
-            dtype=torch.float32,
+            dtype=torch.float16,
         ),
     }
 
@@ -82,17 +89,17 @@ def get_embedding_dummy_inputs(model=None):
     img_end_index = img_start_index + patches_per_image  # 3 + 3577 = 3580
 
     # Fill in with image token index
-    inputs["input_ids"][0][2] = config.bos_token_id  # <start_of_image>
+    inputs["input_ids"][0][2] = vision_start_token_id  # <|vision_start|>
     inputs["input_ids"][0][
         img_start_index:img_end_index
-    ] = config.image_token_id  # <image>
-    inputs["input_ids"][0][img_end_index] = config.eos_token_id  # <end_of_image>
+    ] = image_token_id  # <|image_pad|>
+    inputs["input_ids"][0][img_end_index] = vision_end_token_id  # <|vision_end|>
 
-    inputs["input_ids"][1][2] = config.bos_token_id  # <start_of_image>
+    inputs["input_ids"][1][2] = vision_start_token_id  # <|vision_start|>
     inputs["input_ids"][1][
         img_start_index:img_end_index
-    ] = config.image_token_id  # <image>
-    inputs["input_ids"][1][img_end_index] = config.eos_token_id  # <end_of_image>
+    ] = image_token_id  # <|image_pad|>
+    inputs["input_ids"][1][img_end_index] = vision_end_token_id  # <|vision_end|>
 
     return {
         "input_ids": inputs["input_ids"],  # input_ids: torch.LongTensor
@@ -106,6 +113,7 @@ def get_vision_model(model_path=None):
         model_name,
         attn_implementation="sdpa",
         trust_remote_code=True,
+        torch_dtype=torch.float16,
     )
     model.forward, model.get_image_features = model.get_image_features, model.forward
     return model
