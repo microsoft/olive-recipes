@@ -3,6 +3,7 @@ from pathlib import Path
 
 from .constants import OlivePassNames, OlivePropertyNames
 from .generator_common import create_model_parameter
+from .generator_dml import generate_quantization_config
 from .model_info import ModelList
 from .model_parameter import ModelParameter
 from .utils import isLLM_by_id, open_ex
@@ -24,7 +25,7 @@ def generator_trtrtx(id: str, recipe, folder: Path, modelList: ModelList):
     isLLM = isLLM_by_id(id)
     if not auto or not isLLM:
         return
-    name = f"Convert to NVIDIA TRT for RTX"
+    name = "Convert to NVIDIA TRT for RTX"
 
     file = recipe.get("file")
     configFile = folder / file
@@ -33,6 +34,10 @@ def generator_trtrtx(id: str, recipe, folder: Path, modelList: ModelList):
     parameter.isLLM = isLLM
 
     generate_additional_config(configFile, parameter)
+
+    quantize = generate_quantization_config(configFile, parameter)
+    if quantize:
+        parameter.sections.append(quantize)
 
     parameter.writeIfChanged()
     print(f"\tGenerated NVIDIA TRT configuration for {file}")

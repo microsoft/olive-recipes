@@ -146,6 +146,7 @@ class OlivePropertyNames:
     Name = "name"
     NumCalibData = "num_calib_data"
     OutputDir = "output_dir"
+    OvQuantConfig = "ov_quant_config"
     Passes = "passes"
     Precision = "precision"
     PreProcessDataConfig = "pre_process_data_config"
@@ -158,6 +159,7 @@ class OlivePropertyNames:
     TargetDevice = "target_device"
     Type = "type"
     UserConfig = "user_config"
+    WeightFormat = "weight_format"
 
 
 # Path constants
