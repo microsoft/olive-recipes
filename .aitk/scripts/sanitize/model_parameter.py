@@ -251,7 +251,7 @@ class ModelParameter(BaseModelClass):
 
     runtime: Optional[Parameter] = None
     runtimeInConversion: Optional[Parameter] = None
-    optimizationPaths: List[OptimizationPath] = []
+    optimizationPaths: Optional[List[OptimizationPath]] = None
     optimizationDefault: Optional[str] = None
     sections: List[Section] = []
 
@@ -470,7 +470,7 @@ class ModelParameter(BaseModelClass):
         self.CheckRuntimeInConversion(oliveJson, modelList, modelInfo)
         self.checkOliveFile(oliveJson, modelInfo)
         self.checkRequirements(modelList)
-        self.checkOptimizationPaths(modelList.OptimizationToDisplayName, oliveJson)
+        self.checkOptimizationPaths(modelList.OptimizationToDisplayName, oliveJson, modelInfo)
         if self.debugInfo and self.debugInfo.isEmpty():
             self.debugInfo = None
         self.writeIfChanged()
@@ -721,8 +721,11 @@ class ModelParameter(BaseModelClass):
             for feature in self.evaluationRuntimeFeatures:
                 self.checkRequirement(req_path, f"{eval_runtime.value}-{feature}")
 
-    def checkOptimizationPaths(self, toDisplayName: Dict[str, Dict[str, str]], oliveJson: Any):
+    def checkOptimizationPaths(self, toDisplayName: Dict[str, Dict[str, str]], oliveJson: Any, modelInfo: ModelInfo):
+        if modelInfo.template or modelInfo.extension:
+            return
         if not self.optimizationPaths:
+            printError(f"{self._file} optimizationPaths is not set")
             return
         optimizationDefault = ""
         for optimizationPath in self.optimizationPaths:
@@ -734,6 +737,8 @@ class ModelParameter(BaseModelClass):
                 return
         if optimizationDefault:
             self.optimizationDefault = optimizationDefault
+        else:
+            printError(f"{self._file} optimizationDefault is not set")
 
     def checkRequirement(self, path: Path, name: str):
         file = path / f"{name}.txt" if "_py" in name else path / f"requirements-{name}.txt"

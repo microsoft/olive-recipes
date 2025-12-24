@@ -139,6 +139,7 @@ class OlivePropertyNames:
     Evaluators = "evaluators"
     ExecutionProviders = "execution_providers"
     ExtraArgs = "extra_args"
+    Float16 = "float16"
     Host = "host"
     LoadDatasetConfig = "load_dataset_config"
     MaxSamples = "max_samples"

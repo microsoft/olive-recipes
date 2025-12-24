@@ -3,7 +3,7 @@ from pathlib import Path
 from typing import Optional
 
 from .constants import OlivePassNames, OlivePropertyNames, PhaseTypeEnum
-from .generator_common import create_model_parameter
+from .generator_common import create_model_parameter, set_optimization_path
 from .model_info import ModelList
 from .model_parameter import Section, ModelParameter, OptimizationPath
 from .parameters import Parameter
@@ -174,14 +174,21 @@ def generate_amd_quantization_config(configFile: Path, modelList: ModelList) -> 
 def generator_amd(id: str, recipe, folder: Path, modelList: ModelList):
     aitk = recipe.get("aitk", {})
     auto = aitk.get("auto", True)
-    isLLM = isLLM_by_id(id)
-    if not auto or not isLLM:
+    if not auto:
         return
-    amd_runtime_values: list[str] = recipe.get("devices", [recipe.get("device")])
-    name = f"Convert to AMD {"/".join([runtime.upper() for runtime in amd_runtime_values])}"
-
+    
+    isLLM = isLLM_by_id(id)
     file = recipe.get("file")
     configFile = folder / file
+
+    if not isLLM:
+        modelParameter = ModelParameter.Read(str(configFile) + ".config")
+        set_optimization_path(modelParameter, str(configFile))
+        modelParameter.writeIfChanged()
+        return
+
+    amd_runtime_values: list[str] = recipe.get("devices", [recipe.get("device")])
+    name = f"Convert to AMD {"/".join([runtime.upper() for runtime in amd_runtime_values])}"
 
     parameter = create_model_parameter(aitk, name, configFile)
     parameter.isLLM = isLLM

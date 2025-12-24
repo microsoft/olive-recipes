@@ -1,8 +1,9 @@
 from pathlib import Path
+import json
 
-from .constants import EPNames
-from .model_parameter import ModelParameter, RuntimeOverwrite
-
+from .constants import EPNames, OlivePassNames, OlivePropertyNames
+from .model_parameter import ModelParameter, RuntimeOverwrite, OptimizationPath
+from .utils import open_ex
 
 def create_model_parameter(aitk, name: str, configFile: Path):
     oliveFile = aitk.get("oliveFile")
@@ -26,6 +27,55 @@ def create_model_parameter(aitk, name: str, configFile: Path):
         runtimeOverwrite=runtimeOverwrite,
         executeRuntimeFeatures=requirements_patches,
         evalRuntime=evalRuntime,
+        optimizationPaths=[],
     )
     parameter._file = str(configFile) + ".config"
     return parameter
+
+
+def set_optimization_path(parameter: ModelParameter, configFile: str):
+    parameter.optimizationPaths = []
+    with open_ex(configFile, "r") as f:
+        content = json.load(f)
+    for k, v in content[OlivePropertyNames.Passes].items():
+        if v[OlivePropertyNames.Type].lower() == OlivePassNames.OrtTransformersOptimization:
+            float16 = v.get(OlivePropertyNames.Float16)
+            if float16:
+                parameter.optimizationPaths.append(
+                        OptimizationPath(
+                            name="fp16",
+                            path=f"{OlivePropertyNames.Passes}.{k}.{OlivePropertyNames.Float16}",
+                        )
+                    )
+                return
+        elif v[OlivePropertyNames.Type].lower() == OlivePassNames.OpenVINOQuantization:
+            # TODO it is not specified, default 8 bit https://docs.openvino.ai/2025/openvino-workflow/model-optimization-guide/quantizing-models-post-training/basic-quantization-flow.html#quantize-a-model
+            parameter.optimizationPaths.append(
+                    OptimizationPath(
+                        name="int8",
+                        path=f"{OlivePropertyNames.Passes}.{k}",
+                    )
+                )
+            return
+        elif v[OlivePropertyNames.Type].lower() == OlivePassNames.OnnxStaticQuantization:
+            parameter.optimizationPaths.append(
+                    OptimizationPath(
+                        name="WeightType",
+                        path=f"{OlivePropertyNames.Passes}.{k}.{OlivePropertyNames.Precision}",
+                    )
+                )
+            parameter.optimizationPaths.append(
+                    OptimizationPath(
+                        name="ActivationType",
+                        path=f"{OlivePropertyNames.Passes}.{k}.{OlivePropertyNames.ActivationType}",
+                    )
+                )
+            return
+        elif v[OlivePropertyNames.Type].lower() == OlivePassNames.OnnxFloatToFloat16:
+            parameter.optimizationPaths.append(
+                    OptimizationPath(
+                        name="fp16",
+                        path=f"{OlivePropertyNames.Passes}.{k}",
+                    )
+                )
+            return
