@@ -24,11 +24,11 @@ def generator_trtrtx(id: str, recipe, folder: Path, modelList: ModelList):
     auto = aitk.get("auto", True)
     if not auto:
         return
-    
+
     isLLM = isLLM_by_id(id)
     file = recipe.get("file")
     configFile = folder / file
-    
+
     if not isLLM:
         modelParameter = ModelParameter.Read(str(configFile) + ".config")
         set_optimization_path(modelParameter, str(configFile))

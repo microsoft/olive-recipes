@@ -4,7 +4,7 @@ from typing import Optional
 
 from .constants import OliveDeviceTypes, OlivePassNames, OlivePropertyNames, PhaseTypeEnum
 from .generator_common import create_model_parameter, set_optimization_path
-from .model_parameter import Section, ModelParameter, OptimizationPath
+from .model_parameter import ModelParameter, OptimizationPath, Section
 from .parameters import Parameter
 from .utils import isLLM_by_id, open_ex
 
@@ -64,7 +64,7 @@ def generator_intel(id: str, recipe, folder: Path):
     auto = aitk.get("auto", True)
     if not auto:
         return
-    
+
     isLLM = isLLM_by_id(id)
     file = recipe.get("file")
     configFile = folder / file

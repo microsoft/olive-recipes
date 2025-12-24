@@ -7,10 +7,10 @@ from model_lab import RuntimeEnum
 from sanitize.constants import ArchitectureEnum, EPNames, IconEnum, ModelStatusEnum
 from sanitize.copy_config import CopyConfig
 from sanitize.generator_amd import generator_amd
+from sanitize.generator_dml import generator_dml
 from sanitize.generator_intel import generator_intel
 from sanitize.generator_qnn import generator_qnn
 from sanitize.generator_trtrtx import generator_trtrtx
-from sanitize.generator_dml import generator_dml
 from sanitize.model_info import ModelInfo, ModelList
 from sanitize.project_config import ModelInfoProject, ModelProjectConfig, WorkflowItem
 from sanitize.utils import GlobalVars, isLLM_by_id, open_ex
@@ -181,7 +181,7 @@ def project_processor():
     all_ids = set()
     all_summary = AllModelSummary()
     for yml_file in root_dir.rglob("info.yml"):
-        #if "DEBUG_ID" in str(yml_file):
+        # if "DEBUG_ID" in str(yml_file):
         #    pass
         # read yml file as yaml object
         with yml_file.open("r", encoding="utf-8") as file:

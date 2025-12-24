@@ -9,8 +9,8 @@ import re
 from pathlib import Path
 from typing import Any, Dict, Iterator, List, Optional
 
-from deepdiff import DeepDiff
 import pydash
+from deepdiff import DeepDiff
 from model_lab import RuntimeEnum
 from pydantic import BaseModel
 
@@ -211,7 +211,7 @@ class OptimizationPath(BaseModel):
     def Check(self, oliveJson: Any, toDisplayName: Dict[str, Dict[str, str]]) -> str | None:
         if not checkPath(self.path, oliveJson):
             return None
-        
+
         value = pydash.get(oliveJson, self.path)
         if self.name and self.name in toDisplayName:
             if value not in toDisplayName[self.name]:

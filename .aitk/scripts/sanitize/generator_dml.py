@@ -1,14 +1,14 @@
 import json
-from logging import config
 from pathlib import Path
 from typing import Optional
 
 from .constants import OlivePassNames, OlivePropertyNames, PhaseTypeEnum
 from .generator_common import create_model_parameter, set_optimization_path
 from .model_info import ModelList
-from .model_parameter import Section, ModelParameter, OptimizationPath
-from .utils import isLLM_by_id, open_ex
+from .model_parameter import ModelParameter, OptimizationPath, Section
 from .parameters import Parameter
+from .utils import isLLM_by_id, open_ex
+
 
 def generate_quantization_config(configFile: Path, parameter: ModelParameter) -> Optional[Section]:
     """
@@ -29,8 +29,7 @@ def generate_quantization_config(configFile: Path, parameter: ModelParameter) ->
                     ),
                 )
             )
-            parameter.optimizationPaths.append(
-                OptimizationPath(path=path))
+            parameter.optimizationPaths.append(OptimizationPath(path=path))
 
     if parameters:
         return Section(
@@ -47,7 +46,7 @@ def generator_dml(id: str, recipe, folder: Path, modelList: ModelList):
     auto = aitk.get("auto", True)
     if not auto:
         return
-    
+
     isLLM = isLLM_by_id(id)
     file = recipe.get("file")
     configFile = folder / file
