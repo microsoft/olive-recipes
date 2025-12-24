@@ -10,6 +10,7 @@ from pathlib import Path
 from typing import Any, Dict, Iterator, List, Optional
 
 from deepdiff import DeepDiff
+import pydash
 from model_lab import RuntimeEnum
 from pydantic import BaseModel
 
@@ -203,6 +204,23 @@ class DebugInfo(BaseModel):
         return not self._use
 
 
+class OptimizationPath(BaseModel):
+    path: str
+    name: Optional[str] = None
+
+    def Check(self, oliveJson: Any, toDisplayName: Dict[str, Dict[str, str]]) -> str | None:
+        if not checkPath(self.path, oliveJson):
+            return None
+        
+        value = pydash.get(oliveJson, self.path)
+        if self.name and self.name in toDisplayName:
+            if value not in toDisplayName[self.name]:
+                printError(f"{self.path} value {value} not in known optimization names for {self.name}")
+                return None
+            return toDisplayName[self.name][value]
+        return self.name if self.name else value
+
+
 class ModelParameter(BaseModelClass):
     name: str
     oliveFile: Optional[str] = None
@@ -233,6 +251,8 @@ class ModelParameter(BaseModelClass):
 
     runtime: Optional[Parameter] = None
     runtimeInConversion: Optional[Parameter] = None
+    optimizationPaths: Optional[List[OptimizationPath]] = None
+    optimizationUsed: Optional[str] = None
     sections: List[Section] = []
 
     @staticmethod
@@ -452,6 +472,7 @@ class ModelParameter(BaseModelClass):
         self.checkRequirements(modelList)
         if self.debugInfo and self.debugInfo.isEmpty():
             self.debugInfo = None
+        self.checkOptimizationPaths(modelList.OptimizationToDisplayName, oliveJson)
         self.writeIfChanged()
 
     def TryToRemoveReuseCacheInRuntimeAction(self, oliveJson: Any, modelInfo: ModelInfo):
@@ -699,6 +720,20 @@ class ModelParameter(BaseModelClass):
         if self.evaluationRuntimeFeatures:
             for feature in self.evaluationRuntimeFeatures:
                 self.checkRequirement(req_path, f"{eval_runtime.value}-{feature}")
+
+    def checkOptimizationPaths(self, toDisplayName: Dict[str, Dict[str, str]], oliveJson: Any):
+        if not self.optimizationPaths:
+            return
+        optimizationUsed = ""
+        for optimizationPath in self.optimizationPaths:
+            displayName = optimizationPath.Check(oliveJson, toDisplayName)
+            if displayName:
+                optimizationUsed += displayName
+            else:
+                printError(f"{self._file} optimization path {optimizationPath.path} has error")
+                return
+        if optimizationUsed:
+            self.optimizationUsed = optimizationUsed
 
     def checkRequirement(self, path: Path, name: str):
         file = path / f"{name}.txt" if "_py" in name else path / f"requirements-{name}.txt"

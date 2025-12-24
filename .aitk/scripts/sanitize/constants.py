@@ -68,6 +68,7 @@ class ParameterTagEnum(Enum):
     EvaluationDatasetSubset = "EvaluationDatasetSubset"
     EvaluationDatasetSplit = "EvaluationDatasetSplit"
     DependsOnDataset = "DependsOnDataset"
+    # TODO clean up unused tags
     ActivationType = "ActivationType"
     WeightType = "WeightType"
 
