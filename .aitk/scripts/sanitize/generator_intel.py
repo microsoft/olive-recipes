@@ -54,7 +54,6 @@ def generator_intel(id: str, recipe, folder: Path):
     configFile = folder / file
 
     parameter = create_model_parameter(aitk, name, configFile)
-    parameter.addCpu = False
     parameter.isLLM = isLLM
 
     parameter.intelRuntimeValues = [OliveDeviceTypes(runtime) for runtime in intel_runtime_values]

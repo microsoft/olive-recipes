@@ -10,6 +10,7 @@ from sanitize.generator_amd import generator_amd
 from sanitize.generator_intel import generator_intel
 from sanitize.generator_qnn import generator_qnn
 from sanitize.generator_trtrtx import generator_trtrtx
+from sanitize.generator_dml import generator_dml
 from sanitize.model_info import ModelInfo, ModelList
 from sanitize.project_config import ModelInfoProject, ModelProjectConfig, WorkflowItem
 from sanitize.utils import GlobalVars, isLLM_by_id, open_ex
@@ -152,6 +153,8 @@ def convert_yaml_to_project_config(
             generator_qnn(id, recipe, yml_file.parent, modelList)
         elif recipe.get("ep") == EPNames.NvTensorRTRTXExecutionProvider.value:
             generator_trtrtx(id, recipe, yml_file.parent, modelList)
+        elif recipe.get("ep") == EPNames.DmlExecutionProvider.value:
+            generator_dml(id, recipe, yml_file.parent, modelList)
         runtimes = get_runtime(recipe)
         for runtime in runtimes:
             modelSummary.recipes.setdefault(runtime, []).append(file)

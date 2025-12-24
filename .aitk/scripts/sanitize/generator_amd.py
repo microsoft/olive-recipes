@@ -184,7 +184,6 @@ def generator_amd(id: str, recipe, folder: Path, modelList: ModelList):
     configFile = folder / file
 
     parameter = create_model_parameter(aitk, name, configFile)
-    parameter.addCpu = False
     parameter.isLLM = isLLM
 
     quantize = generate_amd_quantization_config(configFile, modelList)

@@ -30,7 +30,6 @@ def generator_trtrtx(id: str, recipe, folder: Path, modelList: ModelList):
     configFile = folder / file
 
     parameter = create_model_parameter(aitk, name, configFile)
-    parameter.addCpu = False
     parameter.isLLM = isLLM
 
     generate_additional_config(configFile, parameter)
