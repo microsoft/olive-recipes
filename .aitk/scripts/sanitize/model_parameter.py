@@ -213,12 +213,17 @@ class OptimizationPath(BaseModel):
             return None
 
         value = pydash.get(oliveJson, self.path)
+        # if we have name and name is in mapping, either use result in mapping or value
         if self.name and self.name in toDisplayName:
             if value not in toDisplayName[self.name]:
                 printError(f"{self.path} value {value} not in known optimization names for {self.name}")
                 return None
             return toDisplayName[self.name][value]
-        return self.name if self.name else value if value else None
+        # if we have name and name is not in mapping, treat value as boolean
+        if self.name:
+            return self.name if value else None
+        # else use value directly
+        return value
 
 
 class ModelParameter(BaseModelClass):
