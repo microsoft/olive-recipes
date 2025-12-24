@@ -38,7 +38,8 @@ def set_optimization_path(parameter: ModelParameter, configFile: str):
     with open_ex(configFile, "r") as f:
         content = json.load(f)
     for k, v in content[OlivePropertyNames.Passes].items():
-        if v[OlivePropertyNames.Type].lower() == OlivePassNames.OrtTransformersOptimization:
+        vType = v[OlivePropertyNames.Type].lower()
+        if vType == OlivePassNames.OrtTransformersOptimization:
             float16 = v.get(OlivePropertyNames.Float16)
             if float16:
                 parameter.optimizationPaths.append(
@@ -48,7 +49,7 @@ def set_optimization_path(parameter: ModelParameter, configFile: str):
                         )
                     )
                 return
-        elif v[OlivePropertyNames.Type].lower() == OlivePassNames.OpenVINOQuantization:
+        elif vType == OlivePassNames.OpenVINOQuantization:
             # TODO it is not specified, default 8 bit https://docs.openvino.ai/2025/openvino-workflow/model-optimization-guide/quantizing-models-post-training/basic-quantization-flow.html#quantize-a-model
             parameter.optimizationPaths.append(
                     OptimizationPath(
@@ -57,7 +58,9 @@ def set_optimization_path(parameter: ModelParameter, configFile: str):
                     )
                 )
             return
-        elif v[OlivePropertyNames.Type].lower() == OlivePassNames.OnnxStaticQuantization:
+        elif vType in [OlivePassNames.OnnxQuantization,
+                                OlivePassNames.OnnxStaticQuantization,
+                                OlivePassNames.OnnxDynamicQuantization]:
             parameter.optimizationPaths.append(
                     OptimizationPath(
                         name="WeightType",
@@ -71,7 +74,7 @@ def set_optimization_path(parameter: ModelParameter, configFile: str):
                     )
                 )
             return
-        elif v[OlivePropertyNames.Type].lower() == OlivePassNames.OnnxFloatToFloat16:
+        elif vType == OlivePassNames.OnnxFloatToFloat16:
             parameter.optimizationPaths.append(
                     OptimizationPath(
                         name="fp16",

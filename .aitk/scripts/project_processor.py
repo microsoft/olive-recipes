@@ -181,6 +181,8 @@ def project_processor():
     all_ids = set()
     all_summary = AllModelSummary()
     for yml_file in root_dir.rglob("info.yml"):
+        #if "DEBUG_ID" in str(yml_file):
+        #    pass
         # read yml file as yaml object
         with yml_file.open("r", encoding="utf-8") as file:
             try:
