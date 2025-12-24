@@ -218,7 +218,7 @@ class OptimizationPath(BaseModel):
                 printError(f"{self.path} value {value} not in known optimization names for {self.name}")
                 return None
             return toDisplayName[self.name][value]
-        return self.name if self.name else value
+        return self.name if self.name else value if value else None
 
 
 class ModelParameter(BaseModelClass):
@@ -470,9 +470,9 @@ class ModelParameter(BaseModelClass):
         self.CheckRuntimeInConversion(oliveJson, modelList, modelInfo)
         self.checkOliveFile(oliveJson, modelInfo)
         self.checkRequirements(modelList)
+        self.checkOptimizationPaths(modelList.OptimizationToDisplayName, oliveJson)
         if self.debugInfo and self.debugInfo.isEmpty():
             self.debugInfo = None
-        self.checkOptimizationPaths(modelList.OptimizationToDisplayName, oliveJson)
         self.writeIfChanged()
 
     def TryToRemoveReuseCacheInRuntimeAction(self, oliveJson: Any, modelInfo: ModelInfo):

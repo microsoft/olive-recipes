@@ -51,6 +51,9 @@
         "description": "Data type for quantizing weights.",
         "descriptionLink": "https://huggingface.co/docs/optimum/main/intel/openvino/optimization#4-bit",
         "type": "enum",
+        "displayNames": [
+            "Int4"
+        ],
         "displayType": "RadioGroup",
         "values": [
             "int4"
@@ -124,6 +127,12 @@
         "name": "Precision",
         "description": "Precision of model",
         "type": "enum",
+        "displayNames": [
+            "Int4",
+            "Bf16",
+            "Fp16",
+            "Fp32"
+        ],
         "displayType": "RadioGroup",
         "values": [
             "int4",
