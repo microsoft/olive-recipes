@@ -138,5 +138,17 @@
             "DependsOnDataset"
         ],
         "type": "enum"
+    },
+    "ModelBuilderPrecision": {
+        "name": "Precision",
+        "description": "Precision of model",
+        "type": "enum",
+        "displayType": "RadioGroup",
+        "values": [
+            "int4",
+            "bf16",
+            "fp16",
+            "fp32"
+        ]
     }
 }

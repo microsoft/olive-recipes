@@ -21,7 +21,7 @@ def generator_qnn(id: str, recipe, folder: Path, modelList: ModelList):
     parameter = create_model_parameter(aitk, name, configFile)
     parameter.isQNNLLM = True
 
-    quantize = generate_quantization_config(configFile, modelList)
+    quantize = generate_quantization_config(configFile, modelList, parameter)
     if quantize:
         parameter.sections.append(quantize)
 

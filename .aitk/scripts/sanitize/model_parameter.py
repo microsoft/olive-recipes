@@ -251,8 +251,8 @@ class ModelParameter(BaseModelClass):
 
     runtime: Optional[Parameter] = None
     runtimeInConversion: Optional[Parameter] = None
-    optimizationPaths: Optional[List[OptimizationPath]] = None
-    optimizationUsed: Optional[str] = None
+    optimizationPaths: List[OptimizationPath] = []
+    optimizationDefault: Optional[str] = None
     sections: List[Section] = []
 
     @staticmethod
@@ -724,16 +724,16 @@ class ModelParameter(BaseModelClass):
     def checkOptimizationPaths(self, toDisplayName: Dict[str, Dict[str, str]], oliveJson: Any):
         if not self.optimizationPaths:
             return
-        optimizationUsed = ""
+        optimizationDefault = ""
         for optimizationPath in self.optimizationPaths:
             displayName = optimizationPath.Check(oliveJson, toDisplayName)
             if displayName:
-                optimizationUsed += displayName
+                optimizationDefault += displayName
             else:
                 printError(f"{self._file} optimization path {optimizationPath.path} has error")
                 return
-        if optimizationUsed:
-            self.optimizationUsed = optimizationUsed
+        if optimizationDefault:
+            self.optimizationDefault = optimizationDefault
 
     def checkRequirement(self, path: Path, name: str):
         file = path / f"{name}.txt" if "_py" in name else path / f"requirements-{name}.txt"
