@@ -42,7 +42,7 @@ def set_optimization_path(parameter: ModelParameter, configFile: str):
         vType = v[OlivePropertyNames.Type].lower()
         if vType == OlivePassNames.OrtTransformersOptimization:
             float16 = v.get(OlivePropertyNames.Float16)
-            if float16:
+            if float16 is not None:
                 parameter.optimizationPaths.append(
                     OptimizationPath(
                         name="fp16",
