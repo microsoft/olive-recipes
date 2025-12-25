@@ -43,8 +43,8 @@
             "pre_process_data_config": {
                 "strategy": "line-by-line",
                 "add_special_tokens": true,
-                "max_samples": 128,
-                "max_seq_len": 512
+                "max_samples": 256,
+                "max_seq_len": 2048
             }
         }
     ],
@@ -53,10 +53,12 @@
             "type": "QuaRot"
         },
         "g": {
-            "type": "GptqQuantizer",
+            "type": "GptqModel",
+            "bits": 4,
             "sym": true,
             "group_size": -1,
-            "desc_act": true,
+            "lm_head": false,
+            "device": "cuda",
             "data_config": "wikitext2_train_joined"
         },
         "cs": {
@@ -112,6 +114,9 @@
                 "GroupQueryAttention",
                 "MatMulNBits"
             ],
+            "extra_options": {
+                "CalibStridedMinMax": 4
+            },
             "save_as_external_data": true
         },
         "sp": {
