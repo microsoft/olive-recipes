@@ -20,6 +20,9 @@ recipes:
     - file: "laion_clip_dml.json"
       device: gpu
       ep: DmlExecutionProvider
+    - file: "laion_clip_webgpu.json"
+      device: gpu
+      ep: WebGpuExecutionProvider
     - file: "laion_clip_migraphx.json"
       device: gpu
       ep: MIGraphXExecutionProvider
