@@ -732,5 +732,19 @@
         "NvidiaTRTRTX": "NVIDIA TensorRT for RTX",
         "DML": "DirectML",
         "WebGPU": "WebGPU"
+    },
+    "OptimizationToDisplayName": {
+        "WeightType": {
+            "int8": "w8",
+            "uint8": "w8",
+            "int16": "w16",
+            "uint16": "w16"
+        },
+        "ActivationType": {
+            "int8": "a8",
+            "uint8": "a8",
+            "int16": "a16",
+            "uint16": "a16"
+        }
     }
 }

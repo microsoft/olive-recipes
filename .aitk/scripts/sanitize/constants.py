@@ -68,6 +68,7 @@ class ParameterTagEnum(Enum):
     EvaluationDatasetSubset = "EvaluationDatasetSubset"
     EvaluationDatasetSplit = "EvaluationDatasetSplit"
     DependsOnDataset = "DependsOnDataset"
+    # TODO clean up unused tags
     ActivationType = "ActivationType"
     WeightType = "WeightType"
 
@@ -138,6 +139,7 @@ class OlivePropertyNames:
     Evaluators = "evaluators"
     ExecutionProviders = "execution_providers"
     ExtraArgs = "extra_args"
+    Float16 = "float16"
     Host = "host"
     LoadDatasetConfig = "load_dataset_config"
     MaxSamples = "max_samples"
@@ -145,6 +147,7 @@ class OlivePropertyNames:
     Name = "name"
     NumCalibData = "num_calib_data"
     OutputDir = "output_dir"
+    OvQuantConfig = "ov_quant_config"
     Passes = "passes"
     Precision = "precision"
     PreProcessDataConfig = "pre_process_data_config"
@@ -157,6 +160,7 @@ class OlivePropertyNames:
     TargetDevice = "target_device"
     Type = "type"
     UserConfig = "user_config"
+    WeightFormat = "weight_format"
 
 
 # Path constants
