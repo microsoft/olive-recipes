@@ -25,17 +25,6 @@
                     ]
                 }
             ]
-        },
-        "target_system": {
-            "type": "PythonEnvironment",
-            "python_environment_path": "/path/to/qnn/env/bin",
-            "accelerators": [
-                {
-                    "execution_providers": [
-                        "QNNExecutionProvider"
-                    ]
-                }
-            ]
         }
     },
     "data_configs": [
@@ -98,22 +87,11 @@
             "calibration_providers": [
                 "CUDAExecutionProvider"
             ]
-        },
-        "cb": {
-            "type": "EPContextBinaryGenerator",
-            "provider_options": {
-                "htp_performance_mode": "burst",
-                "htp_graph_finalization_optimization_mode": "3",
-                "offload_graph_io_quantization": "0",
-                "soc_model": "60"
-            },
-            "weight_sharing": false
         }
     },
     "log_severity_level": 0,
     "evaluate_input_model": false,
     "host": "local_system",
-    "target": "target_system",
     "cache_dir": "cache_olive_ve_w8a8_q100",
     "output_dir": "model/sam_olive_ve_w8a8_q100"
 }

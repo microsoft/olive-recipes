@@ -1,7 +1,8 @@
-datasets
-olive-ai
-onnx
-onnxruntime
+--extra-index-url https://download.pytorch.org/whl/cu128
+datasets==3.5.0
+olive-ai==0.10.1
+onnx==1.17.0
+onnxruntime-gpu==1.21.0
 torch<2.9 #req onnx export dynamo default false
 torchvision<0.24.0 #req onnx export dynamo default false
-transformers
+transformers==4.51.3
