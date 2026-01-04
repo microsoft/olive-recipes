@@ -1,5 +1,7 @@
+--extra-index-url https://download.pytorch.org/whl/cu128
 librosa
 olive-ai
+onnxruntime-gpu==1.21.0
 onnxruntime-genai-cuda
 optimum[exporters]==1.27.0
 torch==2.7.0
