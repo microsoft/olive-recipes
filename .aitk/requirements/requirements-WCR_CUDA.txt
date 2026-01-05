@@ -2,7 +2,7 @@
 --extra-index-url https://pypi.org/simple
 --index-url https://aiinfra.pkgs.visualstudio.com/PublicPackages/_packaging/ORT-Nightly/pypi/simple
 aiohappyeyeballs==2.6.1
-aiohttp==3.11.16
+aiohttp==3.13.3
 aiosignal==1.4.0
 alembic==1.16.5
 annotated-types==0.7.0

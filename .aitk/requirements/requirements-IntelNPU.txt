@@ -1,6 +1,6 @@
 about-time==4.2.1
 aiohappyeyeballs==2.6.1
-aiohttp==3.11.16
+aiohttp==3.13.3
 aiosignal==1.4.0
 alembic==1.16.4
 alive-progress==3.3.0
