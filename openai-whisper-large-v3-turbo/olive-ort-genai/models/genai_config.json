@@ -6,9 +6,13 @@
             "session_options": {
                 "log_id": "onnxruntime-genai",
                 "provider_options": [
+                    {
+                        "NvTensorRtRtx": {
+                        }
+                    }
                 ]
             },
-            "filename": "whisper-large-v3-turbo_decoder_fp16.onnx",
+            "filename": "decoder.onnx",
             "head_size": 64,
             "hidden_size": 1280,
             "inputs": {
@@ -39,9 +43,13 @@
             "session_options": {
                 "log_id": "onnxruntime-genai",
                 "provider_options": [
+                    {
+                        "NvTensorRtRtx": {
+                        }
+                    }
                 ]
             },
-            "filename": "whisper-large-v3-turbo_encoder_fp16.onnx",
+            "filename": "encoder.onnx",
             "head_size": 64,
             "hidden_size": 1280,
             "inputs": {
@@ -52,13 +60,7 @@
                 "cross_present_key_names": "present_key_cross_%d",
                 "cross_present_value_names": "present_value_cross_%d"
             },
-             "sliding_window": {
-                "window_size": 199,
-                "pad_value": 0,
-                "alignment": "right",
-                "slide_key_value_cache": true,
-                "slide_inputs": false
-            },
+
             "num_attention_heads": 20,
             "num_hidden_layers": 32,
             "num_key_value_heads": 20
@@ -78,7 +80,7 @@
         "no_repeat_ngram_size": 0,
         "num_beams": 1,
         "num_return_sequences": 1,
-        "past_present_share_buffer": false,
+        "past_present_share_buffer": true,
         "repetition_penalty": 1.0,
         "temperature": 1.0,
         "top_k": 1,

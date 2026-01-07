@@ -23,7 +23,7 @@ Then download and generate data:
 
 1. `python download_librispeech_asr.py --save_dir .\data`
 
-2. `python .\demo.py --audio-path .\data\librispeech_asr_clean_test --encoder "models\whisper_encoder_fp32\model\model.onnx" --decoder "models\whisper_decoder_fp32\model.onnx" --model_id "openai/whisper-large-v3-turbo" --save_data .\data\quantization_data --num_data 100`
+2. `python .\demo.py --audio-path .\data\librispeech_asr_clean_test --encoder "models\whisper_encoder_fp32\model.onnx" --decoder "models\whisper_decoder_fp32\model.onnx" --model_id "openai/whisper-large-v3-turbo" --save_data .\data\quantization_data --num_data 100`
 
 ### Generate QDQ models
 

@@ -2,9 +2,12 @@ import onnx
 from onnx import helper, TensorProto, shape_inference
 import numpy as np
 from onnx import numpy_helper
+from pathlib import Path
 
-input_file = "C:\\Users\\hualxie\\repos\\olive-recipes\\openai-whisper-large-v3-turbo\\olive-ort-genai\\models\\whisper-large-v3-turbo_encoder_fp16_old.onnx"
-output_file = "C:\\Users\\hualxie\\repos\\olive-recipes\\openai-whisper-large-v3-turbo\\olive-ort-genai\\models\\whisper-large-v3-turbo_encoder_fp16.onnx"
+this_folder = Path(__file__).parent
+
+input_file =  str(this_folder / 'models' / 'encoder_old.onnx')
+output_file = str(this_folder / 'models' / 'encoder.onnx')
 
 model = onnx.load(input_file, load_external_data=False)
 

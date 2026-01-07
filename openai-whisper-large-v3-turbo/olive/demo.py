@@ -67,13 +67,25 @@ def main():
 
     app = HfWhisperAppWithSave(encoder_path, decoder_path, args.model_id, args.execution_provider, provider_options)
 
+    os.makedirs(args.audio_path, exist_ok=True)
     if os.path.isdir(args.audio_path):
-        for i, item in enumerate(os.listdir(args.audio_path)):
-            if args.save_data and i == args.num_data:
-                break
+        if not args.save_data:
+            return
 
-            full_path = os.path.join(args.audio_path, item)
-            infer_audio(app, args.model_id, full_path, args.save_data)
+        from datasets import load_dataset
+        import numpy as np
+
+        streamed_dataset = load_dataset("librispeech_asr", "clean", split="test", streaming=True)
+
+        i = 0
+        for batch in streamed_dataset:
+            file_path = os.path.join(args.audio_path, f"{batch['id']}.npy")
+            np.save(file_path, batch)
+            infer_audio(app, args.model_id, file_path, args.save_data)
+            i += 1
+            print(f"Save data {i}")
+            if i == args.num_data:
+                return
 
     else:
         infer_audio(app, args.model_id, args.audio_path, args.save_data)

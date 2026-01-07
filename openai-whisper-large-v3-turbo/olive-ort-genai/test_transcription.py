@@ -4,7 +4,22 @@
 # --------------------------------------------------------------------------
 from pathlib import Path
 from urllib import request
+import subprocess
+import json
+import sys
+import os
 import onnxruntime_genai as og
+
+def register_execution_providers():
+    worker_script = os.path.abspath('winml.py')
+    result = subprocess.check_output([sys.executable, worker_script], text=True)
+    print(result)
+    paths = json.loads(result)
+    for item in paths.items():
+        og.register_execution_provider_library(item[0], item[1])
+
+register_execution_providers()
+
 
 def generate_transcript(model_path, audio_path, num_beams=0, execution_provider="cuda"):
     """Generate transcript using onnxruntime-genai.
