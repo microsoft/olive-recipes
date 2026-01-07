@@ -21,11 +21,11 @@ def generate_transcript(model_path, audio_path, num_beams=0, execution_provider=
     print("Loading model...")
     print(f"Model path: {model_path}")
     config = og.Config(model_path)
-    if execution_provider != "follow_config":
-        config.clear_providers()
-        if execution_provider != "cpu":
-            print(f"Setting model to {execution_provider}")
-            config.append_provider(execution_provider)
+    # if execution_provider != "follow_config":
+    #     config.clear_providers()
+    #     if execution_provider != "cpu":
+    #         print(f"Setting model to {execution_provider}")
+    #         config.append_provider(execution_provider)
     model = og.Model(config)
     processor = model.create_multimodal_processor()
 
@@ -36,7 +36,7 @@ def generate_transcript(model_path, audio_path, num_beams=0, execution_provider=
 
     print(f"Processing audio: {audio_path}")
     batch_size = 1
-    decoder_prompt_tokens = ["<|startoftranscript|>", "<|en|>", "<|transcribe|>", "<|notimestamps|>"]
+    decoder_prompt_tokens = ["<|startoftranscript|>"]#, "<|en|>", "<|transcribe|>", "<|notimestamps|>"]
     prompts = ["".join(decoder_prompt_tokens)]
     inputs = processor(prompts, audios=audios)
 

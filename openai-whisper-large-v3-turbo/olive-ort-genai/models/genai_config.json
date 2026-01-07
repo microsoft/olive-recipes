@@ -6,9 +6,6 @@
             "session_options": {
                 "log_id": "onnxruntime-genai",
                 "provider_options": [
-                    {
-                        "cuda": {}
-                    }
                 ]
             },
             "filename": "whisper-large-v3-turbo_decoder_fp16.onnx",
@@ -22,10 +19,17 @@
                 "cross_past_value_names": "past_value_cross_%d"
             },
             "outputs": {
-                "logits": "logits",
+                "logits": "logits_reshaped",
                 "present_key_names": "present_key_self_%d",
                 "present_value_names": "present_value_self_%d",
                 "output_cross_qk_names": "output_cross_qk_%d"
+            },
+            "sliding_window": {
+                "window_size": 199,
+                "pad_value": 0,
+                "alignment": "right",
+                "slide_key_value_cache": true,
+                "slide_inputs": false
             },
             "num_attention_heads": 20,
             "num_hidden_layers": 4,
@@ -35,9 +39,6 @@
             "session_options": {
                 "log_id": "onnxruntime-genai",
                 "provider_options": [
-                    {
-                        "cuda": {}
-                    }
                 ]
             },
             "filename": "whisper-large-v3-turbo_encoder_fp16.onnx",
@@ -50,6 +51,13 @@
                 "encoder_hidden_states": "encoder_hidden_states",
                 "cross_present_key_names": "present_key_cross_%d",
                 "cross_present_value_names": "present_value_cross_%d"
+            },
+             "sliding_window": {
+                "window_size": 199,
+                "pad_value": 0,
+                "alignment": "right",
+                "slide_key_value_cache": true,
+                "slide_inputs": false
             },
             "num_attention_heads": 20,
             "num_hidden_layers": 32,
