@@ -379,7 +379,7 @@ class ModelParameter(BaseModelClass):
                         conversion = [
                             k
                             for k, v in oliveJson[OlivePropertyNames.Passes].items()
-                            if v[OlivePropertyNames.Type].lower() == OlivePassNames.OnnxConversion
+                            if v[OlivePropertyNames.Type].lower() in [OlivePassNames.OnnxConversion, OlivePassNames.AitkPython]
                         ][0]
                     conversionPath = f"{OlivePropertyNames.Passes}.{conversion}"
                     section.toggle = Parameter(
@@ -601,7 +601,7 @@ class ModelParameter(BaseModelClass):
         if (
             PhaseTypeEnum.Evaluation in allPhases
             and PhaseTypeEnum.Quantization in allPhases
-            and len(oliveJson[OlivePropertyNames.DataConfigs]) != 2
+            and (OlivePropertyNames.DataConfigs not in oliveJson or len(oliveJson[OlivePropertyNames.DataConfigs]) != 2)
         ):
             printWarning(f"{self._file}'s olive json should have two data configs for evaluation")
 

@@ -465,6 +465,19 @@
             "p0": false
         },
         {
+            "displayName": "openai/whisper-large-v3-turbo",
+            "icon": "OpenAI",
+            "modelLink": "https://huggingface.co/openai/whisper-large-v3-turbo",
+            "id": "huggingface/openai/whisper-large-v3-turbo",
+            "runtimes": [
+                "QNN"
+            ],
+            "architecture": "Transformer",
+            "status": "Hide",
+            "relativePath": "openai-whisper-large-v3-turbo/aitk",
+            "version": 1
+        },
+        {
             "displayName": "Qwen/Qwen2.5-0.5B",
             "icon": "qwen",
             "modelLink": "https://huggingface.co/Qwen/Qwen2.5-0.5B",

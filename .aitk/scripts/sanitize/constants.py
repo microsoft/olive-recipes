@@ -107,6 +107,7 @@ class OliveDeviceTypes(Enum):
 # Pass name is case insensitive, so we use lower case for all pass names
 # Should sort by value
 class OlivePassNames:
+    AitkPython = "aitkpython"
     ModelBuilder = "modelbuilder"
     NVModelOptQuantization = "nvmodeloptquantization"
     OnnxFloatToFloat16 = "onnxfloattofloat16"

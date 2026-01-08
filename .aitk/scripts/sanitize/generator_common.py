@@ -33,6 +33,24 @@ def create_model_parameter(aitk, name: str, configFile: Path):
     parameter._file = str(configFile) + ".config"
     return parameter
 
+def add_optimization_wa(optimizationPaths: list[OptimizationPath], k: str, v: dict) -> bool:
+    if OlivePropertyNames.Precision in v:
+        optimizationPaths.append(
+            OptimizationPath(
+                name="WeightType",
+                path=f"{OlivePropertyNames.Passes}.{k}.{OlivePropertyNames.Precision}",
+            )
+        )
+        # We require both weight and activation type for quantization
+        optimizationPaths.append(
+            OptimizationPath(
+                name="ActivationType",
+                path=f"{OlivePropertyNames.Passes}.{k}.{OlivePropertyNames.ActivationType}",
+            )
+        )
+        return True
+    return False
+
 
 def set_optimization_path(parameter: ModelParameter, configFile: str):
     parameter.optimizationPaths = []
@@ -64,18 +82,7 @@ def set_optimization_path(parameter: ModelParameter, configFile: str):
             OlivePassNames.OnnxStaticQuantization,
             OlivePassNames.OnnxDynamicQuantization,
         ]:
-            parameter.optimizationPaths.append(
-                OptimizationPath(
-                    name="WeightType",
-                    path=f"{OlivePropertyNames.Passes}.{k}.{OlivePropertyNames.Precision}",
-                )
-            )
-            parameter.optimizationPaths.append(
-                OptimizationPath(
-                    name="ActivationType",
-                    path=f"{OlivePropertyNames.Passes}.{k}.{OlivePropertyNames.ActivationType}",
-                )
-            )
+            add_optimization_wa(parameter.optimizationPaths, k, v)
             return
         elif vType == OlivePassNames.OnnxFloatToFloat16:
             parameter.optimizationPaths.append(
@@ -85,3 +92,10 @@ def set_optimization_path(parameter: ModelParameter, configFile: str):
                 )
             )
             return
+        elif vType == OlivePassNames.AitkPython:
+            wa_added = add_optimization_wa(parameter.optimizationPaths, k, v)
+            if wa_added:
+                return
+            else:
+                # TODO handle other optimization types if needed
+                return
