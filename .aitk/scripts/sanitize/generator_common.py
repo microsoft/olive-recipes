@@ -33,6 +33,7 @@ def create_model_parameter(aitk, name: str, configFile: Path):
     parameter._file = str(configFile) + ".config"
     return parameter
 
+
 def add_optimization_wa(optimizationPaths: list[OptimizationPath], k: str, v: dict) -> bool:
     if OlivePropertyNames.Precision in v:
         optimizationPaths.append(
@@ -93,6 +94,7 @@ def set_optimization_path(parameter: ModelParameter, configFile: str):
             )
             return
         elif vType == OlivePassNames.AitkPython:
+            parameter.isAitkPython = True
             wa_added = add_optimization_wa(parameter.optimizationPaths, k, v)
             if wa_added:
                 return

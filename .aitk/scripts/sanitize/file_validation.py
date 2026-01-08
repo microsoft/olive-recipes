@@ -172,8 +172,11 @@ def readCheckIpynb(ipynbFile: str, modelItems: dict[str, ModelParameter]):
                 importStr = importOnnxgenairuntime
             elif modelParameter.runtime.values and modelParameter.isIntel:
                 testPath = outputModelIntelNPURelativePath
+            elif modelParameter.isAitkPython:
+                testPath = None
+                importStr = None
             for item in [testPath, importStr]:
-                if not re.search(item, ipynbContent):
+                if item and not re.search(item, ipynbContent):
                     printError(f"{ipynbFile} does not have '{item}' for {name}, please use it as input")
             if modelParameter.evalRuntime:
                 runtime = GlobalVars.RuntimeToEPName[modelParameter.evalRuntime]
