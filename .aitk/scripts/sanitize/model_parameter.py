@@ -380,7 +380,8 @@ class ModelParameter(BaseModelClass):
                         conversion = [
                             k
                             for k, v in oliveJson[OlivePropertyNames.Passes].items()
-                            if v[OlivePropertyNames.Type].lower() in [OlivePassNames.OnnxConversion, OlivePassNames.AitkPython]
+                            if v[OlivePropertyNames.Type].lower()
+                            in [OlivePassNames.OnnxConversion, OlivePassNames.AitkPython]
                         ][0]
                     conversionPath = f"{OlivePropertyNames.Passes}.{conversion}"
                     section.toggle = Parameter(
