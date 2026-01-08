@@ -255,7 +255,7 @@ class ModelParameter(BaseModelClass):
     runtimeInConversion: Optional[Parameter] = None
     optimizationPaths: Optional[List[OptimizationPath]] = None
     optimizationDefault: Optional[str] = None
-    isAitkPython: Optional[str] = None
+    aitkPython: Optional[str] = None
     sections: List[Section] = []
 
     @staticmethod

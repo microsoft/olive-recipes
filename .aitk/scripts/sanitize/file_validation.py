@@ -172,7 +172,7 @@ def readCheckIpynb(ipynbFile: str, modelItems: dict[str, ModelParameter]):
                 importStr = importOnnxgenairuntime
             elif modelParameter.runtime.values and modelParameter.isIntel:
                 testPath = outputModelIntelNPURelativePath
-            elif modelParameter.isAitkPython:
+            elif modelParameter.aitkPython:
                 testPath = None
                 importStr = None
             for item in [testPath, importStr]:
