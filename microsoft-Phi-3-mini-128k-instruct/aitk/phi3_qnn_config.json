@@ -1,10 +1,10 @@
 {
     "input_model": {
         "type": "HfModel",
-        "model_path": "meta-llama/Llama-3.1-8B-Instruct"
+        "model_path": "microsoft/Phi-3-mini-128k-instruct"
     },
     "systems": {
-        "target_system": {
+        "qnn_system": {
             "type": "PythonEnvironment",
             "python_environment_path": "/path/to/qnn/env/bin",
             "accelerators": [
@@ -44,7 +44,7 @@
                 "strategy": "line-by-line",
                 "add_special_tokens": true,
                 "max_samples": 256,
-                "max_seq_len": 2048
+                "max_seq_len": 4096
             }
         }
     ],
@@ -53,10 +53,12 @@
             "type": "QuaRot"
         },
         "g": {
-            "type": "GptqQuantizer",
+            "type": "GptqModel",
+            "bits": 4,
             "sym": true,
             "group_size": -1,
-            "desc_act": true,
+            "lm_head": false,
+            "device": "cuda",
             "data_config": "wikitext2_train_joined"
         },
         "cs": {
@@ -112,9 +114,6 @@
                 "GroupQueryAttention",
                 "MatMulNBits"
             ],
-            "extra_options": {
-                "CalibStridedMinMax": 4
-            },
             "save_as_external_data": true
         },
         "sp": {
@@ -138,10 +137,9 @@
             "type": "ComposeOnnxModels"
         }
     },
-    "target": "target_system",
+    "target": "qnn_system",
     "log_severity_level": 1,
-    "output_dir": "model/llama3_1",
+    "output_dir": "model/phi3",
     "cache_dir": "cache",
-    "no_artifacts": true,
-    "evaluate_input_model": false
+    "no_artifacts": true
 }
