@@ -12,7 +12,7 @@ logging.basicConfig(level=logging.INFO)
 def parse_arguments():
     parser = argparse.ArgumentParser()
     parser.add_argument("--config", required=True, help="path to input config file")
-    parser.add_argument("--model_config", required=True, help="path to input model config file")
+    parser.add_argument("--model_config", help="path to input model config file")
     parser.add_argument("--runtime", required=True, help="runtime")
     return parser.parse_args()
 
