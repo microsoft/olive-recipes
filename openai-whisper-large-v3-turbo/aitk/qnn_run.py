@@ -6,7 +6,7 @@
 import argparse
 import os
 
-from app import HfWhisperAppWithSave, infer_audio, get_audio_name
+from qnn_app import HfWhisperAppWithSave, infer_audio, get_audio_name
 
 def register_execution_providers():
     import json

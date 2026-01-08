@@ -88,8 +88,11 @@ def main():
                     "--num_data", str(num_data)],
                    check=True)
     # Generate quantized model
-    generate_model("whisper_large_v3_turbo_encoder_qdq.json", cache_dir, os.path.join(output_dir, "encoder"), False, activation_type, precision, save_data_path, num_data)
-    generate_model("whisper_large_v3_turbo_decoder_qdq.json", cache_dir, os.path.join(output_dir, "decoder"), False, activation_type, precision, save_data_path, num_data)
+    generate_model("whisper_large_v3_turbo_encoder_qdq.json", cache_dir, os.path.join(output_dir, "encoder"),
+                   False, activation_type, precision, save_data_path, num_data)
+    # decoder has more data for 1 sample, to keep variants, multiply num_data by 10
+    generate_model("whisper_large_v3_turbo_decoder_qdq.json", cache_dir, os.path.join(output_dir, "decoder"),
+                   False, activation_type, precision, save_data_path, num_data * 10)
 
 
 if __name__ == "__main__":
