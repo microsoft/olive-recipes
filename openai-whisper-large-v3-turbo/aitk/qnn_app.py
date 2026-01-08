@@ -40,6 +40,15 @@ def infer_audio(app, model_id, audio_file, save_data: bool, audio_name: str | No
     print("Prediction:", prediction)
 
 
+def add_ep_for_device(session_options, ep_name, device_type, ep_options=None):
+    ep_devices = ort.get_ep_devices()
+    for ep_device in ep_devices:
+        if ep_device.ep_name == ep_name and ep_device.device.type == device_type:
+            print(f"Adding {ep_name} for {device_type}")
+            session_options.add_provider_for_devices([ep_device], {} if ep_options is None else ep_options)
+            break
+
+
 class HfWhisperAppWithSave(HfWhisperApp):
     def __init__(
         self,
@@ -47,19 +56,25 @@ class HfWhisperAppWithSave(HfWhisperApp):
         decoder,
         hf_model_id: str,
         execution_provider: str = "CPUExecutionProvider",
-        provider_options: dict = None,
+        device_str: str = "cpu",
         sample_rate: int = SAMPLE_RATE,
         max_audio_seconds: int = CHUNK_LENGTH,
     ):
         super().__init__(None, None, hf_model_id, sample_rate, max_audio_seconds)
         options = ort.SessionOptions()
+        device_type = ort.OrtHardwareDeviceType.CPU
+        if device_str.lower() == "gpu":
+            device_type = ort.OrtHardwareDeviceType.GPU
+        elif device_str.lower() == "npu":
+            device_type = ort.OrtHardwareDeviceType.NPU
+        add_ep_for_device(options, execution_provider, device_type)
 
         self.encoder = ort.InferenceSession(
-            encoder, sess_options=options, providers=[execution_provider], provider_options=[provider_options]
+            encoder, sess_options=options,
         )
 
         self.decoder = ort.InferenceSession(
-            decoder, sess_options=options, providers=[execution_provider], provider_options=[provider_options]
+            decoder, sess_options=options,
         )
 
     def transcribe_tokens(self, audio, sample_rate, audio_name, save_data=False) -> list[int]:

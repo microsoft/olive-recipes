@@ -5,8 +5,11 @@
 
 import argparse
 import os
-
 from qnn_app import HfWhisperAppWithSave, infer_audio, get_audio_name
+import logging
+
+logger = logging.getLogger(os.path.basename(__file__))
+logging.basicConfig(level=logging.INFO)
 
 def register_execution_providers():
     import json
@@ -21,7 +24,7 @@ def register_execution_providers():
         try:
             ort.register_execution_provider_library(item[0], item[1])
         except Exception as e:
-            print(f"Failed to register execution provider {item[0]}: {e}")
+            logger.warning(f"Failed to register execution provider {item[0]}: {e}")
 
 def main():
     parser = argparse.ArgumentParser(description="Demo")
@@ -51,6 +54,11 @@ def main():
         type=str,
         default="CPUExecutionProvider",
         help="ORT Execution provider",
+    )
+    parser.add_argument(
+        "--device_type",
+        type=str,
+        default="cpu",
     )
     parser.add_argument(
         "--save_data",
@@ -83,7 +91,7 @@ def main():
     decoder_path = args.decoder
 
     register_execution_providers()
-    app = HfWhisperAppWithSave(encoder_path, decoder_path, args.model_id, args.execution_provider)
+    app = HfWhisperAppWithSave(encoder_path, decoder_path, args.model_id, args.execution_provider, args.device_type)
 
     os.makedirs(args.audio_path, exist_ok=True)
     if os.path.isdir(args.audio_path):
@@ -103,7 +111,7 @@ def main():
                 #print(f"Skipping {file_path} as data already exists.")
                 pass
             else:
-                print(f"Processing {i} in {file_path} ...")
+                logger.info(f"Processing data {i} in {file_path} ...")
                 infer_audio(app, args.model_id, file_path, args.save_data, audio_name)
 
             if i >= args.num_data:

@@ -4,6 +4,10 @@ import os
 import olive.workflows
 import subprocess
 import sys
+import logging
+
+logger = logging.getLogger(os.path.basename(__file__))
+logging.basicConfig(level=logging.INFO)
 
 def parse_arguments():
     parser = argparse.ArgumentParser()
@@ -47,9 +51,9 @@ def generate_model(
         data_path: str | None = None,
         num_data: int | None = None):
     if skip_existing and os.path.exists(os.path.join(output_dir, "model.onnx")):
-        print(f"Output model {output_dir} already exists, skipping {config_path}.")
+        logger.info(f"Output model {output_dir} already exists, skipping {config_path}.")
         return
-    print(f"Generating model from {config_path}...")
+    logger.info(f"Generating model from {config_path}...")
     oliveJson = load_update_config(config_path, cache_dir, output_dir, activation_type, precision, data_path, num_data)
     output = olive.workflows.run(oliveJson)
     if output is None or not output.has_output_model():
