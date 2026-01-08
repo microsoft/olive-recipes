@@ -1,0 +1,4 @@
+qai_hub==0.42.0
+sounddevice==0.5.2
+# need to install without deps because it depends on onnxruntime
+# uv pip:install qai_hub_models==0.39.1 --no-deps;post
