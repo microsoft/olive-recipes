@@ -15,12 +15,9 @@ First generate FP32 onnx models:
 
     `olive run --config whisper_large_v3_turbo_decoder_fp32.json`
 
-
 Then download and generate data:
 
-1. `python download_librispeech_asr.py --save_dir .\data`
-
-2. `python .\demo.py --audio-path .\data\librispeech_asr_clean_test --encoder "models\whisper_encoder_fp32\model\model.onnx" --decoder "models\whisper_decoder_fp32\model.onnx" --model_id "openai/whisper-large-v3-turbo" --save_data .\data\quantization_data --num_data 100`
+1. `python .\qnn_run.py --audio-path .\data\librispeech_asr_clean_test --encoder "models\whisper_encoder_fp32\model\model.onnx" --decoder "models\whisper_decoder_fp32\model.onnx" --model_id "openai/whisper-large-v3-turbo" --save_data .\data\quantization_data --num_data 100`
 
 ### Generate QDQ models
 
@@ -31,4 +28,4 @@ Then download and generate data:
 
 ### To transcribe a single sample:
 
-`python .\demo.py --audio-path .\data\librispeech_asr_clean_test\1320-122617-0000.npy --encoder "models\whisper_encoder_qdq\model.onnx" --decoder "models\whisper_decoder_qdq\model.onnx" --model_id "openai/whisper-large-v3-turbo" --execution_provider QNNExecutionProvider`
+`python .\qnn_run.py --audio-path .\data\librispeech_asr_clean_test\1320-122617-0000.npy --encoder "models\whisper_encoder_qdq\model.onnx" --decoder "models\whisper_decoder_qdq\model.onnx" --model_id "openai/whisper-large-v3-turbo" --execution_provider QNNExecutionProvider`
