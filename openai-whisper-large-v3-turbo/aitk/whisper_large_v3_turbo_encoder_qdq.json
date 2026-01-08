@@ -29,7 +29,8 @@
             "user_script": "whisper_encoder_load.py",
             "load_dataset_config": { "type": "local_dataset" },
             "dataloader_config": { "type": "encoder_data_loader",
-                                   "data_path": ".\\data\\quantization_data" }
+                                   "data_path": ".\\data\\quantization_data",
+                                   "num_data": 100 }
         }
     ],
     "passes": {

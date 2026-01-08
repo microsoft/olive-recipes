@@ -94,8 +94,14 @@ def set_optimization_path(parameter: ModelParameter, configFile: str):
             )
             return
         elif vType == OlivePassNames.AitkPython:
+            # Check AitkPython specific properties
+            if k != OlivePassNames.AitkPython:
+                raise Exception(f"AitkPython pass key must be '{OlivePassNames.AitkPython}' in {configFile}")
             if OlivePropertyNames.UserScript in v:
                 parameter.isAitkPython = v[OlivePropertyNames.UserScript]
+                python_script = Path(configFile).parent / str(parameter.isAitkPython)
+                if not python_script.exists():
+                    raise Exception(f"UserScript file {python_script} does not exist for AitkPython pass in {configFile}")
             else:
                 raise Exception(f"UserScript is required for AitkPython pass in {configFile}")
             wa_added = add_optimization_wa(parameter.optimizationPaths, k, v)

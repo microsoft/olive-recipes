@@ -20,7 +20,7 @@
         }
     },
     "passes": {
-        "aitk_python": {
+        "aitkpython": {
             "type": "AitkPython",
             "activation_type": "uint16",
             "precision": "uint8",

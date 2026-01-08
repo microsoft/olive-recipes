@@ -3,3 +3,4 @@ __pycache__
 /history/*/*
 !/history/*/history.config
 !/history/*/olive_config.json
+/data

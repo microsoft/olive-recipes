@@ -28,8 +28,11 @@ def generate_dummy_inputs(model=None):
 
 
 class EncoderBaseDataLoader:
-    def __init__(self, data_path):
+    def __init__(self, data_path, num_data):
+        # TODO not in order
         self.data_files = glob.glob(os.path.join(data_path, "**", "*_input_features.npy"), recursive=True)
+        self.data_files = self.data_files[:num_data]
+        print(f"Encoder data loader loaded {len(self.data_files)} samples from {data_path}")
 
     def __len__(self):
         return len(self.data_files)
@@ -39,5 +42,5 @@ class EncoderBaseDataLoader:
 
 
 @Registry.register_dataloader()
-def encoder_data_loader(dataset, data_path):
-    return EncoderBaseDataLoader(data_path)
+def encoder_data_loader(dataset, data_path, num_data):
+    return EncoderBaseDataLoader(data_path, num_data)
