@@ -70,7 +70,6 @@ def main():
     dataset_name: str = config_pass["dataset_name"]
     dataset_split: str = config_pass["split"]
     num_data: int = config_pass["length"]
-    user_script: str = config_pass["user_script"]
     audio_path: str = os.path.join("data", dataset_name.replace("/", "_"), dataset_split)
     save_data_path: str = os.path.join("data",  "_data_" + dataset_name.replace("/", "_"), dataset_split)
     # Generate original model
@@ -79,7 +78,7 @@ def main():
     original_decoder = os.path.join("data", "_decoder_fp32")
     generate_model("whisper_large_v3_turbo_decoder_fp32.json", cache_dir, original_decoder)
     # Generate dataset
-    subprocess.run([sys.executable, user_script,
+    subprocess.run([sys.executable, "qnn_run.py",
                     "--audio-path", audio_path,
                     "--encoder", os.path.join(original_encoder, "model.onnx"),
                     "--decoder", os.path.join(original_decoder, "model.onnx"),

@@ -113,6 +113,7 @@ class Section(BaseModel):
                 printError(f"{_file} section {sectionId} parameter {i} has error")
 
             # TODO move tag check into Parameter
+            # TODO guess for possible tags
             if parameter.path and Section.datasetPathPattern(parameter.path):
                 if self.phase == PhaseTypeEnum.Quantization:
                     if not parameter.tags or ParameterTagEnum.QuantizationDataset not in parameter.tags:
@@ -120,10 +121,6 @@ class Section(BaseModel):
                 elif self.phase == PhaseTypeEnum.Evaluation:
                     if not parameter.tags or ParameterTagEnum.EvaluationDataset not in parameter.tags:
                         printError(f"{_file} section {sectionId} parameter {i} should have EvaluationDataset tag")
-                if parameter.values:
-                    missing_keys = [key for key in parameter.values if key not in modelList.HFDatasets]
-                    if missing_keys:
-                        printError(f"datasets are not in HFDatasets: {', '.join(str(key) for key in missing_keys)}")
             elif parameter.path and parameter.path.endswith("activation_type"):
                 if not parameter.tags or ParameterTagEnum.ActivationType not in parameter.tags:
                     printError(f"{_file} section {sectionId} parameter {i} should have ActivationType tag")

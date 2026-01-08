@@ -32,7 +32,6 @@ class ArchitectureEnum(Enum):
 
 class ModelStatusEnum(Enum):
     Ready = "Ready"
-    Coming = "Coming"
     Hide = "Hide"
 
 
