@@ -26,7 +26,8 @@
             "precision": "uint8",
             "dataset_name": "librispeech_asr",
             "split": "test",
-            "length": 100
+            "length": 100,
+            "user_script": "qnn_workflow.py"
         }
     },
     "evaluator": "common_evaluator",

@@ -161,6 +161,7 @@ class OlivePropertyNames:
     TargetDevice = "target_device"
     Type = "type"
     UserConfig = "user_config"
+    UserScript = "user_script"
     WeightFormat = "weight_format"
 
 
