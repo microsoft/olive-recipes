@@ -113,6 +113,7 @@ class Section(BaseModel):
                 printError(f"{_file} section {sectionId} parameter {i} has error")
 
             # TODO move tag check into Parameter
+            # TODO guess for possible tags
             if parameter.path and Section.datasetPathPattern(parameter.path):
                 if self.phase == PhaseTypeEnum.Quantization:
                     if not parameter.tags or ParameterTagEnum.QuantizationDataset not in parameter.tags:
@@ -120,10 +121,6 @@ class Section(BaseModel):
                 elif self.phase == PhaseTypeEnum.Evaluation:
                     if not parameter.tags or ParameterTagEnum.EvaluationDataset not in parameter.tags:
                         printError(f"{_file} section {sectionId} parameter {i} should have EvaluationDataset tag")
-                if parameter.values:
-                    missing_keys = [key for key in parameter.values if key not in modelList.HFDatasets]
-                    if missing_keys:
-                        printError(f"datasets are not in HFDatasets: {', '.join(str(key) for key in missing_keys)}")
             elif parameter.path and parameter.path.endswith("activation_type"):
                 if not parameter.tags or ParameterTagEnum.ActivationType not in parameter.tags:
                     printError(f"{_file} section {sectionId} parameter {i} should have ActivationType tag")
@@ -258,6 +255,7 @@ class ModelParameter(BaseModelClass):
     runtimeInConversion: Optional[Parameter] = None
     optimizationPaths: Optional[List[OptimizationPath]] = None
     optimizationDefault: Optional[str] = None
+    aitkPython: Optional[str] = None
     sections: List[Section] = []
 
     @staticmethod
@@ -379,7 +377,8 @@ class ModelParameter(BaseModelClass):
                         conversion = [
                             k
                             for k, v in oliveJson[OlivePropertyNames.Passes].items()
-                            if v[OlivePropertyNames.Type].lower() == OlivePassNames.OnnxConversion
+                            if v[OlivePropertyNames.Type].lower()
+                            in [OlivePassNames.OnnxConversion, OlivePassNames.AitkPython]
                         ][0]
                     conversionPath = f"{OlivePropertyNames.Passes}.{conversion}"
                     section.toggle = Parameter(
@@ -601,7 +600,7 @@ class ModelParameter(BaseModelClass):
         if (
             PhaseTypeEnum.Evaluation in allPhases
             and PhaseTypeEnum.Quantization in allPhases
-            and len(oliveJson[OlivePropertyNames.DataConfigs]) != 2
+            and (OlivePropertyNames.DataConfigs not in oliveJson or len(oliveJson[OlivePropertyNames.DataConfigs]) != 2)
         ):
             printWarning(f"{self._file}'s olive json should have two data configs for evaluation")
 

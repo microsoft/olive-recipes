@@ -1,0 +1,9 @@
+gdown==5.2.0
+gitpython==3.1.46
+librosa==0.11.0
+qai_hub==0.42.0
+ruamel-yaml==0.19.1
+schema==0.7.8
+sounddevice==0.5.2
+# need to install without deps because it depends on onnxruntime
+# uv pip:install qai_hub_models==0.39.1 --no-deps;post

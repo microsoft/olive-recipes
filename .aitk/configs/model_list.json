@@ -465,6 +465,19 @@
             "p0": false
         },
         {
+            "displayName": "openai/whisper-large-v3-turbo",
+            "icon": "OpenAI",
+            "modelLink": "https://huggingface.co/openai/whisper-large-v3-turbo",
+            "id": "huggingface/openai/whisper-large-v3-turbo",
+            "runtimes": [
+                "QNN"
+            ],
+            "architecture": "Transformer",
+            "status": "Hide",
+            "relativePath": "openai-whisper-large-v3-turbo/aitk",
+            "version": 1
+        },
+        {
             "displayName": "Qwen/Qwen2.5-0.5B",
             "icon": "qwen",
             "modelLink": "https://huggingface.co/Qwen/Qwen2.5-0.5B",
@@ -666,7 +679,8 @@
         "timm/mini-imagenet": "https://huggingface.co/datasets/timm/mini-imagenet",
         "wikipedia": "https://huggingface.co/datasets/wikimedia/wikipedia",
         "google-research-datasets/conceptual_captions": "https://huggingface.co/datasets/google-research-datasets/conceptual_captions",
-        "AIMClab-RUC/COCO-CN": "https://huggingface.co/datasets/AIMClab-RUC/COCO-CN"
+        "AIMClab-RUC/COCO-CN": "https://huggingface.co/datasets/AIMClab-RUC/COCO-CN",
+        "librispeech_asr": "https://huggingface.co/datasets/openslr/librispeech_asr"
     },
     "LoginRequiredDatasets": [
         "imagenet-1k"
