@@ -93,11 +93,11 @@ def main():
     register_execution_providers()
     app = HfWhisperAppWithSave(encoder_path, decoder_path, args.model_id, args.execution_provider, args.device_type)
 
-    os.makedirs(args.audio_path, exist_ok=True)
-    if os.path.isdir(args.audio_path):
+    if not os.path.exists(args.audio_path) or os.path.isdir(args.audio_path):
         from datasets import load_dataset
         import numpy as np
 
+        os.makedirs(args.audio_path, exist_ok=True)
         streamed_dataset = load_dataset(args.dataset_name, "clean", split=args.dataset_split, streaming=True)
         i = 0
         for batch in streamed_dataset:
