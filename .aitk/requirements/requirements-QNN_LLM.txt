@@ -22,6 +22,7 @@ mpmath==1.3.0
 nest-asyncio==1.6.0
 numpy==2.2.4
 onnxruntime-genai-winml==0.11.2
+# uvpip:uninstall onnxruntime-winml;pre
 onnxruntime-windowsml==1.23.2.202512041916
 packaging==24.2
 parso==0.8.5
