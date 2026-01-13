@@ -1,6 +1,4 @@
 --extra-index-url https://download.pytorch.org/whl/cu128
---extra-index-url https://pypi.org/simple
---index-url https://aiinfra.pkgs.visualstudio.com/PublicPackages/_packaging/ORT-Nightly/pypi/simple
 aiohappyeyeballs==2.6.1
 aiohttp==3.13.3
 aiosignal==1.4.0
@@ -62,7 +60,11 @@ olive-ai==0.10.1
 onnx==1.17.0
 onnx-ir==0.1.10
 onnxruntime-genai-winml==0.11.2
-onnxruntime-winml==1.23.2.202510220036
+# uvpip:uninstall onnxruntime-winml;pre
+# We also need to uninstall in case user tries new version, uses previous version and then updates again
+# because uninstalling winml will remove onnxruntime folder but we will not install windowsml to add it back
+# uvpip:uninstall onnxruntime-windowsml;pre
+onnxruntime-windowsml==1.23.2.202512041916
 onnxscript==0.5.3
 # optimum==1.26.1
 optimum==1.26.1
