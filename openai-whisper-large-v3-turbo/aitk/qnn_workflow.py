@@ -99,9 +99,9 @@ def main():
     history_folder = os.path.dirname(args.config)
     # Generate original model
     original_encoder = os.path.join("data", "_encoder_fp32")
-    generate_model(history_folder, "whisper_large_v3_turbo_encoder_fp32.json", cache_dir, original_encoder)
+    generate_model("data", "whisper_large_v3_turbo_encoder_fp32.json", cache_dir, original_encoder)
     original_decoder = os.path.join("data", "_decoder_fp32")
-    generate_model(history_folder, "whisper_large_v3_turbo_decoder_fp32.json", cache_dir, original_decoder)
+    generate_model("data", "whisper_large_v3_turbo_decoder_fp32.json", cache_dir, original_decoder)
     # Generate dataset
     subprocess.run([sys.executable, "qnn_run.py",
                     "--audio-path", audio_path,
