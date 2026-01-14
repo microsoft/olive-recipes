@@ -43,6 +43,7 @@ def load_update_config(
 
 
 def generate_model(
+        history_folder: str,
         config_path: str,
         cache_dir: str,
         output_dir: str,
@@ -56,9 +57,13 @@ def generate_model(
         return
     logger.info(f"Generating model from {config_path}...")
     oliveJson = load_update_config(config_path, cache_dir, output_dir, activation_type, precision, data_path, num_data)
+    # save updated config for record
+    config_name = os.path.basename(config_path)
+    with open(os.path.join(history_folder, config_name), 'w', encoding='utf-8') as file:
+        json.dump(oliveJson, file, indent=4)
     output = olive.workflows.run(oliveJson)
     if output is None or not output.has_output_model():
-        error = f"Model file is not generated"
+        error = "Model file is not generated"
         raise Exception(error)
 
 
@@ -88,13 +93,15 @@ def main():
     dataset_name: str = config_pass["dataset_name"]
     dataset_split: str = config_pass["split"]
     num_data: int = config_pass["length"]
+    # The cwd is model project folder
     audio_path: str = os.path.join("data", dataset_name.replace("/", "_"), dataset_split)
     save_data_path: str = os.path.join("data",  "_data_" + dataset_name.replace("/", "_"), dataset_split)
+    history_folder = os.path.dirname(args.config) 
     # Generate original model
     original_encoder = os.path.join("data", "_encoder_fp32")
-    generate_model("whisper_large_v3_turbo_encoder_fp32.json", cache_dir, original_encoder)
+    generate_model(history_folder, "whisper_large_v3_turbo_encoder_fp32.json", cache_dir, original_encoder)
     original_decoder = os.path.join("data", "_decoder_fp32")
-    generate_model("whisper_large_v3_turbo_decoder_fp32.json", cache_dir, original_decoder)
+    generate_model(history_folder, "whisper_large_v3_turbo_decoder_fp32.json", cache_dir, original_decoder)
     # Generate dataset
     subprocess.run([sys.executable, "qnn_run.py",
                     "--audio-path", audio_path,
@@ -106,10 +113,10 @@ def main():
                     "--num_data", str(num_data)],
                    check=True)
     # Generate quantized model
-    generate_model("whisper_large_v3_turbo_encoder_qdq.json", cache_dir, os.path.join(output_dir, "encoder"),
+    generate_model(history_folder, "whisper_large_v3_turbo_encoder_qdq.json", cache_dir, os.path.join(output_dir, "encoder"),
                    False, activation_type, precision, save_data_path, num_data)
     # decoder has more data for 1 sample, to keep variants, multiply num_data by 10
-    generate_model("whisper_large_v3_turbo_decoder_qdq.json", cache_dir, os.path.join(output_dir, "decoder"),
+    generate_model(history_folder, "whisper_large_v3_turbo_decoder_qdq.json", cache_dir, os.path.join(output_dir, "decoder"),
                    False, activation_type, precision, save_data_path, num_data * 10)
 
 

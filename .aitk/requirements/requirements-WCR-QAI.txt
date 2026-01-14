@@ -6,4 +6,4 @@ ruamel-yaml==0.19.1
 schema==0.7.8
 sounddevice==0.5.2
 # need to install without deps because it depends on onnxruntime
-# uv pip:install qai_hub_models==0.39.1 --no-deps;post
+# uvpip:install qai_hub_models==0.39.1 --no-deps;post
