@@ -96,7 +96,7 @@ def main():
     # The cwd is model project folder
     audio_path: str = os.path.join("data", dataset_name.replace("/", "_"), dataset_split)
     save_data_path: str = os.path.join("data",  "_data_" + dataset_name.replace("/", "_"), dataset_split)
-    history_folder = os.path.dirname(args.config) 
+    history_folder = os.path.dirname(args.config)
     # Generate original model
     original_encoder = os.path.join("data", "_encoder_fp32")
     generate_model(history_folder, "whisper_large_v3_turbo_encoder_fp32.json", cache_dir, original_encoder)
