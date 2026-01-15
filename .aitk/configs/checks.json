@@ -2,15 +2,15 @@
     "configCheck": 138,
     "copyCheck": 182,
     "extensionCheck": 1,
-    "gitignoreCheck": 37,
+    "gitignoreCheck": 38,
     "inferenceModelCheck": 25,
-    "ipynbCheck": 37,
-    "licenseCheck": 36,
-    "modelProjectCheck": 38,
+    "ipynbCheck": 38,
+    "licenseCheck": 37,
+    "modelProjectCheck": 39,
     "oliveCheck": 36,
     "oliveJsonCheck": 138,
     "pathCheck": 861,
     "requirementsCheck": 37,
     "templateCheck": 1,
-    "venvRequirementsCheck": 10
+    "venvRequirementsCheck": 11
 }

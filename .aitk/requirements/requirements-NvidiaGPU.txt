@@ -1,6 +1,6 @@
 --extra-index-url https://download.pytorch.org/whl/cu128
 aiohappyeyeballs==2.6.1
-aiohttp==3.11.16
+aiohttp==3.13.3
 aiosignal==1.4.0
 alembic==1.16.5
 annotated-types==0.7.0
@@ -13,7 +13,7 @@ colorlog==6.9.0
 # datasets==3.5.0
 datasets==3.5.0
 dill==0.3.8
-filelock==3.18.0
+filelock==3.20.1
 flatbuffers==25.2.10
 frozenlist==1.7.0
 fsspec==2024.12.0
@@ -51,7 +51,7 @@ packaging==24.2
 pandas==2.2.3
 pillow==11.2.1
 propcache==0.3.2
-protobuf==3.20.3
+protobuf==4.25.8
 pyarrow==19.0.1
 pydantic==2.11.3
 pydantic-core==2.33.1
@@ -79,6 +79,6 @@ transformers==4.51.3
 typing-extensions==4.15.0
 typing-inspection==0.4.1
 tzdata==2025.2
-urllib3==2.5.0
+urllib3==2.6.3
 xxhash==3.5.0
 yarl==1.20.1

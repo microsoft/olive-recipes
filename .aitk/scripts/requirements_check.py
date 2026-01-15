@@ -33,8 +33,12 @@ def requirements_check():
     WCR_lines = get_lines_from_file(requirements_folder / "requirements-WCR.txt")
     WCR_INIT_lines = get_lines_from_file(requirements_folder / "requirements-WCR_INIT.txt")
     QNN_LLM_lines = get_lines_from_file(requirements_folder / "requirements-QNN_LLM.txt")
+    Profiling_lines = get_lines_from_file(requirements_folder / "requirements-Profiling.txt")
     req_is_subset(WCR_INIT_lines, WCR_lines)
     req_is_subset(QNN_LLM_lines, WCR_lines)
+    req_is_subset(Profiling_lines, WCR_lines)
+    # Add onnx lib etc. for op-level profiling
+    req_is_subset(WCR_INIT_lines, Profiling_lines)
     WCR_CUDA_lines = get_lines_from_file(requirements_folder / "requirements-WCR_CUDA.txt")
     req_is_subset(
         WCR_CUDA_lines,

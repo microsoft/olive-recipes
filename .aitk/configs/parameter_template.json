@@ -43,36 +43,20 @@
             "uint16"
         ]
     },
-    "ActivationTypeIntel": {
-        "name": "Activation Type",
-        "tags": [
-            "ActivationType"
-        ],
-        "description": "Quantization data type of activation. ‘Int8’ for signed 8-bit integer, ‘UInt8’ for unsigned 8-bit integer etc.",
-        "descriptionLink": "https://onnxruntime.ai/docs/performance/model-optimizations/quantization.html",
-        "type": "enum",
-        "displayNames": [
-            "Int8"
-        ],
-        "displayType": "RadioGroup",
-        "values": [
-            "int8"
-        ]
-    },
     "WeightTypeIntel": {
         "name": "Weight Type",
         "tags": [
             "WeightType"
         ],
-        "description": "Data type for quantizing weights. ‘Int8’ for signed 8-bit integer, ‘UInt8’ for unsigned 8-bit integer etc.",
-        "descriptionLink": "https://onnxruntime.ai/docs/performance/model-optimizations/quantization.html",
+        "description": "Data type for quantizing weights.",
+        "descriptionLink": "https://huggingface.co/docs/optimum/main/intel/openvino/optimization#4-bit",
         "type": "enum",
         "displayNames": [
-            "Int8"
+            "Int4"
         ],
         "displayType": "RadioGroup",
         "values": [
-            "int8"
+            "int4"
         ]
     },
     "EvaluationDataset": {
@@ -138,5 +122,23 @@
             "DependsOnDataset"
         ],
         "type": "enum"
+    },
+    "ModelBuilderPrecision": {
+        "name": "Precision",
+        "description": "Precision of model",
+        "type": "enum",
+        "displayNames": [
+            "Int4",
+            "Bf16",
+            "Fp16",
+            "Fp32"
+        ],
+        "displayType": "RadioGroup",
+        "values": [
+            "int4",
+            "bf16",
+            "fp16",
+            "fp32"
+        ]
     }
 }

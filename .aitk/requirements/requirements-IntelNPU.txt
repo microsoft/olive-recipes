@@ -1,6 +1,6 @@
 about-time==4.2.1
 aiohappyeyeballs==2.6.1
-aiohttp==3.11.16
+aiohttp==3.13.3
 aiosignal==1.4.0
 alembic==1.16.4
 alive-progress==3.3.0
@@ -19,9 +19,9 @@ cycler==0.12.1
 datasets==3.5.0
 deprecated==1.2.18
 dill==0.3.8
-filelock==3.18.0
+filelock==3.20.1
 flatbuffers==25.2.10
-fonttools==4.59.1
+fonttools==4.61.0
 frozenlist==1.7.0
 fsspec==2024.12.0
 graphemeu==0.7.2
@@ -78,7 +78,7 @@ packaging==24.2
 pandas==2.2.3
 pillow==11.2.1
 propcache==0.3.2
-protobuf==6.30.2
+protobuf==4.25.8
 psutil==7.0.0
 pyarrow==19.0.1
 pydantic==2.11.1
@@ -118,7 +118,7 @@ transformers==4.51.3
 typing-extensions==4.15.0
 typing-inspection==0.4.1
 tzdata==2025.2
-urllib3==2.5.0
+urllib3==2.6.3
 wrapt==1.17.3
 xxhash==3.5.0
 yarl==1.20.1
