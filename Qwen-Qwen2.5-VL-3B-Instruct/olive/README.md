@@ -24,7 +24,7 @@ python optimize.py
 python inference.py --prompt "What is the capital of France?"
 
 # With image
-python inference.py --prompt "Describe this image" --image cat.jpg
+python inference.py --prompt "Describe this image" --image cat.jpeg
 
 # Interactive mode
 python inference.py --interactive
