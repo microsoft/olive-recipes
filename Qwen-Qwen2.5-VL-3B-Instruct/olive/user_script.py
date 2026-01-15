@@ -100,7 +100,7 @@ def get_embedding_dummy_inputs(model=None):
 ### Vision
 def get_vision_model(model_path=None):
     model = Qwen2_5_VLModel.from_pretrained(
-        model_name,
+        model_path,
         attn_implementation="sdpa",
         trust_remote_code=True,
         torch_dtype=torch.float16,
@@ -119,7 +119,6 @@ def get_vision_dummy_inputs(model=None):
     pixel_values = torch.randn((14308, 1176), dtype=torch.float32)
     # Scale the values to the range [-1, 0.95] to fit actual values we observed in the example.
     pixel_values = pixel_values * (0.95 - (-1)) + (-1)
-    pixel_values = pixel_values.to(torch.float32)
 
     grid_thw = torch.tensor([[1, 98, 146]], dtype=torch.int64)
 

@@ -133,7 +133,7 @@ def interactive_mode(model, processor, tokenizer, tokenizer_stream, args):
         try:
             generate_response(
                 model, processor, tokenizer, tokenizer_stream,
-                prompt, image_path, args.max_new_tokens
+                prompt, image_path
             )
         except Exception as e:
             print(f"Error: {e}")
