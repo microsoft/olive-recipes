@@ -19,5 +19,5 @@
     "host": "local_system",
     "target": "local_system",
     "no_artifacts": true,
-    "output_dir": "models/embedding"
+    "output_dir": "models/embedding.onnx"
 }

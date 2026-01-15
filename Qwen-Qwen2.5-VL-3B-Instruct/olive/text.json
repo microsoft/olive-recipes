@@ -10,10 +10,10 @@
         }
     },
     "passes": {
-        "convert": { "type": "ModelBuilder", "precision": "fp16" }
+        "convert": { "type": "ModelBuilder", "precision": "fp16", "extra_options": { "filename": "text.onnx" } }
     },
     "host": "local_system",
     "target": "local_system",
     "no_artifacts": true,
-    "output_dir": "models/text"
+    "output_dir": "models/text.onnx"
 }

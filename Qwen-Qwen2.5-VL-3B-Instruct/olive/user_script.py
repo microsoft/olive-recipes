@@ -1,18 +1,8 @@
-import argparse
 import os
 import sys
 import torch
-import shutil
 
-import onnx
-from onnxscript.rewriter import ort_fusions
 from transformers import Qwen2_5_VLConfig
-from torch.onnx._internal.exporter import _testing
-
-import onnxscript
-import onnx_ir as ir
-from typing import Sequence
-import onnx_ir.passes.common as common_passes
 
 # Add parent directory to sys.path to import codes module
 _current_dir = os.path.dirname(os.path.abspath(__file__))

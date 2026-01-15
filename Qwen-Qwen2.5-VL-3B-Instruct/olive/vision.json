@@ -14,10 +14,22 @@
         }
     },
     "passes": {
-        "convert": { "type": "OnnxConversion", "use_dynamo_exporter": true }
+        "c": { "type": "OnnxConversion", "use_dynamo_exporter": true },
+        "gs": {
+            "type": "GraphSurgeries",
+            "surgeries": [
+                {"surgeon": "PackedAttentionToLoopMHA"},
+                {
+                    "surgeon": "RenameOutputDims",
+                    "output_idx": 0,
+                    "dim_idx": 0,
+                    "dim_name": "num_logical_patches"
+                }
+            ]
+        }
     },
     "host": "local_system",
     "target": "local_system",
     "no_artifacts": true,
-    "output_dir": "models/vision"
+    "output_dir": "models/vision.onnx"
 }

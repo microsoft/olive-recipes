@@ -1,10 +1,5 @@
-"""
-Vision-Language inference script for Qwen2.5-VL using ONNX Runtime GenAI.
-
-Uses onnxruntime-genai for multimodal inference.
-"""
-
 import argparse
+import json
 import onnxruntime_genai as og
 
 
@@ -16,7 +11,7 @@ def main():
     parser.add_argument(
         "--model_path",
         type=str,
-        required=True,
+        default="models",
         help="Path to the model directory containing genai_config.json and ONNX models"
     )
     parser.add_argument(
@@ -32,20 +27,9 @@ def main():
         help="Text prompt"
     )
     parser.add_argument(
-        "--max_new_tokens",
-        type=int,
-        default=256,
-        help="Maximum number of new tokens to generate"
-    )
-    parser.add_argument(
         "--interactive",
         action="store_true",
         help="Run in interactive mode"
-    )
-    parser.add_argument(
-        "--streaming",
-        action="store_true",
-        help="Enable streaming output"
     )
 
     args = parser.parse_args()
@@ -54,29 +38,45 @@ def main():
     print(f"Loading model from: {args.model_path}")
     model = og.Model(args.model_path)
     processor = model.create_multimodal_processor()
-    tokenizer_stream = model.create_tokenizer_stream()
+    tokenizer = og.Tokenizer(model)
+    tokenizer_stream = processor.create_stream()
 
     if args.interactive:
-        interactive_mode(model, processor, tokenizer_stream, args)
+        interactive_mode(model, processor, tokenizer, tokenizer_stream, args)
     elif args.prompt:
-        generate_response(model, processor, tokenizer_stream, args.prompt, args.image, args.max_new_tokens, args.streaming)
+        generate_response(model, processor, tokenizer, tokenizer_stream, args.prompt, args.image)
     else:
         print("Please provide --prompt or use --interactive mode")
         parser.print_help()
 
 
-def generate_response(model, processor, tokenizer_stream, prompt, image_path, max_new_tokens, streaming):
-    """Generate a response for the given prompt and optional image."""
-
-    # Load image if provided
+def generate_response(model, processor, tokenizer, tokenizer_stream, prompt, image_path):
+    # Build messages for chat template
     images = None
     if image_path:
         print(f"Loading image: {image_path}")
         images = og.Images.open(image_path)
-        # Add vision tokens to prompt
-        full_prompt = f"<|vision_start|><|image_pad|><|vision_end|>{prompt}"
+        # Message with image
+        messages = [
+            {
+                "role": "user",
+                "content": [
+                    {"type": "image"},
+                    {"type": "text", "text": prompt}
+                ]
+            }
+        ]
     else:
-        full_prompt = prompt
+        # Text-only message
+        messages = [
+            {
+                "role": "user",
+                "content": prompt
+            }
+        ]
+
+    # Apply chat template (requires JSON string)
+    full_prompt = tokenizer.apply_chat_template(json.dumps(messages), add_generation_prompt=True)
 
     print(f"\nPrompt: {prompt}")
     if image_path:
@@ -88,27 +88,22 @@ def generate_response(model, processor, tokenizer_stream, prompt, image_path, ma
 
     # Set up generation parameters
     params = og.GeneratorParams(model)
-    params.set_inputs(inputs)
-    params.set_search_options(max_length=max_new_tokens)
+    params.set_search_options(max_length=4096)
 
     # Generate
-    if streaming:
-        generator = og.Generator(model, params)
-        print("\nResponse: ", end="", flush=True)
-        while not generator.is_done():
-            generator.compute_logits()
-            generator.generate_next_token()
-            new_token = generator.get_next_tokens()[0]
-            print(tokenizer_stream.decode(new_token), end="", flush=True)
-        print()
-        del generator
-    else:
-        output_tokens = model.generate(params)
-        response = processor.decode(output_tokens[0])
-        print(f"\nResponse:\n{response}")
+    generator = og.Generator(model, params)
+    generator.set_inputs(inputs)
+
+    print("\nResponse: ", end="", flush=True)
+    while not generator.is_done():
+        generator.generate_next_token()
+        new_token = generator.get_next_tokens()[0]
+        print(tokenizer_stream.decode(new_token), end="", flush=True)
+    print()
+    del generator
 
 
-def interactive_mode(model, processor, tokenizer_stream, args):
+def interactive_mode(model, processor, tokenizer, tokenizer_stream, args):
     """Run in interactive mode."""
     print("\n" + "="*50)
     print("Interactive Mode - Enter 'quit' or 'exit' to stop")
@@ -137,8 +132,8 @@ def interactive_mode(model, processor, tokenizer_stream, args):
 
         try:
             generate_response(
-                model, processor, tokenizer_stream,
-                prompt, image_path, args.max_new_tokens, args.streaming
+                model, processor, tokenizer, tokenizer_stream,
+                prompt, image_path, args.max_new_tokens
             )
         except Exception as e:
             print(f"Error: {e}")
