@@ -7,7 +7,7 @@ This repository demonstrates the optimization of the [Qwen2.5-1.5B-Instruct](htt
    + This process extends the QDQ flow and compiling specifically for **Qualcomm NPUs**
 - OpenVINO for Intel® CPU/GPU/NPU
    + This process uses OpenVINO specific passes like `OpenVINOOptimumConversion`, `OpenVINOIoUpdate` and `OpenVINOEncapsulation`
-- Float downcasting for NVIDIA TRT for RTX GPU
+- Float downcasting for NVIDIA TRT for RTX GPU / WebGPU for general GPU
 - DML for general GPU
    + This process uses AutoAWQ and ModelBuilder
 
