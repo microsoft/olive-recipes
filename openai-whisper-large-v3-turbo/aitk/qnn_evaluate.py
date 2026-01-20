@@ -66,13 +66,13 @@ def main():
     if os.path.isdir(args.audio_path):
         for _, item in enumerate(os.listdir(args.audio_path)):
             import numpy as np
-            
+
             audio_file = os.path.join(args.audio_path, item)
             audio_dict = np.load(audio_file, allow_pickle=True).item()
 
             audio = audio_dict["audio"]["array"]
             audio_sample_rate = audio_dict["audio"]["sampling_rate"]
-            
+
             start_time = time.perf_counter()
             transcription = app.transcribe(audio, audio_sample_rate, None, None)
             end_time = time.perf_counter()

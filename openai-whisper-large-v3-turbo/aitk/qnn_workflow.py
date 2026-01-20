@@ -70,7 +70,7 @@ def generate_model(
 
 def main():
     args = parse_arguments()
-    
+
     with open(args.config, 'r', encoding='utf-8') as file:
         oliveJson = json.load(file)
 
@@ -108,7 +108,7 @@ def main():
                         "--output_file", output_file],
                         check=True)
         return
-    
+
     # Generate original model
     original_encoder = os.path.join("data", "_encoder_fp32")
     generate_model("data", "whisper_large_v3_turbo_encoder_fp32.json", cache_dir, original_encoder)
