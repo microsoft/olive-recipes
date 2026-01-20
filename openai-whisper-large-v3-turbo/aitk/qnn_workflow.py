@@ -94,10 +94,7 @@ def main():
         encoder_path: str = os.path.join(model_path, "encoder", "model.onnx")
         decoder_path: str = os.path.join(model_path, "decoder", "model.onnx")
         execution_provider: str = oliveJson["systems"]["target_system"]["accelerators"][0]["execution_providers"][0]
-        if execution_provider == "QNNExecutionProvider":
-            device_type = "npu"
-        else:
-            device_type = "cpu"
+        device_str = "npu" if execution_provider == "QNNExecutionProvider" else "cpu"
 
         output_file = os.path.join(os.path.dirname(args.config), "metrics.json")
 
@@ -107,7 +104,7 @@ def main():
                         "--encoder", encoder_path,
                         "--decoder", decoder_path,
                         "--execution_provider", execution_provider,
-                        "--device_type", device_type,
+                        "--device_str", device_str,
                         "--output_file", output_file],
                         check=True)
         return

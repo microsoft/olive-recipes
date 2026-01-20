@@ -3,7 +3,7 @@ import json
 import os
 import time
 
-from qnn_app import HfWhisperAppWithSave
+from qnn_app import HfWhisperAppWithSave, get_device_type
 from transformers import WhisperProcessor
 import logging
 
@@ -40,7 +40,7 @@ def main():
         help="ORT Execution provider",
     )
     parser.add_argument(
-        "--device_type",
+        "--device_str",
         type=str,
         default="cpu",
     )
@@ -56,7 +56,7 @@ def main():
     decoder_path = args.decoder
 
     processor = WhisperProcessor.from_pretrained(args.model_id)
-    app = HfWhisperAppWithSave(encoder_path, decoder_path, args.model_id, args.execution_provider, args.device_type)
+    app = HfWhisperAppWithSave(encoder_path, decoder_path, args.model_id, args.execution_provider, get_device_type(args.device_str))
 
     references = []
     predictions = []
@@ -75,17 +75,17 @@ def main():
             
             start_time = time.perf_counter()
             transcription = app.transcribe(audio, audio_sample_rate, None, None)
-            prediction = processor.tokenizer._normalize(transcription)
             end_time = time.perf_counter()
             latencies.append(end_time - start_time)
 
+            prediction = processor.tokenizer._normalize(transcription)
             reference = processor.tokenizer._normalize(audio_dict["text"])
             references.append(reference)
             predictions.append(prediction)
             logger.info(f"Reference: {reference}")
             logger.info(f"prediction: {prediction}")
 
-    latency_avg = sum(latencies) / len(latencies) * 1000
+    latency_avg = round(sum(latencies) / len(latencies) * 1000, 5)
     metrics = {
         "latency-avg": latency_avg
     }

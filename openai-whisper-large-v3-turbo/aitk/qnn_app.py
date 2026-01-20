@@ -48,6 +48,14 @@ def add_ep_for_device(session_options, ep_name, device_type, ep_options=None):
             session_options.add_provider_for_devices([ep_device], {} if ep_options is None else ep_options)
             break
 
+def get_device_type(device_str):
+    if device_str.lower() == "gpu":
+        return ort.OrtHardwareDeviceType.GPU
+    elif device_str.lower() == "npu":
+        return ort.OrtHardwareDeviceType.NPU
+    else:
+        return ort.OrtHardwareDeviceType.CPU
+
 
 class HfWhisperAppWithSave(HfWhisperApp):
     def __init__(
@@ -56,17 +64,12 @@ class HfWhisperAppWithSave(HfWhisperApp):
         decoder,
         hf_model_id: str,
         execution_provider: str = "CPUExecutionProvider",
-        device_str: str = "cpu",
+        device_type: ort.OrtHardwareDeviceType = ort.OrtHardwareDeviceType.CPU,
         sample_rate: int = SAMPLE_RATE,
         max_audio_seconds: int = CHUNK_LENGTH,
     ):
         super().__init__(None, None, hf_model_id, sample_rate, max_audio_seconds)
         options = ort.SessionOptions()
-        device_type = ort.OrtHardwareDeviceType.CPU
-        if device_str.lower() == "gpu":
-            device_type = ort.OrtHardwareDeviceType.GPU
-        elif device_str.lower() == "npu":
-            device_type = ort.OrtHardwareDeviceType.NPU
         add_ep_for_device(options, execution_provider, device_type)
 
         self.encoder = ort.InferenceSession(
