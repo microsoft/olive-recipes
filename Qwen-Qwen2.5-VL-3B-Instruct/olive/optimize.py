@@ -1,3 +1,4 @@
+import argparse
 import json
 import logging
 from pathlib import Path
@@ -6,11 +7,24 @@ logging.getLogger("onnxscript").setLevel(logging.WARNING)
 logging.getLogger("onnx_ir").setLevel(logging.WARNING)
 
 
-def update_genai_config(output_dir: str = "models"):
+def update_genai_config(output_dir: str = "models", device: str = "gpu"):
     config_path = Path(output_dir) / "genai_config.json"
 
     with open(config_path, "r") as f:
         config = json.load(f)
+
+    # Set provider_options based on device
+    if device == "gpu":
+        provider_options = [
+            {
+                "cuda": {
+                    "enable_cuda_graph": "0",
+                    "enable_skip_layer_norm_strict_mode": "1"
+                }
+            }
+        ]
+    else:
+        provider_options = []
 
     # Add embedding configuration
     config["model"]["embedding"] = {
@@ -24,14 +38,7 @@ def update_genai_config(output_dir: str = "models"):
         },
         "session_options": {
             "log_id": "onnxruntime-genai",
-            "provider_options": [
-                {
-                    "cuda": {
-                        "enable_cuda_graph": "0",
-                        "enable_skip_layer_norm_strict_mode": "1"
-                    }
-                }
-            ]
+            "provider_options": provider_options
         }
     }
 
@@ -50,14 +57,7 @@ def update_genai_config(output_dir: str = "models"):
         },
         "session_options": {
             "log_id": "onnxruntime-genai",
-            "provider_options": [
-                {
-                    "cuda": {
-                        "enable_cuda_graph": "0",
-                        "enable_skip_layer_norm_strict_mode": "1"
-                    }
-                }
-            ]
+            "provider_options": provider_options
         }
     }
 
@@ -154,15 +154,24 @@ def update_genai_config(output_dir: str = "models"):
     print(f"Created processor_config.json at {processor_config_path}")
 
 
-def optimize():
-    print("Optimizing the model...")
+def optimize(device: str = "gpu"):
+    print(f"Optimizing the model for {device.upper()}...")
     from olive import run
 
     run("embedding.json")
     run("text.json")
     run("vision.json")
 
-    update_genai_config()
+    update_genai_config(device=device)
 
 if __name__ == "__main__":
-    optimize()
+    parser = argparse.ArgumentParser(description="Optimize Qwen2.5-VL model with Olive")
+    parser.add_argument(
+        "--device",
+        type=str,
+        choices=["gpu", "cpu"],
+        default="gpu",
+        help="Target device for inference (default: gpu)"
+    )
+    args = parser.parse_args()
+    optimize(device=args.device)

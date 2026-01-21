@@ -7,12 +7,6 @@
         "io_config": "get_vision_io_config",
         "dummy_inputs_func": "get_vision_dummy_inputs"
     },
-    "systems": {
-        "local_system": {
-            "type": "LocalSystem",
-            "accelerators": [ { "device": "gpu", "execution_providers": [ "CUDAExecutionProvider" ] } ]
-        }
-    },
     "passes": {
         "c": { "type": "OnnxConversion", "use_dynamo_exporter": true },
         "gs": {
@@ -28,8 +22,6 @@
             ]
         }
     },
-    "host": "local_system",
-    "target": "local_system",
     "no_artifacts": true,
     "output_dir": "models/vision.onnx"
 }
