@@ -1,0 +1,2 @@
+git+https://github.com/microsoft/Olive.git@main
+transformers==5.0.0rc3
