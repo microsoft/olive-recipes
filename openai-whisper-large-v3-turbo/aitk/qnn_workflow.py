@@ -73,7 +73,8 @@ def main():
     if args.model_config:
         # TODO add evaluation
         metrics = {
-            "latency-avg": 5.26205
+            "encoder-latency-avg": 5.26205,
+            "decoder-latency-avg": 3.26205
         }
         output_file = os.path.join(os.path.dirname(args.config), "metrics.json")
         resultStr = json.dumps(metrics, indent=4)

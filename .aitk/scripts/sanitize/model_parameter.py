@@ -232,6 +232,7 @@ class ModelParameter(BaseModelClass):
     intelRuntimeValues: Optional[List[OliveDeviceTypes]] = None
     # For template using CUDA and no runtime overwrite, we need to set this so we know the target EP
     evalRuntime: Optional[RuntimeEnum] = None
+    evalMetrics: Optional[Dict[str, str]] = None
     debugInfo: Optional[DebugInfo] = None
     # A SHORTCUT FOR SEVERAL PARAMETERS
     # This kind of config will
@@ -469,6 +470,9 @@ class ModelParameter(BaseModelClass):
         first_pass_value = next(iter(oliveJson[OlivePropertyNames.Passes].values()), None)
         if first_pass_value and first_pass_value[OlivePropertyNames.Type].lower() == OlivePassNames.ModelBuilder:
             self.needHFLogin = True
+
+        if self.evalMetrics and len(self.evalMetrics) > 2:
+            printError(f"{self._file} evalMetrics should not have more than 2 metrics")
 
         self.checkPhase(oliveJson)
         self.CheckRuntimeInConversion(oliveJson, modelList, modelInfo)
