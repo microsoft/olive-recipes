@@ -1,7 +1,7 @@
 import argparse
 import json
 import os
-import time
+import numpy as np
 
 from qnn_app import HfWhisperAppWithSave, get_device_type
 from transformers import WhisperProcessor
@@ -52,42 +52,33 @@ def main():
 
     args = parser.parse_args()
 
+    audio_path = args.audio_path
     encoder_path = args.encoder
     decoder_path = args.decoder
 
-    processor = WhisperProcessor.from_pretrained(args.model_id)
     app = HfWhisperAppWithSave(encoder_path, decoder_path, args.model_id, args.execution_provider, get_device_type(args.device_str))
 
-    references = []
-    predictions = []
+    encoder_latencies = []
+    decoder_latencies = []
 
-    latencies = []
+    # only pick one from dataset
+    audio_file = next((os.path.join(d, f) for d, _, fs in os.walk(audio_path) for f in fs if f.endswith(".npy")), None)
+    audio_dict = np.load(audio_file, allow_pickle=True).item()
 
-    if os.path.isdir(args.audio_path):
-        for _, item in enumerate(os.listdir(args.audio_path)):
-            import numpy as np
+    audio = audio_dict["audio"]["array"]
+    audio_sample_rate = audio_dict["audio"]["sampling_rate"]
 
-            audio_file = os.path.join(args.audio_path, item)
-            audio_dict = np.load(audio_file, allow_pickle=True).item()
+    for _ in range(20):
+        app.transcribe_tokens(audio, audio_sample_rate, None, None)
+        encoder_latencies.extend(app.encoder_latencies)
+        decoder_latencies.extend(app.decoder_latencies)
 
-            audio = audio_dict["audio"]["array"]
-            audio_sample_rate = audio_dict["audio"]["sampling_rate"]
+    encoder_latency_avg = round(sum(encoder_latencies) / len(encoder_latencies) * 1000, 5)
+    decoder_latency_avg = round(sum(decoder_latencies) / len(decoder_latencies) * 1000, 5)
 
-            start_time = time.perf_counter()
-            transcription = app.transcribe(audio, audio_sample_rate, None, None)
-            end_time = time.perf_counter()
-            latencies.append(end_time - start_time)
-
-            prediction = processor.tokenizer._normalize(transcription)
-            reference = processor.tokenizer._normalize(audio_dict["text"])
-            references.append(reference)
-            predictions.append(prediction)
-            logger.info(f"Reference: {reference}")
-            logger.info(f"prediction: {prediction}")
-
-    latency_avg = round(sum(latencies) / len(latencies) * 1000, 5)
     metrics = {
-        "latency-avg": latency_avg
+        "encoder-latency-avg": encoder_latency_avg,
+        "decoder-latency-avg": decoder_latency_avg
     }
     resultStr = json.dumps(metrics, indent=4)
     with open(args.output_file, 'w') as file:

@@ -6,6 +6,7 @@
 from __future__ import annotations
 
 import os
+import time
 
 import numpy as np
 import onnxruntime as ort
@@ -75,10 +76,12 @@ class HfWhisperAppWithSave(HfWhisperApp):
         self.encoder = ort.InferenceSession(
             encoder, sess_options=options,
         )
+        self.encoder_latencies = []
 
         self.decoder = ort.InferenceSession(
             decoder, sess_options=options,
         )
+        self.decoder_latencies = []
 
     def transcribe_tokens(self, audio, sample_rate, audio_name, save_data=False) -> list[int]:
         out_chunked_tokens = []
@@ -91,6 +94,8 @@ class HfWhisperAppWithSave(HfWhisperApp):
         return out_tokens
 
     def transcribe(self, audio, sample_rate, audio_name, save_data=False) -> str:
+        self.encoder_latencies = []
+        self.decoder_latencies = []
         tokens = self.transcribe_tokens(audio, sample_rate, audio_name, save_data)
         return self.tokenizer.decode(tokens, skip_special_tokens=True).strip()
 
@@ -112,7 +117,10 @@ class HfWhisperAppWithSave(HfWhisperApp):
             os.makedirs(os.path.dirname(input_features_save_path), exist_ok=True)
             np.save(input_features_save_path, input_features_feed)
 
+        encoder_start = time.perf_counter()
         kv_cache_cross_numpy = self.encoder.run(output_names_encoder, input_features_feed)
+        self.encoder_latencies.append(time.perf_counter() - encoder_start)
+        
         kv_cache_cross = [torch.from_numpy(arr) for arr in kv_cache_cross_numpy]
         if not isinstance(kv_cache_cross, tuple):
             kv_cache_cross = (kv_cache_cross,)
@@ -190,7 +198,10 @@ class HfWhisperAppWithSave(HfWhisperApp):
                 os.makedirs(os.path.dirname(decoder_input_save_path), exist_ok=True)
                 np.save(decoder_input_save_path, decoder_input_feed)
 
+            decoder_start = time.perf_counter()
             decoder_output_numpy = self.decoder.run(output_names_decoder, decoder_input_feed)
+            self.decoder_latencies.append(time.perf_counter() - decoder_start)
+            
             decoder_output = [torch.from_numpy(arr) for arr in decoder_output_numpy]
             # decoder_output = self.decoder(*decoder_input)
             if isinstance(decoder_output, tuple) and len(decoder_output) == 2:
