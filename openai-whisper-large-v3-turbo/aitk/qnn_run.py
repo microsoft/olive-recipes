@@ -5,7 +5,7 @@
 
 import argparse
 import os
-from qnn_app import HfWhisperAppWithSave, infer_audio, get_audio_name
+from qnn_app import HfWhisperAppWithSave, infer_audio, get_audio_name, get_device_type
 import logging
 
 logger = logging.getLogger(os.path.basename(__file__))
@@ -56,7 +56,7 @@ def main():
         help="ORT Execution provider",
     )
     parser.add_argument(
-        "--device_type",
+        "--device_str",
         type=str,
         default="cpu",
     )
@@ -91,7 +91,7 @@ def main():
     decoder_path = args.decoder
 
     register_execution_providers()
-    app = HfWhisperAppWithSave(encoder_path, decoder_path, args.model_id, args.execution_provider, args.device_type)
+    app = HfWhisperAppWithSave(encoder_path, decoder_path, args.model_id, args.execution_provider, get_device_type(args.device_str))
 
     if not os.path.exists(args.audio_path) or os.path.isdir(args.audio_path):
         from datasets import load_dataset
