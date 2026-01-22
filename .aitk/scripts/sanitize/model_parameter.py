@@ -243,6 +243,8 @@ class ModelParameter(BaseModelClass):
     isQNNLLM: Optional[bool] = None
     # SET AUTOMATICALLY TO TRUE WHEN CUDAExecutionProvider
     isGPURequired: Optional[bool] = None
+    # Free memory suggested to convert the model
+    memoryGbRequired: Optional[int] = None
     needHFLogin: Optional[bool] = None
     runtimeOverwrite: Optional[RuntimeOverwrite] = None
     executeRuntimeFeatures: Optional[List[str]] = None
