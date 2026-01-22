@@ -6,6 +6,7 @@
 from __future__ import annotations
 
 import os
+import time
 
 import numpy as np
 import onnxruntime as ort
@@ -48,6 +49,14 @@ def add_ep_for_device(session_options, ep_name, device_type, ep_options=None):
             session_options.add_provider_for_devices([ep_device], {} if ep_options is None else ep_options)
             break
 
+def get_device_type(device_str):
+    if device_str.lower() == "gpu":
+        return ort.OrtHardwareDeviceType.GPU
+    elif device_str.lower() == "npu":
+        return ort.OrtHardwareDeviceType.NPU
+    else:
+        return ort.OrtHardwareDeviceType.CPU
+
 
 class HfWhisperAppWithSave(HfWhisperApp):
     def __init__(
@@ -56,26 +65,23 @@ class HfWhisperAppWithSave(HfWhisperApp):
         decoder,
         hf_model_id: str,
         execution_provider: str = "CPUExecutionProvider",
-        device_str: str = "cpu",
+        device_type: ort.OrtHardwareDeviceType = ort.OrtHardwareDeviceType.CPU,
         sample_rate: int = SAMPLE_RATE,
         max_audio_seconds: int = CHUNK_LENGTH,
     ):
         super().__init__(None, None, hf_model_id, sample_rate, max_audio_seconds)
         options = ort.SessionOptions()
-        device_type = ort.OrtHardwareDeviceType.CPU
-        if device_str.lower() == "gpu":
-            device_type = ort.OrtHardwareDeviceType.GPU
-        elif device_str.lower() == "npu":
-            device_type = ort.OrtHardwareDeviceType.NPU
         add_ep_for_device(options, execution_provider, device_type)
 
         self.encoder = ort.InferenceSession(
             encoder, sess_options=options,
         )
+        self.encoder_latencies = []
 
         self.decoder = ort.InferenceSession(
             decoder, sess_options=options,
         )
+        self.decoder_latencies = []
 
     def transcribe_tokens(self, audio, sample_rate, audio_name, save_data=False) -> list[int]:
         out_chunked_tokens = []
@@ -88,6 +94,8 @@ class HfWhisperAppWithSave(HfWhisperApp):
         return out_tokens
 
     def transcribe(self, audio, sample_rate, audio_name, save_data=False) -> str:
+        self.encoder_latencies = []
+        self.decoder_latencies = []
         tokens = self.transcribe_tokens(audio, sample_rate, audio_name, save_data)
         return self.tokenizer.decode(tokens, skip_special_tokens=True).strip()
 
@@ -109,7 +117,10 @@ class HfWhisperAppWithSave(HfWhisperApp):
             os.makedirs(os.path.dirname(input_features_save_path), exist_ok=True)
             np.save(input_features_save_path, input_features_feed)
 
+        encoder_start = time.perf_counter()
         kv_cache_cross_numpy = self.encoder.run(output_names_encoder, input_features_feed)
+        self.encoder_latencies.append(time.perf_counter() - encoder_start)
+
         kv_cache_cross = [torch.from_numpy(arr) for arr in kv_cache_cross_numpy]
         if not isinstance(kv_cache_cross, tuple):
             kv_cache_cross = (kv_cache_cross,)
@@ -187,7 +198,10 @@ class HfWhisperAppWithSave(HfWhisperApp):
                 os.makedirs(os.path.dirname(decoder_input_save_path), exist_ok=True)
                 np.save(decoder_input_save_path, decoder_input_feed)
 
+            decoder_start = time.perf_counter()
             decoder_output_numpy = self.decoder.run(output_names_decoder, decoder_input_feed)
+            self.decoder_latencies.append(time.perf_counter() - decoder_start)
+
             decoder_output = [torch.from_numpy(arr) for arr in decoder_output_numpy]
             # decoder_output = self.decoder(*decoder_input)
             if isinstance(decoder_output, tuple) and len(decoder_output) == 2:

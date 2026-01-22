@@ -59,6 +59,7 @@ def generate_model(
     oliveJson = load_update_config(config_path, cache_dir, output_dir, activation_type, precision, data_path, num_data)
     # save updated config for record
     config_name = os.path.basename(config_path)
+    os.makedirs(history_folder, exist_ok=True)
     with open(os.path.join(history_folder, config_name), 'w', encoding='utf-8') as file:
         json.dump(oliveJson, file, indent=4)
     output = olive.workflows.run(oliveJson)
@@ -69,23 +70,11 @@ def generate_model(
 
 def main():
     args = parse_arguments()
-    # When we have model_config, we are in evaluation
-    if args.model_config:
-        # TODO add evaluation
-        metrics = {
-            "encoder-latency-avg": 5.26205,
-            "decoder-latency-avg": 3.26205
-        }
-        output_file = os.path.join(os.path.dirname(args.config), "metrics.json")
-        resultStr = json.dumps(metrics, indent=4)
-        with open(output_file, 'w') as file:
-            file.write(resultStr)
-        logger.info("Model lab succeeded for evaluation.\n%s", resultStr)
-        return
 
-    # Get arguments
     with open(args.config, 'r', encoding='utf-8') as file:
         oliveJson = json.load(file)
+
+    # Get arguments
     output_dir: str = oliveJson["output_dir"]
     cache_dir: str = oliveJson["cache_dir"]
     config_pass = oliveJson["passes"]["aitkpython"]
@@ -98,6 +87,28 @@ def main():
     audio_path: str = os.path.join("data", dataset_name.replace("/", "_"), dataset_split)
     save_data_path: str = os.path.join("data",  "_data_" + dataset_name.replace("/", "_"), dataset_split)
     history_folder = os.path.dirname(args.config)
+
+    # When we have model_config, we are in evaluation
+    if args.model_config:
+        model_path: str = os.path.dirname(args.model_config)
+        encoder_path: str = os.path.join(model_path, "encoder", "model.onnx")
+        decoder_path: str = os.path.join(model_path, "decoder", "model.onnx")
+        execution_provider: str = oliveJson["systems"]["target_system"]["accelerators"][0]["execution_providers"][0]
+        device_str = "npu" if execution_provider == "QNNExecutionProvider" else "cpu"
+
+        output_file = os.path.join(os.path.dirname(args.config), "metrics.json")
+
+        # Run evaluator
+        subprocess.run([sys.executable, "qnn_evaluate.py",
+                        "--audio-path", audio_path,
+                        "--encoder", encoder_path,
+                        "--decoder", decoder_path,
+                        "--execution_provider", execution_provider,
+                        "--device_str", device_str,
+                        "--output_file", output_file],
+                        check=True)
+        return
+
     # Generate original model
     original_encoder = os.path.join("data", "_encoder_fp32")
     generate_model("data", "whisper_large_v3_turbo_encoder_fp32.json", cache_dir, original_encoder)
