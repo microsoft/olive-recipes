@@ -101,7 +101,9 @@ def set_optimization_path(parameter: ModelParameter, configFile: str):
                 parameter.aitkPython = v[OlivePropertyNames.UserScript]
                 python_script = Path(configFile).parent / str(parameter.aitkPython)
                 if not python_script.exists():
-                    raise Exception(f"UserScript file {python_script} does not exist for AitkPython pass in {configFile}")
+                    raise Exception(
+                        f"UserScript file {python_script} does not exist for AitkPython pass in {configFile}"
+                    )
             else:
                 raise Exception(f"UserScript is required for AitkPython pass in {configFile}")
             wa_added = add_optimization_wa(parameter.optimizationPaths, k, v)
