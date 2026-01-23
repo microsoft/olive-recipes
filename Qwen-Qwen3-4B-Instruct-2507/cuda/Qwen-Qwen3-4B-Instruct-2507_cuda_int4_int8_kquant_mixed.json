@@ -17,7 +17,7 @@
     "builder": {
       "type": "ModelBuilder",
       "precision": "int4",
-      "extra_options": { "int4_algo_config": "k_quant_last" }
+      "extra_options": { "int4_algo_config": "k_quant_mixed", "int4_block_size": "128" }
     }
   }
 }

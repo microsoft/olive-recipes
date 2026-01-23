@@ -1,14 +1,14 @@
 {
   "input_model": {
     "type": "HfModel",
-    "model_path": "Qwen/Qwen3-1.7B",
+    "model_path": "Qwen/Qwen3-0.6B",
     "task": "text-generation"
   },
   "systems": {
     "local_system": {
       "type": "LocalSystem",
       "accelerators": [
-        { "device": "gpu", "execution_providers": ["WebGpuExecutionProvider"] }
+        { "device": "gpu", "execution_providers": ["CUDAExecutionProvider"] }
       ]
     }
   },
@@ -17,7 +17,7 @@
     "builder": {
       "type": "ModelBuilder",
       "precision": "int4",
-      "extra_options": { "int4_algo_config": "default" }
+      "extra_options": { "int4_algo_config": "k_quant_mixed", "int4_block_size": "128" }
     }
   }
 }

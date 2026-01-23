@@ -1,7 +1,7 @@
 {
   "input_model": {
     "type": "HfModel",
-    "model_path": "Qwen/Qwen3-14B",
+    "model_path": "Qwen/Qwen3-4B-Thinking-2507",
     "task": "text-generation"
   },
   "systems": {
@@ -17,7 +17,7 @@
     "builder": {
       "type": "ModelBuilder",
       "precision": "int4",
-      "extra_options": { "int4_algo_config": "default" }
+      "extra_options": { "int4_algo_config": "k_quant_mixed", "int4_block_size": "32" }
     }
   }
 }
