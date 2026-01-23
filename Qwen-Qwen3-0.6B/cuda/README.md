@@ -1,0 +1,25 @@
+# Qwen-Qwen3-0.6B — CUDA optimization
+
+This folder contains Olive recipes for optimizing Qwen-Qwen3-0.6B targeting the CUDA EP.
+
+## What this folder is for
+
+- Execution Provider: CUDA EP
+- Typical precision: INT4 recommended
+- Example recipe filename: Qwen-Qwen3-0.6B_cuda_int4_kquant_last.json
+
+## Setup
+
+1) Install Olive (version compatible with your repo).
+2) Install the appropriate runtime package for this backend:
+   - onnxruntime-genai-cuda (CUDA build) with compatible CUDA/cuDNN versions
+3) Run Olive to build/optimize the model
+   - olive run --config Qwen-Qwen3-0.6B_cuda_int4_kquant_last.json
+
+Additional notes:
+- Ensure CUDA and cuDNN versions are compatible with your onnxruntime-genai package.
+- Requires an NVIDIA GPU and matching CUDA drivers/toolkit.
+
+---
+
+This README was auto-generated for the CUDA EP of Qwen-Qwen3-0.6B.

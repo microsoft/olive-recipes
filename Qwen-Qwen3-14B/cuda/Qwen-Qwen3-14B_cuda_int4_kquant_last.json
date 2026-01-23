@@ -1,0 +1,23 @@
+{
+  "input_model": {
+    "type": "HfModel",
+    "model_path": "Qwen/Qwen3-14B",
+    "task": "text-generation"
+  },
+  "systems": {
+    "local_system": {
+      "type": "LocalSystem",
+      "accelerators": [
+        { "device": "gpu", "execution_providers": ["CUDAExecutionProvider"] }
+      ]
+    }
+  },
+  "engine": { "target": "local_system" },
+  "passes": {
+    "builder": {
+      "type": "ModelBuilder",
+      "precision": "int4",
+      "extra_options": { "int4_algo_config": "k_quant_last" }
+    }
+  }
+}
