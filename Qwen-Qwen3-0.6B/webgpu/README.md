@@ -17,7 +17,7 @@ This folder contains Olive recipes for optimizing Qwen-Qwen3-0.6B targeting the 
    - olive run --config Qwen-Qwen3-0.6B_webgpu_int4_default.json
 
 Additional notes:
-- Ensure onnxruntime-genai is install with the --no-deps flag. Otherwise, it will install the CPU build of ONNX Runtime and override your WebGPU build.
+- Ensure onnxruntime-genai is installed with the --no-deps flag. Otherwise, it will install the CPU build of ONNX Runtime and override your WebGPU build.
 - Runs in a WebGPU-capable environment.
 
 ---
