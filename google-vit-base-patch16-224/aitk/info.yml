@@ -20,6 +20,9 @@ recipes:
     - file: "vit-base-patch16-224_dml.json"
       device: gpu
       ep: DmlExecutionProvider
+    - file: "vit-base-patch16-224_webgpu.json"
+      device: gpu
+      ep: WebGpuExecutionProvider
     - file: "vit-base-patch16-224_migraphx.json"
       device: gpu
       ep: MIGraphXExecutionProvider
