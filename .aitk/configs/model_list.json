@@ -636,6 +636,19 @@
             "status": "Ready",
             "relativePath": "Qwen-Qwen2.5-Coder-14B-Instruct/aitk",
             "version": 3
+        },
+        {
+            "displayName": "stable-diffusion-v1-5/stable-diffusion-v1-5",
+            "icon": "HuggingFace",
+            "modelLink": "https://huggingface.co/stable-diffusion-v1-5/stable-diffusion-v1-5",
+            "id": "huggingface/stable-diffusion-v1-5/stable-diffusion-v1-5",
+            "runtimes": [
+                "QNN"
+            ],
+            "architecture": "Transformer",
+            "status": "Hide",
+            "relativePath": "sd-legacy-stable-diffusion-v1-5/aitk",
+            "version": 1
         }
     ],
     "template_models": [

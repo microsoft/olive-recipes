@@ -1,0 +1,38 @@
+{
+    "input_model": {
+        "model_path": "stable-diffusion-v1-5/stable-diffusion-v1-5"
+    },
+    "systems": {
+        "target_system": {
+            "type": "LocalSystem",
+            "accelerators": [
+                {
+                    "device": "npu",
+                    "execution_providers": [
+                        "QNNExecutionProvider"
+                    ]
+                }
+            ]
+        }
+    },
+    "evaluators": {
+        "common_evaluator": {
+        }
+    },
+    "passes": {
+        "aitkpython": {
+            "type": "AitkPython",
+            "activation_type": "uint16",
+            "precision": "uint8",
+            "split": "test",
+            "length": 100,
+            "user_script": "qnn_workflow.py"
+        }
+    },
+    "evaluator": "common_evaluator",
+    "evaluate_input_model": false,
+    "target": "target_system",
+    "clean_cache": false,
+    "output_dir": "model/sd_qnn",
+    "cache_dir": "cache"
+}

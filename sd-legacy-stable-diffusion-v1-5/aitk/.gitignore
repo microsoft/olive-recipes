@@ -1,0 +1,8 @@
+__pycache__
+/cache
+/history/*/*
+!/history/*/history.config
+!/history/*/olive_config.json
+/footprints/
+/result_*.png
+/quantize_data*/

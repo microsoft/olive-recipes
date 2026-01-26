@@ -1,0 +1,12 @@
+keywords:
+  aitk
+arch: sd
+recipes:
+  - file: "qnn_workflow.json"
+    device: npu
+    ep: QNNExecutionProvider
+aitk:
+  modelInfo:
+    id: "huggingface/stable-diffusion-v1-5/stable-diffusion-v1-5"
+    version: 1
+    status: Hide
