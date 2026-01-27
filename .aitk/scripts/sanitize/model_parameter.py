@@ -663,7 +663,7 @@ class ModelParameter(BaseModelClass):
         changeds: dict[str, Any] = diff.pop("values_changed", {})
         newChangeds = {}
         for changed in changeds:
-            if changed.endswith("['data_config']") or changed.endswith("['user_script']"):
+            if changed.endswith("['data_config']") or changed.endswith("['user_script']") or changed.endswith("['save_as_external_data']"):
                 # Data config name or *.py could be different
                 pass
             else:

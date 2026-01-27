@@ -112,3 +112,10 @@ def set_optimization_path(parameter: ModelParameter, configFile: str):
             else:
                 # TODO handle other optimization types if needed
                 return
+
+    # If no known optimization pass found, try to at least set the optimization path for OnnxConversion if present
+    for k, v in content[OlivePropertyNames.Passes].items():
+        if v[OlivePropertyNames.Type].lower() == OlivePassNames.OnnxConversion:
+            path = f"{OlivePropertyNames.Passes}.{k}"
+            parameter.optimizationPaths.append(OptimizationPath(path=path, name="fp32"))
+            return

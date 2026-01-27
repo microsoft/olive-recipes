@@ -37,6 +37,8 @@ recipes:
     - file: "phi3_5_qnn_gpu_config.json"
       device: gpu
       ep: QNNExecutionProvider
+      aitk:
+        oliveFile: "QNN/config_gpu.json"
 aitk:
     modelInfo:
         id: "huggingface/microsoft/Phi-3.5-mini-instruct"

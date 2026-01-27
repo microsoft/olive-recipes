@@ -37,6 +37,8 @@ recipes:
     - file: "qwen2_5_qnn_gpu_config.json"
       device: gpu
       ep: QNNExecutionProvider
+      aitk:
+        oliveFile: "QNN/config_gpu.json"
 aitk:
     modelInfo:
         id: "huggingface/Qwen/Qwen2.5-1.5B-Instruct"

@@ -130,6 +130,14 @@ def generate_quantization_config(
             phase=PhaseTypeEnum.Quantization,
             parameters=parameters,
         )
+    else:
+        # Try to at least set the optimization path for ModelBuilder if present
+        for k, v in content[OlivePropertyNames.Passes].items():
+            if v[OlivePropertyNames.Type].lower() == OlivePassNames.ModelBuilder:
+                path = f"{OlivePropertyNames.Passes}.{k}.{OlivePropertyNames.Precision}"
+                parameter.optimizationPaths.append(OptimizationPath(path=path))
+                break
+
     return None
 
 

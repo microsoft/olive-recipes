@@ -37,6 +37,8 @@ recipes:
     - file: "llama3_2_qnn_gpu_config.json"
       device: gpu
       ep: QNNExecutionProvider
+      aitk:
+        oliveFile: "QNN/config_gpu.json"
 aitk:
     modelInfo:
         id: "huggingface/meta-llama/Llama-3.2-1B-Instruct"
