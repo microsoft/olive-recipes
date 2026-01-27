@@ -1,0 +1,15 @@
+{
+    "input_model": {
+        "type": "PyTorchModel",
+        "model_path": "Qwen/Qwen2.5-VL-3B-Instruct",
+        "model_loader": "get_embedding_model",
+        "model_script": "user_script.py",
+        "io_config": "get_embedding_io_config",
+        "dummy_inputs_func": "get_embedding_dummy_inputs"
+    },
+    "passes": {
+        "convert": { "type": "OnnxConversion", "use_dynamo_exporter": true }
+    },
+    "no_artifacts": true,
+    "output_dir": "models/embedding.onnx"
+}

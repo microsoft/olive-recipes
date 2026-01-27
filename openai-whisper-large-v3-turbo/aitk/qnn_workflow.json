@@ -1,0 +1,39 @@
+{
+    "input_model": {
+        "model_path": "openai/whisper-large-v3-turbo"
+    },
+    "systems": {
+        "target_system": {
+            "type": "LocalSystem",
+            "accelerators": [
+                {
+                    "device": "npu",
+                    "execution_providers": [
+                        "QNNExecutionProvider"
+                    ]
+                }
+            ]
+        }
+    },
+    "evaluators": {
+        "common_evaluator": {
+        }
+    },
+    "passes": {
+        "aitkpython": {
+            "type": "AitkPython",
+            "activation_type": "uint16",
+            "precision": "uint8",
+            "dataset_name": "librispeech_asr",
+            "split": "test",
+            "length": 100,
+            "user_script": "qnn_workflow.py"
+        }
+    },
+    "evaluator": "common_evaluator",
+    "evaluate_input_model": false,
+    "target": "target_system",
+    "clean_cache": false,
+    "output_dir": "model/whisper_qnn",
+    "cache_dir": "cache"
+}

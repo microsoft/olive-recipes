@@ -1,0 +1,12 @@
+keywords:
+  aitk
+arch: whisper
+recipes:
+  - file: "qnn_workflow.json"
+    device: npu
+    ep: QNNExecutionProvider
+aitk:
+  modelInfo:
+    id: "huggingface/openai/whisper-large-v3-turbo"
+    version: 1
+    status: Hide
