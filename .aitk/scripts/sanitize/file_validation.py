@@ -192,27 +192,14 @@ def readCheckIpynb(ipynbFile: str, modelItems: dict[str, ModelParameter]):
                     for runtime in modelParameter.runtime.values:
                         if runtime not in allRuntimes:
                             allRuntimes.append(runtime)
-
-        targetEP = None
-        if len(allRuntimes) == 2 and EPNames.CPUExecutionProvider.value in allRuntimes:
+        # Check EP=XX in the ipynb
+        if len(allRuntimes) > 1 and EPNames.CPUExecutionProvider.value in allRuntimes:
             allRuntimes.remove(EPNames.CPUExecutionProvider.value)
-            targetEP = allRuntimes[0]
-        elif len(allRuntimes) == 1:
-            targetEP = allRuntimes[0]
-        elif len(allRuntimes) > 1:
-            # TODO we use QNN as default because currently we only replace this
-            if EPNames.QNNExecutionProvider.value in allRuntimes:
-                targetEP = EPNames.QNNExecutionProvider.value
-            elif EPNames.CPUExecutionProvider.value in allRuntimes:
-                targetEP = EPNames.CPUExecutionProvider.value
-            else:
-                targetEP = allRuntimes[0]
-        if targetEP:
+        for targetEP in allRuntimes:
             targetStr = f'ExecutionProvider=\\"{targetEP}\\"'
-            if ipynbContent.count(targetStr) != 1:
-                printError(f"{ipynbFile} should have 1 {targetStr}")
-        else:
-            printError(f"{ipynbFile} has no runtime for it!")
+            if ipynbContent.count(targetStr) >0:
+                return True
+        printError(f"{ipynbFile} has no runtime for it!")
         return True
     return False
 

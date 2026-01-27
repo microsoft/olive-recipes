@@ -9,6 +9,7 @@
             "python_environment_path": "/path/to/qnn/env/bin",
             "accelerators": [
                 {
+                    "device": "npu",
                     "execution_providers": [
                         "QNNExecutionProvider"
                     ]
@@ -141,5 +142,6 @@
     "log_severity_level": 1,
     "output_dir": "model/Qwen2.5",
     "cache_dir": "cache",
-    "no_artifacts": true
+    "no_artifacts": true,
+    "evaluate_input_model": false
 }

@@ -49,54 +49,41 @@
         }
     ],
     "passes": {
-        "q": {
-            "type": "QuaRot"
-        },
+        "cs": { "type": "CaptureSplitInfo", "num_splits": 1, "unique_embeds_lm_head_splits": true },
         "g": {
             "type": "GptqModel",
             "bits": 4,
             "sym": true,
             "group_size": -1,
-            "lm_head": false,
+            "lm_head": true,
+            "rotation": "hadamard",
             "device": "cuda",
-            "data_config": "wikitext2_train_joined"
-        },
-        "cs": {
-            "type": "CaptureSplitInfo",
-            "num_splits": 4,
-            "unique_embeds_lm_head_splits": true
+            "data_config": "wikitext2_train_joined",
+            "dynamic": {
+                    "+:.*lm_head*": {"bits": 8, "sym": true, "group_size": 32, "desc_act": false}
+            }
         },
         "mb": {
             "type": "ModelBuilder",
             "precision": "int4",
             "int4_block_size": 32,
             "int4_accuracy_level": 4,
-            "int4_op_types_to_quantize": [
-                "MatMul",
-                "Gather"
-            ]
+            "int4_op_types_to_quantize": [ "Gather" ]
         },
         "mq": {
             "type": "MatMulNBitsToQDQ",
             "use_int4": true,
             "add_zero_point": true,
-            "nodes_to_exclude": [
-                "/lm_head/MatMul_Q4"
-            ],
+            "nodes_to_exclude": [ "/lm_head/MatMulNBits" ],
             "save_as_external_data": true
         },
         "gs": {
             "type": "GraphSurgeries",
             "surgeries": [
-                {
-                    "surgeon": "RemoveRopeMultiCache"
-                },
-                {
-                    "surgeon": "AttentionMaskToSequenceLengths"
-                },
-                {
-                    "surgeon": "SimplifiedLayerNormToL2Norm"
-                }
+                { "surgeon": "RemoveRopeMultiCache" },
+                { "surgeon": "AttentionMaskToSequenceLengths" },
+                { "surgeon": "RemoveGidxFromMatMulNBits" },
+                { "surgeon": "SimplifiedLayerNormToL2Norm" }
             ],
             "save_as_external_data": true
         },
@@ -105,28 +92,13 @@
             "data_config": "wikitext2_train_act",
             "activation_type": "uint16",
             "precision": "uint8",
-            "calibration_providers": [
-                "CUDAExecutionProvider"
-            ],
+            "calibration_providers": [ "CUDAExecutionProvider" ],
             "quant_preprocess": true,
-            "op_types_to_exclude": [
-                "GatherBlockQuantized",
-                "GroupQueryAttention",
-                "MatMulNBits"
-            ],
-            "extra_options": {
-                "CalibStridedMinMax": 4
-            },
+            "op_types_to_exclude": [ "GatherBlockQuantized", "GroupQueryAttention", "MatMulNBits" ],
             "save_as_external_data": true
         },
-        "sp": {
-            "type": "SplitModel"
-        },
-        "st": {
-            "type": "StaticLLM",
-            "batch_size": 1,
-            "context_length": 64
-        },
+        "sp": { "type": "SplitModel" },
+        "st": { "type": "StaticLLM", "batch_size": 1, "context_length": 64 },
         "cb": {
             "type": "EPContextBinaryGenerator",
             "provider_options": {
@@ -136,9 +108,7 @@
             },
             "weight_sharing": true
         },
-        "cp": {
-            "type": "ComposeOnnxModels"
-        }
+        "cp": { "type": "ComposeOnnxModels" }
     },
     "target": "target_system",
     "log_severity_level": 1,

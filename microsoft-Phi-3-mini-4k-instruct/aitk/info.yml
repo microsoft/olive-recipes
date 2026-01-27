@@ -15,6 +15,11 @@ recipes:
       ep: NvTensorRTRTXExecutionProvider
       aitk:
           oliveFile: "NvTensorRtRtx/Phi-3-mini-4k-instruct_model_builder_int4.json"
+    - file: "phi3_qnn_config.json"
+      device: npu
+      ep: QNNExecutionProvider
+      aitk:
+          oliveFile: "QNN/config.json"
 aitk:
     modelInfo:
         id: "huggingface/microsoft/Phi-3-mini-4k-instruct"
