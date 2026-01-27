@@ -24,9 +24,10 @@
             "type": "AitkPython",
             "activation_type": "uint16",
             "precision": "uint8",
-            "split": "test",
+            "dataset_name": "phiyodr/coco2017",
+            "split": "train",
             "length": 100,
-            "user_script": "qnn_workflow.py"
+            "user_script": "sd_qnn_workflow.py"
         }
     },
     "evaluator": "common_evaluator",

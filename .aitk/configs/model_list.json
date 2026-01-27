@@ -693,7 +693,8 @@
         "wikipedia": "https://huggingface.co/datasets/wikimedia/wikipedia",
         "google-research-datasets/conceptual_captions": "https://huggingface.co/datasets/google-research-datasets/conceptual_captions",
         "AIMClab-RUC/COCO-CN": "https://huggingface.co/datasets/AIMClab-RUC/COCO-CN",
-        "librispeech_asr": "https://huggingface.co/datasets/openslr/librispeech_asr"
+        "librispeech_asr": "https://huggingface.co/datasets/openslr/librispeech_asr",
+        "phiyodr/coco2017": "https://huggingface.co/datasets/phiyodr/coco2017"
     },
     "LoginRequiredDatasets": [
         "imagenet-1k"
