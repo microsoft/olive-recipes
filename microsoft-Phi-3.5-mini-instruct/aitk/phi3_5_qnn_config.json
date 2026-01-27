@@ -112,9 +112,6 @@
                 "GroupQueryAttention",
                 "MatMulNBits"
             ],
-            "extra_options": {
-                "CalibStridedMinMax": 4
-            },
             "save_as_external_data": true
         },
         "sp": {

@@ -49,53 +49,49 @@
         }
     ],
     "passes": {
-        "q": {
-            "type": "QuaRot"
-        },
+        "q": { "type": "QuaRot" },
+        "cs": { "type": "CaptureSplitInfo", "num_splits": 4, "unique_embeds_lm_head_splits": true },
         "g": {
-            "type": "GptqQuantizer",
+            "type": "GptqModel",
+            "bits": 4,
             "sym": true,
             "group_size": -1,
-            "desc_act": true,
-            "data_config": "wikitext2_train_joined"
-        },
-        "cs": {
-            "type": "CaptureSplitInfo",
-            "num_splits": 4,
-            "unique_embeds_lm_head_splits": true
+            "lm_head": true,
+            "device": "cuda",
+            "data_config": "wikitext2_train_joined",
+            "dynamic": {
+                "+:.*v_proj*": { "bits": 8, "sym": true, "group_size": -1, "desc_act": true },
+                "+:.*lm_head*": { "bits": 4, "sym": true, "group_size": 32, "desc_act": false }
+            }
         },
         "mb": {
             "type": "ModelBuilder",
             "precision": "int4",
             "int4_block_size": 32,
             "int4_accuracy_level": 4,
-            "int4_op_types_to_quantize": [
-                "MatMul",
-                "Gather"
-            ]
+            "int4_op_types_to_quantize": [ "Gather" ]
         },
         "mq": {
             "type": "MatMulNBitsToQDQ",
             "use_int4": true,
             "add_zero_point": true,
-            "nodes_to_exclude": [
-                "/lm_head/MatMul_Q4"
-            ],
+            "nodes_to_exclude": [ "/lm_head/MatMulNBits" ],
             "save_as_external_data": true
         },
         "gs": {
             "type": "GraphSurgeries",
             "surgeries": [
-                {
-                    "surgeon": "RemoveRopeMultiCache"
-                },
-                {
-                    "surgeon": "AttentionMaskToSequenceLengths"
-                },
-                {
-                    "surgeon": "SimplifiedLayerNormToL2Norm"
-                }
+                { "surgeon": "RemoveRopeMultiCache" },
+                { "surgeon": "AttentionMaskToSequenceLengths" },
+                { "surgeon": "RemoveGidxFromMatMulNBits" },
+                { "surgeon": "SimplifiedLayerNormToL2Norm" }
             ],
+            "save_as_external_data": true
+        },
+        "f16": {
+            "type": "OnnxFloatToFloat16",
+            "op_include_list": [ "GroupQueryAttention" ],
+            "keep_io_types": [ "logits" ],
             "save_as_external_data": true
         },
         "sq": {
@@ -103,28 +99,14 @@
             "data_config": "wikitext2_train_act",
             "activation_type": "uint16",
             "precision": "uint8",
-            "calibration_providers": [
-                "CUDAExecutionProvider"
-            ],
+            "calibration_providers": [ "CUDAExecutionProvider" ],
             "quant_preprocess": true,
-            "op_types_to_exclude": [
-                "GatherBlockQuantized",
-                "GroupQueryAttention",
-                "MatMulNBits"
-            ],
-            "extra_options": {
-                "CalibStridedMinMax": 4
-            },
-            "save_as_external_data": true
+            "op_types_to_exclude": [ "GatherBlockQuantized", "GroupQueryAttention", "MatMulNBits" ],
+            "save_as_external_data": true,
+            "extra_options": { "CalibStridedMinMax": 1 }
         },
-        "sp": {
-            "type": "SplitModel"
-        },
-        "st": {
-            "type": "StaticLLM",
-            "batch_size": 1,
-            "context_length": 64
-        },
+        "sp": { "type": "SplitModel" },
+        "st": { "type": "StaticLLM", "batch_size": 1, "context_length": 64 },
         "cb": {
             "type": "EPContextBinaryGenerator",
             "provider_options": {
@@ -134,9 +116,7 @@
             },
             "weight_sharing": true
         },
-        "cp": {
-            "type": "ComposeOnnxModels"
-        }
+        "cp": { "type": "ComposeOnnxModels" }
     },
     "target": "target_system",
     "log_severity_level": 1,
