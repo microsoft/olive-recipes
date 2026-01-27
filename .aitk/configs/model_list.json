@@ -680,7 +680,8 @@
         "wikipedia": "https://huggingface.co/datasets/wikimedia/wikipedia",
         "google-research-datasets/conceptual_captions": "https://huggingface.co/datasets/google-research-datasets/conceptual_captions",
         "AIMClab-RUC/COCO-CN": "https://huggingface.co/datasets/AIMClab-RUC/COCO-CN",
-        "librispeech_asr": "https://huggingface.co/datasets/openslr/librispeech_asr"
+        "librispeech_asr": "https://huggingface.co/datasets/openslr/librispeech_asr",
+        "pileval_for_awq_benchmark": "https://huggingface.co/datasets/mit-han-lab/pile-val-backup"
     },
     "LoginRequiredDatasets": [
         "imagenet-1k"
@@ -759,6 +760,9 @@
             "uint8": "a8",
             "int16": "a16",
             "uint16": "a16"
+        },
+        "QuarkDataType": {
+            "bfloat16": "bf16"
         }
     }
 }

@@ -9,6 +9,7 @@
             "python_environment_path": "/path/to/qnn/env/bin",
             "accelerators": [
                 {
+                    "device": "npu",
                     "execution_providers": [
                         "QNNExecutionProvider"
                     ]
