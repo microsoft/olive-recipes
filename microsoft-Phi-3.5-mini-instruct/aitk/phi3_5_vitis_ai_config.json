@@ -8,9 +8,9 @@
             "type": "LocalSystem",
             "accelerators": [
                 {
-                    "device": "npu",
+                    "device": "cpu",
                     "execution_providers": [
-                        "VitisAIExecutionProvider"
+                        "CPUExecutionProvider"
                     ]
                 }
             ]
