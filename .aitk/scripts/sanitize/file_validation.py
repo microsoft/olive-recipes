@@ -62,8 +62,8 @@ def checkSystem(oliveJsonFile: str, system):
         printError(f"{oliveJsonFile} should have only one accelerator")
         return False
     if OlivePropertyNames.Device not in accelerators[0]:
-        printWarning(f"{oliveJsonFile} accelerator should have device")
-        # return False
+        printError(f"{oliveJsonFile} accelerator should have device")
+        return False
     eps = accelerators[0][OlivePropertyNames.ExecutionProviders]
     if len(eps) != 1:
         printError(f"{oliveJsonFile} should have only one execution provider")

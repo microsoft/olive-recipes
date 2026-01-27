@@ -132,6 +132,7 @@ class OlivePropertyNames:
     DataConfigs = "data_configs"
     DataName = "data_name"
     Dataset = "dataset"
+    DataType = "data_type"
     Device = "device"
     Engine = "engine"
     EvaluateInputModel = "evaluate_input_model"
