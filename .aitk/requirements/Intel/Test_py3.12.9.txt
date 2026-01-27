@@ -1,11 +1,11 @@
-aiohttp==3.12.14
+aiohttp==3.13.3
 coloredlogs==15.0.1
 comm==0.2.2
 # datasets==3.5.0
 datasets==3.5.0
 debugpy==1.8.13
 dill==0.3.8
-filelock==3.20.1
+filelock==3.20.3
 flatbuffers==25.2.10
 fsspec==2024.12.0
 huggingface-hub[hf_xet]==0.34.4
@@ -48,7 +48,7 @@ optuna==4.2.1
 packaging==24.2
 pandas==2.2.3
 pillow==11.3.0
-protobuf==6.31.1
+protobuf==4.25.8
 psutil==7.0.0
 pyarrow==19.0.1
 pydantic==2.11.1

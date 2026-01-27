@@ -32,7 +32,6 @@ class ArchitectureEnum(Enum):
 
 class ModelStatusEnum(Enum):
     Ready = "Ready"
-    Coming = "Coming"
     Hide = "Hide"
 
 
@@ -68,6 +67,7 @@ class ParameterTagEnum(Enum):
     EvaluationDatasetSubset = "EvaluationDatasetSubset"
     EvaluationDatasetSplit = "EvaluationDatasetSplit"
     DependsOnDataset = "DependsOnDataset"
+    # TODO clean up unused tags
     ActivationType = "ActivationType"
     WeightType = "WeightType"
 
@@ -106,6 +106,7 @@ class OliveDeviceTypes(Enum):
 # Pass name is case insensitive, so we use lower case for all pass names
 # Should sort by value
 class OlivePassNames:
+    AitkPython = "aitkpython"
     ModelBuilder = "modelbuilder"
     NVModelOptQuantization = "nvmodeloptquantization"
     OnnxFloatToFloat16 = "onnxfloattofloat16"
@@ -138,6 +139,7 @@ class OlivePropertyNames:
     Evaluators = "evaluators"
     ExecutionProviders = "execution_providers"
     ExtraArgs = "extra_args"
+    Float16 = "float16"
     Host = "host"
     LoadDatasetConfig = "load_dataset_config"
     MaxSamples = "max_samples"
@@ -145,6 +147,7 @@ class OlivePropertyNames:
     Name = "name"
     NumCalibData = "num_calib_data"
     OutputDir = "output_dir"
+    OvQuantConfig = "ov_quant_config"
     Passes = "passes"
     Precision = "precision"
     PreProcessDataConfig = "pre_process_data_config"
@@ -157,6 +160,8 @@ class OlivePropertyNames:
     TargetDevice = "target_device"
     Type = "type"
     UserConfig = "user_config"
+    UserScript = "user_script"
+    WeightFormat = "weight_format"
 
 
 # Path constants

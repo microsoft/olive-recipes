@@ -76,6 +76,7 @@ class ModelList(BaseModelClass):
     DatasetSubset: Dict[str, List[str]]
     DisplayNameToRuntimeRPC: Dict[str, RuntimeEnum] = {}
     RuntimeToDisplayName: Dict[RuntimeEnum, str] = {}
+    OptimizationToDisplayName: Dict[str, Dict[str, str]]
 
     @staticmethod
     def Read(scriptFolder: str):
