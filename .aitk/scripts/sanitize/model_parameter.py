@@ -88,14 +88,15 @@ class Section(BaseModel):
         sectionId: int,
         oliveJson: Any,
         modelList: ModelList,
+        emptyAllowed: bool
     ):
         if not self.name:
             return False
         # if not self.description:
         #    return False
         # TODO add place holder for General?
-        if not self.parameters and self.phase != PhaseTypeEnum.Conversion:
-            printWarning(f"{_file} self.parameters is empty for {self.phase}.")
+        if not emptyAllowed and not self.parameters:
+            printError(f"{_file} self.parameters is empty for {self.phase}.")
 
         for i, parameter in enumerate(self.parameters):
             if parameter.template:
@@ -229,6 +230,8 @@ class ModelParameter(BaseModelClass):
     # For template using CUDA and no runtime overwrite, we need to set this so we know the target EP
     evalRuntime: Optional[RuntimeEnum] = None
     evalMetrics: Optional[Dict[str, str]] = None
+    # when we only use random data for evaluation latency
+    evalNoDataConfig: Optional[bool] = None
     debugInfo: Optional[DebugInfo] = None
     # A SHORTCUT FOR SEVERAL PARAMETERS
     # This kind of config will
@@ -406,7 +409,8 @@ class ModelParameter(BaseModelClass):
                 if not checkPath(f"{OlivePropertyNames.Evaluators}.{evaluatorName}", oliveJson):
                     printError(f"{self._file} does not have evaluator {evaluatorName}")
 
-            if not section.Check(templates, self._file or "", tmpDevice, oliveJson, modelList):
+            emptyAllowed = section.phase == PhaseTypeEnum.Conversion or (section.phase == PhaseTypeEnum.Evaluation and self.evalNoDataConfig)
+            if not section.Check(templates, self._file or "", tmpDevice, oliveJson, modelList, emptyAllowed):
                 printError(f"{self._file} section {tmpDevice} has error")
 
         if (
@@ -426,7 +430,7 @@ class ModelParameter(BaseModelClass):
         if self.evalMetrics and len(self.evalMetrics) > 2:
             printError(f"{self._file} evalMetrics should not have more than 2 metrics")
 
-        self.checkPhase(oliveJson)
+        self.checkPhase(oliveJson, self.evalNoDataConfig or False)
         self.CheckRuntimeInConversion(oliveJson, modelList, modelInfo)
         self.checkOliveFile(oliveJson, modelInfo)
         self.checkRequirements(modelList)
@@ -570,7 +574,7 @@ class ModelParameter(BaseModelClass):
             if not self.runtimeInConversion.Check(False, oliveJson, modelList):
                 printError(f"{self._file} runtime in conversion has error")
 
-    def checkPhase(self, oliveJson: Any):
+    def checkPhase(self, oliveJson: Any, evalNoDataConfig: bool):
         allPhases = [section.phase for section in self.sections]
         if len(allPhases) == 1 and allPhases[0] == PhaseTypeEnum.Conversion:
             pass
@@ -593,14 +597,17 @@ class ModelParameter(BaseModelClass):
         if (
             PhaseTypeEnum.Evaluation in allPhases
             and PhaseTypeEnum.Quantization in allPhases
+            and not evalNoDataConfig
             and (OlivePropertyNames.DataConfigs not in oliveJson or len(oliveJson[OlivePropertyNames.DataConfigs]) != 2)
         ):
-            printWarning(f"{self._file}'s olive json should have two data configs for evaluation")
+            printError(f"{self._file}'s olive json should have two data configs for evaluation")
 
     def checkOliveFile(self, oliveJson: Any, modelInfo: ModelInfo):
         if modelInfo.extension:
             return
         if modelInfo.template:
+            return
+        if self.aitkPython:
             return
         if not self.oliveFile:
             if (
@@ -609,6 +616,7 @@ class ModelParameter(BaseModelClass):
                 and self.runtime.displayNames[0]
                 in [
                     GlobalVars.RuntimeToDisplayName[RuntimeEnum.DML],
+                    # TODO this warning it is useless now
                     GlobalVars.RuntimeToDisplayName[RuntimeEnum.AMDGPU],
                     GlobalVars.RuntimeToDisplayName[RuntimeEnum.IntelCPU],
                     GlobalVars.RuntimeToDisplayName[RuntimeEnum.IntelGPU],
