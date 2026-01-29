@@ -14,7 +14,7 @@ To get better results, we need to generate real data from original FP32 model in
 
 2. **Model compilation for non-CPU Execution Providers**  
    When using a non-CPU Execution Provider (e.g., QNN, or other accelerators), the model must be **compiled before execution**.  
-   This compilation step happens automatically at first run but can take a noticeable amount of time depending on the backend and model size. Please account for this additional latency when running the calibration or quantization pipeline..
+   This compilation step happens automatically at first run but can take a noticeable amount of time depending on the backend and model size. Please account for this additional latency when running the calibration or quantization pipeline.
 
 First generate FP32 onnx models:
 
