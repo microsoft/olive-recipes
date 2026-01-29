@@ -1,14 +1,15 @@
 {
     "input_model": {
         "type": "HfModel",
-        "model_path": "deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B"
+        "model_path": "Qwen/Qwen2.5-7B-Instruct"
     },
     "systems": {
-        "target_system": {
+        "qnn_system": {
             "type": "PythonEnvironment",
             "python_environment_path": "/path/to/qnn/env/bin",
             "accelerators": [
                 {
+                    "device": "npu",
                     "execution_providers": [
                         "QNNExecutionProvider"
                     ]
@@ -44,7 +45,7 @@
                 "strategy": "line-by-line",
                 "add_special_tokens": true,
                 "max_samples": 256,
-                "max_seq_len": 2048
+                "max_seq_len": 4096
             }
         }
     ],
@@ -53,10 +54,12 @@
             "type": "QuaRot"
         },
         "g": {
-            "type": "GptqQuantizer",
+            "type": "GptqModel",
+            "bits": 4,
             "sym": true,
             "group_size": -1,
-            "desc_act": true,
+            "lm_head": false,
+            "device": "cuda",
             "data_config": "wikitext2_train_joined"
         },
         "cs": {
@@ -135,9 +138,9 @@
             "type": "ComposeOnnxModels"
         }
     },
-    "target": "target_system",
+    "target": "qnn_system",
     "log_severity_level": 1,
-    "output_dir": "model/deepseek",
+    "output_dir": "model/Qwen2.5",
     "cache_dir": "cache",
     "no_artifacts": true,
     "evaluate_input_model": false

@@ -14,6 +14,11 @@ recipes:
       ep: OpenVINOExecutionProvider
       aitk:
           oliveFile: "OpenVINO/Phi_4_mini_instruct_context_ov_dynamic_sym_gs128_bkp_int8_sym.json"
+    - file: "phi4_qnn_config.json"
+      device: npu
+      ep: QNNExecutionProvider
+      aitk:
+          oliveFile: "QNN/phi4_mini_qnn_docker.json"
 aitk:
     modelInfo:
         id: "huggingface/microsoft/Phi-4-mini-instruct"

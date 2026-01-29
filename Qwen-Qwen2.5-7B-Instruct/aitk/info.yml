@@ -15,6 +15,12 @@ recipes:
       ep: NvTensorRTRTXExecutionProvider
       aitk:
           oliveFile: "NvTensorRtRtx/Qwen2.5-7B-Instruct_model_builder_int4.json"
+    - file: "qwen2_5_qnn_config.json"
+      devices:
+        - npu
+      ep: QNNExecutionProvider
+      aitk:
+          oliveFile: "QNN/config.json"
 aitk:
     modelInfo:
         id: "huggingface/Qwen/Qwen2.5-7B-Instruct"
