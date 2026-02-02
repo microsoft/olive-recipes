@@ -14,7 +14,7 @@ recipes:
         oliveFile: "VitisAI/DeepSeek-R1-Distill-Qwen-1.5B_quark_vitisai_llm.json"
         requirements: AMD/Quark_py3.10.17
         evalRuntime: AMDNPU
-        isGPURequired: true
+        isGPUSuggested: true
     - file: "deepseek_ov_gpu_config.json"
       devices:
         - gpu

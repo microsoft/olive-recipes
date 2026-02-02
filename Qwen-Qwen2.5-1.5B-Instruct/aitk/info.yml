@@ -14,7 +14,7 @@ recipes:
         oliveFile: "VitisAI/Qwen2.5-1.5B-Instruct_quark_vitisai_llm.json"
         requirements: AMD/Quark_py3.10.17
         evalRuntime: AMDNPU
-        isGPURequired: true
+        isGPUSuggested: true
     - file: "qwen2_5_ov_gpu_config.json"
       devices:
         - gpu
@@ -39,8 +39,9 @@ recipes:
         oliveFile: "QNN/config_gpu.json"
         requirementsPatches:
           - AutoGptq
+        isGPURequired: true
         runtimeOverwrite:
-          executeEp: CUDAExecutionProvider
+          executeEp: NvTensorRTRTXExecutionProvider
 aitk:
     modelInfo:
         id: "huggingface/Qwen/Qwen2.5-1.5B-Instruct"

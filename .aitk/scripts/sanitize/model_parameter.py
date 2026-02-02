@@ -241,7 +241,10 @@ class ModelParameter(BaseModelClass):
     # - setup executeRuntimeFeatures, pyEnvRuntimeFeatures
     isQNNLLM: Optional[bool] = None
     # SET AUTOMATICALLY TO TRUE WHEN CUDAExecutionProvider
+    # When true, it means some passes need CUDA so user could not run it without
     isGPURequired: Optional[bool] = None
+    # When true, it means some passes could benefit from GPU but could run without GPU
+    isGPUSuggested: Optional[bool] = None
     # Free memory suggested to convert the model
     memoryGbSuggested: Optional[int] = None
     needHFLogin: Optional[bool] = None

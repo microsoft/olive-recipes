@@ -30,6 +30,7 @@ def create_model_parameter(aitk, name: str, configFile: Path):
         evalRuntime=evalRuntime,
         optimizationPaths=[],
         isGPURequired=aitk.get("isGPURequired", None),
+        isGPUSuggested=aitk.get("isGPUSuggested", None),
     )
     parameter._file = str(configFile) + ".config"
     return parameter
