@@ -5,8 +5,7 @@
     },
     "systems": {
         "target_system": {
-            "type": "PythonEnvironment",
-            "python_environment_path": "/path/to/qnn/env/bin",
+            "type": "LocalSystem",
             "accelerators": [
                 {   "device": "gpu",
                     "execution_providers": [
