@@ -12,10 +12,7 @@ recipes:
       ep: VitisAIExecutionProvider
       aitk:
         oliveFile: "VitisAI/DeepSeek-R1-Distill-Qwen-1.5B_quark_vitisai_llm.json"
-        requirementsPatches:
-          - AutoGptq
-        runtimeOverwrite:
-          executeEp: CUDAExecutionProvider
+        requirements: AMD/Quark_py3.10.17
         evalRuntime: AMDNPU
     - file: "deepseek_ov_gpu_config.json"
       devices:
@@ -37,7 +34,7 @@ recipes:
 aitk:
     modelInfo:
         id: "huggingface/deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B"
-        version: 4
+        version: 5
         groupId: "huggingface/deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B"
         groupItemName: "1.5B"
         p0: true
