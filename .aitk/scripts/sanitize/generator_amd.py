@@ -141,12 +141,13 @@ def generate_quantization_config(
     return None
 
 
-def generate_amd_quantization_config(configFile: Path, modelList: ModelList) -> Optional[Section]:
+def generate_amd_quantization_config(configFile: Path, modelList: ModelList, parameter: ModelParameter) -> Optional[Section]:
     with open_ex(configFile, "r") as f:
         content = json.load(f)
     parameters = []
     for k, v in content[OlivePropertyNames.Passes].items():
         if v[OlivePropertyNames.Type].lower() == OlivePassNames.QuarkQuantization:
+            # https://github.com/amd/Quark/blob/0a542692aa39181b7ab0ae77246cb537a0f97791/examples/onnx/accuracy_improvement/quarot/data_preparation.py#L78
             data_name = v.get(OlivePropertyNames.Dataset)
             if data_name:
                 parameters.append(
@@ -168,6 +169,14 @@ def generate_amd_quantization_config(configFile: Path, modelList: ModelList) -> 
                             template="QuantizationDatasetSize",
                             path=f"{OlivePropertyNames.Passes}.{k}.{OlivePropertyNames.NumCalibData}",
                         ),
+                    )
+                )
+            data_type = v.get(OlivePropertyNames.DataType)
+            if data_type:
+                parameter.optimizationPaths.append(
+                    OptimizationPath(
+                        name="QuarkDataType",
+                        path=f"{OlivePropertyNames.Passes}.{k}.{OlivePropertyNames.DataType}",
                     )
                 )
             break
@@ -204,7 +213,7 @@ def generator_amd(id: str, recipe, folder: Path, modelList: ModelList):
     parameter = create_model_parameter(aitk, name, configFile)
     parameter.isLLM = isLLM
 
-    quantize = generate_amd_quantization_config(configFile, modelList)
+    quantize = generate_amd_quantization_config(configFile, modelList, parameter)
     if not quantize:
         quantize = generate_quantization_config(configFile, modelList, parameter)
     if quantize:

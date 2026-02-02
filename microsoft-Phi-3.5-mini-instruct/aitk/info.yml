@@ -12,10 +12,7 @@ recipes:
       ep: VitisAIExecutionProvider
       aitk:
         oliveFile: "VitisAI/Phi-3.5-mini-instruct_quark_vitisai_llm.json"
-        requirementsPatches:
-          - AutoGptq
-        runtimeOverwrite:
-          executeEp: CUDAExecutionProvider
+        requirements: AMD/Quark_py3.10.17
         evalRuntime: AMDNPU
     - file: "phi3_5_ov_gpu_config.json"
       devices:
@@ -42,5 +39,5 @@ recipes:
 aitk:
     modelInfo:
         id: "huggingface/microsoft/Phi-3.5-mini-instruct"
-        version: 4
+        version: 5
         p0: true
