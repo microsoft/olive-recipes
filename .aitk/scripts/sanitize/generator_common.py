@@ -29,6 +29,7 @@ def create_model_parameter(aitk, name: str, configFile: Path):
         executeRuntimeFeatures=requirements_patches,
         evalRuntime=evalRuntime,
         optimizationPaths=[],
+        isGPURequired=aitk.get("isGPURequired", None),
     )
     parameter._file = str(configFile) + ".config"
     return parameter

@@ -415,12 +415,10 @@ class ModelParameter(BaseModelClass):
 
         if (
             currentEp == EPNames.CUDAExecutionProvider.value
-            or self.runtimeOverwrite
-            and self.runtimeOverwrite.executeEp == EPNames.CUDAExecutionProvider
+            or (self.runtimeOverwrite
+            and self.runtimeOverwrite.executeEp == EPNames.CUDAExecutionProvider)
         ):
             self.isGPURequired = True
-        else:
-            self.isGPURequired = None
 
         # model builder uses AutoConfig.from_pretrained(hf_name, token=hf_token, trust_remote_code=True, **extra_kwargs) and trust_remote_code=True requires token
         first_pass_value = next(iter(oliveJson[OlivePropertyNames.Passes].values()), None)
