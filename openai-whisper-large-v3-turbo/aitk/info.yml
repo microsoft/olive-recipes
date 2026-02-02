@@ -9,4 +9,3 @@ aitk:
   modelInfo:
     id: "huggingface/openai/whisper-large-v3-turbo"
     version: 1
-    status: Hide
