@@ -473,7 +473,7 @@
                 "QNN"
             ],
             "architecture": "Transformer",
-            "status": "Hide",
+            "status": "Ready",
             "relativePath": "openai-whisper-large-v3-turbo/aitk",
             "version": 1
         },
