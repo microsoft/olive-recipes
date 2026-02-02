@@ -396,7 +396,7 @@
             "architecture": "Transformer",
             "status": "Ready",
             "relativePath": "meta-llama-Llama-3.1-8B-Instruct/aitk",
-            "version": 2,
+            "version": 3,
             "p0": false
         },
         {
