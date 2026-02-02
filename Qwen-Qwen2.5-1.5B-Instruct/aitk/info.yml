@@ -37,6 +37,10 @@ recipes:
       ep: QNNExecutionProvider
       aitk:
         oliveFile: "QNN/config_gpu.json"
+        requirementsPatches:
+          - AutoGptq
+        runtimeOverwrite:
+          executeEp: CUDAExecutionProvider
 aitk:
     modelInfo:
         id: "huggingface/Qwen/Qwen2.5-1.5B-Instruct"
