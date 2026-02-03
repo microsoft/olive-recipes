@@ -61,6 +61,9 @@ def checkSystem(oliveJsonFile: str, system):
     if len(accelerators) != 1:
         printError(f"{oliveJsonFile} should have only one accelerator")
         return False
+    if OlivePropertyNames.Device not in accelerators[0]:
+        printError(f"{oliveJsonFile} accelerator should have device")
+        return False
     eps = accelerators[0][OlivePropertyNames.ExecutionProviders]
     if len(eps) != 1:
         printError(f"{oliveJsonFile} should have only one execution provider")
@@ -172,8 +175,11 @@ def readCheckIpynb(ipynbFile: str, modelItems: dict[str, ModelParameter]):
                 importStr = importOnnxgenairuntime
             elif modelParameter.runtime.values and modelParameter.isIntel:
                 testPath = outputModelIntelNPURelativePath
+            elif modelParameter.aitkPython:
+                testPath = None
+                importStr = None
             for item in [testPath, importStr]:
-                if not re.search(item, ipynbContent):
+                if item and not re.search(item, ipynbContent):
                     printError(f"{ipynbFile} does not have '{item}' for {name}, please use it as input")
             if modelParameter.evalRuntime:
                 runtime = GlobalVars.RuntimeToEPName[modelParameter.evalRuntime]

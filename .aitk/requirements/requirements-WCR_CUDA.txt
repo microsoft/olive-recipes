@@ -1,8 +1,6 @@
 --extra-index-url https://download.pytorch.org/whl/cu128
---extra-index-url https://pypi.org/simple
---index-url https://aiinfra.pkgs.visualstudio.com/PublicPackages/_packaging/ORT-Nightly/pypi/simple
 aiohappyeyeballs==2.6.1
-aiohttp==3.11.16
+aiohttp==3.13.3
 aiosignal==1.4.0
 alembic==1.16.5
 annotated-types==0.7.0
@@ -22,7 +20,7 @@ dill==0.3.8
 # evaluate==0.4.3
 evaluate==0.4.3
 executing==2.2.0
-filelock==3.18.0
+filelock==3.20.3
 flatbuffers==25.2.10
 frozenlist==1.7.0
 fsspec==2024.12.0
@@ -56,16 +54,20 @@ multiprocess==0.70.16
 nest-asyncio==1.6.0
 networkx==3.5
 numpy==2.2.4
-# olive-ai==0.9.3
-olive-ai==0.9.3
+# olive-ai==0.10.1
+olive-ai==0.10.1
 # onnx==1.17.0
 onnx==1.17.0
-onnx-ir==0.1.5
-onnxruntime-genai-winml==0.10.0
-onnxruntime-winml==1.23.0.dev2025091008
-onnxscript==0.3.2
-# optimum==1.26.0
-optimum==1.26.0
+onnx-ir==0.1.10
+onnxruntime-genai-winml==0.11.2
+# uvpip:uninstall onnxruntime-winml;pre
+# We also need to uninstall in case user tries new version, uses previous version and then updates again
+# because uninstalling winml will remove onnxruntime folder but we will not install windowsml to add it back
+# uvpip:uninstall onnxruntime-windowsml;pre
+onnxruntime-windowsml==1.23.2.202512041916
+onnxscript==0.5.3
+# optimum==1.26.1
+optimum==1.26.1
 optuna==4.2.1
 packaging==24.2
 pandas==2.2.3
@@ -74,7 +76,7 @@ pillow==11.2.1
 platformdirs==4.4.0
 prompt-toolkit==3.0.52
 propcache==0.3.2
-protobuf==6.30.2
+protobuf==4.25.8
 psutil==7.0.0
 pure-eval==0.2.3
 pyarrow==19.0.1
@@ -110,13 +112,13 @@ torchvision==0.22.0+cu128
 tornado==6.4.2
 tqdm==4.67.1
 traitlets==5.14.3
-transformers==4.50.3
+transformers==4.51.3
 typing-extensions==4.15.0
 typing-inspection==0.4.1
 tzdata==2025.2
-urllib3==2.5.0
-wasdk-Microsoft.Windows.AI.MachineLearning==1.8.250916003
-wasdk-Microsoft.Windows.ApplicationModel.DynamicDependency.Bootstrap==1.8.250916003
+urllib3==2.6.3
+wasdk-Microsoft.Windows.AI.MachineLearning==1.8.251106002
+wasdk-Microsoft.Windows.ApplicationModel.DynamicDependency.Bootstrap==1.8.251106002
 wcwidth==0.2.13
 widgetsnbextension==4.0.13
 # winrt-runtime==3.2.1

@@ -1,5 +1,5 @@
 aiohappyeyeballs==2.6.1
-aiohttp==3.11.16
+aiohttp==3.13.3
 aiosignal==1.4.0
 alembic==1.16.5
 annotated-types==0.7.0
@@ -12,7 +12,7 @@ colorlog==6.9.0
 # datasets==3.5.0
 datasets==3.5.0
 dill==0.3.8
-filelock==3.18.0
+filelock==3.20.3
 flatbuffers==25.2.10
 frozenlist==1.7.0
 fsspec==2024.12.0
@@ -34,19 +34,18 @@ multidict==6.6.4
 multiprocess==0.70.16
 networkx==3.5
 numpy==2.2.4
-# olive-ai==0.9.3
-olive-ai==0.9.3
+# olive-ai==0.10.1
+olive-ai==0.10.1
 onnx==1.17.0
-onnx-ir==0.1.5
-# onnxruntime-qnn==1.21.1
-onnxruntime-qnn==1.21.1
-onnxscript==0.3.2
+onnx-ir==0.1.10
+# uvpip:install onnxruntime-qnn==1.22.0.dev20250402004 --extra-index-url https://aiinfra.pkgs.visualstudio.com/PublicPackages/_packaging/ORT-Nightly/pypi/simple --no-deps;post
+onnxscript==0.5.3
 optuna==4.2.1
 packaging==24.2
 pandas==2.2.3
 pillow==11.2.1
 propcache==0.3.2
-protobuf==3.20.3
+protobuf==4.25.8
 pyarrow==19.0.1
 pydantic==2.11.1
 pydantic-core==2.33.0
@@ -69,10 +68,10 @@ torchmetrics==1.7.0
 # torchvision==0.22.0
 torchvision==0.22.0
 tqdm==4.67.1
-transformers==4.50.3
+transformers==4.51.3
 typing-extensions==4.15.0
 typing-inspection==0.4.1
 tzdata==2025.2
-urllib3==2.5.0
+urllib3==2.6.3
 xxhash==3.5.0
 yarl==1.20.1

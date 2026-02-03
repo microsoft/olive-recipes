@@ -4,6 +4,7 @@ This repository demonstrates the optimization of the [Qwen2.5-14B-Instruct](http
 
 - OpenVINO for Intel® GPU
    + This process uses OpenVINO specific passes like `OpenVINOOptimumConversion`, `OpenVINOIoUpdate` and `OpenVINOEncapsulation`
+- ModelBuilder for NVIDIA TRT for RTX GPU
 
 ## Intel® Workflows
 

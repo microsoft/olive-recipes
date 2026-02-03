@@ -8,9 +8,7 @@ recipes:
       ep: OpenVINOExecutionProvider
       aitk:
         disableRuntimeInConversion: true
-        oliveFile: phi4/openvino/phi_4_reasoning/Phi-4-reasoning_context_ov_dynamic_sym_gs128_bkp_int8_sym.json
-        requirementsPatches:
-            - Nightly
+        oliveFile: OpenVINO/Phi-4-reasoning_context_ov_dynamic_sym_gs128_bkp_int8_sym.json
 aitk:
     modelInfo:
         id: "huggingface/microsoft/Phi-4-reasoning"

@@ -7,8 +7,10 @@ from model_lab import RuntimeEnum
 from sanitize.constants import ArchitectureEnum, EPNames, IconEnum, ModelStatusEnum
 from sanitize.copy_config import CopyConfig
 from sanitize.generator_amd import generator_amd
+from sanitize.generator_dml import generator_dml
 from sanitize.generator_intel import generator_intel
 from sanitize.generator_qnn import generator_qnn
+from sanitize.generator_trtrtx import generator_trtrtx
 from sanitize.model_info import ModelInfo, ModelList
 from sanitize.project_config import ModelInfoProject, ModelProjectConfig, WorkflowItem
 from sanitize.utils import GlobalVars, isLLM_by_id, open_ex
@@ -24,6 +26,8 @@ org_to_icon = {
     "Qwen": IconEnum.qwen,
     "meta-llama": IconEnum.Meta,
     "mistralai": IconEnum.mistralai,
+    # TODO add
+    "OFA-Sys": IconEnum.HuggingFace,
 }
 
 
@@ -147,6 +151,10 @@ def convert_yaml_to_project_config(
             generator_amd(id, recipe, yml_file.parent, modelList)
         elif recipe.get("ep") == EPNames.QNNExecutionProvider.value:
             generator_qnn(id, recipe, yml_file.parent, modelList)
+        elif recipe.get("ep") == EPNames.NvTensorRTRTXExecutionProvider.value:
+            generator_trtrtx(id, recipe, yml_file.parent, modelList)
+        elif recipe.get("ep") == EPNames.DmlExecutionProvider.value:
+            generator_dml(id, recipe, yml_file.parent, modelList)
         runtimes = get_runtime(recipe)
         for runtime in runtimes:
             modelSummary.recipes.setdefault(runtime, []).append(file)
@@ -173,6 +181,8 @@ def project_processor():
     all_ids = set()
     all_summary = AllModelSummary()
     for yml_file in root_dir.rglob("info.yml"):
+        # if "DEBUG_ID" in str(yml_file):
+        #    pass
         # read yml file as yaml object
         with yml_file.open("r", encoding="utf-8") as file:
             try:

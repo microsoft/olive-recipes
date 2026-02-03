@@ -17,6 +17,7 @@ from .constants import EPNames, OliveDeviceTypes, OlivePropertyNames
 class GlobalVars:
     errorList = []
     verbose = False
+    olivePath = None
     # Initialize checks
     pathCheck = 0
     configCheck = []
@@ -33,11 +34,11 @@ class GlobalVars:
     licenseCheck = 0
     venvRequirementsCheck = set()
 
-    olivePath = None
     oliveCheck = 0
     RuntimeToEPName = {
         RuntimeEnum.CPU: EPNames.CPUExecutionProvider,
         RuntimeEnum.QNN: EPNames.QNNExecutionProvider,
+        RuntimeEnum.QNNGPU: EPNames.QNNExecutionProvider,
         RuntimeEnum.IntelAny: EPNames.OpenVINOExecutionProvider,
         RuntimeEnum.IntelCPU: EPNames.OpenVINOExecutionProvider,
         RuntimeEnum.IntelNPU: EPNames.OpenVINOExecutionProvider,
@@ -52,6 +53,7 @@ class GlobalVars:
     RuntimeToOliveDeviceType = {
         RuntimeEnum.CPU: OliveDeviceTypes.CPU,
         RuntimeEnum.QNN: OliveDeviceTypes.NPU,
+        RuntimeEnum.QNNGPU: OliveDeviceTypes.GPU,
         RuntimeEnum.IntelAny: OliveDeviceTypes.Any,
         RuntimeEnum.IntelCPU: OliveDeviceTypes.CPU,
         RuntimeEnum.IntelNPU: OliveDeviceTypes.NPU,
@@ -59,12 +61,14 @@ class GlobalVars:
         RuntimeEnum.AMDNPU: OliveDeviceTypes.NPU,
         RuntimeEnum.AMDGPU: OliveDeviceTypes.GPU,
         RuntimeEnum.NvidiaGPU: OliveDeviceTypes.GPU,
+        RuntimeEnum.NvidiaTRTRTX: OliveDeviceTypes.GPU,
         RuntimeEnum.DML: OliveDeviceTypes.GPU,
         RuntimeEnum.WebGPU: OliveDeviceTypes.GPU,
     }
     RuntimeToDisplayName = {
         RuntimeEnum.CPU: "CPU",
         RuntimeEnum.QNN: "Qualcomm NPU",
+        RuntimeEnum.QNNGPU: "Qualcomm GPU",
         RuntimeEnum.IntelAny: "Intel Any",
         RuntimeEnum.IntelCPU: "Intel CPU",
         RuntimeEnum.IntelNPU: "Intel NPU",
@@ -103,7 +107,7 @@ class GlobalVars:
             file.write("\n")
 
     @classmethod
-    def GetRuntimeRPC(cls, epName: EPNames, oliveDeviceType: OliveDeviceTypes) -> RuntimeEnum:
+    def GetRuntimeRPC(cls, epName: EPNames | str, oliveDeviceType: OliveDeviceTypes | str) -> RuntimeEnum:
         # Accept epName as either Enum or string, convert to Enum if needed
         if not isinstance(epName, EPNames):
             epName = EPNames(epName)
@@ -184,8 +188,8 @@ def open_ex(file_path, mode):
 
 
 def get_target_system(oliveJson: Any):
-    syskey = oliveJson[OlivePropertyNames.Target]
-    sysValue = oliveJson[OlivePropertyNames.Systems][syskey]
+    syskey: str = oliveJson[OlivePropertyNames.Target]
+    sysValue: dict = oliveJson[OlivePropertyNames.Systems][syskey]
     return syskey, sysValue
 
 
@@ -193,12 +197,6 @@ def checkPath(path: str, oliveJson: Any, printOnNotExist: bool = True):
     printInfo(path)
     GlobalVars.pathCheck += 1
     if pydash.get(oliveJson, path) is None:
-        syskey, system = get_target_system(oliveJson)
-        currentEp = system[OlivePropertyNames.Accelerators][0][OlivePropertyNames.ExecutionProviders][0]
-        # TODO some ov recipes do not have device but we set it in config
-        if path == f"systems.{syskey}.accelerators.0.device" and currentEp == EPNames.OpenVINOExecutionProvider.value:
-            printWarning(f"Not in olive json: {path}")
-            return True
         if printOnNotExist:
             printError(f"Not in olive json: {path}")
         return False
@@ -230,6 +228,6 @@ def get_eval_runtime(runtime: RuntimeEnum, isLLM: bool) -> RuntimeEnum:
 
 
 def get_eval_in_execute_runtime(runtime: RuntimeEnum) -> RuntimeEnum:
-    if runtime == RuntimeEnum.QNN:
+    if runtime == RuntimeEnum.QNN or runtime == RuntimeEnum.QNNGPU:
         return RuntimeEnum.QNN
     raise ValueError(f"Unsupported runtime for eval in execute: {runtime}")

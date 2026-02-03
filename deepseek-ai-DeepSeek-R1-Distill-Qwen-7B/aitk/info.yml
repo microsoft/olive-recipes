@@ -6,14 +6,15 @@ recipes:
       devices:
         - gpu
       ep: OpenVINOExecutionProvider
-      aitk:
-          oliveFile: "deepseek/openvino/DeepSeek-R1-Distill-Qwen-7B-gpu-context-ov-dy-gs128-r1.json"
     - file: "deepseek_ov_npu_config.json"
       devices:
         - npu
       ep: OpenVINOExecutionProvider
+    - file: "deepseek_trtrtx.json"
+      device: gpu
+      ep: NvTensorRTRTXExecutionProvider
       aitk:
-          oliveFile: "deepseek/openvino/DeepSeek_R1_Distill_Qwen_7B_npu_context_ov_dy_sym_gs128_bkp_int8_sym_r1.json"
+          oliveFile: "NvTensorRtRtx/DeepSeek-R1-Distill-Qwen-7B_nvmo_int4_rtn.json"
 aitk:
     modelInfo:
         id: "huggingface/deepseek-ai/DeepSeek-R1-Distill-Qwen-7B"

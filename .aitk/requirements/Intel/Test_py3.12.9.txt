@@ -1,11 +1,11 @@
-aiohttp==3.12.14
+aiohttp==3.13.3
 coloredlogs==15.0.1
 comm==0.2.2
 # datasets==3.5.0
 datasets==3.5.0
 debugpy==1.8.13
 dill==0.3.8
-filelock==3.18.0
+filelock==3.20.3
 flatbuffers==25.2.10
 fsspec==2024.12.0
 huggingface-hub[hf_xet]==0.34.4
@@ -29,16 +29,16 @@ ninja==1.11.1.4
 # nncf==2.16.0
 nncf==2.16.0
 numpy==1.26.4
-# olive-ai==0.9.3
-olive-ai==0.9.3
+# olive-ai==0.10.1
+olive-ai==0.10.1
 # onnx==1.17.0
 onnx==1.17.0
-onnx-ir==0.1.5
+onnx-ir==0.1.10
 # onnxruntime==1.21.0
 onnxruntime==1.21.0
 # onnxruntime-genai==0.7.0
 onnxruntime-genai==0.7.0
-onnxscript==0.3.2
+onnxscript==0.5.3
 # openvino==2025.1.0
 openvino==2025.1.0
 openvino-telemetry==2025.1.0
@@ -48,7 +48,7 @@ optuna==4.2.1
 packaging==24.2
 pandas==2.2.3
 pillow==11.3.0
-protobuf==6.31.1
+protobuf==4.25.8
 psutil==7.0.0
 pyarrow==19.0.1
 pydantic==2.11.1

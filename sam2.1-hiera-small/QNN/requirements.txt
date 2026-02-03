@@ -1,0 +1,8 @@
+datasets
+olive-ai
+onnx
+onnxsim
+sam2
+torch
+torchvision
+transformers

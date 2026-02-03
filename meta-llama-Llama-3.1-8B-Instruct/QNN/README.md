@@ -16,11 +16,8 @@ export BUILD_CUDA_EXT=0
 # Windows
 # set BUILD_CUDA_EXT=0
 
-# Install AutoGPTQ from source
-pip install --no-build-isolation git+https://github.com/PanQiWei/AutoGPTQ.git
-
 # Install GptqModel from source
-pip install --no-build-isolation git+https://github.com/ModelCloud/GPTQModel.git@5d2911a4b2a709afb0941d53c3882d0cd80b9649
+pip install --no-build-isolation git+https://github.com/CodeLinaro/GPTQModel.git@rel_4.2.5
 ```
 
 ### AOT Compilation Python Environment Setup
@@ -28,11 +25,11 @@ Model compilation using QNN Execution Provider requires a Python environment wit
 
 ```bash
 # Install Olive
-pip install olive-ai==0.9.3
+pip install olive-ai
 
 # Install ONNX Runtime QNN
 pip install -r https://raw.githubusercontent.com/microsoft/onnxruntime/refs/heads/main/requirements.txt
-pip install --index-url https://aiinfra.pkgs.visualstudio.com/PublicPackages/_packaging/ORT-Nightly/pypi/simple "onnxruntime-qnn==1.22.2" --no-deps
+pip install --index-url https://aiinfra.pkgs.visualstudio.com/PublicPackages/_packaging/ORT-Nightly/pypi/simple "onnxruntime-qnn==1.23.2" --no-deps
 ```
 
 Replace `/path/to/qnn/env/bin` in [config.json](config.json) with the path to the directory containing your QNN environment's Python executable. This path can be found by running the following command in the environment:
@@ -48,6 +45,8 @@ This command will return the path to the Python executable. Set the parent direc
 
 ### Run the Quantization + Compilation Config
 Activate the **Quantization Python Environment** and run the workflow:
+
+### Change the soc_model param in config.json file corressponding to the target platform
 
 ```bash
 olive run --config config.json

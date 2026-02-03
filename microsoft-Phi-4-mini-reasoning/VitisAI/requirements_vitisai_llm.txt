@@ -1,6 +1,4 @@
-
 # AMD model generation
-# Model generation on a Linux system
 --extra-index-url=https://pypi.amd.com/simple
 accelerate
 
@@ -8,16 +6,21 @@ accelerate
 amd-quark==0.9
 datasets
 evaluate
-model-generate==1.5.0
+
+# Platform-specific model-generate versions:
+# Linux: use model-generate==1.5.0 (default)
+# Windows: MUST use model-generate==1.5.1
+model-generate==1.5.0; sys_platform != 'win32'
+model-generate==1.5.1; sys_platform == 'win32'
+
 nltk
 numpy
+
+# Pin onnx version
+onnx==1.18.0
 onnxruntime==1.21.1
 onnxruntime-genai==0.7.1
 optimum
 sentencepiece
 tabulate
 transformers==4.50.0
-
-# Uncomment the below line if running model generation on a Windows system
-# --extra-index-url=https://pypi.amd.com/simple
-# model-generate==1.5.1

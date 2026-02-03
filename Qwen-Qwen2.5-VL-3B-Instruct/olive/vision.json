@@ -1,0 +1,27 @@
+{
+    "input_model": {
+        "type": "PyTorchModel",
+        "model_path": "Qwen/Qwen2.5-VL-3B-Instruct",
+        "model_loader": "get_vision_model",
+        "model_script": "user_script.py",
+        "io_config": "get_vision_io_config",
+        "dummy_inputs_func": "get_vision_dummy_inputs"
+    },
+    "passes": {
+        "c": { "type": "OnnxConversion", "use_dynamo_exporter": true },
+        "gs": {
+            "type": "GraphSurgeries",
+            "surgeries": [
+                {"surgeon": "PackedAttentionToLoopMHA"},
+                {
+                    "surgeon": "RenameOutputDims",
+                    "output_idx": 0,
+                    "dim_idx": 0,
+                    "dim_name": "num_logical_patches"
+                }
+            ]
+        }
+    },
+    "no_artifacts": true,
+    "output_dir": "models/vision.onnx"
+}

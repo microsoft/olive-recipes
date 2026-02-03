@@ -39,7 +39,7 @@ In this case, since it is a new model and we want to show it in AITK, we use ait
 In the aitk folder, create the following files to do the conversion and inferencing. These files are required.
 
 - xxx.json: olive config
-- inference_sample.ipynb: how the model could be used via WinML. Could copy from similar projects
+- inference_sample.ipynb: how the model could be used via Windows ML. Could copy from similar projects
 - README.md:
     - describe how xxx.json works
     - include evaluation result like latency, accuracy, throughput etc. (together with device info)
@@ -50,7 +50,7 @@ In AITK, the recipe conversion and evaluation process are separated. They could 
 
 - For P0 models, these venvs will be maintained by MS and whenever they have updates, P0 recipes will also be verified.
 - For other models, a venv setup for conversion is required. So once verified and checked in, end users could always reliably convert the model.
-- For other models, evaluation venv will be aligned with P0’s. Because model should always be able to run in latest WinML runtimes.
+- For other models, evaluation venv will be aligned with P0’s. Because model should always be able to run in latest Windows ML runtimes.
 
 To create such file, please follow [Create Requirements](./HowToCreateReq.md).
 

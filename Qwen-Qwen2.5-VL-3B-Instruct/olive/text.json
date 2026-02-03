@@ -1,0 +1,11 @@
+{
+    "input_model": {
+        "type": "HfModel",
+        "model_path": "Qwen/Qwen2.5-VL-3B-Instruct"
+    },
+    "passes": {
+        "convert": { "type": "ModelBuilder", "precision": "fp16", "extra_options": { "filename": "text.onnx" } }
+    },
+    "no_artifacts": true,
+    "output_dir": "models/text.onnx"
+}
