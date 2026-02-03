@@ -69,21 +69,16 @@ def process_qzeros(tensor: torch.Tensor, bits: int = 2) -> torch.Tensor:
 
 def main(model_path: str, save_path: str):
     # load and process weights into Olive quant format
-    device = "cuda:0" if torch.cuda.is_available() else "cpu"
-    weights = load_file(hf_hub_download(repo_id=model_path, filename="model.safetensors"), device=device)
+    weights = load_file(hf_hub_download(repo_id=model_path, filename="model.safetensors"))
     for key in tqdm(list(weights), desc="Processing weights"):
         if key.endswith("g_idx"):
             del weights[key]
-            continue
-
-        if key.endswith("qweight"):
+        elif key.endswith("qweight"):
             weights[key] = process_qweight(weights[key])
         elif key.endswith("qzeros"):
             weights[key] = process_qzeros(weights[key])
         elif key.endswith("scales"):
             weights[key] = weights[key].t().contiguous()
-
-        weights[key] = weights[key].cpu()
 
     # save processed weights, config, tokenizer
     config = AutoConfig.from_pretrained(model_path)

@@ -27,6 +27,7 @@ olive run --config config.json -m models/llama-3-8b-pt -o models/llama-3-8b-onnx
 You can run inference using the exported ONNX model as follows:
 ```python
 import json
+import time
 
 import onnxruntime_genai as og
 
