@@ -141,7 +141,9 @@ def generate_quantization_config(
     return None
 
 
-def generate_amd_quantization_config(configFile: Path, modelList: ModelList, parameter: ModelParameter) -> Optional[Section]:
+def generate_amd_quantization_config(
+    configFile: Path, modelList: ModelList, parameter: ModelParameter
+) -> Optional[Section]:
     with open_ex(configFile, "r") as f:
         content = json.load(f)
     parameters = []

@@ -88,7 +88,7 @@ class Section(BaseModel):
         sectionId: int,
         oliveJson: Any,
         modelList: ModelList,
-        emptyAllowed: bool
+        emptyAllowed: bool,
     ):
         if not self.name:
             return False
@@ -412,14 +412,14 @@ class ModelParameter(BaseModelClass):
                 if not checkPath(f"{OlivePropertyNames.Evaluators}.{evaluatorName}", oliveJson):
                     printError(f"{self._file} does not have evaluator {evaluatorName}")
 
-            emptyAllowed = section.phase == PhaseTypeEnum.Conversion or (section.phase == PhaseTypeEnum.Evaluation and self.evalNoDataConfig)
+            emptyAllowed = (section.phase == PhaseTypeEnum.Conversion) or (
+                section.phase == PhaseTypeEnum.Evaluation and self.evalNoDataConfig is True
+            )
             if not section.Check(templates, self._file or "", tmpDevice, oliveJson, modelList, emptyAllowed):
                 printError(f"{self._file} section {tmpDevice} has error")
 
-        if (
-            currentEp == EPNames.CUDAExecutionProvider.value
-            or (self.runtimeOverwrite
-            and self.runtimeOverwrite.executeEp == EPNames.CUDAExecutionProvider)
+        if currentEp == EPNames.CUDAExecutionProvider.value or (
+            self.runtimeOverwrite and self.runtimeOverwrite.executeEp == EPNames.CUDAExecutionProvider
         ):
             self.isGPURequired = True
 
