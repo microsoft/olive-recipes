@@ -55,7 +55,7 @@ def requirements_check():
         },
     )
     # Others
-    nvidia_autogptq = get_lines_from_file(requirements_folder / "requirements-NvidiaGpu-AutoGptq.txt")
+    nvidia_autogptq = get_lines_from_file(requirements_folder / "requirements-NvidiaGPU-AutoGptq.txt")
     wcr_cuda_autogptq = get_lines_from_file(requirements_folder / "requirements-WCR_CUDA-AutoGptq.txt")
     req_is_subset(nvidia_autogptq, wcr_cuda_autogptq)
     req_is_subset(wcr_cuda_autogptq, nvidia_autogptq)
