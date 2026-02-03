@@ -256,7 +256,7 @@ def get_qdq_pipeline(model_dir, common_args, qdq_args, script_dir):
     ort.set_default_logger_severity(3)
 
     print("Loading models into ORT session...")
-    provider_options = [{}]
+    provider_options = []
 
     provider = common_args.provider
 
@@ -271,7 +271,7 @@ def get_qdq_pipeline(model_dir, common_args, qdq_args, script_dir):
 
     # Official OnnxStableDiffusionPipeline also works
     pipeline = OnnxStableDiffusionPipelineWithSave.from_pretrained(
-        model_dir, sess_options=sess_options, provider_options=provider_options
+        model_dir, providers=[], sess_options=sess_options, provider_options=provider_options
     )
     if qdq_args.save_data:
         pipeline.save_data_dir = script_dir / qdq_args.data_dir / common_args.prompt
