@@ -1,0 +1,10 @@
+{
+    "input_model": { "type": "HfModel", "model_path": "<MODEL_PATH>" },
+    "passes": {
+        "mb": { "type": "ModelBuilder", "precision": "int4", "int4_op_types_to_quantize": [ "DummyOPType" ] }
+    },
+    "log_severity_level": 3,
+    "output_dir": "<OUTPUT_DIR>",
+    "cache_dir": "cache",
+    "no_artifacts": true
+}

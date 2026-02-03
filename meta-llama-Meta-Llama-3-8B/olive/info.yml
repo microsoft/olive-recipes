@@ -1,0 +1,6 @@
+keywords:
+  - 2bit
+arch: llama3
+devices:
+  - cpu
+name: meta-llama-Meta-Llama-3-8B
