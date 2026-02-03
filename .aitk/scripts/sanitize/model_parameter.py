@@ -88,7 +88,7 @@ class Section(BaseModel):
         sectionId: int,
         oliveJson: Any,
         modelList: ModelList,
-        emptyAllowed: bool
+        emptyAllowed: bool,
     ):
         if not self.name:
             return False
@@ -241,7 +241,10 @@ class ModelParameter(BaseModelClass):
     # - setup executeRuntimeFeatures, pyEnvRuntimeFeatures
     isQNNLLM: Optional[bool] = None
     # SET AUTOMATICALLY TO TRUE WHEN CUDAExecutionProvider
+    # When true, it means some passes need CUDA so user could not run it without
     isGPURequired: Optional[bool] = None
+    # When true, it means some passes could benefit from GPU but could run without GPU
+    isGPUSuggested: Optional[bool] = None
     # Free memory suggested to convert the model
     memoryGbSuggested: Optional[int] = None
     needHFLogin: Optional[bool] = None
@@ -409,18 +412,16 @@ class ModelParameter(BaseModelClass):
                 if not checkPath(f"{OlivePropertyNames.Evaluators}.{evaluatorName}", oliveJson):
                     printError(f"{self._file} does not have evaluator {evaluatorName}")
 
-            emptyAllowed = section.phase == PhaseTypeEnum.Conversion or (section.phase == PhaseTypeEnum.Evaluation and self.evalNoDataConfig)
+            emptyAllowed = (section.phase == PhaseTypeEnum.Conversion) or (
+                section.phase == PhaseTypeEnum.Evaluation and self.evalNoDataConfig is True
+            )
             if not section.Check(templates, self._file or "", tmpDevice, oliveJson, modelList, emptyAllowed):
                 printError(f"{self._file} section {tmpDevice} has error")
 
-        if (
-            currentEp == EPNames.CUDAExecutionProvider.value
-            or self.runtimeOverwrite
-            and self.runtimeOverwrite.executeEp == EPNames.CUDAExecutionProvider
+        if currentEp == EPNames.CUDAExecutionProvider.value or (
+            self.runtimeOverwrite and self.runtimeOverwrite.executeEp == EPNames.CUDAExecutionProvider
         ):
             self.isGPURequired = True
-        else:
-            self.isGPURequired = None
 
         # model builder uses AutoConfig.from_pretrained(hf_name, token=hf_token, trust_remote_code=True, **extra_kwargs) and trust_remote_code=True requires token
         first_pass_value = next(iter(oliveJson[OlivePropertyNames.Passes].values()), None)
