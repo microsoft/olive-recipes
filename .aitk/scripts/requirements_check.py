@@ -8,6 +8,9 @@ def get_lines_from_file(file_path: Path):
 
 
 def req_is_subset(req1: tuple[Path, set[str]], req2: tuple[Path, set[str]], additional: set[str] = set()):
+    """
+    Check if req1 is a subset of req2 after removing additional lines from req1.
+    """
     if not additional.issubset(req1[1]):
         print(f"Additional is not a subset of '{req1[0].name}'")
         missing = additional - req1[1]
@@ -51,7 +54,11 @@ def requirements_check():
             "torchvision==0.22.0+cu128",
         },
     )
-
+    # Others
+    nvidia_autogptq = get_lines_from_file(requirements_folder / "requirements-NvidiaGPU-AutoGptq.txt")
+    wcr_cuda_autogptq = get_lines_from_file(requirements_folder / "requirements-WCR_CUDA-AutoGptq.txt")
+    req_is_subset(nvidia_autogptq, wcr_cuda_autogptq)
+    req_is_subset(wcr_cuda_autogptq, nvidia_autogptq)
 
 if __name__ == "__main__":
     requirements_check()

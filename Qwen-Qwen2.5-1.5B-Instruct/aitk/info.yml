@@ -32,6 +32,16 @@ recipes:
     - file: "qwen2_5_dml_config.json"
       device: gpu
       ep: DmlExecutionProvider
+    - file: "qwen2_5_qnn_gpu_config.json"
+      device: gpu
+      ep: QNNExecutionProvider
+      aitk:
+        oliveFile: "QNN/config_gpu.json"
+        requirementsPatches:
+          - AutoGptq
+        isGPURequired: true
+        runtimeOverwrite:
+          executeEp: NvTensorRTRTXExecutionProvider
 aitk:
     modelInfo:
         id: "huggingface/Qwen/Qwen2.5-1.5B-Instruct"

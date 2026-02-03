@@ -27,7 +27,8 @@ def generator_qnn(id: str, recipe, folder: Path, modelList: ModelList):
     name = f"Convert to Qualcomm {"/".join([runtime.upper() for runtime in runtime_values])}"
 
     parameter = create_model_parameter(aitk, name, configFile)
-    parameter.isQNNLLM = True
+    if "npu" in runtime_values:
+        parameter.isQNNLLM = True
 
     quantize = generate_quantization_config(configFile, modelList, parameter)
     if quantize:
