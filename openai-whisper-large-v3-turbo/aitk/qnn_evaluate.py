@@ -11,7 +11,6 @@ logger = logging.getLogger(os.path.basename(__file__))
 logging.basicConfig(level=logging.INFO)
 
 def register_execution_providers():
-    import json
     import subprocess
     import sys
     import onnxruntime as ort
