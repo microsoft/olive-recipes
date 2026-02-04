@@ -1,0 +1,6 @@
+arch: phi3
+recipes:
+  - name: Phi-4-mini-instruct_VitisAI
+    file: Phi-4-mini-instruct_quark_vitisai_llm.json
+    devices: npu
+    eps: VitisAIExecutionProvider

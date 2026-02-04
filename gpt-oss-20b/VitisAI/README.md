@@ -1,12 +1,12 @@
 # Model Optimization and Quantization for AMD NPU
 
-This folder contains sample Olive configuration to optimize Phi-3.5 models for AMD NPU.
+This folder contains sample Olive configuration to optimize Phi-4 models for AMD NPU.
 
 ## ✅ Supported Models and Configs
 
-| Model Name (Hugging Face)         | Config File Name                |
-| :-------------------------------- | :------------------------------ |
-| `microsoft/Phi-3.5-mini-instruct` | `Phi-3.5-mini-instruct_quark_vitisai_llm.json` |
+| Model Name (Hugging Face)                          | Config File Name                  |
+|:---------------------------------------------------|:----------------------------------|
+| `microsoft/gpt-oss-20b`                            | `gpt-oss-20b_quark_vitisai_llm.json`  |
 
 ## **Run the Quantization Config**
 
@@ -25,7 +25,7 @@ For more details about quark, see the [Quark Documentation](https://quark.docs.a
 
 #### **Create a Python 3.10 conda environment and run the below commands**
 ```bash
-conda create -n olive python=3.12
+conda create -n olive python=3.10
 conda activate olive
 ```
 
@@ -38,26 +38,18 @@ pip install -r requirements.txt
 #### **Install VitisAI LLM dependencies**
 
 ```bash
-cd olive-recipes/microsoft-Phi-3.5-mini-instruct/VitisAI
+cd olive-recipes/gpt-oss-20b/VitisAI
 pip install --force-reinstall -r requirements_vitisai_llm.txt
+
+# Note: If you're running model generation on a Windows system, please uncomment the following line in requirements_vitisai_llm.txt:
+# --extra-index-url=https://pypi.amd.com/simple
+# model-generate==1.5.1
 ```
 
-**Note:** The requirements file automatically installs the correct `model-generate` version for your platform (1.5.0 for Linux, 1.5.1 for Windows).
+Make sure to install the correct version of PyTorch before running quantization. If using AMD GPUs, update PyTorch to use ROCm-compatible PyTorch build. For example see the below commands
 
-#### **Install PyTorch**
-
-Make sure to install the correct version of PyTorch before running quantization:
-
-**For AMD GPUs (ROCm):**
 ```bash
 pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/rocm6.1
-
-python -c "import torch; print(torch.cuda.is_available())" # Must return `True`
-```
-
-**For NVIDIA GPUs (CUDA):**
-```bash
-pip install torch==2.7.1 torchvision==0.22.1 torchaudio==2.7.1 --index-url https://download.pytorch.org/whl/cu128
 
 python -c "import torch; print(torch.cuda.is_available())" # Must return `True`
 ```
@@ -65,8 +57,9 @@ python -c "import torch; print(torch.cuda.is_available())" # Must return `True`
 Follow the above setup instructions, then run the below command to generate the optimized LLM model for VitisAI EP
 
 ```bash
-# Phi-3.5-mini-instruct
-olive run --config Phi-3.5-mini-instruct_quark_vitisai_llm.json
+# Phi-4-mini-instruct
+olive run --config gpt-oss-20b_quark_vitisai_llm.json
 ```
 
-✅ Optimized model saved in: `models/Phi-3.5-mini-instruct-vai/`
+✅ Optimized model saved in: `models/gpt-oss-20b-vai/`
+> **Note:** Output model is saved in `output_dir` mentioned in the json files.
