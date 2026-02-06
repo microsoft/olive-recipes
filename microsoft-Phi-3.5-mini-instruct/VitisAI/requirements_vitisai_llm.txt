@@ -4,7 +4,7 @@ accelerate
 
 # Quark
 C:\\Users\\ATGDEBUG\\pooja\\olive-ms-drop-2-10\\1.7.0\\onnxsim-0.4.36-cp312-cp312-win_amd64.whl
-amd-quark==0.10
+amd-quark==0.11
 datasets
 evaluate
 
