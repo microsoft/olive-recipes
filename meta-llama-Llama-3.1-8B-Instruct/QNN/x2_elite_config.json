@@ -95,9 +95,9 @@
             "provider_options": {
                 "htp_performance_mode": "burst",
                 "htp_graph_finalization_optimization_mode": "3",
-                "soc_model": "60"
+                "soc_model": "87"
             },
-            "weight_sharing": true
+            "weight_sharing": false
         },
         "cp": { "type": "ComposeOnnxModels" }
     },

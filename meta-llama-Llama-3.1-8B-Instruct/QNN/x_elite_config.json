@@ -1,5 +1,5 @@
 {
-    "input_model": { "type": "HfModel", "model_path": "microsoft/Phi-4-reasoning" },
+    "input_model": { "type": "HfModel", "model_path": "meta-llama/Llama-3.1-8B-Instruct" },
     "systems": {
         "qnn_system": {
             "type": "PythonEnvironment",
@@ -42,12 +42,15 @@
             "lm_head": true,
             "device": "cuda",
             "data_config": "wikitext2_train_joined",
-            "dynamic": { "+:.*lm_head*": { "bits": 4, "sym": true, "group_size": 128, "desc_act": false } }
+            "dynamic": {
+                "+:.*v_proj*": { "bits": 8, "sym": true, "group_size": -1, "desc_act": true },
+                "+:.*lm_head*": { "bits": 4, "sym": true, "group_size": 32, "desc_act": false }
+            }
         },
         "mb": {
             "type": "ModelBuilder",
             "precision": "int4",
-            "int4_block_size": 128,
+            "int4_block_size": 32,
             "int4_accuracy_level": 4,
             "int4_op_types_to_quantize": [ "Gather" ]
         },
@@ -94,13 +97,13 @@
                 "htp_graph_finalization_optimization_mode": "3",
                 "soc_model": "60"
             },
-            "weight_sharing": true
+            "weight_sharing": false
         },
         "cp": { "type": "ComposeOnnxModels" }
     },
     "target": "qnn_system",
     "log_severity_level": 1,
-    "output_dir": "models/phi4_reasoning",
+    "output_dir": "models/llama_3.1_8b_Instruct",
     "cache_dir": "cache",
     "no_artifacts": true
 }
