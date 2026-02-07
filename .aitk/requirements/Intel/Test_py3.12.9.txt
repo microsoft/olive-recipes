@@ -48,7 +48,7 @@ optuna==4.2.1
 packaging==24.2
 pandas==2.2.3
 pillow==11.3.0
-protobuf==4.25.8
+protobuf==5.29.6
 psutil==7.0.0
 pyarrow==19.0.1
 pydantic==2.11.1
