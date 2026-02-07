@@ -25,7 +25,7 @@ For more details about quark, see the [Quark Documentation](https://quark.docs.a
 
 #### **Create a Python 3.10 conda environment and run the below commands**
 ```bash
-conda create -n olive python=3.10
+conda create -n olive python=3.12
 conda activate olive
 ```
 
@@ -42,7 +42,7 @@ cd olive-recipes/microsoft-Phi-3-mini-4k-instruct/VitisAI
 pip install --force-reinstall -r requirements_vitisai_llm.txt
 ```
 
-**Note:** The requirements file automatically installs the correct `model-generate` version for your platform (1.5.0 for Linux, 1.5.1 for Windows).
+ 
 
 #### **Install PyTorch**
 

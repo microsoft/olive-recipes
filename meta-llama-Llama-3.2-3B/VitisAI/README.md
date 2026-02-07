@@ -1,11 +1,11 @@
 # Model Optimization and Quantization for AMD NPU
-This folder contains sample Olive configuration to optimize Qwen models for AMD NPU.
+
+This folder contains sample Olive configuration to optimize LLaMA 3 models for AMD NPU.
 
 ## ✅ Supported Models and Configs
-
-| Model Name (Hugging Face)          | Config File Name                |
-| :--------------------------------- | :------------------------------ |
-| `Qwen/Qwen2-7B-Instruct`       | `Qwen2-7B-Instruct_quark_vitisai_llm.json` |
+| Model Name (Hugging Face)                         | Config File Name                  |
+|:--------------------------------------------------|:----------------------------------|
+| `meta-llama/Llama-3.2-3B`                | `Llama-3.2-3B_quark_vitisai_llm.json`  |
 
 ## **Run the Quantization Config**
 
@@ -24,7 +24,7 @@ For more details about quark, see the [Quark Documentation](https://quark.docs.a
 
 #### **Create a Python 3.10 conda environment and run the below commands**
 ```bash
-conda create -n olive python=3.10
+conda create -n olive python=3.12
 conda activate olive
 ```
 
@@ -37,11 +37,11 @@ pip install -r requirements.txt
 #### **Install VitisAI LLM dependencies**
 
 ```bash
-cd olive-recipes/Qwen-Qwen2-7B-Instruct/VitisAI
+cd olive-recipes/meta-llama-Llama-3.2-3B/VitisAI
 pip install --force-reinstall -r requirements_vitisai_llm.txt
 ```
 
-**Note:** The requirements file automatically installs the correct `model-generate` version for your platform (1.5.0 for Linux, 1.5.1 for Windows).
+ 
 
 #### **Install PyTorch**
 
@@ -64,10 +64,10 @@ python -c "import torch; print(torch.cuda.is_available())" # Must return `True`
 Follow the above setup instructions, then run the below command to generate the optimized LLM model for VitisAI EP
 
 ```bash
-# Qwen2-7B-Instruct
-olive run --config Qwen2-7B-Instruct_quark_vitisai_llm.json
+# Llama-3.2-1B-Instruct
+olive run --config Llama-3.2-3B_quark_vitisai_llm.json
 ```
 
-✅ Optimized model saved in: `models/Qwen2-7B-Instruct-vai/`
+✅ Optimized model saved in: `models/Meta-Llama-3.2-3B-vai/`
 
 > **Note:** Output model is saved in `output_dir` mentioned in the json files.

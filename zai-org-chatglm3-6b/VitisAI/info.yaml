@@ -1,0 +1,6 @@
+arch: chatglm
+recipes:
+  - name: chatglm3-6b_VitisAI
+    file: chatglm3-6b_quark_vitisai_llm.json
+    devices: npu
+    eps: VitisAIExecutionProvider

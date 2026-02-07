@@ -42,7 +42,7 @@ cd olive-recipes/microsoft-Phi-3.5-mini-instruct/VitisAI
 pip install --force-reinstall -r requirements_vitisai_llm.txt
 ```
 
-**Note:** The requirements file automatically installs the correct `model-generate` version for your platform (1.5.0 for Linux, 1.5.1 for Windows).
+ 
 
 #### **Install PyTorch**
 

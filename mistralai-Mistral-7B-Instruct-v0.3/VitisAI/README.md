@@ -24,7 +24,7 @@ For more details about quark, see the [Quark Documentation](https://quark.docs.a
 
 #### **Create a Python 3.10 conda environment and run the below commands**
 ```bash
-conda create -n olive python=3.10
+conda create -n olive python=3.12
 conda activate olive
 ```
 
@@ -41,7 +41,7 @@ cd olive-recipes/mistralai-Mistral-7B-Instruct-v0.3/VitisAI
 pip install --force-reinstall -r requirements_vitisai_llm.txt
 ```
 
-**Note:** The requirements file automatically installs the correct `model-generate` version for your platform (1.5.0 for Linux, 1.5.1 for Windows).
+ 
 
 #### **Install PyTorch**
 
@@ -71,5 +71,5 @@ olive run --config Mistral-7B-Instruct-v0.2_quark_vitisai_llm.json
 olive run --config Mistral-7B-Instruct-v0.3_quark_vitisai_llm.json
 ```
 
-✅ Optimized model saved in: `models/Mistral-7B-Instruct-v0.2-vai/`
+✅ Optimized model saved in: `models/Mistral-7B-Instruct-v0.3-vai/`
 > **Note:** Output model is saved in `output_dir` mentioned in the json files.

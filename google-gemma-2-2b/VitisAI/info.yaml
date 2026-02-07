@@ -1,0 +1,6 @@
+arch: gemma
+recipes:
+  - name: gemma-2-2b_VitisAI
+    file: gemma-2-2b_quark_vitisai_llm.json
+    devices: npu
+    eps: VitisAIExecutionProvider

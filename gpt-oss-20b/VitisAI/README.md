@@ -25,7 +25,7 @@ For more details about quark, see the [Quark Documentation](https://quark.docs.a
 
 #### **Create a Python 3.10 conda environment and run the below commands**
 ```bash
-conda create -n olive python=3.10
+conda create -n olive python=3.12
 conda activate olive
 ```
 
@@ -40,22 +40,19 @@ pip install -r requirements.txt
 ```bash
 cd olive-recipes/gpt-oss-20b/VitisAI
 pip install --force-reinstall -r requirements_vitisai_llm.txt
-
-# Note: If you're running model generation on a Windows system, please uncomment the following line in requirements_vitisai_llm.txt:
-# --extra-index-url=https://pypi.amd.com/simple
-# model-generate==1.5.1
 ```
 
-Make sure to install the correct version of PyTorch before running quantization. If using AMD GPUs, update PyTorch to use ROCm-compatible PyTorch build. For example see the below commands
-
-```bash
-pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/rocm6.1
-
-python -c "import torch; print(torch.cuda.is_available())" # Must return `True`
-```
 #### **Generate optimized LLM model for VitisAI NPU**
-Follow the above setup instructions, then run the below command to generate the optimized LLM model for VitisAI EP
+GPT-OSS models are pre-quantized ONNX models that only need NPU optimization (no Quark quantization step).
 
+Follow the above setup instructions, then run the below command to generate the optimized LLM model for VitisAI EP. 
+
+1. Download the pre-quantized model:
+```bash
+hf download onnxruntime/gpt-oss-20b-onnx --include "cpu_and_mobile/cpu-int4-rtn-block-32-acc-level-4/*" --local-dir ./models/gpt-oss-20b-onnx
+```
+
+2. Run the Olive recipe:
 ```bash
 # Phi-4-mini-instruct
 olive run --config gpt-oss-20b_quark_vitisai_llm.json

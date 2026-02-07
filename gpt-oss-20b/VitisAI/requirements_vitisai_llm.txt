@@ -2,12 +2,6 @@
 --extra-index-url=https://pypi.amd.com/simple
 accelerate
 
-# Quark
-C:\\Users\\ATGDEBUG\\pooja\\olive-ms-drop-2-10\\1.7.0\\onnxsim-0.4.36-cp312-cp312-win_amd64.whl
-amd-quark==0.10
-datasets
-evaluate
-
 
 C:\\Users\\ATGDEBUG\\pooja\\olive-ms-drop-2-10\\1.7.0\\model_generate-1.7.0-py3-none-any.whl
 
