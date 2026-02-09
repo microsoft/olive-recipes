@@ -1,0 +1,6 @@
+arch: qwen3
+recipes:
+  - name: Qwen-Qwen3-8B_cpu_int4_int8_kquant_mixed
+    file: Qwen-Qwen3-8B_cpu_int4_int8_kquant_mixed.json
+    devices: cpu
+    eps: CPUExecutionProvider
