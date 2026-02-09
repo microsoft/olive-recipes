@@ -1,0 +1,6 @@
+arch: qwen3
+recipes:
+  - name: Qwen-Qwen3-0.6B_cpu_fp32
+    file: Qwen-Qwen3-0.6B_cpu_fp32.json
+    devices: cpu
+    eps: CPUExecutionProvider
