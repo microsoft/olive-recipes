@@ -6,7 +6,7 @@ recipes:
       device: npu
       ep: QNNExecutionProvider
       aitk:
-        oliveFile: "../microsoft-Phi-3.5-mini-instruct/QNN/config.json"
+        oliveFile: "o:llama3/qnn/llama3.2_1b_instruct_qnn_config.json"
     - file: "llama3_2_vitis_ai_config.json"
       device: npu
       ep: VitisAIExecutionProvider
