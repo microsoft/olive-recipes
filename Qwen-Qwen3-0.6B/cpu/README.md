@@ -10,7 +10,8 @@ This folder contains Olive recipes for optimizing Qwen-Qwen3-0.6B targeting the 
 
 ## Setup
 
-1) Install Olive (version compatible with your repo).
+1) Install the main branch of Olive:
+   - pip install git+https://github.com/microsoft/olive.git
 2) Install the appropriate runtime package for this backend:
    - onnxruntime-genai (CPU build)
 3) Run Olive to build/optimize the model
