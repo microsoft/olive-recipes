@@ -6,17 +6,15 @@ recipes:
       device: npu
       ep: QNNExecutionProvider
       aitk:
-        oliveFile: "../microsoft-Phi-3.5-mini-instruct/QNN/config.json"
+        oliveFile: "o:deepseek/qnn/DeepSeek_R1_Distill_Qwen_1.5B_qnn_config.json"
     - file: "deepseek_vitis_ai_config.json"
       device: npu
       ep: VitisAIExecutionProvider
       aitk:
         oliveFile: "VitisAI/DeepSeek-R1-Distill-Qwen-1.5B_quark_vitisai_llm.json"
-        requirementsPatches:
-          - AutoGptq
-        runtimeOverwrite:
-          executeEp: CUDAExecutionProvider
+        requirements: AMD/Quark_py3.10.17
         evalRuntime: AMDNPU
+        isGPUSuggested: true
     - file: "deepseek_ov_gpu_config.json"
       devices:
         - gpu
@@ -34,10 +32,20 @@ recipes:
     - file: "deepseek_dml_config.json"
       device: gpu
       ep: DmlExecutionProvider
+    - file: "deepseek_qnn_gpu_config.json"
+      device: gpu
+      ep: QNNExecutionProvider
+      aitk:
+        oliveFile: "QNN/config_gpu.json"
+        requirementsPatches:
+          - AutoGptq
+        isGPURequired: true
+        runtimeOverwrite:
+          executeEp: NvTensorRTRTXExecutionProvider
 aitk:
     modelInfo:
         id: "huggingface/deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B"
-        version: 4
+        version: 5
         groupId: "huggingface/deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B"
         groupItemName: "1.5B"
         p0: true

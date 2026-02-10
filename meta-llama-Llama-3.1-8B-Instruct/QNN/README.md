@@ -1,7 +1,7 @@
-# Llama-3.1-8B-Instruct Model Optimization
+QCOM-NPU: Llama-3.1-8B-Instruct Model Optimization
+==================================================
 
 This repository demonstrates the optimization of the [Llama-3.1-8B-Instruct](https://huggingface.co/meta-llama/Llama-3.1-8B-Instruct) model using **post-training quantization (PTQ)** techniques.
-
 
 ### Quantization Python Environment Setup
 Quantization is resource-intensive and requires GPU acceleration. In an x64 Python environment, install the required packages:
@@ -9,8 +9,7 @@ Quantization is resource-intensive and requires GPU acceleration. In an x64 Pyth
 ```bash
 pip install -r requirements.txt
 
-# AutoGPTQ: Install from source (stable package may be slow for weight packing)
-# Disable CUDA extension build (not required)
+# Disable CUDA extension build
 # Linux
 export BUILD_CUDA_EXT=0
 # Windows
@@ -25,7 +24,7 @@ Model compilation using QNN Execution Provider requires a Python environment wit
 
 ```bash
 # Install Olive
-pip install olive-ai
+pip install olive-ai==0.11.0
 
 # Install ONNX Runtime QNN
 pip install -r https://raw.githubusercontent.com/microsoft/onnxruntime/refs/heads/main/requirements.txt
@@ -46,10 +45,8 @@ This command will return the path to the Python executable. Set the parent direc
 ### Run the Quantization + Compilation Config
 Activate the **Quantization Python Environment** and run the workflow:
 
-### Change the soc_model param in config.json file corressponding to the target platform
-
 ```bash
-olive run --config config.json
+olive run --config x2_elite_config.json
 ```
 
 Olive will run the AOT compilation step in the **AOT Compilation Python Environment** specified in the config file using a subprocess. All other steps will run in the **Quantization Python Environment** natively.

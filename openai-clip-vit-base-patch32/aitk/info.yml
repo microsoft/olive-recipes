@@ -23,6 +23,9 @@ recipes:
     - file: "openai_clip_migraphx.json"
       device: gpu
       ep: MIGraphXExecutionProvider
+    - file: "openai_clip_qnn_gpu.json"
+      device: gpu
+      ep: QNNExecutionProvider
 aitk:
     modelInfo:
         id: "huggingface/openai/clip-vit-base-patch32"

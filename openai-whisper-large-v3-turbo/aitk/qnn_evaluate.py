@@ -10,6 +10,20 @@ import logging
 logger = logging.getLogger(os.path.basename(__file__))
 logging.basicConfig(level=logging.INFO)
 
+def register_execution_providers():
+    import subprocess
+    import sys
+    import onnxruntime as ort
+
+    worker_script = os.path.abspath('winml.py')
+    result = subprocess.check_output([sys.executable, worker_script], text=True)
+    paths = json.loads(result)
+    for item in paths.items():
+        try:
+            ort.register_execution_provider_library(item[0], item[1])
+        except Exception as e:
+            logger.warning(f"Failed to register execution provider {item[0]}: {e}")
+
 def main():
     parser = argparse.ArgumentParser(description="Evaluate Whisper")
     parser.add_argument(
@@ -56,6 +70,7 @@ def main():
     encoder_path = args.encoder
     decoder_path = args.decoder
 
+    register_execution_providers()
     app = HfWhisperAppWithSave(encoder_path, decoder_path, args.model_id, args.execution_provider, get_device_type(args.device_str))
 
     encoder_latencies = []
