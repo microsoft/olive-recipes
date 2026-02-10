@@ -1,6 +1,0 @@
-arch: qwen3
-recipes:
-  - name: Qwen-Qwen3-0.6B_webgpu_fp16
-    file: Qwen-Qwen3-0.6B_webgpu_fp16.json
-    devices: gpu
-    eps: WebGpuExecutionProvider
