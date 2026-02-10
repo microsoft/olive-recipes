@@ -98,7 +98,7 @@ def main():
                     "--optimize",
                     "--only_conversion"],
                    check=True)
-    
+
     # # run evaluation.py to generate data
     subprocess.run([sys.executable, "evaluation.py",
                     "--script_dir", history_folder,
@@ -111,7 +111,7 @@ def main():
                     "--num_data", str(num_data),
                     "--guidance_scale", "7.5"],
                    check=True)
-    
+
     # run stable_diffusion.py to generate onnx quantized model
     subprocess.run([sys.executable, "stable_diffusion.py",
                     "--script_dir", history_folder,
