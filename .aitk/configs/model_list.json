@@ -680,6 +680,40 @@
             "extension": true
         }
     ],
+    "hf_templates": [
+        {
+            "displayName": "Hugging Face Model Template",
+            "description": "Input Hugging face id to download project, generate code by copilot then use it.",
+            "icon": "HuggingFace",
+            "modelLink": "https://huggingface.co/",
+            "id": "huggingface/hf-template",
+            "runtimes": [
+                "CPU"
+            ],
+            "architecture": "Others",
+            "status": "Hide",
+            "relativePath": ".aitk/non_model_projects/templates/hf-template",
+            "version": 1,
+            "template": true
+        }
+    ],
+    "local_templates": [
+        {
+            "displayName": "Local ONNX Model Template",
+            "description": "Browse to select a local ONNX model path, then create project and use it.",
+            "icon": "onnx",
+            "modelLink": "",
+            "id": "local/local-template",
+            "runtimes": [
+                "CPU"
+            ],
+            "architecture": "Others",
+            "status": "Hide",
+            "relativePath": ".aitk/non_model_projects/templates/local-template",
+            "version": 1,
+            "template": true
+        }
+    ],
     "HFDatasets": {
         "imagenet-1k": "https://huggingface.co/datasets/ILSVRC/imagenet-1k",
         "wikitext": "https://huggingface.co/datasets/Salesforce/wikitext",
