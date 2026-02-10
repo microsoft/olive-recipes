@@ -3,6 +3,6 @@ __pycache__
 /history/*/*
 !/history/*/history.config
 !/history/*/olive_config.json
-/footprints/
+/footprints
 /result_*.png
-/quantize_data*/
+/*data*/

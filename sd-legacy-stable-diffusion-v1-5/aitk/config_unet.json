@@ -1,7 +1,7 @@
 {
     "input_model": {
         "type": "PyTorchModel",
-        "model_path": "sd-legacy/stable-diffusion-v1-5",
+        "model_path": "stable-diffusion-v1-5/stable-diffusion-v1-5",
         "model_loader": "unet_load",
         "model_script": "user_script.py",
         "io_config": {

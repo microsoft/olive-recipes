@@ -12,7 +12,8 @@ import onnxruntime as ort
 import sd_utils
 import sd_utils.config
 import torch
-from diffusers import OnnxStableDiffusionPipeline
+
+from diffusers.pipelines.stable_diffusion.pipeline_onnx_stable_diffusion import OnnxStableDiffusionPipeline
 from diffusers.pipelines.onnx_utils import ORT_TO_NP_TYPE
 from diffusers.pipelines.stable_diffusion import StableDiffusionPipelineOutput
 
@@ -253,7 +254,31 @@ class OnnxStableDiffusionPipelineWithSave(OnnxStableDiffusionPipeline):
         return StableDiffusionPipelineOutput(images=image, nsfw_content_detected=has_nsfw_concept)
 
 
+def add_ep_for_device(session_options, ep_name, device_type, ep_options=None):
+    ep_devices = ort.get_ep_devices()
+    for ep_device in ep_devices:
+        if ep_device.ep_name == ep_name and ep_device.device.type == device_type:
+            print(f"Adding {ep_name} for {device_type}")
+            session_options.add_provider_for_devices([ep_device], {} if ep_options is None else ep_options)
+            break
+
+def register_execution_providers():
+    import json
+    import subprocess
+    import sys
+    import onnxruntime as ort
+
+    worker_script = os.path.abspath('winml.py')
+    result = subprocess.check_output([sys.executable, worker_script], text=True)
+    paths = json.loads(result)
+    for item in paths.items():
+        try:
+            ort.register_execution_provider_library(item[0], item[1])
+        except Exception as e:
+            print(f"Failed to register execution provider {item[0]}: {e}")
+
 def get_qdq_pipeline(model_dir, common_args, qdq_args, script_dir):
+    register_execution_providers()
     ort.set_default_logger_severity(3)
 
     print("Loading models into ORT session...")
@@ -269,12 +294,7 @@ def get_qdq_pipeline(model_dir, common_args, qdq_args, script_dir):
     }
     assert provider in provider_map, f"Unsupported provider: {provider}"
 
-    if provider == "qnn":
-        provider_options[0]["backend_path"] = "QnnHtp.dll"
-        provider_options[0]["htp_performance_mode"] = "sustained_high_performance"
-        provider_options[0]["htp_graph_finalization_optimization_mode"] = "3"
-        provider_options[0]["offload_graph_io_quantization"] = "0"
-        provider_options[0]["enable_htp_fp16_precision"] = "1"
+    add_ep_for_device(sess_options, provider_map[provider], ort.OrtHardwareDeviceType.NPU)
 
     pipeline = OnnxStableDiffusionPipelineWithSave.from_pretrained(
         model_dir, provider=provider_map[provider], sess_options=sess_options, provider_options=provider_options
