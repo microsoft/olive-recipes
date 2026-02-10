@@ -678,9 +678,7 @@
             "relativePath": ".aitk/non_model_projects/extensions/llm_evaluator",
             "version": 1,
             "extension": true
-        }
-    ],
-    "hf_templates": [
+        },
         {
             "displayName": "Hugging Face Model Template",
             "description": "Input Hugging face id to download project, generate code by copilot then use it.",
@@ -695,9 +693,7 @@
             "relativePath": ".aitk/non_model_projects/templates/hf-template",
             "version": 1,
             "template": true
-        }
-    ],
-    "local_templates": [
+        },
         {
             "displayName": "Local ONNX Model Template",
             "description": "Browse to select a local ONNX model path, then create project and use it.",

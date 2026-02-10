@@ -65,8 +65,6 @@ class ModelInfo(BaseModel):
 class ModelList(BaseModelClass):
     models: List[ModelInfo]
     template_models: List[ModelInfo]
-    hf_templates: Optional[List[ModelInfo]] = None
-    local_templates: Optional[List[ModelInfo]] = None
     HFDatasets: Dict[str, str]
     LoginRequiredDatasets: List[str]
     LoginRequiredModelIds: List[str]
