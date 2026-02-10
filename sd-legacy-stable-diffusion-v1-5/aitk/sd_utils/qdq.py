@@ -266,7 +266,6 @@ def register_execution_providers():
     import json
     import subprocess
     import sys
-    import onnxruntime as ort
 
     worker_script = os.path.abspath('winml.py')
     result = subprocess.check_output([sys.executable, worker_script], text=True)
