@@ -21,7 +21,6 @@ from .utils import GlobalVars, open_ex, printError, printProcess
 
 class ModelInfo(BaseModel):
     displayName: str
-    discription: Optional[str] = None
     description: Optional[str] = None
     icon: IconEnum
     modelLink: str

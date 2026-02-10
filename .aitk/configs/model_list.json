@@ -652,7 +652,7 @@
     "template_models": [
         {
             "displayName": "Model Project Template",
-            "discription": "Customize this to create your own model project",
+            "description": "Customize this to create your own model project",
             "icon": "HuggingFace",
             "modelLink": "https://huggingface.co/",
             "id": "huggingface/empty",
