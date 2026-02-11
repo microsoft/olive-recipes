@@ -4,6 +4,7 @@
 # --------------------------------------------------------------------------
 
 import os
+import time
 import shutil
 from pathlib import Path
 from typing import Optional, Union
@@ -19,10 +20,14 @@ class PatchedOnnxRuntimeModel(OnnxRuntimeModel):
     def __init__(self, model=None, **kwargs):
         self.model = model
         self.model_save_dir = kwargs.get("model_save_dir", None)
+        self.latencies = []
 
     def __call__(self, **kwargs):
         inputs = {k: np.array(v) for k, v in kwargs.items()}
-        return self.model.run(None, inputs)
+        start_time = time.perf_counter()
+        outputs = self.model.run(None, inputs)
+        self.latencies.append(time.perf_counter() - start_time)
+        return outputs
 
     @staticmethod
     def load_model(path: Union[str, Path], provider=None, sess_options=None, provider_options=None):

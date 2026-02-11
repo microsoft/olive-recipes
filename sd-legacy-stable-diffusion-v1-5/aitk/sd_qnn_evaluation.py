@@ -30,7 +30,7 @@ def parse_args(raw_args):
         type=float,
         help="Guidance scale as defined in Classifier-Free Diffusion Guidance",
     )
-    parser.add_argument("--num_inference_steps", default=50, type=int, help="Number of steps in diffusion process")
+    parser.add_argument("--num_inference_steps", default=25, type=int, help="Number of steps in diffusion process")
     parser.add_argument(
         "--seed",
         default=None,
@@ -94,28 +94,47 @@ def main(raw_args=None):
 
     register_execution_providers()
 
-    session_options = ort.SessionOptions()
+    sess_options = ort.SessionOptions()
     provider_options = [{}]
 
-    add_ep_for_device(session_options, args.execution_provider, get_device_type(args.device_str))
+    add_ep_for_device(sess_options, args.execution_provider, get_device_type(args.device_str))
 
     pipeline = OnnxStableDiffusionPipelineWithSave.from_pretrained(
-        model_dir, provider=args.execution_provider, session_options=session_options, provider_options=provider_options
+        model_dir, provider=args.execution_provider, sess_options=sess_options, provider_options=provider_options
     )
     pipeline.save_data_dir = None
 
+    text_encoder_latencies = []
+    unet_latencies = []
+    vae_decoder_latencies = []
+
     generator = None if args.seed is None else np.random.RandomState(seed=args.seed)
-    pipeline(
-        prompts,
-        num_inference_steps=args.num_inference_steps,
-        height=args.image_size,
-        width=args.image_size,
-        guidance_scale=args.guidance_scale,
-        generator=generator,
-    )
+
+    # we know that PatchedOnnxRuntimeModel records latencies for each call
+    for _ in range(10):
+        pipeline.text_encoder.latencies = []
+        pipeline.unet.latencies = []
+        pipeline.vae_decoder.latencies = []
+        pipeline(
+            prompts,
+            num_inference_steps=args.num_inference_steps,
+            height=args.image_size,
+            width=args.image_size,
+            guidance_scale=args.guidance_scale,
+            generator=generator,
+        )
+        text_encoder_latencies.extend(pipeline.text_encoder.latencies)
+        unet_latencies.extend(pipeline.unet.latencies)
+        vae_decoder_latencies.extend(pipeline.vae_decoder.latencies)
+
+    text_encoder_latency_avg = round(sum(text_encoder_latencies) / len(text_encoder_latencies) * 1000, 5)
+    unet_latency_avg = round(sum(unet_latencies) / len(unet_latencies) * 1000, 5)
+    vae_decoder_latency_avg = round(sum(vae_decoder_latencies) / len(vae_decoder_latencies) * 1000, 5)
 
     metrics = {
-        "latency-avg": 666.667
+        "text-encoder-latency-avg": text_encoder_latency_avg,
+        "unet-latency-avg": unet_latency_avg,
+        "vae-decoder-latency-avg": vae_decoder_latency_avg
     }
     resultStr = json.dumps(metrics, indent=4)
     with open(args.output_file, 'w') as file:
