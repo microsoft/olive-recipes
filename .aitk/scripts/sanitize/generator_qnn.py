@@ -1,10 +1,20 @@
 from pathlib import Path
+import json
 
+from .constants import OlivePassNames, OlivePropertyNames, PhaseTypeEnum
 from .generator_amd import generate_quantization_config
 from .generator_common import create_model_parameter, set_optimization_path
 from .model_info import ModelList
 from .model_parameter import ModelParameter
-from .utils import isLLM_by_id
+from .utils import isLLM_by_id, open_ex
+
+
+def setup_features(content: dict, parameter: ModelParameter):
+    for k, v in content[OlivePropertyNames.Passes].items():
+        if v[OlivePropertyNames.Type].lower() == OlivePassNames.OnnxStaticQuantization:
+            if parameter.executeRuntimeFeatures is None:
+                parameter.executeRuntimeFeatures = []
+            parameter.executeRuntimeFeatures.append("AutoGptq")
 
 
 def generator_qnn(id: str, recipe, folder: Path, modelList: ModelList):
@@ -30,9 +40,13 @@ def generator_qnn(id: str, recipe, folder: Path, modelList: ModelList):
     if "npu" in runtime_values:
         parameter.isQNNLLM = True
 
-    quantize = generate_quantization_config(configFile, modelList, parameter)
+    with open_ex(configFile, "r") as f:
+        content = json.load(f)
+    quantize = generate_quantization_config(content, modelList, parameter)
     if quantize:
         parameter.sections.append(quantize)
+
+    setup_features(content, parameter)
 
     parameter.writeIfChanged()
     print(f"\tGenerated QNN configuration for {file}")

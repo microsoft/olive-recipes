@@ -107,6 +107,7 @@ class OliveDeviceTypes(Enum):
 # Should sort by value
 class OlivePassNames:
     AitkPython = "aitkpython"
+    GptqQuantizer = "gptqquantizer"
     ModelBuilder = "modelbuilder"
     NVModelOptQuantization = "nvmodeloptquantization"
     OnnxFloatToFloat16 = "onnxfloattofloat16"

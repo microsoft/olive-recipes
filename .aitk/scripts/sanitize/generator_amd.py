@@ -11,13 +11,16 @@ from .utils import isLLM_by_id, open_ex
 
 
 def generate_quantization_config(
-    configFile: Path, modelList: ModelList, parameter: ModelParameter
+    configFile: Path | dict, modelList: ModelList, parameter: ModelParameter
 ) -> Optional[Section]:
     """
     Generates a quantization configuration section for the given file.
     """
-    with open_ex(configFile, "r") as f:
-        content = json.load(f)
+    if isinstance(configFile, Path):
+        with open_ex(configFile, "r") as f:
+            content = json.load(f)
+    else:
+        content = configFile
     parameters = []
     data_configs = content.get(OlivePropertyNames.DataConfigs, [])
     for k, v in content[OlivePropertyNames.Passes].items():
