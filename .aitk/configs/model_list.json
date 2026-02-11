@@ -647,6 +647,19 @@
             "status": "Ready",
             "relativePath": "Qwen-Qwen2.5-Coder-14B-Instruct/aitk",
             "version": 3
+        },
+        {
+            "displayName": "stable-diffusion-v1-5/stable-diffusion-v1-5",
+            "icon": "HuggingFace",
+            "modelLink": "https://huggingface.co/stable-diffusion-v1-5/stable-diffusion-v1-5",
+            "id": "huggingface/stable-diffusion-v1-5/stable-diffusion-v1-5",
+            "runtimes": [
+                "QNN"
+            ],
+            "architecture": "Transformer",
+            "status": "Hide",
+            "relativePath": "sd-legacy-stable-diffusion-v1-5/aitk",
+            "version": 1
         }
     ],
     "template_models": [
@@ -692,6 +705,7 @@
         "google-research-datasets/conceptual_captions": "https://huggingface.co/datasets/google-research-datasets/conceptual_captions",
         "AIMClab-RUC/COCO-CN": "https://huggingface.co/datasets/AIMClab-RUC/COCO-CN",
         "librispeech_asr": "https://huggingface.co/datasets/openslr/librispeech_asr",
+        "phiyodr/coco2017": "https://huggingface.co/datasets/phiyodr/coco2017",
         "pileval_for_awq_benchmark": "https://huggingface.co/datasets/mit-han-lab/pile-val-backup"
     },
     "LoginRequiredDatasets": [

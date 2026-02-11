@@ -9,7 +9,8 @@ import sys
 from pathlib import Path
 
 import onnxruntime as ort
-from diffusers import OnnxRuntimeModel, OnnxStableDiffusionPipeline
+
+from diffusers.pipelines.stable_diffusion.pipeline_onnx_stable_diffusion import OnnxStableDiffusionPipeline
 from olive.model import ONNXModelHandler
 from onnxruntime import __version__ as OrtVersion
 from packaging import version
@@ -52,8 +53,8 @@ def validate_ort_version(provider: str):
         )
 
 
-def save_optimized_onnx_submodel(submodel_name, provider, model_info):
-    footprints_file_path = Path(__file__).resolve().parents[1] / "footprints" / submodel_name / "footprint.json"
+def save_optimized_onnx_submodel(script_dir, submodel_name, provider, model_info):
+    footprints_file_path = Path(script_dir).resolve() / "footprints" / submodel_name / "footprint.json"
     with footprints_file_path.open("r") as footprint_file:
         footprints = json.load(footprint_file)
 
@@ -99,17 +100,19 @@ def save_onnx_pipeline(
     # This is optional, and the optimized models can be used directly in a custom pipeline if desired.
     print("\nCreating ONNX pipeline...")
 
+    from sd_utils.onnx_patch import PatchedOnnxRuntimeModel
+
     if has_safety_checker:
-        safety_checker = OnnxRuntimeModel.from_pretrained(model_info["safety_checker"]["unoptimized"]["path"].parent)
+        safety_checker = PatchedOnnxRuntimeModel.from_pretrained(model_info["safety_checker"]["unoptimized"]["path"].parent)
     else:
         safety_checker = None
 
     onnx_pipeline = OnnxStableDiffusionPipeline(
-        vae_encoder=OnnxRuntimeModel.from_pretrained(model_info["vae_encoder"]["unoptimized"]["path"].parent),
-        vae_decoder=OnnxRuntimeModel.from_pretrained(model_info["vae_decoder"]["unoptimized"]["path"].parent),
-        text_encoder=OnnxRuntimeModel.from_pretrained(model_info["text_encoder"]["unoptimized"]["path"].parent),
+        vae_encoder=PatchedOnnxRuntimeModel.from_pretrained(model_info["vae_encoder"]["unoptimized"]["path"].parent),
+        vae_decoder=PatchedOnnxRuntimeModel.from_pretrained(model_info["vae_decoder"]["unoptimized"]["path"].parent),
+        text_encoder=PatchedOnnxRuntimeModel.from_pretrained(model_info["text_encoder"]["unoptimized"]["path"].parent),
         tokenizer=pipeline.tokenizer,
-        unet=OnnxRuntimeModel.from_pretrained(model_info["unet"]["unoptimized"]["path"].parent),
+        unet=PatchedOnnxRuntimeModel.from_pretrained(model_info["unet"]["unoptimized"]["path"].parent, provider_options=[]),
         scheduler=pipeline.scheduler,
         safety_checker=safety_checker,
         feature_extractor=pipeline.feature_extractor,
