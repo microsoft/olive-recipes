@@ -113,7 +113,7 @@ def generate_quantization_config(
                             )
 
                         pre_process_data_config = data_configs[i].get(OlivePropertyNames.PreProcessDataConfig)
-                        
+
                         max_seq_len = pre_process_data_config.get(OlivePropertyNames.MaxSeqLen)
                         if max_seq_len:
                             parameters.append(
@@ -125,7 +125,7 @@ def generate_quantization_config(
                                     ),
                                 )
                             )
-                        
+
                         max_samples = pre_process_data_config.get(OlivePropertyNames.MaxSamples)
                         if max_samples:
                             parameters.append(
