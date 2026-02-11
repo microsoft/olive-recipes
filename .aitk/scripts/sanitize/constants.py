@@ -146,6 +146,7 @@ class OlivePropertyNames:
     Host = "host"
     LoadDatasetConfig = "load_dataset_config"
     MaxSamples = "max_samples"
+    MaxSeqLen = "max_seq_len"
     Metrics = "metrics"
     Name = "name"
     NumCalibData = "num_calib_data"

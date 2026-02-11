@@ -45,7 +45,7 @@
                 "strategy": "line-by-line",
                 "add_special_tokens": true,
                 "max_samples": 256,
-                "max_seq_len": 4096
+                "max_seq_len": 1024
             }
         }
     ],
