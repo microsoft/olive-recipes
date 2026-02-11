@@ -53,17 +53,33 @@
         "q": {
             "type": "QuaRot"
         },
-        "g": {
-            "type": "GptqQuantizer",
-            "sym": true,
-            "group_size": -1,
-            "desc_act": true,
-            "data_config": "wikitext2_train_joined"
-        },
         "cs": {
             "type": "CaptureSplitInfo",
             "num_splits": 4,
             "unique_embeds_lm_head_splits": true
+        },
+        "g": {
+            "type": "GptqModel",
+            "bits": 4,
+            "sym": true,
+            "group_size": -1,
+            "lm_head": true,
+            "device": "cuda",
+            "data_config": "wikitext2_train_joined",
+            "dynamic": {
+                "+:.*layers\\.[0-9](?!\\d).*v_proj.*": {
+                    "bits": 8,
+                    "sym": true,
+                    "group_size": -1,
+                    "desc_act": true
+                },
+                "+:.*lm_head.*": {
+                    "bits": 8,
+                    "sym": true,
+                    "group_size": 32,
+                    "desc_act": false
+                }
+            }
         },
         "mb": {
             "type": "ModelBuilder",
@@ -71,7 +87,6 @@
             "int4_block_size": 32,
             "int4_accuracy_level": 4,
             "int4_op_types_to_quantize": [
-                "MatMul",
                 "Gather"
             ]
         },
@@ -80,7 +95,7 @@
             "use_int4": true,
             "add_zero_point": true,
             "nodes_to_exclude": [
-                "/lm_head/MatMul_Q4"
+                "/lm_head/MatMulNBits"
             ],
             "save_as_external_data": true
         },
@@ -94,8 +109,21 @@
                     "surgeon": "AttentionMaskToSequenceLengths"
                 },
                 {
+                    "surgeon": "RemoveGidxFromMatMulNBits"
+                },
+                {
                     "surgeon": "SimplifiedLayerNormToL2Norm"
                 }
+            ],
+            "save_as_external_data": true
+        },
+        "f16": {
+            "type": "OnnxFloatToFloat16",
+            "op_include_list": [
+                "GroupQueryAttention"
+            ],
+            "keep_io_types": [
+                "logits"
             ],
             "save_as_external_data": true
         },
@@ -130,7 +158,7 @@
                 "htp_graph_finalization_optimization_mode": "3",
                 "soc_model": "60"
             },
-            "weight_sharing": true
+            "weight_sharing": false
         },
         "cp": {
             "type": "ComposeOnnxModels"

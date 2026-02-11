@@ -10,11 +10,17 @@ from .utils import isLLM_by_id, open_ex
 
 
 def setup_features(content: dict, parameter: ModelParameter):
+    def add(feature: str):
+        if parameter.executeRuntimeFeatures is None:
+            parameter.executeRuntimeFeatures = []
+        if feature not in parameter.executeRuntimeFeatures:
+            parameter.executeRuntimeFeatures.append(feature)
+
     for k, v in content[OlivePropertyNames.Passes].items():
-        if v[OlivePropertyNames.Type].lower() == OlivePassNames.OnnxStaticQuantization:
-            if parameter.executeRuntimeFeatures is None:
-                parameter.executeRuntimeFeatures = []
-            parameter.executeRuntimeFeatures.append("AutoGptq")
+        if v[OlivePropertyNames.Type].lower() == OlivePassNames.GptqQuantizer:
+            add("AutoGptq")
+        elif v[OlivePropertyNames.Type].lower() == OlivePassNames.GptqModel:
+            add("GptqModel")
 
 
 def generator_qnn(id: str, recipe, folder: Path, modelList: ModelList):
