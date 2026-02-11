@@ -652,7 +652,7 @@
     "template_models": [
         {
             "displayName": "Model Project Template",
-            "discription": "Customize this to create your own model project",
+            "description": "Customize this to create your own model project",
             "icon": "HuggingFace",
             "modelLink": "https://huggingface.co/",
             "id": "huggingface/empty",
@@ -678,6 +678,36 @@
             "relativePath": ".aitk/non_model_projects/extensions/llm_evaluator",
             "version": 1,
             "extension": true
+        },
+        {
+            "displayName": "Hugging Face Model Template",
+            "description": "Input Hugging face id to download project, generate code by copilot then use it.",
+            "icon": "HuggingFace",
+            "modelLink": "https://huggingface.co/",
+            "id": "huggingface/hf-template",
+            "runtimes": [
+                "CPU"
+            ],
+            "architecture": "Others",
+            "status": "Hide",
+            "relativePath": ".aitk/non_model_projects/templates/hf-template",
+            "version": 1,
+            "template": true
+        },
+        {
+            "displayName": "Local ONNX Model Template",
+            "description": "Browse to select a local ONNX model path, then create project and use it.",
+            "icon": "onnx",
+            "modelLink": "",
+            "id": "local/local-template",
+            "runtimes": [
+                "CPU"
+            ],
+            "architecture": "Others",
+            "status": "Hide",
+            "relativePath": ".aitk/non_model_projects/templates/local-template",
+            "version": 1,
+            "template": true
         }
     ],
     "HFDatasets": {
