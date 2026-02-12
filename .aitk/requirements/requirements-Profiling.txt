@@ -5,6 +5,7 @@ mpmath==1.3.0
 numpy==2.2.4
 # onnx==1.17.0
 onnx==1.17.0
+onnxruntime-genai-winml==0.11.2
 # uvpip:uninstall onnxruntime-winml;pre
 # We also need to uninstall in case user tries new version, uses previous version and then updates again
 # because uninstalling winml will remove onnxruntime folder but we will not install windowsml to add it back

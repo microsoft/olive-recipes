@@ -76,7 +76,7 @@ optimum[openvino]==1.26.1
 optuna==4.2.1
 packaging==24.2
 pandas==2.2.3
-pillow==11.2.1
+pillow==12.1.1
 propcache==0.3.2
 protobuf==5.29.6
 psutil==7.0.0
