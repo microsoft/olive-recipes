@@ -37,8 +37,6 @@ recipes:
       ep: QNNExecutionProvider
       aitk:
         oliveFile: "QNN/config_gpu.json"
-        requirementsPatches:
-          - AutoGptq
         isGPURequired: true
         runtimeOverwrite:
           executeEp: NvTensorRTRTXExecutionProvider
