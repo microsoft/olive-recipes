@@ -1,5 +1,5 @@
 # follow https://github.com/CodeLinaro/GPTQModel/blob/rel_4.2.5/requirements.txt except for torch
-# uvpip:install git+https://github.com/CodeLinaro/GPTQModel.git@rel_4.2.5 --no-build-isolation;post;{"BUILD_CUDA_EXT":"0"}
+# uvpip:install git+https://github.com/CodeLinaro/GPTQModel.git@64231a266cc70c5597fe97f26e7ec5ccda660c37 --no-build-isolation;post;{"BUILD_CUDA_EXT":"0"}
 # download:fast_hadamard_transform-1.0.4.post1-cp312-cp312-win_amd64.whl
 ./fast_hadamard_transform-1.0.4.post1-cp312-cp312-win_amd64.whl
 accelerate==1.10.1
