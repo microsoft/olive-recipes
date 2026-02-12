@@ -2,14 +2,17 @@
 
 This repository demonstrates the optimization of the [Microsoft Phi-3.5 Mini Instruct](https://huggingface.co/microsoft/Phi-3.5-mini-instruct) model using **post-training quantization (PTQ)** techniques. The optimization process is divided into these workflows:
 
-- QDQ for AMD NPU
+- Quark Quantization for AMD NPU
 - PTQ + AOT for QNN NPU
    + This process extends the QDQ flow and compiling specifically for **Qualcomm NPUs**
+- int4 Quantization for QNN GPU
 - OpenVINO for Intel® CPU/GPU/NPU
    + This process uses OpenVINO specific passes like `OpenVINOOptimumConversion`, `OpenVINOIoUpdate` and `OpenVINOEncapsulation`
 - Float downcasting for NVIDIA TRT for RTX GPU
 - DML for general GPU
-   + This process uses AutoAWQ and ModelBuilder
+   + This process uses ModelBuilder
+
+**For some python packages, users need to install visual studio 2022 or visual studio 2022 build tools with c++ development tools modules.**
 
 ## **QDQ Model with 4-bit Weights & 16-bit Activations**
 
