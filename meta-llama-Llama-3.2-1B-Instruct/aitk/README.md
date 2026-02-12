@@ -5,7 +5,7 @@ This repository demonstrates the optimization of the [Llama-3.2-1B-Instruct](htt
 - Quark Quantization for AMD NPU
 - PTQ + AOT for QNN NPU
    + This process extends the QDQ flow and compiling specifically for **Qualcomm NPUs**
-- int4 Quantization for QNN GPU
+- Int4 Quantization for QNN GPU
 - OpenVINO for Intel® CPU/GPU/NPU
    + This process uses OpenVINO specific passes like `OpenVINOOptimumConversion`, `OpenVINOIoUpdate` and `OpenVINOEncapsulation`
 - Float downcasting for NVIDIA TRT for RTX GPU

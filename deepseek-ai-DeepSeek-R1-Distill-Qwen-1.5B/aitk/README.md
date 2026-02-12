@@ -5,7 +5,7 @@ This repository demonstrates the optimization of the [DeepSeek-R1-Distill-Qwen-1
 - Quark Quantization for AMD NPU
 - PTQ + AOT for QNN NPU
    + This process extends the QDQ flow and compiling specifically for **Qualcomm NPUs**
-- int4 Quantization for QNN GPU
+- Int4 Quantization for QNN GPU
 - OpenVINO for Intel® CPU/GPU/NPU
    + This process uses OpenVINO specific passes like `OpenVINOOptimumConversion`, `OpenVINOIoUpdate` and `OpenVINOEncapsulation`
 - Float downcasting for NVIDIA TRT for RTX GPU
