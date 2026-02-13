@@ -1,0 +1,4 @@
+# This file will be installed together with AITK runtime requirements
+# For the full requirements, see AITK
+transformers>=4.56.2
+optimum-intel @ git+https://github.com/skuros/optimum-intel@skuros/enable-ov-sam2
