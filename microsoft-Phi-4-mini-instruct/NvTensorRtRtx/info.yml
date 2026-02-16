@@ -1,0 +1,6 @@
+arch: phi3
+recipes:
+  - name: microsoft-Phi-4-mini-instruct_nvmo_ptq_mixed_precision_awq_lite
+    file: microsoft-Phi-4-mini-instruct_nvmo_ptq_mixed_precision_awq_lite.json
+    devices: gpu
+    eps: NvTensorRTRTXExecutionProvider
