@@ -44,26 +44,34 @@
             "pre_process_data_config": {
                 "strategy": "line-by-line",
                 "add_special_tokens": true,
-                "max_samples": 128,
-                "max_seq_len": 512
+                "max_samples": 256,
+                "max_seq_len": 1024
             }
         }
     ],
     "passes": {
-        "q": {
-            "type": "QuaRot"
-        },
-        "g": {
-            "type": "GptqQuantizer",
-            "sym": true,
-            "group_size": -1,
-            "desc_act": true,
-            "data_config": "wikitext2_train_joined"
-        },
         "cs": {
             "type": "CaptureSplitInfo",
-            "num_splits": 4,
+            "num_splits": 1,
             "unique_embeds_lm_head_splits": true
+        },
+        "g": {
+            "type": "GptqModel",
+            "bits": 4,
+            "sym": true,
+            "group_size": -1,
+            "lm_head": true,
+            "rotation": "hadamard",
+            "device": "cuda",
+            "data_config": "wikitext2_train_joined",
+            "dynamic": {
+                "+:.*lm_head*": {
+                    "bits": 8,
+                    "sym": true,
+                    "group_size": 32,
+                    "desc_act": false
+                }
+            }
         },
         "mb": {
             "type": "ModelBuilder",
@@ -71,7 +79,6 @@
             "int4_block_size": 32,
             "int4_accuracy_level": 4,
             "int4_op_types_to_quantize": [
-                "MatMul",
                 "Gather"
             ]
         },
@@ -80,7 +87,7 @@
             "use_int4": true,
             "add_zero_point": true,
             "nodes_to_exclude": [
-                "/lm_head/MatMul_Q4"
+                "/lm_head/MatMulNBits"
             ],
             "save_as_external_data": true
         },
@@ -92,6 +99,9 @@
                 },
                 {
                     "surgeon": "AttentionMaskToSequenceLengths"
+                },
+                {
+                    "surgeon": "RemoveGidxFromMatMulNBits"
                 },
                 {
                     "surgeon": "SimplifiedLayerNormToL2Norm"

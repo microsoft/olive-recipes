@@ -37,15 +37,13 @@ recipes:
       ep: QNNExecutionProvider
       aitk:
         oliveFile: "QNN/config_gpu.json"
-        requirementsPatches:
-          - AutoGptq
         isGPURequired: true
         runtimeOverwrite:
           executeEp: NvTensorRTRTXExecutionProvider
 aitk:
     modelInfo:
         id: "huggingface/Qwen/Qwen2.5-1.5B-Instruct"
-        version: 5
+        version: 6
         groupId: "huggingface/Qwen/Qwen2.5-1.5B-Instruct"
         groupItemName: "1.5B"
         p0: true

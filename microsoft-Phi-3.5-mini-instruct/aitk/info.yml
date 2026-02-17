@@ -37,13 +37,11 @@ recipes:
       ep: QNNExecutionProvider
       aitk:
         oliveFile: "QNN/config_gpu.json"
-        requirementsPatches:
-          - AutoGptq
         isGPURequired: true
         runtimeOverwrite:
           executeEp: NvTensorRTRTXExecutionProvider
 aitk:
     modelInfo:
         id: "huggingface/microsoft/Phi-3.5-mini-instruct"
-        version: 5
+        version: 6
         p0: true

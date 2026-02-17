@@ -34,15 +34,15 @@ multidict==6.6.4
 multiprocess==0.70.16
 networkx==3.4.2
 numpy==2.2.4
-# olive-ai==0.10.1
-olive-ai==0.10.1
+# olive-ai==0.11.0
+olive-ai==0.11.0
 # onnx==1.17.0
 onnx==1.17.0
 onnx-ir==0.1.10
-# onnxruntime-genai-cuda==0.7.0
-onnxruntime-genai-cuda==0.7.0
-# onnxruntime-gpu==1.21.0
-onnxruntime-gpu==1.21.0
+# onnxruntime-genai-cuda==0.11.2
+onnxruntime-genai-cuda==0.11.2
+# onnxruntime-gpu==1.24.1
+onnxruntime-gpu==1.24.1
 onnxscript==0.5.3
 # optimum==1.26.1
 optimum==1.26.1
@@ -69,11 +69,11 @@ sympy==1.13.3
 # tabulate==0.9.0
 tabulate==0.9.0
 tokenizers==0.21.4
-# torch==2.7.0+cu128
-torch==2.7.0+cu128
+# torch==2.8.0+cu128
+torch==2.8.0+cu128
 torchmetrics==1.7.1
-# torchvision==0.22.0+cu128
-torchvision==0.22.0+cu128
+# torchvision==0.23.0+cu128
+torchvision==0.23.0+cu128
 tqdm==4.67.1
 transformers==4.51.3
 typing-extensions==4.15.0
