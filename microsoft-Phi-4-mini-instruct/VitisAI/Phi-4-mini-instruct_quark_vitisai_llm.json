@@ -1,5 +1,5 @@
 {
-    "input_model": { "type": "HFModel", "model_path": "microsoft/Phi-4-mini-instruct" },
+    "input_model": { "type": "HFModel", "model_path": "microsoft/Phi-4-mini-instruct", "load_kwargs": {"trust_remote_code": false} },
     "passes": {
         "qq": {
             "type": "QuarkQuantization",
@@ -9,7 +9,8 @@
             "data_type": "bfloat16",
             "num_calib_data": 128,
             "model_export": ["hf_format"],
-            "exclude_layers": []
+            "exclude_layers": [],
+            "trust_remote_code": false
         },
         "mg": {
             "type": "VitisGenerateModelLLM",
@@ -22,3 +23,4 @@
     "cache_dir": "cache",
     "no_artifacts": true
 }
+
