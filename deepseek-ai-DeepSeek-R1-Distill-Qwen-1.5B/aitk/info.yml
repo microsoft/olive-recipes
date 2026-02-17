@@ -6,7 +6,7 @@ recipes:
       device: npu
       ep: QNNExecutionProvider
       aitk:
-        oliveFile: "../microsoft-Phi-3.5-mini-instruct/QNN/config.json"
+        oliveFile: "o:deepseek/qnn/DeepSeek_R1_Distill_Qwen_1.5B_qnn_config.json"
     - file: "deepseek_vitis_ai_config.json"
       device: npu
       ep: VitisAIExecutionProvider

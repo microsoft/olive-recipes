@@ -1,8 +1,8 @@
-datasets
-olive-ai@git+https://github.com/microsoft/Olive.git@7c5b3b8c947311ebfb3fe4efe2b733719d6ebc93
+datasets==4.2.0
+olive-ai==0.11.0
 # these are the versions the recipes were last validated with
 onnxruntime-genai-cuda==0.11.2
-onnxruntime-gpu==1.23.2
-optimum
+onnxruntime-gpu==1.24.1
+optimum==2.0.0
 # newer transformers might have incompatibility with gptq passes
 transformers==4.57.3
