@@ -52,22 +52,22 @@ natsort==8.4.0
 networkx==3.4.2
 ninja==1.11.1.4
 # nncf==2.16.0
-nncf==2.16.0
+nncf==2.19.0
 numpy==1.26.4
 # olive-ai==0.10.1
-olive-ai==0.10.1
+olive-ai==0.11.0
 # onnx==1.17.0
-onnx==1.17.0
-onnx-ir==0.1.10
+onnx==1.19.1
+onnx-ir==0.1.12
 # onnxruntime==1.21.0
-onnxruntime==1.21.0
+onnxruntime==1.23.2
 # onnxruntime-genai==0.7.0
 onnxruntime-genai==0.7.0
 onnxscript==0.5.3
 # openvino==2025.1.0
-openvino==2025.1.0
-openvino-telemetry==2025.1.0
-openvino-tokenizers==2025.1.0.0
+openvino==2025.4.1
+openvino-telemetry==2025.2.0
+openvino-tokenizers==2025.4.0.0
 optimum==1.26.1
 optimum-intel==1.24.0
 # numpy==1.26.4

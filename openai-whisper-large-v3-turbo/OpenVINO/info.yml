@@ -1,0 +1,10 @@
+arch:
+  - whisper
+recipes:
+  - file: "whisper_large_v3_turbo_default_ov_npu.json"
+    devices:
+      - npu
+    eps:
+      - OpenVINOExecutionProvider
+
+name: openai-whisper-large-v3-turbo
