@@ -413,7 +413,7 @@ def optimize(
 
         olive_run(olive_config)
 
-        footprints_file_path = Path(__file__).resolve().parent / "footprints" / submodel_name / "footprints.json"
+        footprints_file_path = Path(__file__).resolve().parent / "footprints" / submodel_name / "footprint.json"
         with footprints_file_path.open("r") as footprint_file:
             footprints = json.load(footprint_file)
 
@@ -433,8 +433,8 @@ def optimize(
             assert conversion_footprint
             assert optimizer_footprint
 
-            unoptimized_olive_model = ONNXModelHandler(**conversion_footprint["model_config"]["config"])
-            optimized_olive_model = ONNXModelHandler(**optimizer_footprint["model_config"]["config"])
+            unoptimized_olive_model = ONNXModelHandler(**conversion_footprint["model_config_data"]["config"])
+            optimized_olive_model = ONNXModelHandler(**optimizer_footprint["model_config_data"]["config"])
 
             model_info[submodel_name] = {
                 "unoptimized": {
