@@ -12,8 +12,10 @@ This folder contains Olive recipes for optimizing Qwen-Qwen3-4B targeting the CP
 
 1) Install the main branch of Olive:
    - pip install git+https://github.com/microsoft/olive.git
-2) Install the appropriate runtime package for this backend:
+2) Install the required runtime and dataset packages for this backend:
    - onnxruntime-genai (CPU build)
+   - datasets
+   - pip install -r requirements.txt
 3) Run Olive to build/optimize the model
    - olive run --config Qwen-Qwen3-4B_cpu_int4_kld_gradient.json
 
