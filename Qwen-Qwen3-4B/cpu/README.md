@@ -1,4 +1,4 @@
-# Qwen-Qwen3-4B - CPU optimization
+# Qwen-Qwen3-4B — CPU optimization
 
 This folder contains Olive recipes for optimizing Qwen-Qwen3-4B targeting the CPU EP.
 
