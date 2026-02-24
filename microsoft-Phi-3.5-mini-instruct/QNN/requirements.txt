@@ -1,5 +1,4 @@
 datasets==4.2.0
-olive-ai==0.11.0
 # these are the versions the recipes were last validated with
 onnxruntime-genai-cuda==0.11.2
 onnxruntime-gpu==1.24.1

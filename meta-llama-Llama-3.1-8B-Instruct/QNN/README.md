@@ -15,6 +15,9 @@ export BUILD_CUDA_EXT=0
 # Windows
 # set BUILD_CUDA_EXT=0
 
+# Install olive from source
+pip install --no-build-isolation git+https://github.com/microsoft/Olive.git@b9c975f5651a4446283d9183348add9dcd4ed45f
+
 # Install GptqModel from source
 pip install --no-build-isolation git+https://github.com/CodeLinaro/GPTQModel.git@rel_4.2.5
 ```
@@ -24,7 +27,7 @@ Model compilation using QNN Execution Provider requires a Python environment wit
 
 ```bash
 # Install Olive
-pip install olive-ai==0.11.0
+pip install --no-build-isolation git+https://github.com/microsoft/Olive.git@b9c975f5651a4446283d9183348add9dcd4ed45f
 
 # Install ONNX Runtime QNN
 pip install -r https://raw.githubusercontent.com/microsoft/onnxruntime/refs/heads/main/requirements.txt
