@@ -282,5 +282,4 @@ def main():
 
 
 if __name__ == "__main__":
-    raise "deprecated, need revise"
-    main()
+    raise RuntimeError("deprecated, need revise")
