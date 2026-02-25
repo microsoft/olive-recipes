@@ -233,7 +233,7 @@ class ModelParameter(BaseModelClass):
     # when we only use random data for evaluation latency
     evalNoDataConfig: Optional[bool] = None
     debugInfo: Optional[DebugInfo] = None
-    # A SHORTCUT FOR SEVERAL PARAMETERS
+    # TODO A SHORTCUT FOR PythonEnvironment + CUDA, should rename
     # This kind of config will
     # - setup runtimeOverwrite for CUDA EP and others
     #   + the previous EP is used for EPContextBinaryGeneator by PythonEnvironment
