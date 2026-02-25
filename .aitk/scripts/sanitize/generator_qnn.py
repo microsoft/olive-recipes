@@ -1,7 +1,7 @@
 from pathlib import Path
 import json
 
-from .constants import OlivePassNames, OlivePropertyNames, PhaseTypeEnum
+from .constants import OlivePassNames, OlivePropertyNames
 from .generator_amd import generate_quantization_config
 from .generator_common import create_model_parameter, set_optimization_path
 from .model_info import ModelList
