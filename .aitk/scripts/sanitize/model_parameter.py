@@ -237,8 +237,6 @@ class ModelParameter(BaseModelClass):
     # This kind of config will
     # - setup runtimeOverwrite for CUDA EP and others
     #   + the previous EP is used for EPContextBinaryGeneator by PythonEnvironment
-    # - do not support cpu evaluation
-    # - setup executeRuntimeFeatures, pyEnvRuntimeFeatures
     isQNNLLM: Optional[bool] = None
     # SET AUTOMATICALLY TO TRUE WHEN CUDAExecutionProvider
     # When true, it means some passes need CUDA so user could not run it without
@@ -300,9 +298,6 @@ class ModelParameter(BaseModelClass):
             ),
         )
 
-        if self.isQNNLLM:
-            self.addCpu = False
-
         # Add runtime
         syskey, system = get_target_system(oliveJson)
         currentEp: str = system[OlivePropertyNames.Accelerators][0][OlivePropertyNames.ExecutionProviders][0]
@@ -320,7 +315,6 @@ class ModelParameter(BaseModelClass):
                 executeEp=EPNames.CUDAExecutionProvider,
                 evaluateUsedInExecute=True,
             )
-            self.executeRuntimeFeatures = ["AutoGptq"]
 
         if self.runtimeOverwrite and not self.runtimeOverwrite.Check(oliveJson):
             printError(f"{self._file} runtime overwrite has error")

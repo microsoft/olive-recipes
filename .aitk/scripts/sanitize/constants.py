@@ -108,6 +108,8 @@ class OliveDeviceTypes(Enum):
 # Should sort by value
 class OlivePassNames:
     AitkPython = "aitkpython"
+    GptqModel = "gptqmodel"
+    GptqQuantizer = "gptqquantizer"
     ModelBuilder = "modelbuilder"
     NVModelOptQuantization = "nvmodeloptquantization"
     OnnxFloatToFloat16 = "onnxfloattofloat16"
@@ -145,6 +147,7 @@ class OlivePropertyNames:
     Host = "host"
     LoadDatasetConfig = "load_dataset_config"
     MaxSamples = "max_samples"
+    MaxSeqLen = "max_seq_len"
     Metrics = "metrics"
     Name = "name"
     NumCalibData = "num_calib_data"
