@@ -251,6 +251,7 @@
             "groupItemName": "128K",
             "runtimes": [
                 "QNN",
+                "AMDNPU",
                 "NvidiaTRTRTX",
                 "IntelGPU"
             ],
@@ -268,6 +269,7 @@
             "groupItemName": "4K",
             "runtimes": [
                 "QNN",
+                "AMDNPU",
                 "NvidiaTRTRTX",
                 "IntelGPU",
                 "IntelNPU"
@@ -298,6 +300,7 @@
             "id": "huggingface/microsoft/Phi-4-mini-instruct",
             "runtimes": [
                 "QNN",
+                "AMDNPU",
                 "IntelGPU",
                 "IntelNPU"
             ],
@@ -549,6 +552,7 @@
             "groupItemName": "7B",
             "runtimes": [
                 "QNN",
+                "AMDNPU",
                 "NvidiaTRTRTX",
                 "IntelGPU",
                 "IntelNPU"
