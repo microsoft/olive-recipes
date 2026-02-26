@@ -250,7 +250,7 @@
             "groupId": "huggingface/microsoft/Phi-3-mini-4k-instruct",
             "groupItemName": "128K",
             "runtimes": [
-                "AMDNPU",
+                "QNN",
                 "NvidiaTRTRTX",
                 "IntelGPU"
             ],
@@ -267,7 +267,7 @@
             "groupId": "huggingface/microsoft/Phi-3-mini-4k-instruct",
             "groupItemName": "4K",
             "runtimes": [
-                "AMDNPU",
+                "QNN",
                 "NvidiaTRTRTX",
                 "IntelGPU",
                 "IntelNPU"
@@ -297,7 +297,7 @@
             "modelLink": "https://huggingface.co/microsoft/Phi-4-mini-instruct",
             "id": "huggingface/microsoft/Phi-4-mini-instruct",
             "runtimes": [
-                "AMDNPU",
+                "QNN",
                 "IntelGPU",
                 "IntelNPU"
             ],
@@ -548,7 +548,7 @@
             "groupId": "huggingface/Qwen/Qwen2.5-1.5B-Instruct",
             "groupItemName": "7B",
             "runtimes": [
-                "AMDNPU",
+                "QNN",
                 "NvidiaTRTRTX",
                 "IntelGPU",
                 "IntelNPU"
