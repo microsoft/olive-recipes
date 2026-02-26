@@ -1,13 +1,20 @@
 import os
 import sys
+
+# Fix Windows cp1252 encoding crash when PyTorch prints emoji in error messages
+if sys.stdout.encoding and sys.stdout.encoding.lower() != "utf-8":
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+if sys.stderr.encoding and sys.stderr.encoding.lower() != "utf-8":
+    sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+
 import torch
 
 from transformers import Qwen2_5_VLConfig
 
 # Add parent directory to sys.path to import codes module
-_current_dir = os.path.dirname(os.path.abspath(__file__))
-if _current_dir not in sys.path:
-    sys.path.insert(0, _current_dir)
+_parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if _parent_dir not in sys.path:
+    sys.path.insert(0, _parent_dir)
 
 # Import custom model from codes directory
 from codes.modeling_qwen2_5_vl import Qwen2_5_VLModel
@@ -24,7 +31,7 @@ def get_embedding_model(model_path=None):
         model_path,
         attn_implementation="sdpa",
         trust_remote_code=True,
-        torch_dtype=torch.float16,  # Use fp16 instead of bf16 for numpy compatibility
+        torch_dtype=torch.float32,
     )
 
     model.get_fused_input_embeddings, model.forward = (
@@ -34,14 +41,15 @@ def get_embedding_model(model_path=None):
     return model
 
 def get_embedding_io_config(model_path=None):
-    dynamic_shapes = {
+    dynamic_axes = {
         "input_ids": {0: "batch_size", 1: "sequence_length"},
         "image_features": {0: "num_logical_patches"},
+        "inputs_embeds": {0: "batch_size", 1: "sequence_length"},
     }
     return {
         "input_names": ["input_ids", "image_features"],
         "output_names": ["inputs_embeds"],
-        "dynamic_shapes": dynamic_shapes,
+        "dynamic_axes": dynamic_axes,
     }
 
 
@@ -71,7 +79,7 @@ def get_embedding_dummy_inputs(model=None):
         "image_features": torch.randn(
             num_logical_patches,
             out_hidden_size,
-            dtype=torch.float16,
+            dtype=torch.float32,
         ),
     }
 
@@ -103,7 +111,7 @@ def get_vision_model(model_path=None):
         model_path,
         attn_implementation="sdpa",
         trust_remote_code=True,
-        torch_dtype=torch.float16,
+        torch_dtype=torch.float32,
     )
     model.forward, model.get_image_features = model.get_image_features, model.forward
     return model
@@ -124,3 +132,4 @@ def get_vision_dummy_inputs(model=None):
 
     # Dynamo export
     return {"pixel_values": pixel_values, "image_grid_thw": grid_thw}
+

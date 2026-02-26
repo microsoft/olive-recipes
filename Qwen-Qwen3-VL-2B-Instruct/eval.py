@@ -147,7 +147,8 @@ def run_onnx(model, processor, tokenizer, pil_image: Image.Image, messages_json:
         params = og.GeneratorParams(model)
         # max_length is total tokens (prompt + generated). Prompts are ~300+ tokens with system prompt.
         # We only need 1-2 generated tokens (a digit), so 600 is ample headroom.
-        params.set_search_options(max_length=600)
+        # Use greedy decoding (do_sample=False) for deterministic results.
+        params.set_search_options(max_length=600, do_sample=False)
 
         generator = og.Generator(model, params)
         generator.set_inputs(inputs)
@@ -281,8 +282,8 @@ def evaluate(dataset, runner_fn, label: str) -> dict:
 
 def main():
     parser = argparse.ArgumentParser(description="Eval ONNX (quantized) vs PyTorch Qwen3-VL on AI2D")
-    parser.add_argument("--model_path", default="models",
-                        help="Path to ONNX model dir (default: models/)")
+    parser.add_argument("--model_path", default="cpu_and_mobile/models",
+                        help="Path to ONNX model dir (default: cpu_and_mobile/models/)")
     parser.add_argument("--pytorch_model", default=None,
                         help="HuggingFace model ID for PyTorch comparison, e.g. Qwen/Qwen3-VL-2B-Instruct")
     parser.add_argument("--num_samples", type=int, default=100,

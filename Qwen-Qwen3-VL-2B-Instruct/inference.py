@@ -11,7 +11,7 @@ def main():
     parser.add_argument(
         "--model_path",
         type=str,
-        default="models",
+        default="cpu_and_mobile/models",
         help="Path to the model directory containing genai_config.json and ONNX models"
     )
     parser.add_argument(

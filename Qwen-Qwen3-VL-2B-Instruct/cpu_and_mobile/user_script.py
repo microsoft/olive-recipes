@@ -5,9 +5,9 @@ import torch
 from transformers import Qwen3VLConfig, Qwen3VLForConditionalGeneration
 
 # Add parent directory to sys.path to import codes module
-_current_dir = os.path.dirname(os.path.abspath(__file__))
-if _current_dir not in sys.path:
-    sys.path.insert(0, _current_dir)
+_parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if _parent_dir not in sys.path:
+    sys.path.insert(0, _parent_dir)
 
 # Import custom model from codes directory
 from codes.modeling_qwen3_vl import Qwen3VLModel

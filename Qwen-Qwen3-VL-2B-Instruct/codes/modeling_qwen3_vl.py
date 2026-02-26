@@ -364,6 +364,11 @@ class Qwen3VLVisionModel(Qwen3VLPreTrainedModel):
         for num_frames, height, width in grid_thw:
             merged_h, merged_w = height // merge_size, width // merge_size
 
+            # Declare shape constraints for torch.export
+            torch._check(merged_h.item() >= 1)
+            torch._check(merged_w.item() >= 1)
+            torch._check(num_frames.item() >= 1)
+
             block_rows = torch.arange(merged_h, device=device)
             block_cols = torch.arange(merged_w, device=device)
             intra_row = torch.arange(merge_size, device=device)
@@ -378,8 +383,8 @@ class Qwen3VLVisionModel(Qwen3VLPreTrainedModel):
 
             coords = torch.stack((row_idx, col_idx), dim=-1)
 
-            if num_frames > 1:
-                coords = coords.repeat(num_frames, 1)
+            # Always repeat — repeat(1, 1) is a no-op, avoids data-dependent guard
+            coords = coords.repeat(num_frames, 1)
 
             all_embeddings.append(freq_table[coords].flatten(1))
 
@@ -400,10 +405,16 @@ class Qwen3VLVisionModel(Qwen3VLPreTrainedModel):
 
         all_pos_embeds = []
         for t, h, w in zip(grid_ts, grid_hs, grid_ws):
+            # Declare shape constraints for torch.export
+            torch._check(t.item() >= 1)
+            torch._check(h.item() >= 2)
+            torch._check(w.item() >= 2)
+
             # Evenly-spaced sample positions in [0, n-1] for h rows and w cols.
-            # torch.linspace with a 0-dim tensor arg is supported in Dynamo.
-            h_idxs = torch.linspace(0, n - 1, h)
-            w_idxs = torch.linspace(0, n - 1, w)
+            # Use arange + scale instead of linspace: linspace with symbolic
+            # steps is not supported by torch.export, but arange is.
+            h_idxs = torch.arange(h, dtype=torch.float32, device=dev) * ((n - 1) / (h - 1))
+            w_idxs = torch.arange(w, dtype=torch.float32, device=dev) * ((n - 1) / (w - 1))
 
             h_floor = h_idxs.int()
             w_floor = w_idxs.int()

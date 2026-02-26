@@ -50,6 +50,22 @@ from transformers.models.qwen2_5_vl.configuration_qwen2_5_vl import Qwen2_5_VLCo
 logger = logging.get_logger(__name__)
 
 
+def _get_rope_parameters(config) -> dict:
+    """Build a rope_parameters-compatible dict.
+
+    Handles both the old format (config.rope_parameters dict) and the newer
+    transformers 4.57+ format (config.rope_theta + config.rope_scaling).
+    """
+    if hasattr(config, "rope_parameters"):
+        return config.rope_parameters
+    rope_scaling = getattr(config, "rope_scaling", {}) or {}
+    return {
+        "rope_type": rope_scaling.get("rope_type", "default"),
+        "rope_theta": getattr(config, "rope_theta", 1000000.0),
+        "mrope_section": rope_scaling.get("mrope_section", [16, 24, 24]),
+    }
+
+
 class Qwen2_5_VLMLP(nn.Module):
     def __init__(self, config, bias: bool = False):
         super().__init__()
@@ -235,33 +251,30 @@ class Qwen2_5_VLVisionAttention(nn.Module):
                 **kwargs,
             )
         elif torch.compiler.is_exporting():
-            # Specifically, window attention and global attention mechanism needs to be manually
-            # broke down into QKV, so GQA would not need to take cu_seqlens.
-            # NOTE: This will be replaced later with custom ONNX op for better performance.
-            #       1. LoopAttention
-            #       2. PackedMultiHeadAttention
+            # ONNX export: emit a custom PackedAttention op node directly.
+            # Olive's PackedAttentionToLoopMHA surgery will replace this in the ONNX graph.
             attn_output = torch.onnx.ops.symbolic(
-                    "custom::PackedAttention",
-                    (
-                        query_states,
-                        key_states,
-                        value_states,
-                        cu_seqlens,
-                    ),
-                    dict(
-                        scale= self.scaling,
-                        num_heads=self.num_heads,
-                    ),
-                    dtype=query_states.dtype,
-                    shape=(
-                        query_states.shape[0],  # batch_size
-                        query_states.shape[2],  # sequence_length (total patches)
-                        query_states.shape[1],  # num_heads
-                        query_states.shape[3],  # head_size
-                    ),
-                    version=1,
-                )
-            # ONNX symbolic outputs default to CPU; move to projection weight device to prevent mixed-device addmm during torch.export
+                "custom::PackedAttention",
+                (
+                    query_states,
+                    key_states,
+                    value_states,
+                    cu_seqlens,
+                ),
+                dict(
+                    scale=self.scaling,
+                    num_heads=self.num_heads,
+                ),
+                dtype=query_states.dtype,
+                shape=(
+                    query_states.shape[0],  # batch_size
+                    query_states.shape[2],  # sequence_length
+                    query_states.shape[1],  # num_heads
+                    query_states.shape[3],  # head_size
+                ),
+                version=1,
+            )
+            # ONNX symbolic outputs default to CPU; move to projection weight device
             attn_output = attn_output.to(self.proj.weight.device)
         else:
             # Other implementations: Process each chunk separately
@@ -364,78 +377,86 @@ class Qwen2_5_VisionTransformerPretrainedModel(Qwen2_5_VLPreTrainedModel):
         self.gradient_checkpointing = False
 
     def rot_pos_emb(self, grid_thw):
-        pos_ids = []
-        # TODO(titaiwang): We only feed one image at a time.
-        # t should be 1 and grid_thw length should be 1 as well.
-        for t, h, w in grid_thw:
-            hpos_ids = torch.arange(h).unsqueeze(1).expand(-1, w)
-            hpos_ids = hpos_ids.reshape(
-                h // self.spatial_merge_size,
-                self.spatial_merge_size,
-                w // self.spatial_merge_size,
-                self.spatial_merge_size,
-            )
-            hpos_ids = hpos_ids.permute(0, 2, 1, 3)
-            hpos_ids = hpos_ids.flatten()
+        # Rewritten with block-index arithmetic (ported from Qwen3-VL) to avoid
+        # the data-dependent `.expand(-1, w)` guard that breaks torch.export.
+        merge_size = self.spatial_merge_size
 
-            wpos_ids = torch.arange(w).unsqueeze(0).expand(h, -1)
-            wpos_ids = wpos_ids.reshape(
-                h // self.spatial_merge_size,
-                self.spatial_merge_size,
-                w // self.spatial_merge_size,
-                self.spatial_merge_size,
-            )
-            wpos_ids = wpos_ids.permute(0, 2, 1, 3)
-            wpos_ids = wpos_ids.flatten()
-            # TODO(titaiwang): t should be 1. repeat does nothing here.
-            # Need to validate it.
-            pos_ids.append(torch.stack([hpos_ids, wpos_ids], dim=-1).repeat(t, 1))
-        pos_ids = torch.cat(pos_ids, dim=0)
         max_grid_size = grid_thw[:, 1:].max()
-        rotary_pos_emb_full = self.rotary_pos_emb(max_grid_size)
-        rotary_pos_emb = rotary_pos_emb_full[pos_ids].flatten(1)
-        return rotary_pos_emb
+        freq_table = self.rotary_pos_emb(max_grid_size)
+        device = freq_table.device
+
+        all_embeddings = []
+        for num_frames, height, width in grid_thw:
+            merged_h, merged_w = height // merge_size, width // merge_size
+
+            # Tell torch.export that these dims are always positive
+            # to avoid Eq(4*u1*u2*u3, 0) guards in flatten/reshape.
+            # .item() converts 0-dim FakeTensor → SymInt for torch._check.
+            torch._check(merged_h.item() >= 1)
+            torch._check(merged_w.item() >= 1)
+            torch._check(num_frames.item() >= 1)
+
+            block_rows = torch.arange(merged_h, device=device)
+            block_cols = torch.arange(merged_w, device=device)
+            intra_row = torch.arange(merge_size, device=device)
+            intra_col = torch.arange(merge_size, device=device)
+
+            row_idx = (
+                block_rows[:, None, None, None] * merge_size + intra_row[None, None, :, None]
+            ).expand(merged_h, merged_w, merge_size, merge_size).reshape(-1)
+
+            col_idx = (
+                block_cols[None, :, None, None] * merge_size + intra_col[None, None, None, :]
+            ).expand(merged_h, merged_w, merge_size, merge_size).reshape(-1)
+
+            coords = torch.stack((row_idx, col_idx), dim=-1)
+
+            # Always repeat — repeat(1, 1) is a no-op, avoids data-dependent guard
+            coords = coords.repeat(num_frames, 1)
+
+            all_embeddings.append(freq_table[coords].flatten(1))
+
+        return torch.cat(all_embeddings, dim=0)
 
     def get_window_index(self, grid_thw):
-        # NOTE: These are for batched images.
-        # window_index: list = []
-        # cu_window_seqlens: list = [0]
-        # window_index_id = 0
-        vit_merger_window_size = self.window_size // self.spatial_merge_size // self.patch_size
-        grid_t = grid_thw[0, 0]  # should be 1
+        # Rewritten to avoid boolean masking (index_padded[index_padded != -100])
+        # which creates data-dependent output shapes that break torch.export.
+        # Computes the same window-order permutation and cu_seqlens directly.
+        ws = self.window_size // self.spatial_merge_size // self.patch_size
+        grid_t = grid_thw[0, 0]
         grid_h = grid_thw[0, 1]
         grid_w = grid_thw[0, 2]
+        llm_h = grid_h // self.spatial_merge_size
+        llm_w = grid_w // self.spatial_merge_size
 
-        llm_grid_h, llm_grid_w = (
-            grid_h // self.spatial_merge_size,
-            grid_w // self.spatial_merge_size,
-        )
-        # indexing total patches
-        index = torch.arange(grid_t * llm_grid_h * llm_grid_w).reshape(grid_t, llm_grid_h, llm_grid_w)
-        pad_h = vit_merger_window_size - llm_grid_h % vit_merger_window_size
-        pad_w = vit_merger_window_size - llm_grid_w % vit_merger_window_size
-        num_windows_h = (llm_grid_h + pad_h) // vit_merger_window_size
-        num_windows_w = (llm_grid_w + pad_w) // vit_merger_window_size
-        index_padded = F.pad(index, (0, pad_w, 0, pad_h), "constant", -100)
-        index_padded = index_padded.reshape(
-            grid_t,
-            num_windows_h,
-            vit_merger_window_size,
-            num_windows_w,
-            vit_merger_window_size,
-        )
-        index_padded = index_padded.permute(0, 1, 3, 2, 4).reshape(
-            grid_t,
-            num_windows_h * num_windows_w,
-            vit_merger_window_size,
-            vit_merger_window_size,
-        )
-        seqlens = (index_padded != -100).sum([2, 3]).reshape(-1)
-        index_padded = index_padded.reshape(-1)
-        final_window_index = index_padded[index_padded != -100]
-        cu_seqlens_tmp = seqlens.cumsum(0) * self.spatial_merge_unit
-        final_cu_seqlens = F.pad(cu_seqlens_tmp, (1, 0), "constant", 0)
-        return final_window_index, final_cu_seqlens.to(torch.int32)
+        # Tell torch.export that these dims are always positive
+        torch._check(grid_t.item() >= 1)
+        torch._check(llm_h.item() >= 1)
+        torch._check(llm_w.item() >= 1)
+
+        total = grid_t * llm_h * llm_w
+
+        # Compute window-order permutation without padding + boolean masking.
+        flat_idx = torch.arange(total)
+        rows = flat_idx // llm_w
+        cols = flat_idx % llm_w
+        num_win_w = (llm_w + ws - 1) // ws
+        win_ids = (rows // ws) * num_win_w + cols // ws
+        sort_key = win_ids * (ws * ws) + (rows % ws) * ws + (cols % ws)
+        window_index = torch.argsort(sort_key)
+
+        # Compute cu_window_seqlens directly (no zero-size windows, no dedup needed).
+        num_win_h = (llm_h + ws - 1) // ws
+        total_windows = grid_t * num_win_h * num_win_w
+        win_flat = torch.arange(total_windows)
+        wr = (win_flat % (num_win_h * num_win_w)) // num_win_w
+        wc = (win_flat % (num_win_h * num_win_w)) % num_win_w
+        valid_h = torch.clamp(llm_h - wr * ws, min=0, max=ws)
+        valid_w = torch.clamp(llm_w - wc * ws, min=0, max=ws)
+        win_sizes = valid_h * valid_w * self.spatial_merge_unit
+        cu_seqlens = F.pad(win_sizes.cumsum(0), (1, 0), value=0).to(torch.int32)
+
+        return window_index, cu_seqlens
 
     def forward(self, hidden_states: torch.Tensor, grid_thw: torch.Tensor, **kwargs) -> torch.Tensor:
         """
@@ -459,29 +480,31 @@ class Qwen2_5_VisionTransformerPretrainedModel(Qwen2_5_VLPreTrainedModel):
         # eg: rotary_pos_emb: [14308, 40]
         # Calculate windows for windowed attention
         window_index, cu_window_seqlens = self.get_window_index(grid_thw)
-        # NOTE: cu_window_seqlens should be tensor now
-        # cu_window_seqlens = torch.tensor(
-        #     cu_window_seqlens,
-        #     device=hidden_states.device,
-        #     dtype=grid_thw.dtype if torch.jit.is_tracing() else torch.int32,
-        # )
-        # NOTE: Rewrite torch.unique_consecutive to avoid Pytorch ONNX export issue
-        # cu_window_seqlens = torch.unique_consecutive(cu_window_seqlens)
-        first_element = cu_window_seqlens[0:1]
-        elements_current = cu_window_seqlens[1:]
-        elements_previous = cu_window_seqlens[:-1]
-        mask = elements_current != elements_previous
-        filtered_elements = elements_current[mask]
-        cu_window_seqlens = torch.cat([first_element, filtered_elements], dim=0)
+        # NOTE: The rewritten get_window_index never produces zero-size windows,
+        # so the unique_consecutive dedup is no longer needed.
 
+        # Constrain window_index size (u7) so torch.export knows it's nonzero.
+        torch._check_is_size(window_index.shape[0])
+        torch._check(window_index.shape[0] > 0)
 
-        seq_len, _ = hidden_states.size()
-        hidden_states = hidden_states.reshape(seq_len // self.spatial_merge_unit, self.spatial_merge_unit, -1)
+        seq_len, embed_dim = hidden_states.size()
+        smu = self.spatial_merge_unit
+        # Constrain seq_len: divisible by spatial_merge_unit, and nonzero.
+        torch._check(hidden_states.shape[0] > 0)
+        torch._check(seq_len % smu == 0)
+
+        hidden_states = hidden_states.reshape(seq_len // smu, smu, embed_dim)
         hidden_states = hidden_states[window_index, :, :]
-        hidden_states = hidden_states.reshape(seq_len, -1)
-        rotary_pos_emb = rotary_pos_emb.reshape(seq_len // self.spatial_merge_unit, self.spatial_merge_unit, -1)
+        # Use window_index.shape[0]*smu (not seq_len) to avoid Eq(s0, u7) guard
+        n_win = window_index.shape[0]
+        hidden_states = hidden_states.reshape(n_win * smu, embed_dim)
+
+        pos_dim = rotary_pos_emb.shape[-1]
+        rpe_len = rotary_pos_emb.shape[0]
+        torch._check(rpe_len % smu == 0)
+        rotary_pos_emb = rotary_pos_emb.reshape(rpe_len // smu, smu, pos_dim)
         rotary_pos_emb = rotary_pos_emb[window_index, :, :]
-        rotary_pos_emb = rotary_pos_emb.reshape(seq_len, -1)
+        rotary_pos_emb = rotary_pos_emb.reshape(n_win * smu, pos_dim)
         emb = torch.cat((rotary_pos_emb, rotary_pos_emb), dim=-1)
         position_embeddings = (emb.cos(), emb.sin())
 
@@ -549,7 +572,7 @@ class Qwen2_5_VLRotaryEmbedding(nn.Module):
 
         self.config = config
 
-        self.rope_type = self.config.rope_parameters["rope_type"]
+        self.rope_type = _get_rope_parameters(self.config)["rope_type"]
         rope_init_fn: Callable = self.compute_default_rope_parameters
         if self.rope_type != "default":
             rope_init_fn = ROPE_INIT_FUNCTIONS[self.rope_type]
@@ -577,7 +600,7 @@ class Qwen2_5_VLRotaryEmbedding(nn.Module):
             Tuple of (`torch.Tensor`, `float`), containing the inverse frequencies for the RoPE embeddings and the
             post-processing scaling factor applied to the computed cos/sin (unused in this type of RoPE).
         """
-        base = config.rope_parameters["rope_theta"]
+        base = _get_rope_parameters(config)["rope_theta"]
         dim = getattr(config, "head_dim", None) or config.hidden_size // config.num_attention_heads
 
         attention_factor = 1.0  # Unused in this type of RoPE
@@ -690,7 +713,7 @@ class Qwen2_5_VLAttention(nn.Module):
         self.num_key_value_groups = self.num_heads // self.num_key_value_heads
         self.is_causal = True
         self.attention_dropout = config.attention_dropout
-        self.rope_parameters = config.rope_parameters
+        self.rope_parameters = _get_rope_parameters(config)
         self.scaling = self.head_dim**-0.5
 
         if (self.head_dim * self.num_heads) != self.hidden_size:
@@ -729,7 +752,7 @@ class Qwen2_5_VLAttention(nn.Module):
 
         cos, sin = position_embeddings
         query_states, key_states = apply_multimodal_rotary_pos_emb(
-            query_states, key_states, cos, sin, self.config.rope_parameters["mrope_section"]
+            query_states, key_states, cos, sin, self.rope_parameters["mrope_section"]
         )
 
         if past_key_values is not None:
