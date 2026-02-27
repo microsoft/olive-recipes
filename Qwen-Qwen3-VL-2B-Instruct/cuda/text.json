@@ -4,7 +4,7 @@
         "model_path": "Qwen/Qwen3-VL-2B-Instruct"
     },
     "passes": {
-        "convert": { "type": "ModelBuilder", "precision": "int4", "extra_options": { "filename": "text.onnx" } }
+        "convert": { "type": "ModelBuilder", "precision": "int4", "extra_options": { "filename": "text.onnx", "hf_token": "false" } }
     },
     "engine": {
         "target": {
