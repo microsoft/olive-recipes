@@ -567,8 +567,7 @@ class Qwen3VLTextRotaryEmbedding(nn.Module):
         device: Optional[torch.device] = None,
         seq_len: int = None,
     ) -> tuple:
-        # transformers>=5.2.0 moved rope_theta into rope_scaling dict
-        base = getattr(config, "rope_theta", None) or config.rope_scaling.get("rope_theta", 10000)
+        base = config.rope_theta
         dim = getattr(config, "head_dim", None) or config.hidden_size // config.num_attention_heads
         attention_factor = 1.0
         inv_freq = 1.0 / (

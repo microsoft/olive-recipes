@@ -1,4 +1,4 @@
-"""End-to-end optimization pipeline for Qwen2.5-VL ONNX models.
+"""End-to-end optimization pipeline for Qwen3-VL ONNX models.
 
 All ONNX graph transformations (Gemm→MatMul, Cast chain elimination,
 INT4 quantization) are now handled by Olive passes declared in the JSON
@@ -6,11 +6,14 @@ configs.  This script orchestrates the three Olive runs and writes the
 GenAI runtime configuration files.
 
 Usage:
-    # Full pipeline: export + optimize + INT4 quantize
-    python optimize.py --device cpu
+    # Full pipeline: export + optimize + INT4 quantize (CPU)
+    python optimize.py --config-dir cpu_and_mobile --device cpu
+
+    # CUDA pipeline
+    python optimize.py --config-dir cuda --device gpu
 
     # Skip export (models already exist, just regenerate configs)
-    python optimize.py --device cpu --skip-export
+    python optimize.py --config-dir cpu_and_mobile --device cpu --skip-export
 """
 import argparse
 import json
@@ -27,7 +30,7 @@ MODELS_DIR = "models"
 # 1. Olive Export + Optimization + Quantization (all driven by JSON configs)
 # =============================================================================
 
-def export_models():
+def export_models(config_dir: str):
     """Run Olive for all 3 sub-models (embedding, text, vision).
 
     The JSON configs define the full pipeline: export → graph surgeries
@@ -36,10 +39,11 @@ def export_models():
     """
     from olive import run
 
-    print("=== Running Olive pipelines ===")
+    config_path = Path(config_dir)
+    print(f"=== Running Olive pipelines (configs from {config_path}) ===")
     for config in ("embedding.json", "text.json", "vision.json"):
         print(f"  Running {config}...")
-        run(config)
+        run(str(config_path / config))
     print()
 
 
@@ -72,13 +76,13 @@ def update_genai_config(output_dir: str = MODELS_DIR, device: str = "gpu"):
         "session_options": session_options,
     }
 
-    # Vision configuration (Qwen2.5-VL: patch_size=14)
+    # Vision configuration
     config["model"]["vision"] = {
         "filename": "vision.onnx",
         "config_filename": "processor_config.json",
         "spatial_merge_size": 2,
         "tokens_per_second": 2.0,
-        "patch_size": 14,
+        "patch_size": 16,
         "inputs": {"pixel_values": "pixel_values", "image_grid_thw": "image_grid_thw"},
         "outputs": {"image_features": "image_features"},
         "session_options": session_options,
@@ -98,27 +102,25 @@ def update_genai_config(output_dir: str = MODELS_DIR, device: str = "gpu"):
         json.dump(config, f, indent=4)
     print(f"  Updated {config_path}")
 
-    # Create processor_config.json (Qwen2.5-VL: patch_size=14, CLIP normalization)
+    # Create processor_config.json (Qwen3-VL uses patch_size=16)
     processor_config = {
         "processor": {
-            "name": "qwen2_5_image_processor",
+            "name": "qwen3_vl_image_processor",
             "transforms": [
                 {"operation": {"name": "decode_image", "type": "DecodeImage", "attrs": {"color_space": "RGB"}}},
                 {"operation": {"name": "convert_to_rgb", "type": "ConvertRGB"}},
                 {"operation": {"name": "resize", "type": "Resize", "attrs": {
                     "width": 540, "height": 360, "smart_resize": 1,
-                    "min_pixels": 3136, "max_pixels": 12845056, "patch_size": 14, "merge_size": 2,
+                    "min_pixels": 3136, "max_pixels": 12845056, "patch_size": 16, "merge_size": 2,
                 }}},
                 {"operation": {"name": "rescale", "type": "Rescale", "attrs": {
                     "rescale_factor": 0.00392156862745098,
                 }}},
                 {"operation": {"name": "normalize", "type": "Normalize", "attrs": {
-                    "mean": [0.48145466, 0.4578275, 0.40821073],
-                    "std": [0.26862954, 0.26130258, 0.27577711],
-                    "qwen2_5_vl": 1,
+                    "mean": [0.5, 0.5, 0.5], "std": [0.5, 0.5, 0.5], "qwen3_vl": 1,
                 }}},
                 {"operation": {"name": "patch_image", "type": "PatchImage", "attrs": {
-                    "patch_size": 14, "temporal_patch_size": 2, "merge_size": 2,
+                    "patch_size": 16, "temporal_patch_size": 2, "merge_size": 2,
                 }}},
             ],
         }
@@ -135,22 +137,26 @@ def update_genai_config(output_dir: str = MODELS_DIR, device: str = "gpu"):
 # =============================================================================
 
 def main():
-    parser = argparse.ArgumentParser(description="Optimize Qwen2.5-VL ONNX models")
+    parser = argparse.ArgumentParser(description="Optimize Qwen3-VL ONNX models")
     parser.add_argument("--device", choices=["gpu", "cpu"], default="cpu",
                         help="Target device (default: cpu)")
+    parser.add_argument("--config-dir", default="cpu_and_mobile",
+                        help="Directory containing Olive JSON configs (default: cpu_and_mobile)")
     parser.add_argument("--skip-export", action="store_true",
                         help="Skip Olive export (models already exist)")
-    parser.add_argument("--models-dir", default=MODELS_DIR,
-                        help="Models directory (default: models)")
+    parser.add_argument("--models-dir", default=None,
+                        help="Models directory (default: <config-dir>/models)")
     args = parser.parse_args()
+
+    models_dir = args.models_dir or str(Path(args.config_dir) / MODELS_DIR)
 
     # Step 1: Export + optimize + quantize (all in Olive JSON pipelines)
     if not args.skip_export:
-        export_models()
+        export_models(args.config_dir)
 
     # Step 2: Generate GenAI runtime configs
     print("=== Generating configs ===")
-    update_genai_config(output_dir=args.models_dir, device=args.device)
+    update_genai_config(output_dir=models_dir, device=args.device)
     print()
 
     print("Done.")

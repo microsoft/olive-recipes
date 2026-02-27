@@ -6,11 +6,14 @@ configs.  This script orchestrates the three Olive runs and writes the
 GenAI runtime configuration files.
 
 Usage:
-    # Full pipeline: export + optimize + INT4 quantize
-    python optimize.py --device cpu
+    # Full pipeline: export + optimize + INT4 quantize (CPU)
+    python optimize.py --config-dir cpu_and_mobile --device cpu
+
+    # CUDA pipeline
+    python optimize.py --config-dir cuda --device gpu
 
     # Skip export (models already exist, just regenerate configs)
-    python optimize.py --device cpu --skip-export
+    python optimize.py --config-dir cpu_and_mobile --device cpu --skip-export
 """
 import argparse
 import json
@@ -27,7 +30,7 @@ MODELS_DIR = "models"
 # 1. Olive Export + Optimization + Quantization (all driven by JSON configs)
 # =============================================================================
 
-def export_models():
+def export_models(config_dir: str):
     """Run Olive for all 3 sub-models (embedding, text, vision).
 
     The JSON configs define the full pipeline: export → graph surgeries
@@ -36,10 +39,11 @@ def export_models():
     """
     from olive import run
 
-    print("=== Running Olive pipelines ===")
+    config_path = Path(config_dir)
+    print(f"=== Running Olive pipelines (configs from {config_path}) ===")
     for config in ("embedding.json", "text.json", "vision.json"):
         print(f"  Running {config}...")
-        run(config)
+        run(str(config_path / config))
     print()
 
 
@@ -138,19 +142,23 @@ def main():
     parser = argparse.ArgumentParser(description="Optimize Qwen2.5-VL ONNX models")
     parser.add_argument("--device", choices=["gpu", "cpu"], default="cpu",
                         help="Target device (default: cpu)")
+    parser.add_argument("--config-dir", default="cpu_and_mobile",
+                        help="Directory containing Olive JSON configs (default: cpu_and_mobile)")
     parser.add_argument("--skip-export", action="store_true",
                         help="Skip Olive export (models already exist)")
-    parser.add_argument("--models-dir", default=MODELS_DIR,
-                        help="Models directory (default: models)")
+    parser.add_argument("--models-dir", default=None,
+                        help="Models directory (default: <config-dir>/models)")
     args = parser.parse_args()
+
+    models_dir = args.models_dir or str(Path(args.config_dir) / MODELS_DIR)
 
     # Step 1: Export + optimize + quantize (all in Olive JSON pipelines)
     if not args.skip_export:
-        export_models()
+        export_models(args.config_dir)
 
     # Step 2: Generate GenAI runtime configs
     print("=== Generating configs ===")
-    update_genai_config(output_dir=args.models_dir, device=args.device)
+    update_genai_config(output_dir=models_dir, device=args.device)
     print()
 
     print("Done.")
