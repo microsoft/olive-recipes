@@ -20,6 +20,13 @@ recipes:
       ep: QNNExecutionProvider
       aitk:
         oliveFile: "QNN/config.json"
+    - file: "qwen2_5_vitis_ai_config.json"
+      device: npu
+      ep: VitisAIExecutionProvider
+      aitk:
+        oliveFile: "VitisAI/Qwen2.5-7B-Instruct_quark_vitisai_llm.json"
+        requirements: AMD/Quark_py3.10.17
+        evalRuntime: AMDNPU
 aitk:
     modelInfo:
         id: "huggingface/Qwen/Qwen2.5-7B-Instruct"

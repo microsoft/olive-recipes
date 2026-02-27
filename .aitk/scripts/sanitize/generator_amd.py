@@ -197,6 +197,7 @@ def generate_amd_quantization_config(
                         path=f"{OlivePropertyNames.Passes}.{k}.{OlivePropertyNames.DataType}",
                     )
                 )
+            parameter.isGPUSuggested = True
             break
 
     if parameters:
