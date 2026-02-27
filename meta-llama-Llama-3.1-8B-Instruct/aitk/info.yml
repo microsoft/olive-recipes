@@ -6,7 +6,7 @@ recipes:
       device: npu
       ep: QNNExecutionProvider
       aitk:
-        oliveFile: "QNN/config.json"
+        oliveFile: "QNN/x_elite_config.json"
     - file: "llama3_1_vitis_ai_config.json"
       device: npu
       ep: VitisAIExecutionProvider
@@ -35,5 +35,5 @@ recipes:
 aitk:
     modelInfo:
         id: "huggingface/meta-llama/Llama-3.1-8B-Instruct"
-        version: 3
+        version: 4
         p0: false
