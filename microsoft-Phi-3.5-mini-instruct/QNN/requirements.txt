@@ -1,7 +1,17 @@
-datasets==4.2.0
 # these are the versions the recipes were last validated with
+datasets==4.2.0
+olive-ai==0.11.0
+onnx==1.19.1
+onnx-ir==0.1.13
 onnxruntime-genai-cuda==0.11.2
 onnxruntime-gpu==1.24.1
+onnxscript==0.5.7
 optimum==2.0.0
+protobuf==6.32.1
+safetensors==0.6.2
+sentencepiece==0.2.1
+tiktoken==0.12.0
+tokenicer==0.0.5
+tokenizers==0.22.2
 # newer transformers might have incompatibility with gptq passes
 transformers==4.57.3
