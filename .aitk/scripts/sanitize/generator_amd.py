@@ -7,7 +7,7 @@ from .generator_common import create_model_parameter, set_optimization_path
 from .model_info import ModelList
 from .model_parameter import ModelParameter, OptimizationPath, Section
 from .parameters import Parameter
-from .utils import isLLM_by_id, open_ex
+from .utils import EPNames, isLLM_by_id, open_ex
 
 
 def generate_quantization_config(
@@ -197,7 +197,11 @@ def generate_amd_quantization_config(
                         path=f"{OlivePropertyNames.Passes}.{k}.{OlivePropertyNames.DataType}",
                     )
                 )
+            # TODO common configs for QuarkQuantization
             parameter.isGPUSuggested = True
+            if parameter.epMinVersions is None:
+                parameter.epMinVersions = {}
+            parameter.epMinVersions[EPNames.VitisAIExecutionProvider] = "1.8.50"
             break
 
     if parameters:
