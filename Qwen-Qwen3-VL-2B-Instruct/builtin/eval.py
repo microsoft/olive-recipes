@@ -129,14 +129,12 @@ def build_onnx_runner(model_path: str):
 
 def run_onnx(model, processor, tokenizer, pil_image: Image.Image, messages_json: str) -> str:
     """Run a single inference with the ONNX GenAI model."""
-    # Save PIL to a temp bytes buffer so og.Images can load it
-    buf = io.BytesIO()
-    pil_image.save(buf, format="JPEG")
-    buf.seek(0)
-
+    # Save PIL to a temp file so og.Images can load it.
+    # Use PNG (lossless) instead of JPEG to avoid compression artifacts that
+    # degrade diagram text/edges and hurt accuracy on benchmarks like AI2D.
     import tempfile, os
-    with tempfile.NamedTemporaryFile(suffix=".jpg", delete=False) as f:
-        f.write(buf.getvalue())
+    with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as f:
+        pil_image.save(f, format="PNG")
         tmp_path = f.name
 
     try:
@@ -145,10 +143,11 @@ def run_onnx(model, processor, tokenizer, pil_image: Image.Image, messages_json:
         inputs = processor(prompt, images=images)
 
         params = og.GeneratorParams(model)
-        # max_length is total tokens (prompt + generated). Prompts are ~300+ tokens with system prompt.
-        # We only need 1-2 generated tokens (a digit), so 600 is ample headroom.
+        # max_length is total tokens (prompt + generated). Prompts can be up to ~1200 tokens
+        # with larger images after the smart_resize fix (more patches = more vision tokens).
+        # We only need 1-2 generated tokens (a digit), so 1500 provides ample headroom.
         # Use greedy decoding (do_sample=False) for deterministic results.
-        params.set_search_options(max_length=600, do_sample=False)
+        params.set_search_options(max_length=2000, do_sample=False)
 
         generator = og.Generator(model, params)
         generator.set_inputs(inputs)

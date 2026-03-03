@@ -78,19 +78,20 @@ python eval.py --num_samples 100 --pytorch_model Qwen/Qwen3-VL-2B-Instruct
 python eval.py --model_path cuda/models --num_samples 100
 ```
 
-### Results (AI2D, 100 samples, CPU)
+### Results (AI2D, 100 samples)
 
 | Model | Accuracy | Avg latency |
 |-------|----------|-------------|
-| PyTorch FP32 (baseline) | 74.00% | 5.26 s/sample |
-| **ONNX INT4 (quantized)** | **69.00%** | **3.83 s/sample** |
+| PyTorch FP32 (baseline) | 73.00% | — |
+| **ONNX INT4 (CPU)** | **71.00%** | **4.00 s/sample** |
+| **ONNX FP16 (CUDA)** | **71.00%** | **0.15 s/sample** |
 | Random chance | 25.00% | — |
 
-- **Quantization accuracy loss: −5 pp** (74% → 69%)
-- **Latency speedup: 1.37×** on CPU
-- A system prompt forcing single-digit responses is applied by default (see `DEFAULT_SYSTEM_PROMPT` in `eval.py`). Without it, the ONNX model tends to produce verbose chain-of-thought answers that reduce accuracy by a further ~11 pp — a prompt-engineering artifact, not a model quality issue.
+- **CPU INT4 accuracy gap: −2 pp** (73% → 71%)
+- **CUDA FP16 accuracy gap: −2 pp** (73% → 71%)
+- A system prompt forcing single-digit responses is applied by default (see `DEFAULT_SYSTEM_PROMPT` in `eval.py`). Without it, the ONNX model tends to produce verbose chain-of-thought answers that reduce accuracy — a prompt-engineering artifact, not a model quality issue.
 
-> Results measured on CPU (Intel) with `--num_samples 100` from the AI2D test split. GPU results will differ.
+> Results measured with `--num_samples 100` from the AI2D test split.
 
 ## Directory Structure
 

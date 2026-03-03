@@ -4,10 +4,10 @@ import torch
 
 from transformers import Qwen3VLConfig, Qwen3VLForConditionalGeneration
 
-# Add parent directory to sys.path to import codes module
-_parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-if _parent_dir not in sys.path:
-    sys.path.insert(0, _parent_dir)
+# Add this script's directory to sys.path to import codes module
+_script_dir = os.path.dirname(os.path.abspath(__file__))
+if _script_dir not in sys.path:
+    sys.path.insert(0, _script_dir)
 
 # Import custom model from codes directory
 from codes.modeling_qwen3_vl import Qwen3VLModel
@@ -28,21 +28,20 @@ def _load_base_model(model_path):
     model_dir = os.path.dirname(config_path)
     st_files = sorted(glob.glob(os.path.join(model_dir, '*.safetensors')))
 
-    # Load and strip 'model.' prefix
+    # Load and strip 'model.' prefix, keeping native bfloat16 precision
     state_dict = {}
     for sf in st_files:
         tensors = load_file(sf)
         for k, v in tensors.items():
             if k.startswith('model.'):
-                state_dict[k[6:]] = v.to(torch.float32)
+                state_dict[k[6:]] = v
     
-    # Create custom model and load weights
+    # Create custom model and load weights in bfloat16 (native dtype)
     custom_model = Qwen3VLModel(config)
     result = custom_model.load_state_dict(state_dict, strict=False)
     if result.missing_keys:
         print(f"Warning: {len(result.missing_keys)} missing keys")
-    # Use float32 for CPU inference (FP16 has no native CPU support)
-    custom_model = custom_model.to(torch.float32)
+    custom_model = custom_model.to(torch.bfloat16)
     custom_model.eval()
     
     del state_dict
@@ -54,6 +53,8 @@ def _load_base_model(model_path):
 
 def get_embedding_model(model_path=None):
     model = _load_base_model(model_path)
+    # Export in fp32 for Olive fp16 pass compatibility (same approach as vision)
+    model = model.to(torch.float32)
 
     model.get_fused_input_embeddings, model.forward = (
         model.forward,
@@ -103,7 +104,7 @@ def get_embedding_dummy_inputs(model=None):
         "image_features": torch.randn(
             num_logical_patches,
             out_hidden_size,
-            dtype=torch.float32,
+            dtype=torch.float32,  # fp32 to match embedding model export dtype
         ),
     }
 
@@ -131,7 +132,9 @@ def get_embedding_dummy_inputs(model=None):
 
 ### Vision
 def get_vision_model(model_path=None):
+    # Export in fp32 for maximum compatibility; Olive fp16 pass converts weights.
     model = _load_base_model(model_path)
+    model = model.to(torch.float32)
     model.forward, model.get_image_features = model.get_image_features, model.forward
     return model
 

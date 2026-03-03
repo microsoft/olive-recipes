@@ -78,18 +78,19 @@ python eval.py --num_samples 100 --pytorch_model Qwen/Qwen2.5-VL-3B-Instruct
 python eval.py --model_path cuda/models --num_samples 100
 ```
 
-### Results (AI2D, 100 samples, CPU)
+### Results (AI2D, 100 samples)
 
 | Model | Accuracy | Avg latency |
 |-------|----------|-------------|
-| PyTorch FP32 (baseline) | 81.00% | 9.41 s/sample |
-| **ONNX INT4 (quantized)** | **83.00%** | **7.76 s/sample** |
+| PyTorch FP32 (baseline) | 79.00% | — |
+| **ONNX INT4 (CPU)** | **86.00%** | **8.07 s/sample** |
+| **ONNX FP16 (CUDA)** | **85.00%** | **0.31 s/sample** |
 | Random chance | 25.00% | — |
 
-- **Quantization accuracy delta: +2 pp** (81% → 83%)
-- **Latency speedup: 1.21×** on CPU
+- **CPU INT4 accuracy delta: +7 pp** (79% → 86%)
+- **CUDA FP16 accuracy delta: +6 pp** (79% → 85%)
 
-> Results measured on CPU (Intel) with `--num_samples 100` from the AI2D test split. GPU results will differ.
+> Results measured with `--num_samples 100` from the AI2D test split.
 
 ## Directory Structure
 

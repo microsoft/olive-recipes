@@ -11,10 +11,10 @@ import torch
 
 from transformers import Qwen2_5_VLConfig
 
-# Add parent directory to sys.path to import codes module
-_parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-if _parent_dir not in sys.path:
-    sys.path.insert(0, _parent_dir)
+# Add current directory to sys.path to import codes module
+_this_dir = os.path.dirname(os.path.abspath(__file__))
+if _this_dir not in sys.path:
+    sys.path.insert(0, _this_dir)
 
 # Import custom model from codes directory
 from codes.modeling_qwen2_5_vl import Qwen2_5_VLModel
@@ -106,6 +106,22 @@ def get_embedding_dummy_inputs(model=None):
 
 
 ### Vision
+def _reinit_inv_freq(model):
+    """Recompute inv_freq buffers that are missing from the HF checkpoint.
+
+    The upstream Qwen code registers inv_freq with persistent=False, so
+    the buffer is never saved in the checkpoint.  Our local modeling code
+    uses persistent=True so that torch.export captures the buffer, but
+    from_pretrained's fast-init (meta device) leaves it uninitialized.
+    Re-derive the correct values from the same formula used in __init__.
+    """
+    rope = model.visual.rotary_pos_emb
+    dim = rope.inv_freq.shape[0] * 2          # original dim passed to __init__
+    theta = 10000.0
+    inv_freq = 1.0 / (theta ** (torch.arange(0, dim, 2, dtype=torch.float32) / dim))
+    rope.inv_freq.data.copy_(inv_freq)
+
+
 def get_vision_model(model_path=None):
     model = Qwen2_5_VLModel.from_pretrained(
         model_path,
@@ -113,6 +129,7 @@ def get_vision_model(model_path=None):
         trust_remote_code=True,
         torch_dtype=torch.float32,
     )
+    _reinit_inv_freq(model)
     model.forward, model.get_image_features = model.get_image_features, model.forward
     return model
 

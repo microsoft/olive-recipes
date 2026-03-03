@@ -82,7 +82,7 @@ class Qwen3VLVisionRotaryEmbedding(nn.Module):
     def __init__(self, dim: int, theta: float = 10000.0) -> None:
         super().__init__()
         inv_freq = 1.0 / (theta ** (torch.arange(0, dim, 2, dtype=torch.float) / dim))
-        self.register_buffer("inv_freq", inv_freq, persistent=False)
+        self.register_buffer("inv_freq", inv_freq, persistent=True)
 
     def forward(self, seqlen) -> torch.Tensor:
         # Accept int or 0-dim tensor (the latter keeps the arange size symbolic in Dynamo export)
@@ -556,8 +556,8 @@ class Qwen3VLTextRotaryEmbedding(nn.Module):
             rope_init_fn = ROPE_INIT_FUNCTIONS[self.rope_type]
         inv_freq, self.attention_scaling = rope_init_fn(self.config, device)
 
-        self.register_buffer("inv_freq", inv_freq, persistent=False)
-        self.register_buffer("original_inv_freq", inv_freq.clone(), persistent=False)
+        self.register_buffer("inv_freq", inv_freq, persistent=True)
+        self.register_buffer("original_inv_freq", inv_freq.clone(), persistent=True)
 
         self.mrope_section = config.rope_scaling.get("mrope_section", [24, 20, 20])
 
@@ -567,7 +567,11 @@ class Qwen3VLTextRotaryEmbedding(nn.Module):
         device: Optional[torch.device] = None,
         seq_len: int = None,
     ) -> tuple:
-        base = config.rope_theta
+        # rope_theta may be a top-level attribute or inside rope_scaling/rope_parameters
+        base = getattr(config, "rope_theta", None)
+        if base is None:
+            rope_params = getattr(config, "rope_scaling", None) or getattr(config, "rope_parameters", None) or {}
+            base = rope_params.get("rope_theta", 1000000.0)
         dim = getattr(config, "head_dim", None) or config.hidden_size // config.num_attention_heads
         attention_factor = 1.0
         inv_freq = 1.0 / (

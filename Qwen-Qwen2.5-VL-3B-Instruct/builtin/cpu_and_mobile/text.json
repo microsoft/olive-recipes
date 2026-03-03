@@ -7,5 +7,5 @@
         "convert": { "type": "ModelBuilder", "precision": "int4", "extra_options": { "filename": "text.onnx" } }
     },
     "no_artifacts": true,
-    "output_dir": "models/text.onnx"
+    "output_dir": "cpu_and_mobile/models/text.onnx"
 }

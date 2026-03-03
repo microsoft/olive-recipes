@@ -13,5 +13,5 @@
         }
     },
     "no_artifacts": true,
-    "output_dir": "models/text.onnx"
+    "output_dir": "cuda/models/text.onnx"
 }
