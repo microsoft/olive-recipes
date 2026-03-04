@@ -94,7 +94,7 @@
                 "htp_graph_finalization_optimization_mode": "3",
                 "soc_model": "87"
             },
-            "weight_sharing": false
+            "weight_sharing": true
         },
         "cp": { "type": "ComposeOnnxModels" }
     },

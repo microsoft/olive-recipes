@@ -58,7 +58,7 @@ olive-ai==0.10.1
 # onnx==1.17.0
 onnx==1.17.0
 onnx-ir==0.1.10
-onnxruntime-genai-winml==0.11.2
+onnxruntime-genai-winml==0.12.1
 # uvpip:uninstall onnxruntime-winml;pre
 # We also need to uninstall in case user tries new version, uses previous version and then updates again
 # because uninstalling winml will remove onnxruntime folder but we will not install windowsml to add it back
@@ -71,7 +71,7 @@ optuna==4.2.1
 packaging==24.2
 pandas==2.2.3
 parso==0.8.5
-pillow==11.2.1
+pillow==12.1.1
 platformdirs==4.4.0
 prompt-toolkit==3.0.52
 propcache==0.3.2
