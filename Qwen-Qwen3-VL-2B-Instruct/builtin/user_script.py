@@ -35,7 +35,7 @@ def _load_base_model(model_path):
         for k, v in tensors.items():
             if k.startswith('model.'):
                 state_dict[k[6:]] = v
-    
+
     # Create custom model and load weights in bfloat16 (native dtype)
     custom_model = Qwen3VLModel(config)
     result = custom_model.load_state_dict(state_dict, strict=False)
@@ -43,7 +43,7 @@ def _load_base_model(model_path):
         print(f"Warning: {len(result.missing_keys)} missing keys")
     custom_model = custom_model.to(torch.bfloat16)
     custom_model.eval()
-    
+
     del state_dict
     return custom_model
 

@@ -149,4 +149,3 @@ def get_vision_dummy_inputs(model=None):
 
     # Dynamo export
     return {"pixel_values": pixel_values, "image_grid_thw": grid_thw}
-
