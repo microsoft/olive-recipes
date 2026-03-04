@@ -90,7 +90,7 @@ def main(raw_args=None):
     args = parse_args(raw_args)
 
     prompts = ["A baby is laying down with a teddy bear"]
-    model_dir = Path(args.script_dir) / "models" / args.model_dir / args.model_id
+    model_dir = Path(args.script_dir) / "model" / args.model_dir / args.model_id
 
     register_execution_providers()
 

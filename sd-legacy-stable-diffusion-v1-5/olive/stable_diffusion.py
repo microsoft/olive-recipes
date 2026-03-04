@@ -351,7 +351,7 @@ def parse_ort_args(raw_args):
 def parse_ov_args(raw_args):
     parser = argparse.ArgumentParser("OpenVINO arguments")
 
-    parser.add_argument("--device", choices=["CPU", "GPU", "VPU"], default="CPU", type=str)
+    parser.add_argument("--device", choices=["CPU", "GPU", "NPU"], default="CPU", type=str)
     parser.add_argument("--image_path", default=None, type=str)
     parser.add_argument("--img_to_img_example", action="store_true", help="Runs the image to image example")
 
@@ -377,11 +377,11 @@ def main(raw_args=None):
     model_id = common_args.model_id
 
     script_dir = Path(__file__).resolve().parent
-    unoptimized_model_dir = script_dir / "models" / "unoptimized" / model_id
+    unoptimized_model_dir = script_dir / "model" / "unoptimized" / model_id
     optimized_dir_name = f"optimized-{provider}"
     if common_args.format:
         optimized_dir_name += f"_{common_args.format}"
-    optimized_model_dir = script_dir / "models" / optimized_dir_name / model_id
+    optimized_model_dir = script_dir / "model" / optimized_dir_name / model_id
 
     if common_args.clean_cache:
         shutil.rmtree(script_dir / "cache", ignore_errors=True)

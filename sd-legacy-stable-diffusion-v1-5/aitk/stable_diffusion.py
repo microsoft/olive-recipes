@@ -358,9 +358,7 @@ def parse_ort_args(raw_args):
 def parse_ov_args(raw_args):
     parser = argparse.ArgumentParser("OpenVINO arguments")
 
-    parser.add_argument("--device", choices=["CPU", "GPU", "VPU"], default="CPU", type=str)
-    parser.add_argument("--image_path", default=None, type=str)
-    parser.add_argument("--img_to_img_example", action="store_true", help="Runs the image to image example")
+    parser.add_argument("--device", choices=["CPU", "GPU", "NPU"], default="CPU", type=str)
 
     return parser.parse_known_args(raw_args)
 
@@ -384,8 +382,8 @@ def main(raw_args=None):
     model_id = common_args.model_id
 
     script_dir = Path(common_args.script_dir)
-    unoptimized_model_dir = script_dir / "models" / "unoptimized" / model_id
-    optimized_model_dir = script_dir / "models" / "optimized" / model_id
+    unoptimized_model_dir = script_dir / "model" / "unoptimized" / model_id
+    optimized_model_dir = script_dir / "model" / "optimized" / model_id
 
     if common_args.clean_cache:
         shutil.rmtree(common_args.cache_dir, ignore_errors=True)
@@ -440,28 +438,6 @@ def main(raw_args=None):
                 from sd_utils.ort import get_ort_pipeline
 
                 pipeline = get_ort_pipeline(model_dir, common_args, ort_args, guidance_scale)
-            if provider == "openvino" and (ov_args.image_path or ov_args.img_to_img_example):
-                res = None
-                if ov_args.image_path:
-                    from sd_utils.ov import run_ov_image_inference
-
-                    res = run_ov_image_inference(
-                        pipeline,
-                        ov_args.image_path,
-                        common_args.prompt,
-                        common_args.strength,
-                        guidance_scale,
-                        common_args.image_size,
-                        common_args.num_inference_steps,
-                        common_args,
-                        generator=generator,
-                    )
-                if ov_args.img_to_img_example:
-                    from sd_utils.ov import run_ov_img_to_img_example
-
-                    res = run_ov_img_to_img_example(pipeline, guidance_scale, common_args)
-                save_image(res, common_args.batch_size, "openvino", common_args.num_images, 0)
-                sys.exit(0)
 
             if common_args.interactive:
                 run_inference_gui(

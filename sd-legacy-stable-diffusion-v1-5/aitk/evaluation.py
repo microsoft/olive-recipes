@@ -257,9 +257,9 @@ def main(raw_args=None):
     unoptimized_path: Path = script_dir / args.data_dir / "unoptimized"
     optimized_path: Path = script_dir / args.data_dir / args.sub_dir
 
-    unoptimized_model_dir = script_dir / "models" / "unoptimized" / args.model_id
+    unoptimized_model_dir = script_dir / "model" / "unoptimized" / args.model_id
     optimized_dir_name = args.model_dir
-    optimized_model_dir = script_dir / "models" / optimized_dir_name / args.model_id
+    optimized_model_dir = script_dir / "model" / optimized_dir_name / args.model_id
 
     model_dir = unoptimized_model_dir if args.save_data else optimized_model_dir
     if args.xl:

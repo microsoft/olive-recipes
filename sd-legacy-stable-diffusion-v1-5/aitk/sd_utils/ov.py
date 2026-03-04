@@ -489,42 +489,6 @@ def get_ov_pipeline(common_args, ov_args, optimized_model_dir):
     )
 
 
-def run_ov_image_inference(
-    pipe, image_path, prompt, strength, guidance_scale, image_size, num_inference_steps, common_args, generator=None
-):
-    image = None
-    if image_path:
-        img_path = Path(image_path)
-        print(f"Image path is {img_path}")
-        if not img_path.exists():
-            print("Image doesn't exist.")
-            sys.exit(1)
-        image = PIL.Image.open(img_path)
-
-    return pipe(
-        prompts=[prompt] * common_args.batch_size,
-        image=image,
-        num_inference_steps=num_inference_steps,
-        height=image_size,
-        width=image_size,
-        strength=strength,
-        guidance_scale=guidance_scale,
-        generator=generator,
-    )
-
-
-def run_ov_img_to_img_example(pipe, guidance_scale, common_args):
-    prompt = "amazing watercolor painting"
-    strength = 0.5
-    image_path = Path("./assets/dog.png")
-    image_size = 512
-    num_inference_steps = 10
-
-    return run_ov_image_inference(
-        pipe, image_path, prompt, strength, guidance_scale, image_size, num_inference_steps, common_args
-    )
-
-
 def save_ov_model_info(model_info, optimized_model_dir):
     model_info_path = optimized_model_dir / OV_OPTIMIZED_MODEL_INFO
     with model_info_path.open("w") as model_info_file:
