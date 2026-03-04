@@ -3,13 +3,13 @@
 accelerate
 
 # Quark
-<path_to>\\onnxsim-0.4.36-cp312-cp312-win_amd64.whl
+/proj/rdi/staff/harshasr/olive_whls/linux/onnxsim-0.4.36-cp312-cp312-linux_x86_64.whl
 amd-quark==0.11
 datasets
 evaluate
 
 
-<path_to>\\model_generate-1.7.0-py3-none-any.whl
+/proj/rdi/staff/harshasr/olive_whls/linux/model_generate-1.7.0.1-py3-none-any.whl
 
 nltk
 numpy==1.26.4
@@ -23,7 +23,7 @@ sentencepiece
 tabulate
 transformers==4.57.6
 
-<path_to>\\ryzenai_dynamic_dispatch-1.7.0.dev20260205210752+g4308aa488-cp312-cp312-win_amd64.whl
-<path_to>\\ryzenai_onnx_utils-0.10.0.dev0-py3-none-any.whl
+/proj/rdi/staff/harshasr/olive_whls/linux/ryzenai_dynamic_dispatch-1.7.0.1-cp312-cp312-linux_x86_64.whl
+/proj/rdi/staff/harshasr/olive_whls/linux/ryzenai_onnx_utils-1.7.0.1-py3-none-any.whl
 
 
