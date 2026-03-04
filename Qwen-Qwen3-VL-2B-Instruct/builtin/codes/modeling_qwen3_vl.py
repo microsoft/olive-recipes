@@ -885,7 +885,7 @@ class Qwen3VLModel(Qwen3VLPreTrainedModel):
             special_image_mask = input_ids == self.config.image_token_id
             llm_input_ids = input_ids.clone()
             llm_input_ids[special_image_mask] = 0
-            return input_ids
+            return llm_input_ids
         def false_fn_for_input_ids(input_ids):
             return input_ids
 
@@ -1117,7 +1117,6 @@ class Qwen3VLModel(Qwen3VLPreTrainedModel):
 
 
 __all__ = [
-    "Qwen3VLForConditionalGeneration",
     "Qwen3VLModel",
     "Qwen3VLPreTrainedModel",
     "Qwen3VLTextModel",

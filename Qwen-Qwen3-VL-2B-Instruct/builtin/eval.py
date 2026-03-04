@@ -178,7 +178,7 @@ def build_pytorch_runner(model_id: str):
     print(f"  Device: {device}, dtype: {dtype}")
 
     pt_model = Qwen3VLForConditionalGeneration.from_pretrained(
-        model_id, dtype=dtype
+        model_id, torch_dtype=dtype
     ).to(device)
     pt_proc = AutoProcessor.from_pretrained(model_id)
     print("  PyTorch model loaded.")

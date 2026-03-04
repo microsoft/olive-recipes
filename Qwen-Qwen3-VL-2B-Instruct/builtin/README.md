@@ -82,13 +82,14 @@ python eval.py --model_path cuda/models --num_samples 100
 
 | Model | Accuracy | Avg latency |
 |-------|----------|-------------|
-| PyTorch FP32 (baseline) | 73.00% | — |
-| **ONNX INT4 (CPU)** | **71.00%** | **4.00 s/sample** |
+| PyTorch FP32 (baseline) | 74.00% | 6.39 s/sample |
+| **ONNX INT4 (CPU)** | **69.00%** | **4.56 s/sample** |
 | **ONNX FP16 (CUDA)** | **71.00%** | **0.15 s/sample** |
 | Random chance | 25.00% | — |
 
-- **CPU INT4 accuracy gap: −2 pp** (73% → 71%)
-- **CUDA FP16 accuracy gap: −2 pp** (73% → 71%)
+- **CPU INT4 accuracy delta: +5 pp** (74% → 69%)
+- **CUDA FP16 accuracy gap: −3 pp** (74% → 71%)
+- **CPU speedup: 1.40×** vs PyTorch FP32
 - A system prompt forcing single-digit responses is applied by default (see `DEFAULT_SYSTEM_PROMPT` in `eval.py`). Without it, the ONNX model tends to produce verbose chain-of-thought answers that reduce accuracy — a prompt-engineering artifact, not a model quality issue.
 
 > Results measured with `--num_samples 100` from the AI2D test split.

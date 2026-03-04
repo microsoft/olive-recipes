@@ -82,13 +82,14 @@ python eval.py --model_path cuda/models --num_samples 100
 
 | Model | Accuracy | Avg latency |
 |-------|----------|-------------|
-| PyTorch FP32 (baseline) | 79.00% | — |
-| **ONNX INT4 (CPU)** | **86.00%** | **8.07 s/sample** |
+| PyTorch FP32 (baseline) | 81.00% | 11.87 s/sample |
+| **ONNX INT4 (CPU)** | **82.00%** | **9.52 s/sample** |
 | **ONNX FP16 (CUDA)** | **85.00%** | **0.31 s/sample** |
 | Random chance | 25.00% | — |
 
-- **CPU INT4 accuracy delta: +7 pp** (79% → 86%)
-- **CUDA FP16 accuracy delta: +6 pp** (79% → 85%)
+- **CPU INT4 accuracy delta: −1 pp** (81% → 82%)
+- **CUDA FP16 accuracy delta: +4 pp** (81% → 85%)
+- **CPU speedup: 1.25×** vs PyTorch FP32
 
 > Results measured with `--num_samples 100` from the AI2D test split.
 

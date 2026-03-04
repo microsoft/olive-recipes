@@ -2,7 +2,7 @@ import os
 import sys
 import torch
 
-from transformers import Qwen3VLConfig, Qwen3VLForConditionalGeneration
+from transformers import Qwen3VLConfig
 
 # Add this script's directory to sys.path to import codes module
 _script_dir = os.path.dirname(os.path.abspath(__file__))
