@@ -423,8 +423,8 @@ class ModelParameter(BaseModelClass):
         if first_pass_value and first_pass_value[OlivePropertyNames.Type].lower() == OlivePassNames.ModelBuilder:
             self.needHFLogin = True
 
-        if self.evalMetrics and len(self.evalMetrics) > 5:
-            printError(f"{self._file} evalMetrics should not have more than 5 metrics")
+        if self.evalMetrics and len(self.evalMetrics) > 3:
+            printError(f"{self._file} evalMetrics should not have more than 3 metrics")
 
         self.checkPhase(oliveJson, self.evalNoDataConfig or False)
         self.CheckRuntimeInConversion(oliveJson, modelList, modelInfo)

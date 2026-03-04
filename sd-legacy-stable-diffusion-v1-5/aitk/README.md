@@ -20,7 +20,7 @@ Optimize the onnx models for performance improvements. vae_decoder and unet are 
 
 ### Test and evaluate
 
-`python .\evaluation.py --script_dir .\ --model_id stable-diffusion-v1-5/stable-diffusion-v1-5 --num_inference_steps 25 --seed 0 --num_data 100 --guidance_scale 7.5 --provider QNNExecutionProvider --model_dir optimized-qnn_qdq`
+`python .\evaluation.py --script_dir .\ --model_id stable-diffusion-v1-5/stable-diffusion-v1-5 --num_inference_steps 25 --seed 0 --num_data 100 --guidance_scale 7.5 --provider QNNExecutionProvider --model_dir optimized`
 
 To generate one image:
 
