@@ -2,12 +2,12 @@ import json
 from pathlib import Path
 from typing import Optional
 
-from .constants import OlivePassNames, OlivePropertyNames, PhaseTypeEnum
+from .constants import OlivePassNames, OlivePropertyNames, PhaseTypeEnum, EPNames
 from .generator_common import create_model_parameter, set_optimization_path
 from .model_info import ModelList
 from .model_parameter import ModelParameter, OptimizationPath, Section
 from .parameters import Parameter
-from .utils import EPNames, isLLM_by_id, open_ex
+from .utils import isLLM_by_id, open_ex
 
 
 def generate_quantization_config(
