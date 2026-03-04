@@ -14,7 +14,6 @@ recipes:
         oliveFile: "VitisAI/Llama-3.2-1B-Instruct_quark_vitisai_llm.json"
         requirements: AMD/Quark_py3.10.17
         evalRuntime: AMDNPU
-        isGPUSuggested: true
     - file: "llama3_2_ov_config.json"
       devices:
         - npu
@@ -37,13 +36,11 @@ recipes:
       ep: QNNExecutionProvider
       aitk:
         oliveFile: "QNN/config_gpu.json"
-        requirementsPatches:
-          - AutoGptq
         isGPURequired: true
         runtimeOverwrite:
           executeEp: NvTensorRTRTXExecutionProvider
 aitk:
     modelInfo:
         id: "huggingface/meta-llama/Llama-3.2-1B-Instruct"
-        version: 5
+        version: 6
         p0: true

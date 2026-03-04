@@ -14,6 +14,13 @@ recipes:
       ep: OpenVINOExecutionProvider
       aitk:
           oliveFile: "OpenVINO/Phi_4_mini_reasoning_gpu_context_dy.json"
+    - file: "phi4_vitis_ai_config.json"
+      device: npu
+      ep: VitisAIExecutionProvider
+      aitk:
+        oliveFile: "VitisAI/Phi-4-mini-reasoning_quark_vitisai_llm.json"
+        requirements: AMD/Quark_py3.10.17
+        evalRuntime: AMDNPU
 aitk:
     modelInfo:
         id: "huggingface/microsoft/Phi-4-mini-reasoning"
