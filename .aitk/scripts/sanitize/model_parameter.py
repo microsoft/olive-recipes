@@ -252,6 +252,7 @@ class ModelParameter(BaseModelClass):
     pyEnvRuntimeFeatures: Optional[List[str]] = None
     # Default is False - CPU execution provider is only added when explicitly set to True
     addCpu: Optional[bool] = None
+    epMinVersions: Optional[Dict[EPNames, str]] = None
 
     runtime: Optional[Parameter] = None
     runtimeInConversion: Optional[Parameter] = None
