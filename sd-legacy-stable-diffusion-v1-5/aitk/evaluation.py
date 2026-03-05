@@ -157,7 +157,7 @@ def download_file(url, save_path):
 
 def get_real_images(train_data, num_data):
     script_dir = Path(__file__).resolve().parent
-    data_dir = script_dir / "quantize_data_coco2017"
+    data_dir = script_dir / "train_data"
     with torch.no_grad():
         images = []
         for i, example in enumerate(train_data):
@@ -194,9 +194,11 @@ def parse_args(raw_args):
     import argparse
 
     parser = argparse.ArgumentParser("Common arguments")
+
+    parser.add_argument("--script_dir", required=True, type=str)
     parser.add_argument("--save_data", action="store_true")
-    parser.add_argument("--model_dir", default="optimized-cpu_qdq", type=str, help="model_dir path")
-    parser.add_argument("--model_id", default="CompVis/stable-diffusion-v1-4", type=str)
+    parser.add_argument("--model_dir", default="optimized", type=str, help="model_dir path")
+    parser.add_argument("--model_id", default="stable-diffusion-v1-5/stable-diffusion-v1-5", type=str)
     parser.add_argument(
         "--guidance_scale",
         default=7.5,
@@ -215,7 +217,24 @@ def parse_args(raw_args):
     parser.add_argument(
         "--sub_dir", default="optimized", type=str, help="Sub directory to save the data for optimized model test"
     )
-    parser.add_argument("--num_data", default=10, type=int)
+    parser.add_argument(
+        "--dataset_name",
+        default="phiyodr/coco2017",
+        type=str,
+        help="(Optional) dataset to download",
+    )
+    parser.add_argument(
+        "--dataset_split",
+        default="train",
+        type=str,
+        help="(Optional) dataset split to download",
+    )
+    parser.add_argument(
+        "--num_data",
+        default=10,
+        type=int,
+        help="Number of data samples to use for quantization",
+    )
     parser.add_argument("--train_ratio", default=0.5, type=float)
     parser.add_argument("--image_size", default=512, type=int, help="Width and height of the images to generate")
     parser.add_argument("--hpsv2_style", default=None, type=str, help="Style for hpsv2 benchmark")
@@ -226,15 +245,15 @@ def parse_args(raw_args):
 def main(raw_args=None):
     args = parse_args(raw_args)
     real_images = None
-    dataset = load_dataset("phiyodr/coco2017", streaming=True)
-    train_data = dataset["train"]
+    dataset = load_dataset(args.dataset_name, streaming=True)
+    train_data = dataset[args.dataset_split]
     prompts = [sanitize_path(example["captions"][0]) for i, example in enumerate(train_data) if i < args.num_data]
     real_images = get_real_images(train_data, args.num_data)
 
     train_num = math.floor(len(prompts) * args.train_ratio)
     clip_score_fn = partial(clip_score, model_name_or_path="openai/clip-vit-base-patch16")
 
-    script_dir = Path()  # Path(__file__).resolve().parent
+    script_dir = Path(args.script_dir)
     unoptimized_path: Path = script_dir / args.data_dir / "unoptimized"
     optimized_path: Path = script_dir / args.data_dir / args.sub_dir
 
