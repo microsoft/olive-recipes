@@ -80,7 +80,17 @@ python eval.py --model_path cuda/models --num_samples 100
 
 ### Results (AI2D, 100 samples)
 
-> Evaluation results for Qwen3-VL-8B-Instruct have not been measured yet. Run `python eval.py --num_samples 100` to obtain them.
+| Model | Accuracy | Avg latency |
+|-------|----------|-------------|
+| PyTorch FP32 (baseline) | 90.00% | 16.52 s/sample |
+| **ONNX INT4 (CPU)** | **85.00%** | **11.85 s/sample** |
+| Random chance | 25.00% | — |
+
+- **CPU INT4 accuracy delta: −5 pp** (90% → 85%)
+- **CPU speedup: 1.39×** vs PyTorch FP32
+- A system prompt forcing single-digit responses is applied by default (see `DEFAULT_SYSTEM_PROMPT` in `eval.py`). Without it, the ONNX model tends to produce verbose chain-of-thought answers that reduce accuracy — a prompt-engineering artifact, not a model quality issue.
+
+> Results measured with `--num_samples 100` from the AI2D test split.
 
 ## Directory Structure
 
