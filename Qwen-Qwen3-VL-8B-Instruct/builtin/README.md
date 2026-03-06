@@ -2,7 +2,10 @@
 
 This example demonstrates how to convert [Qwen3-VL-8B-Instruct](https://huggingface.co/Qwen/Qwen3-VL-8B-Instruct) vision-language model to ONNX format using Olive and run inference with ONNX Runtime GenAI.
 
-The pipeline exports three sub-models (vision encoder, text embedding, text decoder), applies graph optimizations (Cast chain elimination, Gemm→MatMul conversion), and quantizes all three sub-models to INT4.
+The pipeline exports three sub-models (vision encoder, text embedding, text decoder), applies graph optimizations (Cast chain elimination, Gemm→MatMul conversion), and quantizes or converts them depending on the target device:
+
+- **CPU/Mobile:** All three sub-models are quantized to INT4.
+- **CUDA:** The text decoder is INT4 (via ModelBuilder); the vision encoder and embedding model are FP16.
 
 ## Prerequisites
 
@@ -19,17 +22,17 @@ Install ONNX Runtime GenAI based on your target device:
 
 ## Steps
 
-### 1. Export & Optimize Models (CPU)
+### 1. Export & Optimize Models
 
 All graph transformations and quantization are declared in the JSON config files inside `cpu_and_mobile/` and `cuda/`. The top-level `optimize.py` script orchestrates the three Olive runs and generates the GenAI runtime configs.
 
 | Command | Description |
 |---------|-------------|
 | `python optimize.py --config-dir cpu_and_mobile --device cpu` | Full pipeline: export, optimize, INT4 quantize (CPU) |
-| `python optimize.py --config-dir cuda --device gpu` | Full pipeline with FP16 + INT4 (CUDA) |
+| `python optimize.py --config-dir cuda --device gpu` | Full pipeline: INT4 text + FP16 embedding/vision (CUDA) |
 | `python optimize.py --config-dir cpu_and_mobile --skip-export` | Regenerate configs only (models already exported) |
 
-> **Note:** The text model is always exported as INT4 via ModelBuilder. The vision encoder is graph-optimized and quantized to INT4 by Olive passes. The embedding model's Gather-based embedding table is quantized to INT4 using GatherBlockQuantized.
+> **Note:** The text model is always exported as INT4 via ModelBuilder. For CPU/Mobile, the vision encoder and embedding model are also quantized to INT4. For CUDA, they are kept at FP16 for better accuracy.
 >
 > The vision encoder is exported for a single image using the Dynamo exporter. At runtime, ONNX Runtime GenAI handles multiple images by calling the vision encoder once per image and concatenating the results — so there is no upper bound on the number of images passed to the model.
 
@@ -78,7 +81,9 @@ python eval.py --num_samples 100 --pytorch_model Qwen/Qwen3-VL-8B-Instruct
 python eval.py --model_path cuda/models --num_samples 100
 ```
 
-### Results (AI2D, 100 samples)
+### Results
+
+#### CPU (AI2D, 100 samples)
 
 | Model | Accuracy | Avg latency |
 |-------|----------|-------------|
@@ -88,9 +93,21 @@ python eval.py --model_path cuda/models --num_samples 100
 
 - **CPU INT4 accuracy delta: −5 pp** (90% → 85%)
 - **CPU speedup: 1.39×** vs PyTorch FP32
-- A system prompt forcing single-digit responses is applied by default (see `DEFAULT_SYSTEM_PROMPT` in `eval.py`). Without it, the ONNX model tends to produce verbose chain-of-thought answers that reduce accuracy — a prompt-engineering artifact, not a model quality issue.
 
-> Results measured with `--num_samples 100` from the AI2D test split.
+#### CUDA (AI2D, 200 samples)
+
+| Model | Accuracy | Avg latency |
+|-------|----------|-------------|
+| PyTorch FP32 (baseline) | 88.50% | 0.22 s/sample |
+| **ONNX INT4+FP16 (CUDA)** | **85.00%** | **0.21 s/sample** |
+| Random chance | 25.00% | — |
+
+- **CUDA accuracy delta: −3.5 pp** (88.5% → 85%)
+- **CUDA speedup: 1.05×** vs PyTorch FP32
+
+A system prompt forcing single-digit responses is applied by default (see `DEFAULT_SYSTEM_PROMPT` in `eval.py`). Without it, the model tends to produce verbose chain-of-thought answers that reduce measured accuracy — a prompt-engineering artifact, not a model quality issue.
+
+> CPU results measured with `--num_samples 100`; CUDA results measured with `--num_samples 200` from the AI2D test split.
 
 ## Directory Structure
 
@@ -110,8 +127,8 @@ Qwen-Qwen3-VL-8B-Instruct/
     │   ├── text.json              # Olive config: ModelBuilder INT4
     │   └── models/                # Exported ONNX models (generated)
     └── cuda/
-        ├── embedding.json         # Olive config with FP16 + INT4 + CUDA EP
-        ├── vision.json            # Olive config with FP16 + INT4 + CUDA EP
+        ├── embedding.json         # Olive config: export → optimize → FP16 + CUDA EP
+        ├── vision.json            # Olive config: Dynamo export → graph surgeries → FP16 + CUDA EP
         ├── text.json              # ModelBuilder INT4 with CUDA EP
         └── models/                # Exported CUDA ONNX models (generated)
 ```
