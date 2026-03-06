@@ -1,0 +1,63 @@
+{
+    "input_model": {
+        "type": "CompositeModel",
+	 "model_component_names": [
+            "ctx_1",
+            "ctx_64"
+        ],
+	 "model_components": [
+            {
+                "type": "onnxmodel",
+                "config": {
+                    "model_path": "/path/to/model/onnx",
+                    "onnx_file_name": "ctx_1.onnx",
+                    "inference_settings": null,
+                    "use_ort_extensions": false,
+                    "use_ort_extensions": false,
+                    "external_initializers_file_name": null,
+                    "constant_inputs_file_name": null,
+                    "model_attributes": null
+                }
+            },
+            {
+                "type": "onnxmodel",
+                "config": {
+                    "model_path": "/path/to/model/onnx",
+                    "onnx_file_name": "ctx_64.onnx",
+                    "inference_settings": null,
+                    "use_ort_extensions": false,
+                    "use_ort_extensions": false,
+                    "external_initializers_file_name": null,
+                    "constant_inputs_file_name": null,
+                    "model_attributes": null
+                }
+            }
+
+        ]
+
+
+    },
+    "systems": {
+        "qnn_system": {
+            "type": "LocalSystem",
+            "accelerators": [
+                {
+                    "device": "gpu",
+                    "execution_providers": [
+                        "QNNExecutionProvider"
+                    ]
+                }
+            ]
+        }
+    },
+    "passes": {
+        "cb": {
+            "type": "EPContextBinaryGenerator",
+            "weight_sharing": true
+        }
+    },
+    "target": "qnn_system",
+    "output_dir": "/path/to/model",
+    "cache_dir": "cache",
+    "no_artifacts": false
+}
