@@ -200,7 +200,7 @@ def optimize(
     provider = common_args.provider
     model_format = common_args.format
 
-    script_dir = Path(__file__).resolve().parent
+    script_dir = Path(common_args.script_dir)
 
     # Clean up previously optimized models, if any.
     shutil.rmtree(script_dir / "footprints", ignore_errors=True)
@@ -208,7 +208,7 @@ def optimize(
     shutil.rmtree(optimized_model_dir, ignore_errors=True)
 
     # The model_id and base_model_id are identical when optimizing a standard stable diffusion model like
-    # CompVis/stable-diffusion-v1-4. These variables are only different when optimizing a LoRA variant.
+    # stable-diffusion-v1-5/stable-diffusion-v1-5. These variables are only different when optimizing a LoRA variant.
     base_model_id = get_base_model_name(model_id)
     print(f"\nModel {base_model_id}")
 
@@ -253,6 +253,11 @@ def optimize(
             # base model ID should be able to reuse previously optimized copies.
             olive_config["input_model"]["model_path"] = base_model_id
 
+        # Save the config before olive_run modifies it with non-serializable objects
+        suffix = f"{model_format}_{provider}" if model_format else provider
+        with (script_dir / f"config_{submodel_name}_{suffix}.json").open("w") as fout:
+            json.dump(olive_config, fout, indent=4)
+
         workflow_output = olive_run(olive_config)
 
         if provider == "openvino":
@@ -262,7 +267,7 @@ def optimize(
         else:
             from sd_utils.ort import save_optimized_onnx_submodel
 
-            save_optimized_onnx_submodel(submodel_name, provider, model_info)
+            save_optimized_onnx_submodel(script_dir, submodel_name, provider, model_info)
 
     if provider == "openvino":
         from sd_utils.ov import save_ov_model_info
@@ -281,7 +286,9 @@ def optimize(
 def parse_common_args(raw_args):
     parser = argparse.ArgumentParser("Common arguments")
 
-    parser.add_argument("--model_id", default="CompVis/stable-diffusion-v1-4", type=str)
+    parser.add_argument("--script_dir", required=True, type=str)
+    parser.add_argument("--cache_dir", type=str)
+    parser.add_argument("--model_id", default="stable-diffusion-v1-5/stable-diffusion-v1-5", type=str)
     parser.add_argument(
         "--provider",
         default="cuda",
@@ -352,8 +359,6 @@ def parse_ov_args(raw_args):
     parser = argparse.ArgumentParser("OpenVINO arguments")
 
     parser.add_argument("--device", choices=["CPU", "GPU", "NPU"], default="CPU", type=str)
-    parser.add_argument("--image_path", default=None, type=str)
-    parser.add_argument("--img_to_img_example", action="store_true", help="Runs the image to image example")
 
     return parser.parse_known_args(raw_args)
 
@@ -376,15 +381,12 @@ def main(raw_args=None):
     provider = common_args.provider
     model_id = common_args.model_id
 
-    script_dir = Path(__file__).resolve().parent
+    script_dir = Path(common_args.script_dir)
     unoptimized_model_dir = script_dir / "model" / "unoptimized" / model_id
-    optimized_dir_name = f"optimized-{provider}"
-    if common_args.format:
-        optimized_dir_name += f"_{common_args.format}"
-    optimized_model_dir = script_dir / "model" / optimized_dir_name / model_id
+    optimized_model_dir = script_dir / "model" / "optimized" / model_id
 
     if common_args.clean_cache:
-        shutil.rmtree(script_dir / "cache", ignore_errors=True)
+        shutil.rmtree(common_args.cache_dir, ignore_errors=True)
 
     guidance_scale = common_args.guidance_scale
 
@@ -436,28 +438,6 @@ def main(raw_args=None):
                 from sd_utils.ort import get_ort_pipeline
 
                 pipeline = get_ort_pipeline(model_dir, common_args, ort_args, guidance_scale)
-            if provider == "openvino" and (ov_args.image_path or ov_args.img_to_img_example):
-                res = None
-                if ov_args.image_path:
-                    from sd_utils.ov import run_ov_image_inference
-
-                    res = run_ov_image_inference(
-                        pipeline,
-                        ov_args.image_path,
-                        common_args.prompt,
-                        common_args.strength,
-                        guidance_scale,
-                        common_args.image_size,
-                        common_args.num_inference_steps,
-                        common_args,
-                        generator=generator,
-                    )
-                if ov_args.img_to_img_example:
-                    from sd_utils.ov import run_ov_img_to_img_example
-
-                    res = run_ov_img_to_img_example(pipeline, guidance_scale, common_args)
-                save_image(res, common_args.batch_size, "openvino", common_args.num_images, 0)
-                sys.exit(0)
 
             if common_args.interactive:
                 run_inference_gui(
