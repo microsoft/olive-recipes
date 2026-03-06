@@ -1,0 +1,8 @@
+datasets
+olive-ai==0.9.3
+# these are the versions the recipes were last validated with
+onnxruntime-genai-cuda==0.7.1
+onnxruntime-gpu==1.21.1
+optimum
+# newer transformers might have incompatibility with gptq passes
+transformers==4.53.2
