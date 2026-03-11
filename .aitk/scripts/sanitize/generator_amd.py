@@ -2,7 +2,7 @@ import json
 from pathlib import Path
 from typing import Optional
 
-from .constants import OlivePassNames, OlivePropertyNames, PhaseTypeEnum
+from .constants import OlivePassNames, OlivePropertyNames, PhaseTypeEnum, EPNames
 from .generator_common import create_model_parameter, set_optimization_path
 from .model_info import ModelList
 from .model_parameter import ModelParameter, OptimizationPath, Section
@@ -197,7 +197,11 @@ def generate_amd_quantization_config(
                         path=f"{OlivePropertyNames.Passes}.{k}.{OlivePropertyNames.DataType}",
                     )
                 )
+            # TODO common configs for QuarkQuantization
             parameter.isGPUSuggested = True
+            if parameter.epMinVersions is None:
+                parameter.epMinVersions = {}
+            parameter.epMinVersions[EPNames.VitisAIExecutionProvider] = "1.8.50"
             break
 
     if parameters:
