@@ -56,6 +56,10 @@ def main():
     with open(args.config, 'r', encoding='utf-8') as file:
         oliveJson = json.load(file)
 
+    # For static quantization, the QDQ data should match the target scenario.
+    guidance_scale=str(7.5)
+    num_inference_steps=str(25)
+
     if args.model_config:
         model_path: str = os.path.dirname(args.model_config)
         execution_provider: str = oliveJson["systems"]["target_system"]["accelerators"][0]["execution_providers"][0]
@@ -67,6 +71,8 @@ def main():
                         "--script_dir", os.path.dirname(model_path),
                         "--model_dir", "optimized",
                         "--model_id", "stable-diffusion-v1-5/stable-diffusion-v1-5",
+                        "--guidance_scale", guidance_scale,
+                        "--num_inference_steps", num_inference_steps,
                         "--execution_provider", execution_provider,
                         "--device_str", device_str,
                         "--output_file", output_file],
@@ -107,16 +113,18 @@ def main():
                    check=True)
 
     # # run evaluation.py to generate data
+    data_dir = f"../../quantize_data/{guidance_scale}_{num_inference_steps}"
     subprocess.run([sys.executable, "evaluation.py",
                     "--script_dir", history_folder,
                     "--save_data",
                     "--model_id", "stable-diffusion-v1-5/stable-diffusion-v1-5",
-                    "--num_inference_steps", "25",
+                    "--num_inference_steps", num_inference_steps,
                     "--seed", "0",
+                    "--data_dir", data_dir,
                     "--dataset_name", dataset_name,
                     "--dataset_split", dataset_split,
                     "--num_data", str(num_data),
-                    "--guidance_scale", "7.5"],
+                    "--guidance_scale", guidance_scale],
                    check=True)
 
     # run stable_diffusion.py to generate onnx quantized model
@@ -125,6 +133,7 @@ def main():
                     "--model_id", "stable-diffusion-v1-5/stable-diffusion-v1-5",
                     "--provider", "cpu",
                     "--format", "qdq",
+                    "--data_dir", data_dir,
                     "--optimize"],
                    check=True)
 
