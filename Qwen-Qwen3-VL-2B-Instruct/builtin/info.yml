@@ -1,0 +1,9 @@
+keywords:
+    olive-ai
+ep:
+    CPUExecutionProvider
+    CUDAExecutionProvider
+device:
+    cpu
+    gpu
+name: qwen3-vl
