@@ -4,3 +4,7 @@ recipes:
     file: Qwen2.5-1.5B-Instruct_model_builder_fp16.json
     devices: gpu
     eps: NvTensorRTRTXExecutionProvider
+  - name: Qwen2.5_1.5B_Instruct_NVMO_PTQ_Mixed_Precision_AWQ_Lite
+    file: Qwen2.5-1.5B-Instruct_nvmo_ptq_mixed_precision_awq_lite.json
+    devices: gpu
+    eps: NvTensorRTRTXExecutionProvider
