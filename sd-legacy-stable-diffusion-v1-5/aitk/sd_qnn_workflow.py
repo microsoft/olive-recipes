@@ -135,7 +135,7 @@ def main():
                     "--model_id", "stable-diffusion-v1-5/stable-diffusion-v1-5",
                     "--provider", "cpu",
                     "--format", "qdq",
-                    "--data_dir", data_dir,
+                    "--data_dir", data_dir + "/data",
                     "--optimize"],
                    check=True)
 
