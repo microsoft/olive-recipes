@@ -109,7 +109,7 @@ torch==2.7.0+cu128
 torchmetrics==1.7.0
 # torchvision==0.22.0+cu128
 torchvision==0.22.0+cu128
-tornado==6.4.2
+tornado==6.5.5
 tqdm==4.67.1
 traitlets==5.14.3
 transformers==4.51.3
