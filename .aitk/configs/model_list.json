@@ -669,7 +669,9 @@
             "modelLink": "https://huggingface.co/stable-diffusion-v1-5/stable-diffusion-v1-5",
             "id": "huggingface/stable-diffusion-v1-5/stable-diffusion-v1-5",
             "runtimes": [
-                "QNN"
+                "IntelCPU",
+                "IntelGPU",
+                "IntelNPU"
             ],
             "architecture": "Transformer",
             "status": "Hide",

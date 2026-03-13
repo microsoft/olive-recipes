@@ -96,35 +96,34 @@ def main():
         config_name = f"config_{submodel_name}.json"
         copy_olive_config(history_folder, config_name, cache_dir, output_dir, activation_type, precision)
 
-    # run stable_diffusion.py to generate onnx unoptimized model
-    subprocess.run([sys.executable, "stable_diffusion.py",
-                    "--script_dir", history_folder,
-                    "--model_id", "stable-diffusion-v1-5/stable-diffusion-v1-5",
-                    "--provider", "cpu",
-                    "--format", "qdq",
-                    "--optimize",
-                    "--only_conversion"],
-                   check=True)
+    # # run stable_diffusion.py to generate onnx unoptimized model
+    # subprocess.run([sys.executable, "stable_diffusion.py",
+    #                 "--script_dir", history_folder,
+    #                 "--model_id", "stable-diffusion-v1-5/stable-diffusion-v1-5",
+    #                 "--provider", "cpu",
+    #                 "--format", "qdq",
+    #                 "--optimize",
+    #                 "--only_conversion"],
+    #                check=True)
 
-    # # run evaluation.py to generate data
-    subprocess.run([sys.executable, "evaluation.py",
-                    "--script_dir", history_folder,
-                    "--save_data",
-                    "--model_id", "stable-diffusion-v1-5/stable-diffusion-v1-5",
-                    "--num_inference_steps", "25",
-                    "--seed", "0",
-                    "--dataset_name", dataset_name,
-                    "--dataset_split", dataset_split,
-                    "--num_data", str(num_data),
-                    "--guidance_scale", "7.5"],
-                   check=True)
+    # # # run evaluation.py to generate data
+    # subprocess.run([sys.executable, "evaluation.py",
+    #                 "--script_dir", history_folder,
+    #                 "--save_data",
+    #                 "--model_id", "stable-diffusion-v1-5/stable-diffusion-v1-5",
+    #                 "--num_inference_steps", "25",
+    #                 "--seed", "0",
+    #                 "--dataset_name", dataset_name,
+    #                 "--dataset_split", dataset_split,
+    #                 "--num_data", str(num_data),
+    #                 "--guidance_scale", "7.5"],
+    #                check=True)
 
     # run stable_diffusion.py to generate onnx quantized model
     subprocess.run([sys.executable, "stable_diffusion.py",
                     "--script_dir", history_folder,
                     "--model_id", "stable-diffusion-v1-5/stable-diffusion-v1-5",
-                    "--provider", "cpu",
-                    "--format", "qdq",
+                    "--provider", "openvino",
                     "--optimize"],
                    check=True)
 

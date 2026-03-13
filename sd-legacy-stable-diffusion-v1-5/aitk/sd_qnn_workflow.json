@@ -9,7 +9,7 @@
                 {
                     "device": "npu",
                     "execution_providers": [
-                        "QNNExecutionProvider"
+                        "OpenVINOExecutionProvider"
                     ]
                 }
             ]

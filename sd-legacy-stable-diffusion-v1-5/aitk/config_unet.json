@@ -66,6 +66,24 @@
             "example_input_func": "get_unet_ov_example_input",
             "output_model": "unet"
         },
+        "ov_io_update": {
+            "type": "OpenVINOIoUpdate",
+            "static": true,
+            "input_shapes": [
+                [
+                    2, 4, 64, 64
+                ],
+                [ 1 ],
+                [ 1, 77 ]
+            ],
+            "reuse_cache": true
+        },
+        "ov_encapsulation": {
+            "type": "OpenVINOEncapsulation",
+            "target_device": "npu",
+            "ov_version": "2025.1",
+            "reuse_cache": true
+        },
         "optimize": {
             "type": "OrtTransformersOptimization",
             "model_type": "unet",

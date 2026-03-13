@@ -442,7 +442,11 @@ class OVStableDiffusionPipeline(DiffusionPipeline):
 
 
 def update_ov_config(config: dict):
-    config["passes"] = {"ov_convert": config["passes"]["ov_convert"]}
+    config["passes"] = {
+        "ov_convert": config["passes"]["ov_convert"],
+        "ov_io_update": config["passes"]["ov_io_update"],
+        "ov_encapsulation": config["passes"]["ov_encapsulation"]
+        }
     config["search_strategy"] = False
     config["systems"]["local_system"]["accelerators"][0]["execution_providers"] = ["CPUExecutionProvider"]
     del config["evaluators"]
