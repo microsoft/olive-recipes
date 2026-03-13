@@ -124,6 +124,8 @@ def main():
                     "--dataset_name", dataset_name,
                     "--dataset_split", dataset_split,
                     "--num_data", str(num_data),
+                    # generate data for quantization calibration, so use all data as training data to match num_data
+                    "--train_ratio", "1",
                     "--guidance_scale", guidance_scale],
                    check=True)
 

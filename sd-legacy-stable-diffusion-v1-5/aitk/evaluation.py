@@ -248,6 +248,7 @@ def main(raw_args=None):
     dataset = load_dataset(args.dataset_name, streaming=True)
     train_data = dataset[args.dataset_split]
     prompts = [sanitize_path(example["captions"][0]) for i, example in enumerate(train_data) if i < args.num_data]
+    # TODO unused data for evaluation
     #real_images = get_real_images(train_data, args.num_data)
 
     train_num = math.floor(len(prompts) * args.train_ratio)
@@ -280,7 +281,7 @@ def main(raw_args=None):
             else:
                 pipeline.save_data_dir = None
             run_inference(pipeline, args, prompt, unoptimized_path)
-        # Unused evaluation data
+        # TODO unused evaluation data
         return
         get_clip_scores(prompts, unoptimized_path, clip_score_fn)
         get_fid_scores(prompts, unoptimized_path, real_images)
