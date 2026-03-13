@@ -11,15 +11,12 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Callable, Optional, Union
 
-import cv2
 import numpy as np
-import openvino as ov
 import PIL
 import torch
 from diffusers import StableDiffusionPipeline
 from diffusers.pipelines.pipeline_utils import DiffusionPipeline
 from diffusers.schedulers import DDIMScheduler, LMSDiscreteScheduler, PNDMScheduler
-from openvino.runtime import Model
 from transformers import CLIPTokenizer
 
 OV_OPTIMIZED_MODEL_INFO = "ov_optimized_model_info.json"
@@ -95,12 +92,12 @@ class OvStableDiffusionPipelineOutput:
 class OVStableDiffusionPipeline(DiffusionPipeline):
     def __init__(
         self,
-        vae_decoder: Model,
-        text_encoder: Model,
+        vae_decoder,
+        text_encoder,
         tokenizer: CLIPTokenizer,
-        unet: Model,
+        unet,
         scheduler: Union[DDIMScheduler, PNDMScheduler, LMSDiscreteScheduler],
-        vae_encoder: Model = None,
+        vae_encoder = None,
     ):
         """Pipeline for text-to-image generation using Stable Diffusion.
 
@@ -380,6 +377,8 @@ class OVStableDiffusionPipeline(DiffusionPipeline):
         return latents, meta
 
     def postprocess_image(self, image: np.ndarray, meta: dict, output_type: str = "pil"):
+        import cv2
+
         """Postprocessing for decoded image.
 
         Takes generated image decoded by VAE decoder, unpad it to initila image size (if required),
@@ -456,13 +455,16 @@ def update_ov_config(config: dict):
 
 def save_optimized_ov_submodel(workflow_output, submodel, optimized_model_dir, optimized_model_path_map):
     output_model_dir = workflow_output.get_best_candidate().model_path
-    optimized_model_path = optimized_model_dir / submodel
-    shutil.copytree(output_model_dir, optimized_model_path)
-    model_path = (optimized_model_path / submodel).with_suffix(".xml")
-    optimized_model_path_map[submodel] = str(model_path)
+    # optimized_model_path = optimized_model_dir / submodel
+    # shutil.copytree(output_model_dir, optimized_model_path)
+    # model_path = (optimized_model_path / submodel).with_suffix(".xml")
+    print(output_model_dir)
+    optimized_model_path_map[submodel] = str(output_model_dir)
 
 
 def get_ov_pipeline(common_args, ov_args, optimized_model_dir):
+    import openvino as ov
+
     if common_args.test_unoptimized:
         return StableDiffusionPipeline.from_pretrained(common_args.model_id)
 
@@ -493,7 +495,26 @@ def get_ov_pipeline(common_args, ov_args, optimized_model_dir):
     )
 
 
-def save_ov_model_info(model_info, optimized_model_dir):
+def save_ov_model_info(model_info, optimized_model_dir, pipeline):
+    from sd_utils.onnx_patch import PatchedOnnxRuntimeModel
+    from diffusers.pipelines.stable_diffusion.pipeline_onnx_stable_diffusion import OnnxStableDiffusionPipeline
+
+    onnx_pipeline = OnnxStableDiffusionPipeline(
+        vae_encoder=PatchedOnnxRuntimeModel.from_pretrained(model_info["vae_encoder"]),
+        vae_decoder=PatchedOnnxRuntimeModel.from_pretrained(model_info["vae_decoder"]),
+        text_encoder=PatchedOnnxRuntimeModel.from_pretrained(model_info["text_encoder"]),
+        tokenizer=pipeline.tokenizer,
+        unet=PatchedOnnxRuntimeModel.from_pretrained(model_info["unet"], provider_options=[]),
+        scheduler=pipeline.scheduler,
+        safety_checker=None,
+        feature_extractor=pipeline.feature_extractor,
+        requires_safety_checker=True,
+    )
+
+    print("Saving optimized models...")
+    onnx_pipeline.save_pretrained(optimized_model_dir)
+    return
+
     model_info_path = optimized_model_dir / OV_OPTIMIZED_MODEL_INFO
     with model_info_path.open("w") as model_info_file:
         json.dump(model_info, model_info_file, indent=4)

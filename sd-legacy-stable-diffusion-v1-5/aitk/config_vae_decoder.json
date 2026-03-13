@@ -64,6 +64,9 @@
             "input_shapes": [
                 [ 1, 4, 64, 64 ]
             ],
+            "input_names": [
+                "latent_sample"
+            ],
             "reuse_cache": true
         },
         "ov_encapsulation": {

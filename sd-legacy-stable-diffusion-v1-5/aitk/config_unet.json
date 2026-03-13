@@ -71,10 +71,13 @@
             "static": true,
             "input_shapes": [
                 [
-                    2, 4, 64, 64
+                    1, 4, 64, 64
                 ],
                 [ 1 ],
                 [ 1, 77 ]
+            ],
+            "input_names": [
+                "sample", "timestep", "encoder_hidden_states"
             ],
             "reuse_cache": true
         },
