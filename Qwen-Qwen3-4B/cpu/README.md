@@ -6,7 +6,7 @@ This folder contains Olive recipes for optimizing Qwen-Qwen3-4B targeting the CP
 
 - Execution Provider: CPU EP
 - Typical precision: INT4 precision by default
-- Example recipe filename: Qwen-Qwen3-4B_cpu_int4_kld_gradient.json
+- Example recipe filename: Qwen-Qwen3-4B_cpu_int4.json
 
 ## Setup
 
@@ -19,7 +19,7 @@ This folder contains Olive recipes for optimizing Qwen-Qwen3-4B targeting the CP
    - accelerate
    - pip install -r requirements.txt
 3) Run Olive to build/optimize the model
-   - olive run --config Qwen-Qwen3-4B_cpu_int4_kld_gradient.json
+   - olive run --config Qwen-Qwen3-4B_cpu_int4.json
 
 Additional notes:
 - Optional: Use best practices when considering accuracy vs. memory to improve throughput on CPU.

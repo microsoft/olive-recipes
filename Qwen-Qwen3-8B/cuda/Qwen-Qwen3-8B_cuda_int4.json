@@ -1,0 +1,54 @@
+{
+    "input_model": {
+        "type": "HfModel",
+        "model_path": "Qwen/Qwen3-8B",
+        "load_kwargs": {
+            "torch_dtype": "float16"
+        }
+    },
+    "systems": {
+        "local_system": {
+            "type": "LocalSystem",
+            "accelerators": [
+                {
+                    "device": "gpu",
+                    "execution_providers": ["CUDAExecutionProvider"]
+                }
+            ]
+        }
+    },
+    "passes": {
+        "s": {
+            "type": "SelectiveMixedPrecision",
+            "algorithm": "kld_gradient",
+            "bits": 4,
+            "high_bits": 8,
+            "ratio": 0.65,
+            "sym": false,
+            "group_size": 32
+        },
+        "g": {
+            "type": "gptq",
+            "bits": 4,
+            "sym": false,
+            "group_size": 32
+        },
+        "r": {
+            "type": "rtn",
+            "bits": 4,
+            "sym": false,
+            "group_size": 32,
+            "lm_head": true,
+            "embeds": true
+        },
+        "m": {
+            "type": "ModelBuilder",
+            "precision": "int4"
+        }
+    },
+    "target": "local_system",
+    "log_severity_level": 0,
+    "output_dir": "model",
+    "cache_dir": "cache",
+    "no_artifacts": true
+}
