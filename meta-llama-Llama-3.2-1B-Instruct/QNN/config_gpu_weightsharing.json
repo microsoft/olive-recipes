@@ -87,7 +87,7 @@
         "st": {
             "type": "StaticLLM",
             "batch_size": 1,
-            "context_length": 1
+            "context_lengths": [1,64]
         }
     },
     "target": "target_system",
