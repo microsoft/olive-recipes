@@ -18,6 +18,8 @@ This folder contains Olive recipes for optimizing Qwen-Qwen3-8B targeting the We
    - olive run --config Qwen-Qwen3-8B_webgpu_int4.json
 
 Additional notes:
+- Pipeline: `SelectiveMixedPrecision` (kld_gradient) → `GPTQ` → `RTN` (8-bit lm_head/embeddings) → `ModelBuilder`
+- GPTQ group size: 32
 - WebGPU enables GPU-accelerated inference in web browsers.
 - Ensure your browser supports WebGPU (Chrome 113+, Edge 113+).
 

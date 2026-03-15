@@ -18,12 +18,9 @@ This folder contains Olive recipes for optimizing Qwen-Qwen3-14B targeting the C
    - olive run --config Qwen-Qwen3-14B_cpu_int4.json
 
 Additional notes:
-- This model uses `k_quant_mixed` via the `SelectiveMixedPrecision` pass followed by
-  `GPTQ` and `ModelBuilder`, instead of the `kld_gradient` algorithm used by smaller
-  Qwen3 models (0.6B–8B). The `kld_gradient` algorithm requires loading the full model
-  to GPU for gradient-based sensitivity estimation, which exceeds the 80 GB per-GPU
-  memory limit for the 14B model. The `k_quant_mixed` algorithm uses a pre-defined
-  quantization sensitivity map and does not require GPU memory for sensitivity estimation.
+- Pipeline: `SelectiveMixedPrecision` (k_quant_mixed) → `GPTQ` → `RTN` (8-bit lm_head/embeddings) → `ModelBuilder`
+- Uses `k_quant_mixed` instead of `kld_gradient` because gradient-based sensitivity
+  estimation exceeds the 80 GB per-GPU memory limit for the 14B model.
 - GPTQ group size: 128
 - Runs purely on CPU; no GPU required.
 

@@ -18,6 +18,8 @@ This folder contains Olive recipes for optimizing Qwen-Qwen3-4B targeting the CU
    - olive run --config Qwen-Qwen3-4B_cuda_int4.json
 
 Additional notes:
+- Pipeline: `SelectiveMixedPrecision` (kld_gradient) → `GPTQ` → `RTN` (8-bit lm_head/embeddings) → `ModelBuilder` → `TieWordEmbeddings`
+- GPTQ group size: 128
 - Requires NVIDIA GPU with CUDA support.
 - Ensure CUDA toolkit and cuDNN are properly installed.
 

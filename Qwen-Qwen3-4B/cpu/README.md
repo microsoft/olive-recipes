@@ -12,17 +12,14 @@ This folder contains Olive recipes for optimizing Qwen-Qwen3-4B targeting the CP
 
 1) Install the main branch of Olive:
    - pip install git+https://github.com/microsoft/olive.git
-2) Install the required runtime and dataset packages for this backend:
+2) Install the appropriate runtime package for this backend:
    - onnxruntime-genai (CPU build)
-   - datasets
-   - transformers==4.52.4
-   - accelerate
-   - pip install -r requirements.txt
 3) Run Olive to build/optimize the model
    - olive run --config Qwen-Qwen3-4B_cpu_int4.json
 
 Additional notes:
-- Optional: Use best practices when considering accuracy vs. memory to improve throughput on CPU.
+- Pipeline: `SelectiveMixedPrecision` (kld_gradient) → `GPTQ` → `RTN` (8-bit lm_head/embeddings) → `ModelBuilder` → `TieWordEmbeddings`
+- GPTQ group size: 128
 - Runs purely on CPU; no GPU required.
 
 ---

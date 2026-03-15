@@ -26,15 +26,19 @@
             "type": "gptq",
             "bits": 4,
             "sym": false,
-            "group_size": 128,
-            "lm_head": true
+            "group_size": 128
         },
         "r": {
             "type": "rtn",
-            "bits": 4,
+            "bits": 8,
             "sym": false,
             "group_size": 128,
-            "embeds": true
+            "lm_head": true,
+            "embeds": true,
+            "overrides": {
+                "lm_head": {"bits": 8},
+                "model.embed_tokens": {"bits": 8}
+            }
         },
         "m": {
             "type": "ModelBuilder",

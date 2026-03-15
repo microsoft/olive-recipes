@@ -18,7 +18,8 @@ This folder contains Olive recipes for optimizing Qwen-Qwen3-8B targeting the CP
    - olive run --config Qwen-Qwen3-8B_cpu_int4.json
 
 Additional notes:
-- Optional: Use best practices when considering accuracy vs. memory to improve throughput on CPU.
+- Pipeline: `SelectiveMixedPrecision` (kld_gradient) → `GPTQ` → `RTN` (8-bit lm_head/embeddings) → `ModelBuilder`
+- GPTQ group size: 128
 - Runs purely on CPU; no GPU required.
 
 ---
