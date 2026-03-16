@@ -458,7 +458,13 @@ def save_optimized_ov_submodel(workflow_output, submodel, optimized_model_dir, o
     # optimized_model_path = optimized_model_dir / submodel
     # shutil.copytree(output_model_dir, optimized_model_path)
     # model_path = (optimized_model_path / submodel).with_suffix(".xml")
-    print(output_model_dir)
+    folder = Path(output_model_dir)
+    onnx_files = sorted(folder.glob("*.onnx"))
+    if onnx_files:
+        first_file = onnx_files[0]
+        target = folder / "model.onnx"
+        first_file.rename(target)
+        print(f"Renamed {first_file.name} -> {target.name}")
     optimized_model_path_map[submodel] = str(output_model_dir)
 
 
@@ -500,11 +506,11 @@ def save_ov_model_info(model_info, optimized_model_dir, pipeline):
     from diffusers.pipelines.stable_diffusion.pipeline_onnx_stable_diffusion import OnnxStableDiffusionPipeline
 
     onnx_pipeline = OnnxStableDiffusionPipeline(
-        vae_encoder=PatchedOnnxRuntimeModel.from_pretrained(model_info["vae_encoder"]),
-        vae_decoder=PatchedOnnxRuntimeModel.from_pretrained(model_info["vae_decoder"]),
-        text_encoder=PatchedOnnxRuntimeModel.from_pretrained(model_info["text_encoder"]),
+        vae_encoder=PatchedOnnxRuntimeModel.from_pretrained(model_info["vae_encoder"], is_ov_save=True),
+        vae_decoder=PatchedOnnxRuntimeModel.from_pretrained(model_info["vae_decoder"], is_ov_save=True),
+        text_encoder=PatchedOnnxRuntimeModel.from_pretrained(model_info["text_encoder"], is_ov_save=True),
         tokenizer=pipeline.tokenizer,
-        unet=PatchedOnnxRuntimeModel.from_pretrained(model_info["unet"], provider_options=[]),
+        unet=PatchedOnnxRuntimeModel.from_pretrained(model_info["unet"], is_ov_save=True),
         scheduler=pipeline.scheduler,
         safety_checker=None,
         feature_extractor=pipeline.feature_extractor,

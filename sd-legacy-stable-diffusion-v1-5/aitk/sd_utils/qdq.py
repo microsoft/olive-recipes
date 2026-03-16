@@ -178,7 +178,8 @@ class OnnxStableDiffusionPipelineWithSave(OnnxStableDiffusionPipeline):
             latent_model_input = latent_model_input.cpu().numpy()
 
             # predict the noise residual
-            timestep = np.array([t], dtype=timestep_dtype)
+            timestep = np.array(t, dtype=timestep_dtype)
+            print(timestep)
 
             if do_classifier_free_guidance:
                 # Note that in QDQ, we need to use static dimensions (batch is fixed to 1), so we need to split

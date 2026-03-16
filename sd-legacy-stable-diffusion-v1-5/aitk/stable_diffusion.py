@@ -196,6 +196,14 @@ def optimize(
     unoptimized_model_dir: Path,
     optimized_model_dir: Path,
 ):
+    from olive.passes.openvino.encapsulation import OpenVINOEncapsulation
+    from onnx import TensorProto
+    
+    if "double64" not in OpenVINOEncapsulation.openvino_to_onnx_dtype:
+        # Monkey patch to support double precision models. This is needed for the VAE decoder, which uses double precision.
+        OpenVINOEncapsulation.openvino_to_onnx_dtype["double64"] = TensorProto.DOUBLE
+
+
     model_id = common_args.model_id
     provider = common_args.provider
     model_format = common_args.format
