@@ -281,7 +281,7 @@ def main(raw_args=None):
             else:
                 pipeline.save_data_dir = None
             run_inference(pipeline, args, prompt, unoptimized_path)
-        # TODO unused evaluation data
+        # TODO unused data for evaluation
         return
         get_clip_scores(prompts, unoptimized_path, clip_score_fn)
         get_fid_scores(prompts, unoptimized_path, real_images)
