@@ -672,7 +672,7 @@
                 "QNN"
             ],
             "architecture": "Transformer",
-            "status": "Hide",
+            "status": "Ready",
             "relativePath": "sd-legacy-stable-diffusion-v1-5/aitk",
             "version": 1
         }
