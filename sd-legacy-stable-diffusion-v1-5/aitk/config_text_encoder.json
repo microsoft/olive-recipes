@@ -61,13 +61,13 @@
                 ]
             ],
             "input_names": [ "input_ids" ],
-            "reuse_cache": true
+            "reuse_cache": false
         },
         "ov_encapsulation": {
             "type": "OpenVINOEncapsulation",
             "target_device": "npu",
             "ov_version": "2025.1",
-            "reuse_cache": true
+            "reuse_cache": false
         },
         "optimize": {
             "type": "OrtTransformersOptimization",
