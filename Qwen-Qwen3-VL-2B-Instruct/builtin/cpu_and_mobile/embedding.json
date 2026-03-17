@@ -8,11 +8,37 @@
         "dummy_inputs_func": "get_embedding_dummy_inputs"
     },
     "passes": {
-        "convert": { "type": "OnnxConversion", "use_dynamo_exporter": false },
-        "ort": { "type": "OrtTransformersOptimization", "model_type": "", "opt_level": 1, "only_onnxruntime": true },
-        "cast": { "type": "OnnxCastChainElimination" },
-        "gemm2mm": { "type": "GraphSurgeries", "surgeries": [{"surgeon": "GemmToMatMulAdd"}] },
-        "int4": { "type": "OnnxBlockWiseRtnQuantization", "block_size": 128, "is_symmetric": true, "accuracy_level": 4, "save_as_external_data": true, "external_data_name": "embedding.onnx.data" }
+        "convert": {
+            "type": "OnnxConversion",
+            "use_dynamo_exporter": false
+        },
+        "ort": {
+            "type": "OrtTransformersOptimization",
+            "model_type": "",
+            "opt_level": 1,
+            "only_onnxruntime": true
+        },
+        "cast": {
+            "type": "OnnxPeepholeOptimizer",
+            "fix_com_microsoft_opset": true,
+            "cast_chain_elimination": true
+        },
+        "gemm2mm": {
+            "type": "GraphSurgeries",
+            "surgeries": [
+                {
+                    "surgeon": "GemmToMatMulAdd"
+                }
+            ]
+        },
+        "int4": {
+            "type": "OnnxBlockWiseRtnQuantization",
+            "block_size": 128,
+            "is_symmetric": true,
+            "accuracy_level": 4,
+            "save_as_external_data": true,
+            "external_data_name": "embedding.onnx.data"
+        }
     },
     "no_artifacts": true,
     "output_dir": "cpu_and_mobile/models/embedding.onnx"

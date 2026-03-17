@@ -8,16 +8,46 @@
         "dummy_inputs_func": "get_embedding_dummy_inputs"
     },
     "passes": {
-        "convert": { "type": "OnnxConversion", "use_dynamo_exporter": false },
-        "ort": { "type": "OrtTransformersOptimization", "model_type": "", "opt_level": 1, "only_onnxruntime": true },
-        "cast": { "type": "OnnxCastChainElimination" },
-        "gemm2mm": { "type": "GraphSurgeries", "surgeries": [{"surgeon": "GemmToMatMulAdd"}] },
-        "fp16": { "type": "OnnxFloatToFloat16", "save_as_external_data": true, "external_data_name": "embedding.onnx.data" }
+        "convert": {
+            "type": "OnnxConversion",
+            "use_dynamo_exporter": false
+        },
+        "ort": {
+            "type": "OrtTransformersOptimization",
+            "model_type": "",
+            "opt_level": 1,
+            "only_onnxruntime": true
+        },
+        "cast": {
+            "type": "OnnxPeepholeOptimizer",
+            "fix_com_microsoft_opset": true,
+            "cast_chain_elimination": true
+        },
+        "gemm2mm": {
+            "type": "GraphSurgeries",
+            "surgeries": [
+                {
+                    "surgeon": "GemmToMatMulAdd"
+                }
+            ]
+        },
+        "fp16": {
+            "type": "OnnxFloatToFloat16",
+            "save_as_external_data": true,
+            "external_data_name": "embedding.onnx.data"
+        }
     },
     "engine": {
         "target": {
             "type": "LocalSystem",
-            "accelerators": [{ "device": "gpu", "execution_providers": ["CUDAExecutionProvider"] }]
+            "accelerators": [
+                {
+                    "device": "gpu",
+                    "execution_providers": [
+                        "CUDAExecutionProvider"
+                    ]
+                }
+            ]
         }
     },
     "no_artifacts": true,

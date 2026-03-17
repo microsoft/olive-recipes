@@ -8,12 +8,19 @@
         "dummy_inputs_func": "get_vision_dummy_inputs"
     },
     "passes": {
-        "c": { "type": "OnnxConversion", "use_dynamo_exporter": true },
+        "c": {
+            "type": "OnnxConversion",
+            "use_dynamo_exporter": true
+        },
         "gs": {
             "type": "GraphSurgeries",
             "surgeries": [
-                {"surgeon": "PackedAttentionToLoopMHA"},
-                {"surgeon": "ReciprocalMulToDiv"},
+                {
+                    "surgeon": "PackedAttentionToLoopMHA"
+                },
+                {
+                    "surgeon": "ReciprocalMulToDiv"
+                },
                 {
                     "surgeon": "RenameOutputDims",
                     "output_idx": 0,
@@ -22,16 +29,56 @@
                 }
             ]
         },
-        "ort": { "type": "OrtTransformersOptimization", "model_type": "vit", "opt_level": 2, "only_onnxruntime": true },
-        "dedup": { "type": "GraphSurgeries", "surgeries": [{"surgeon": "DeduplicateSubgraphInitializers"}] },
-        "cast": { "type": "OnnxCastChainElimination" },
-        "fp16": { "type": "OnnxFloatToFloat16", "op_block_list": ["LayerNormalization", "Range"], "save_as_external_data": true, "external_data_name": "vision.onnx.data" },
-        "cleanup": { "type": "GraphSurgeries", "surgeries": [{"surgeon": "DeduplicateNodes"}], "save_as_external_data": true, "external_data_name": "vision.onnx.data" }
+        "ort": {
+            "type": "OrtTransformersOptimization",
+            "model_type": "vit",
+            "opt_level": 2,
+            "only_onnxruntime": true
+        },
+        "dedup": {
+            "type": "GraphSurgeries",
+            "surgeries": [
+                {
+                    "surgeon": "DeduplicateSubgraphInitializers"
+                }
+            ]
+        },
+        "cast": {
+            "type": "OnnxPeepholeOptimizer",
+            "fix_com_microsoft_opset": true,
+            "cast_chain_elimination": true
+        },
+        "fp16": {
+            "type": "OnnxFloatToFloat16",
+            "op_block_list": [
+                "LayerNormalization",
+                "Range"
+            ],
+            "save_as_external_data": true,
+            "external_data_name": "vision.onnx.data"
+        },
+        "cleanup": {
+            "type": "GraphSurgeries",
+            "surgeries": [
+                {
+                    "surgeon": "DeduplicateNodes"
+                }
+            ],
+            "save_as_external_data": true,
+            "external_data_name": "vision.onnx.data"
+        }
     },
     "engine": {
         "target": {
             "type": "LocalSystem",
-            "accelerators": [{ "device": "gpu", "execution_providers": ["CUDAExecutionProvider"] }]
+            "accelerators": [
+                {
+                    "device": "gpu",
+                    "execution_providers": [
+                        "CUDAExecutionProvider"
+                    ]
+                }
+            ]
         }
     },
     "no_artifacts": true,

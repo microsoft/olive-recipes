@@ -8,11 +8,16 @@
         "dummy_inputs_func": "get_vision_dummy_inputs"
     },
     "passes": {
-        "c": { "type": "OnnxConversion", "use_dynamo_exporter": true },
+        "c": {
+            "type": "OnnxConversion",
+            "use_dynamo_exporter": true
+        },
         "gs": {
             "type": "GraphSurgeries",
             "surgeries": [
-                {"surgeon": "PackedAttentionToLoopMHA"},
+                {
+                    "surgeon": "PackedAttentionToLoopMHA"
+                },
                 {
                     "surgeon": "RenameOutputDims",
                     "output_idx": 0,
@@ -21,10 +26,33 @@
                 }
             ]
         },
-        "ort": { "type": "OrtTransformersOptimization", "model_type": "", "opt_level": 1, "only_onnxruntime": true },
-        "cast": { "type": "OnnxCastChainElimination" },
-        "gs2": { "type": "GraphSurgeries", "surgeries": [{"surgeon": "GemmToMatMulAdd"}] },
-        "int4": { "type": "OnnxBlockWiseRtnQuantization", "block_size": 128, "is_symmetric": true, "accuracy_level": 4, "save_as_external_data": true, "external_data_name": "vision.onnx.data" }
+        "ort": {
+            "type": "OrtTransformersOptimization",
+            "model_type": "",
+            "opt_level": 1,
+            "only_onnxruntime": true
+        },
+        "cast": {
+            "type": "OnnxPeepholeOptimizer",
+            "fix_com_microsoft_opset": true,
+            "cast_chain_elimination": true
+        },
+        "gs2": {
+            "type": "GraphSurgeries",
+            "surgeries": [
+                {
+                    "surgeon": "GemmToMatMulAdd"
+                }
+            ]
+        },
+        "int4": {
+            "type": "OnnxBlockWiseRtnQuantization",
+            "block_size": 128,
+            "is_symmetric": true,
+            "accuracy_level": 4,
+            "save_as_external_data": true,
+            "external_data_name": "vision.onnx.data"
+        }
     },
     "no_artifacts": true,
     "output_dir": "cpu_and_mobile/models/vision.onnx"
