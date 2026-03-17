@@ -34,6 +34,9 @@
         },
         "cast": {
             "type": "OnnxPeepholeOptimizer",
+            "onnxscript_optimize": false,
+            "onnxoptimizer_optimize": false,
+            "fuse_reshape_operations": false,
             "fix_com_microsoft_opset": true,
             "cast_chain_elimination": true
         },
