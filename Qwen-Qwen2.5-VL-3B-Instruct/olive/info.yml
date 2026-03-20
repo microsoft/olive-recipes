@@ -1,9 +1,0 @@
-keywords:
-    olive-ai
-ep:
-    CPUExecutionProvider
-    CUDAExecutionProvider
-device:
-    cpu
-    gpu
-name: qwen2.5-vl
