@@ -1,0 +1,32 @@
+# AMD model generation
+--extra-index-url=https://pypi.amd.com/simple
+accelerate
+
+# Quark
+amd-quark==0.9
+datasets
+evaluate
+
+# Platform-specific model-generate versions:
+# Linux: use model-generate==1.5.0 (default)
+# Windows: MUST use model-generate==1.5.1
+model-generate==1.5.0; sys_platform != 'win32'
+model-generate==1.5.1; sys_platform == 'win32'
+ryzenai-onnx-utils==0.12.0
+ryzenai-dynamic-dispatch==1.8.0
+voe==1.8.0
+
+nltk
+numpy
+
+# Pin onnx version
+diffusers==0.35.0
+pandas==2.2.2
+psutil==6.0.0
+torch==2.4.1
+transformers==4.56.2
+onnx==1.18.0
+onnxruntime-vitisai==1.24.3
+optimum
+sentencepiece
+tabulate

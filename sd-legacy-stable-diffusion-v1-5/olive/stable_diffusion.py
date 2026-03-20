@@ -187,6 +187,10 @@ def update_config_with_provider(config: dict, provider: str, model_format: str, 
         from sd_utils.qdq import update_qdq_config
 
         return update_qdq_config(config, provider, submodel_name)
+    elif provider == "vitisai":
+        from sd_utils.vai import update_vai_config
+
+        return update_vai_config(config, provider, submodel_name)
     else:
         raise ValueError(f"Unsupported provider: {provider} with format: {model_format}")
 
@@ -268,6 +272,12 @@ def optimize(
         from sd_utils.ov import save_ov_model_info
 
         save_ov_model_info(model_info, optimized_model_dir)
+    elif provider == "vitisai":
+        from sd_utils.vai import save_vai_pipeline
+
+        save_vai_pipeline(
+            has_safety_checker, model_info, optimized_model_dir, unoptimized_model_dir, pipeline, submodel_names
+        )
     else:
         from sd_utils.ort import save_onnx_pipeline
 
@@ -286,7 +296,7 @@ def parse_common_args(raw_args):
         "--provider",
         default="cuda",
         type=str,
-        choices=["cuda", "openvino", "cpu", "qnn"],
+        choices=["cuda", "openvino", "cpu", "qnn", "vitisai"],
         help="Execution provider to use",
     )
     parser.add_argument("--optimize", action="store_true", help="Runs the optimization step")
@@ -331,6 +341,7 @@ def parse_common_args(raw_args):
     parser.add_argument(
         "--format", default=None, type=str, help="Currently only support qdq with provider cpu, cuda or qnn"
     )
+   
 
     return parser.parse_known_args(raw_args)
 
@@ -401,7 +412,6 @@ def main(raw_args=None):
         config.data_dir = script_dir / qdq_args.data_dir
     else:
         ort_args, extra_args = parse_ort_args(extra_args)
-
     if common_args.optimize or not optimized_model_dir.exists():
         set_tempdir(common_args.tempdir)
 
@@ -428,6 +438,10 @@ def main(raw_args=None):
                 from sd_utils.ov import get_ov_pipeline
 
                 pipeline = get_ov_pipeline(common_args, ov_args, optimized_model_dir)
+            elif provider == "vitisai":
+                from sd_utils.vai import get_vai_pipeline
+
+                pipeline = get_vai_pipeline(model_dir, common_args)
             elif common_args.format == "qdq":
                 from sd_utils.qdq import get_qdq_pipeline
 
