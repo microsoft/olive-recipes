@@ -242,13 +242,14 @@ class ModSamVisionLayer(nn.Module):
         pad_height, pad_width = height + pad_h, width + pad_w
 
         hidden_states = hidden_states.reshape(
+            batch_size,
             pad_height // window_size,
             window_size,
             pad_width // window_size,
             window_size,
             channel,
         )
-        windows = hidden_states.permute(0, 2, 1, 3, 4).contiguous().reshape(-1, window_size, window_size, channel)
+        windows = hidden_states.permute(0, 1, 3, 2, 4, 5).contiguous().reshape(-1, window_size, window_size, channel)
         return windows, (pad_height, pad_width)
 
     def window_unpartition(
@@ -262,13 +263,14 @@ class ModSamVisionLayer(nn.Module):
         height, width = original_shape
         batch_size = windows.shape[0] // (pad_height * pad_width // window_size // window_size)
         hidden_states = windows.reshape(
+            batch_size,
             pad_height // window_size,
             pad_width // window_size,
             window_size,
             window_size,
             -1,
         )
-        hidden_states = hidden_states.permute(0, 2, 1, 3, 4).contiguous().reshape(batch_size, pad_height, pad_width, -1)
+        hidden_states = hidden_states.permute(0, 1, 3, 2, 4, 5).contiguous().reshape(batch_size, pad_height, pad_width, -1)
 
         return hidden_states[:, :height, :width, :].contiguous()
 
@@ -296,7 +298,7 @@ class ModSamVisionLayer(nn.Module):
         hidden_states = residual + hidden_states
         layernorm_output = self.model.layer_norm2(hidden_states)
         hidden_states = hidden_states + self.mlp(layernorm_output)
-        return hidden_states
+        return (hidden_states,)
 
 
 class ModSamModel(nn.Module):
