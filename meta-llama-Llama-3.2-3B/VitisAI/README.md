@@ -14,8 +14,8 @@ This folder contains sample Olive configuration to optimize LLaMA 3 models for A
 For LLMs - follow the below commands to generate the optimized model for VitisAI Execution Provider.
 
 **Platform Support:**
-- ✅ **Linux with ROCm** - Supported
-- ✅ **Linux with CUDA** - Supported
+- ✅ **Linux with ROCm** - Supported on Ubuntu 24.04 and later. For the best experience, we recommend Ubuntu 24.04.
+- ✅ **Linux with CUDA** - Supported on Ubuntu 24.04 and later. For the best experience, we recommend Ubuntu 24.04.
 - ✅ **Windows with CUDA** - Supported
 - ✅ **Windows with CPU** - Supported (quantization will be slower)
 - ⏳ **Windows with ROCm** - Planned for future release
