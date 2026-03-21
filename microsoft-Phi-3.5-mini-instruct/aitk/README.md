@@ -52,6 +52,9 @@ To support both efficiently, we create **two model instances**:
 
 ## **PTQ + AOT Compilation for Qualcomm NPUs using QNN EP**
 
+**When Quantization Dataset Sequence Length is 1024, it needs about 40GB GPU Memory. So adjust according to your hardware.**
+The default length from IHV is 4096, it would need A100 to convert.
+
 This process extends the [**QDQ Model with 4-bit Weights & 16-bit Activations**](#qdq-model-with-4-bit-weights--16-bit-activations) by compiling it specifically for **Qualcomm NPUs** using the **QNN Execution Provider**.
 
 ### **Resource Optimization Strategy**

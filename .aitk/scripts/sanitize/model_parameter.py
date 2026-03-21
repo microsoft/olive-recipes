@@ -233,12 +233,10 @@ class ModelParameter(BaseModelClass):
     # when we only use random data for evaluation latency
     evalNoDataConfig: Optional[bool] = None
     debugInfo: Optional[DebugInfo] = None
-    # A SHORTCUT FOR SEVERAL PARAMETERS
+    # TODO A SHORTCUT FOR PythonEnvironment + CUDA, should rename
     # This kind of config will
     # - setup runtimeOverwrite for CUDA EP and others
     #   + the previous EP is used for EPContextBinaryGeneator by PythonEnvironment
-    # - do not support cpu evaluation
-    # - setup executeRuntimeFeatures, pyEnvRuntimeFeatures
     isQNNLLM: Optional[bool] = None
     # SET AUTOMATICALLY TO TRUE WHEN CUDAExecutionProvider
     # When true, it means some passes need CUDA so user could not run it without
@@ -254,6 +252,7 @@ class ModelParameter(BaseModelClass):
     pyEnvRuntimeFeatures: Optional[List[str]] = None
     # Default is False - CPU execution provider is only added when explicitly set to True
     addCpu: Optional[bool] = None
+    epMinVersions: Optional[Dict[EPNames, str]] = None
 
     runtime: Optional[Parameter] = None
     runtimeInConversion: Optional[Parameter] = None
@@ -300,9 +299,6 @@ class ModelParameter(BaseModelClass):
             ),
         )
 
-        if self.isQNNLLM:
-            self.addCpu = False
-
         # Add runtime
         syskey, system = get_target_system(oliveJson)
         currentEp: str = system[OlivePropertyNames.Accelerators][0][OlivePropertyNames.ExecutionProviders][0]
@@ -320,7 +316,6 @@ class ModelParameter(BaseModelClass):
                 executeEp=EPNames.CUDAExecutionProvider,
                 evaluateUsedInExecute=True,
             )
-            self.executeRuntimeFeatures = ["AutoGptq"]
 
         if self.runtimeOverwrite and not self.runtimeOverwrite.Check(oliveJson):
             printError(f"{self._file} runtime overwrite has error")
@@ -428,8 +423,8 @@ class ModelParameter(BaseModelClass):
         if first_pass_value and first_pass_value[OlivePropertyNames.Type].lower() == OlivePassNames.ModelBuilder:
             self.needHFLogin = True
 
-        if self.evalMetrics and len(self.evalMetrics) > 2:
-            printError(f"{self._file} evalMetrics should not have more than 2 metrics")
+        if self.evalMetrics and len(self.evalMetrics) > 3:
+            printError(f"{self._file} evalMetrics should not have more than 3 metrics")
 
         self.checkPhase(oliveJson, self.evalNoDataConfig or False)
         self.CheckRuntimeInConversion(oliveJson, modelList, modelInfo)
