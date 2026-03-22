@@ -1,9 +1,9 @@
 librosa>=0.11.0
 nemo_toolkit[asr]>=2.7.1
 numpy>=2.3.4
+olive-ai>=0.11.0
 onnx>=1.20.1
 onnxruntime>=1.24.4
-olive-ai>=0.11.0
 sentencepiece>=0.2.1
 soundfile>=0.13.1
 torch>=2.9.1
