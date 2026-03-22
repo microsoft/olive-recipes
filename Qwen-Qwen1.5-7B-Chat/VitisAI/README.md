@@ -14,8 +14,8 @@ This folder contains sample Olive configuration to optimize Qwen models for AMD 
 For LLMs - follow the below commands to generate the optimized model for VitisAI Execution Provider.
 
 **Platform Support:**
-- ✅ **Linux with ROCm** - Supported
-- ✅ **Linux with CUDA** - Supported
+- ✅ **Linux with ROCm** - Supported on Ubuntu 24.04 and later. For the best experience, we recommend Ubuntu 24.04.
+- ✅ **Linux with CUDA** - Supported on Ubuntu 24.04 and later. For the best experience, we recommend Ubuntu 24.04.
 - ✅ **Windows with CUDA** - Supported
 - ✅ **Windows with CPU** - Supported (quantization will be slower)
 - ⏳ **Windows with ROCm** - Planned for future release
@@ -24,7 +24,7 @@ For more details about quark, see the [Quark Documentation](https://quark.docs.a
 
 #### **Create a Python 3.10 conda environment and run the below commands**
 ```bash
-conda create -n olive python=3.10
+conda create -n olive python=3.12
 conda activate olive
 ```
 
@@ -41,7 +41,7 @@ cd olive-recipes/Qwen-Qwen1.5-7B-Chat/VitisAI
 pip install --force-reinstall -r requirements_vitisai_llm.txt
 ```
 
-**Note:** The requirements file automatically installs the correct `model-generate` version for your platform (1.5.0 for Linux, 1.5.1 for Windows).
+ 
 
 #### **Install PyTorch**
 
