@@ -1,7 +1,7 @@
 {
     "input_model": {
-        "type": "OnnxModel",
-        "model_path": "build/onnx_models_fp32/encoder.onnx"
+        "type": "HfModel",
+        "model_path": "nvidia/nemotron-speech-streaming-en-0.6b"
     },
     "systems": {
         "local_system": {
@@ -15,6 +15,13 @@
         }
     },
     "passes": {
+        "export": {
+            "type": "NemotronExport",
+            "streaming": true,
+            "chunk_size": 0.56,
+            "left_chunks": 10,
+            "device": "cpu"
+        },
         "fusion": {
             "type": "OrtTransformersOptimization",
             "model_type": "conformer",
