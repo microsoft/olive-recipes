@@ -197,13 +197,13 @@ def _make_stateful_decoder_wrapper(decoder):
             self.decoder = dec
             self.decoder._rnnt_export = True
 
-        def forward(self, targets, target_length, h_in, c_in):
+        def forward(self, targets, h_in, c_in):
             g, states = self.decoder.predict(
                 y=targets, state=(h_in, c_in), add_sos=False
             )
             h_out, c_out = states
             g = g.transpose(1, 2)  # [B,1,D] -> [B,D,1]
-            return g, target_length, h_out, c_out
+            return g, h_out, c_out
 
     return StatefulDecoderWrapper(decoder)
 
@@ -231,17 +231,16 @@ def _verify_stateful_decoder(decoder_path):
     print("      Verifying stateful decoder with ONNX Runtime...")
     sess = ort.InferenceSession(str(decoder_path), providers=["CPUExecutionProvider"])
     targets = np.zeros((1, 1), dtype=np.int64)
-    tlen = np.array([1], dtype=np.int64)
     h = np.zeros((2, 1, 640), dtype=np.float32)
     c = np.zeros((2, 1, 640), dtype=np.float32)
 
-    out1 = sess.run(None, {"targets": targets, "target_length_orig": tlen, "h_in": h, "c_in": c})
+    out1 = sess.run(None, {"targets": targets, "h_in": h, "c_in": c})
     out2 = sess.run(None, {
         "targets": np.array([[5]], dtype=np.int64),
-        "target_length_orig": tlen, "h_in": out1[2], "c_in": out1[3],
+        "h_in": out1[1], "c_in": out1[2],
     })
-    h_diff = float(np.abs(out2[2] - out1[2]).max())
-    c_diff = float(np.abs(out2[3] - out1[3]).max())
+    h_diff = float(np.abs(out2[1] - out1[1]).max())
+    c_diff = float(np.abs(out2[2] - out1[2]).max())
     if h_diff > 0.001 and c_diff > 0.001:
         print(f"      [OK] LSTM states evolve correctly (h_diff={h_diff:.4f}, c_diff={c_diff:.4f})")
     else:
@@ -415,13 +414,11 @@ def generate_genai_config(asr_model, output_dir, streaming=False, chunk_size=0.5
         "num_hidden_layers": decoder_layers,
         "inputs": {
             "targets": "targets",
-            "target_length": "target_length_orig",
             "lstm_hidden_state": "h_in",
             "lstm_cell_state": "c_in",
         },
         "outputs": {
             "outputs": "decoder_output",
-            "prednet_lengths": "target_length",
             "lstm_hidden_state": "h_out",
             "lstm_cell_state": "c_out",
         },
@@ -699,18 +696,16 @@ def export_model(args):
     dec_wrapper.eval()
 
     dummy_targets = torch.zeros(batch_size, 1, dtype=torch.int64)
-    dummy_target_length = torch.tensor([1], dtype=torch.int64)
     dummy_h = torch.zeros(num_layers, batch_size, hidden_size, dtype=torch.float32)
     dummy_c = torch.zeros(num_layers, batch_size, hidden_size, dtype=torch.float32)
     if device == "cuda":
         dummy_targets = dummy_targets.cuda()
-        dummy_target_length = dummy_target_length.cuda()
         dummy_h = dummy_h.cuda()
         dummy_c = dummy_c.cuda()
 
     with torch.no_grad():
-        out = dec_wrapper(dummy_targets, dummy_target_length, dummy_h, dummy_c)
-        print(f"      Decoder forward check: output={out[0].shape}, h={out[2].shape}, c={out[3].shape}")
+        out = dec_wrapper(dummy_targets, dummy_h, dummy_c)
+        print(f"      Decoder forward check: output={out[0].shape}, h={out[1].shape}, c={out[2].shape}")
 
     decoder_path = output_dir / "decoder.onnx"
     decoder_data = output_dir / "decoder.onnx.data"
@@ -719,17 +714,15 @@ def export_model(args):
 
     with torch.no_grad():
         torch.onnx.export(
-            dec_wrapper, (dummy_targets, dummy_target_length, dummy_h, dummy_c),
+            dec_wrapper, (dummy_targets, dummy_h, dummy_c),
             str(decoder_path), export_params=True, opset_version=args.opset_version,
             do_constant_folding=True,
-            input_names=["targets", "target_length_orig", "h_in", "c_in"],
-            output_names=["decoder_output", "target_length", "h_out", "c_out"],
+            input_names=["targets", "h_in", "c_in"],
+            output_names=["decoder_output", "h_out", "c_out"],
             dynamic_axes={
                 "targets": {0: "batch", 1: "target_len"},
-                "target_length_orig": {0: "batch"},
                 "h_in": {1: "batch"}, "c_in": {1: "batch"},
                 "decoder_output": {0: "batch", 2: "target_len"},
-                "target_length": {0: "batch"},
                 "h_out": {1: "batch"}, "c_out": {1: "batch"},
             },
             dynamo=False,

@@ -225,7 +225,8 @@ def main():
         "--left-chunks",
         type=int,
         default=10,
-        help="Number of left context chunks for streaming attention (default: 10)",
+        help="Number of left chunks to look back in streaming mode (default: 10). "
+             "left_context = left_chunks * (chunk_mel_frames / subsampling_factor)",
     )
     parser.add_argument(
         "--device",
