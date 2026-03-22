@@ -7,6 +7,22 @@
             "supported_precisions": ["*"],
             "supported_algorithms": [],
             "supported_quantization_encodings": []
+        },
+        "orttransformersoptimization": {
+            "module_path": "olive.passes.onnx.transformer_optimization.OrtTransformersOptimization",
+            "supported_providers": ["*"],
+            "supported_accelerators": ["*"],
+            "supported_precisions": ["*"],
+            "supported_algorithms": [],
+            "supported_quantization_encodings": []
+        },
+        "nemotronkquantquantization": {
+            "module_path": "cpu.olive_passes.NemotronKQuantQuantization",
+            "supported_providers": ["CPUExecutionProvider"],
+            "supported_accelerators": ["cpu"],
+            "supported_precisions": ["int4"],
+            "supported_algorithms": ["k_quant"],
+            "supported_quantization_encodings": []
         }
     }
 }
