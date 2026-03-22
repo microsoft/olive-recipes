@@ -1,6 +1,6 @@
-arch: phi3
+arch: gpt-oss-20b
 recipes:
-  - name: Phi-4-mini-instruct_VitisAI
-    file: Phi-4-mini-instruct_quark_vitisai_llm.json
+  - name: gpt-oss-20b_VitisAI
+    file: gpt-oss-20b_quark_vitisai_llm.json
     devices: npu
     eps: VitisAIExecutionProvider
