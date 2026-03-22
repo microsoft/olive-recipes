@@ -1,0 +1,52 @@
+{
+  "name": "nemotron-speech-streaming-en-0.6b-int4-cpu-kquant",
+  "description": "Export Nemotron Speech Streaming model to ONNX and optimize encoder to INT4 for CPU EP.",
+  "target": {
+    "type": "cpu",
+    "execution_provider": "CPUExecutionProvider"
+  },
+  "pipeline": [
+    {
+      "step": "export",
+      "type": "python_script",
+      "script": "scripts/export_nemotron_to_onnx_static_shape.py",
+      "args": [
+        "--model_name", "nvidia/nemotron-speech-streaming-en-0.6b",
+        "--output_dir", "build/onnx_models_fp32",
+        "--streaming",
+        "--chunk_size", "0.56",
+        "--left_chunks", "10",
+        "--device", "cpu"
+      ]
+    },
+    {
+      "step": "optimize_int4",
+      "type": "python_script",
+      "script": "scripts/optimize_encoder.py",
+      "args": [
+        "--model_dir", "build/onnx_models_fp32",
+        "--output_dir", "build/onnx_models_int4",
+        "--dtype", "int4",
+        "--quant_method", "k_quant",
+        "--block_size", "32",
+        "--accuracy_level", "4"
+      ]
+    },
+    {
+      "step": "validate_e2e",
+      "type": "python_script",
+      "script": "scripts/test_e2e.py",
+      "args": [
+        "--model_dir", "build/onnx_models_int4"
+      ]
+    }
+  ],
+  "outputs": {
+    "model_dir": "build/onnx_models_int4",
+    "encoder": "build/onnx_models_int4/encoder.onnx",
+    "decoder": "build/onnx_models_int4/decoder.onnx",
+    "joint": "build/onnx_models_int4/joint.onnx",
+    "genai_config": "build/onnx_models_int4/genai_config.json",
+    "audio_processor_config": "build/onnx_models_int4/audio_processor_config.json"
+  }
+}

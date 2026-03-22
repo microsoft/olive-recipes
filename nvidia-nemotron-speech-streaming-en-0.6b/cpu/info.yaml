@@ -1,0 +1,18 @@
+name: nvidia-nemotron-speech-streaming-en-0.6b
+provider: NVIDIA
+model_id: nvidia/nemotron-speech-streaming-en-0.6b
+task: automatic-speech-recognition
+framework: ONNX Runtime
+execution_provider: CPUExecutionProvider
+summary: >
+  CPU recipe for exporting Nemotron Speech Streaming RNNT to ONNX and optimizing
+  encoder weights to INT4 (k_quant) for low-memory CPU inference.
+
+artifacts:
+  - cpu/nemotron_speech_int4_cpu_kquant.json
+
+scripts:
+  - scripts/export_nemotron_to_onnx_static_shape.py
+  - scripts/optimize_encoder.py
+  - scripts/test_e2e.py
+  - scripts/test_real_speech.py
