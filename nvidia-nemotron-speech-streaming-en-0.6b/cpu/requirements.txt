@@ -1,0 +1,10 @@
+git+https://github.com/microsoft/Olive.git@main
+numpy>=1.26
+onnx>=1.16.0
+onnxruntime>=1.20.0
+
+torch>=2.2
+nemo_toolkit[asr]>=2.0.0
+librosa>=0.10.0
+soundfile>=0.12.1
+sentencepiece>=0.2.0
