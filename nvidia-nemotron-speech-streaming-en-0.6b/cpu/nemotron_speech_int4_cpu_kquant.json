@@ -35,8 +35,7 @@
             }
         },
         "quantization": {
-            "type": "OnnxBlockWiseRtnQuantization",
-            "bits": 4,
+            "type": "NemotronKQuantQuantization",
             "block_size": 32,
             "is_symmetric": true,
             "accuracy_level": 4
