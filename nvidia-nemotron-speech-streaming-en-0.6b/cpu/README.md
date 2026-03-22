@@ -23,20 +23,22 @@ pip install -r nvidia-nemotron-speech-streaming-en-0.6b/cpu/requirements.txt
 
 ### Option A — full Olive workflow (export → fusion → INT4)
 
-Run all three steps as a single `olive run` workflow from the
+Run all three steps as a single Olive workflow from the
 `nvidia-nemotron-speech-streaming-en-0.6b` directory:
 
 ```bash
 cd nvidia-nemotron-speech-streaming-en-0.6b
 
-PYTHONPATH=. olive run \
+python -m olive run \
     --config cpu/nemotron_speech_int4_cpu_kquant.json \
     --package-config cpu/olive_package_config.json
 ```
 
-`PYTHONPATH=.` is required so that Python can find `cpu.olive_passes`
-(the custom `NemotronExport` pass) when `olive` is run as an installed
-script. Without it, the module will not be on `sys.path`.
+`python -m olive run` must be used instead of the bare `olive run` command.
+When invoked with `-m`, Python adds the current working directory to
+`sys.path[0]`, which allows `cpu.olive_passes` (the custom `NemotronExport`
+pass) to be imported. Running the installed `olive` script directly does not
+add the CWD to `sys.path`, causing a `ModuleNotFoundError` for the pass.
 
 The `--package-config` flag registers the custom `NemotronExport` pass
 (defined in `cpu/olive_passes.py`) with Olive so the export step can be
