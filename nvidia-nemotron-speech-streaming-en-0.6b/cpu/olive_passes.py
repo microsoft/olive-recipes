@@ -83,13 +83,21 @@ class NemotronExport(Pass):
         # The export script lives at scripts/ one level above cpu/
         script = Path(__file__).parent.parent / "scripts" / "export_nemotron_to_onnx_static_shape.py"
 
+        # Resolve the device value – Olive's resource-path scanner resolves bare
+        # strings that match local directory names (e.g. "cpu" → the ./cpu/ folder).
+        # Retrieve the original string from the default config if the value was
+        # coerced into an absolute path.
+        device = config.device
+        if Path(str(device)).is_absolute():
+            device = Path(str(device)).name
+
         cmd = [
             sys.executable, str(script),
             "--model_name", config.model_name,
             "--output_dir", str(output_dir),
             "--chunk_size", str(config.chunk_size),
             "--left_chunks", str(config.left_chunks),
-            "--device", config.device,
+            "--device", device,
         ]
         if config.streaming:
             cmd.append("--streaming")

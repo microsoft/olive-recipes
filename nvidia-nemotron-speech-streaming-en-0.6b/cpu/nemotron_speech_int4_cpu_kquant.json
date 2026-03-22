@@ -1,7 +1,7 @@
 {
     "input_model": {
-        "type": "OnnxModel",
-        "model_path": "build/onnx_models_fp32/encoder.onnx"
+        "type": "PyTorchModel",
+        "model_path": "nvidia/nemotron-speech-streaming-en-0.6b"
     },
     "systems": {
         "local_system": {
