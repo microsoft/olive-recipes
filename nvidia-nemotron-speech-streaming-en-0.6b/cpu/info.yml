@@ -1,0 +1,7 @@
+keywords:
+    olive-ai
+ep:
+    CPUExecutionProvider
+device:
+    cpu
+name: nvidia-nemotron-speech-streaming-en-0.6b

@@ -1,0 +1,26 @@
+{
+    "input_model": {
+        "type": "OnnxModel",
+        "model_path": "build/onnx_models_fp32/encoder.onnx"
+    },
+    "passes": {
+        "fusion": {
+            "type": "OrtTransformersOptimization",
+            "model_type": "conformer",
+            "num_heads": 8,
+            "hidden_size": 1024,
+            "opt_level": 0,
+            "only_onnxruntime": false
+        },
+        "int4": {
+            "type": "OnnxBlockWiseRtnQuantization",
+            "block_size": 32,
+            "is_symmetric": true,
+            "accuracy_level": 4,
+            "save_as_external_data": true,
+            "external_data_name": "encoder.onnx.data"
+        }
+    },
+    "no_artifacts": true,
+    "output_dir": "build/onnx_models_int4/encoder.onnx"
+}
