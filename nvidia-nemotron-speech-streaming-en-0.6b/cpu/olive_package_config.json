@@ -21,7 +21,7 @@
             "supported_providers": ["CPUExecutionProvider"],
             "supported_accelerators": ["cpu"],
             "supported_precisions": ["int4"],
-            "supported_algorithms": ["k_quant"],
+            "supported_algorithms": [],
             "supported_quantization_encodings": []
         }
     }
