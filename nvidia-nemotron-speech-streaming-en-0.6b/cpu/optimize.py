@@ -92,7 +92,7 @@ def run_olive_graph_fusion(export_dir: str, fused_dir: str):
         config = json.load(f)
 
     config["input_model"]["model_path"] = str(_resolve(export_dir) / "encoder.onnx")
-    config["output_dir"] = str(_resolve(fused_dir) / "encoder.onnx")
+    config["output_dir"] = str(_resolve(fused_dir))
 
     with tempfile.NamedTemporaryFile(
         mode="w", suffix=".json", dir=str(_SCRIPT_DIR), delete=False
