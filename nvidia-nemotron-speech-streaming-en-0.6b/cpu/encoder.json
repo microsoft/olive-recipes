@@ -17,5 +17,5 @@
         }
     },
     "no_artifacts": true,
-    "output_dir": "build/onnx_models_fused/encoder.onnx"
+    "output_dir": "build/onnx_models_fused"
 }
