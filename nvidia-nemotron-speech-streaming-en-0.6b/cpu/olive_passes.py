@@ -37,6 +37,14 @@ class NemotronExport(Pass):
     @classmethod
     def _default_config(cls, accelerator_spec: AcceleratorSpec) -> dict:
         return {
+            "model_name": PassConfigParam(
+                type_=str,
+                default_value="nvidia/nemotron-speech-streaming-en-0.6b",
+                description=(
+                    "HuggingFace model ID or path to a local .nemo file to export. "
+                    "Passed directly to the export script's --model_name argument."
+                ),
+            ),
             "streaming": PassConfigParam(
                 type_=bool,
                 default_value=True,
@@ -71,7 +79,7 @@ class NemotronExport(Pass):
 
         cmd = [
             sys.executable, str(script),
-            "--model_name", model.model_path,
+            "--model_name", config.model_name,
             "--output_dir", str(output_dir),
             "--chunk_size", str(config.chunk_size),
             "--left_chunks", str(config.left_chunks),

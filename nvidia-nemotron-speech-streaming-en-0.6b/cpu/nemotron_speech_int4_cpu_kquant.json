@@ -1,7 +1,7 @@
 {
     "input_model": {
-        "type": "HfModel",
-        "model_path": "nvidia/nemotron-speech-streaming-en-0.6b"
+        "type": "OnnxModel",
+        "model_path": "build/onnx_models_fp32/encoder.onnx"
     },
     "systems": {
         "local_system": {
@@ -17,6 +17,7 @@
     "passes": {
         "export": {
             "type": "NemotronExport",
+            "model_name": "nvidia/nemotron-speech-streaming-en-0.6b",
             "streaming": true,
             "chunk_size": 0.56,
             "left_chunks": 10,
