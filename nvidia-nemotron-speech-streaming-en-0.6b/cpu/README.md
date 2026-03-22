@@ -29,10 +29,14 @@ Run all three steps as a single `olive run` workflow from the
 ```bash
 cd nvidia-nemotron-speech-streaming-en-0.6b
 
-olive run \
+PYTHONPATH=. olive run \
     --config cpu/nemotron_speech_int4_cpu_kquant.json \
     --package-config cpu/olive_package_config.json
 ```
+
+`PYTHONPATH=.` is required so that Python can find `cpu.olive_passes`
+(the custom `NemotronExport` pass) when `olive` is run as an installed
+script. Without it, the module will not be on `sys.path`.
 
 The `--package-config` flag registers the custom `NemotronExport` pass
 (defined in `cpu/olive_passes.py`) with Olive so the export step can be
