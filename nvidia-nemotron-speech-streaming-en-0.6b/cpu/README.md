@@ -17,28 +17,18 @@ source .venv/bin/activate
 pip install -r nvidia-nemotron-speech-streaming-en-0.6b/cpu/requirements.txt
 ```
 
-## Run manually
+## Run
 
 ```bash
 cd nvidia-nemotron-speech-streaming-en-0.6b
 
-python scripts/export_nemotron_to_onnx_static_shape.py \
-  --model_name nvidia/nemotron-speech-streaming-en-0.6b \
-  --output_dir build/onnx_models_fp32 \
-  --streaming \
-  --chunk_size 0.56 \
-  --left_chunks 10 \
-  --device cpu
+python cpu/optimize.py
+```
 
-python scripts/optimize_encoder.py \
-  --model_dir build/onnx_models_fp32 \
-  --output_dir build/onnx_models_int4 \
-  --dtype int4 \
-  --quant_method k_quant_mixed \
-  --block_size 32 \
-  --accuracy_level 4
+To skip the NeMo export step if models are already in `build/onnx_models_fp32/`:
 
-python scripts/test_e2e.py --model_dir build/onnx_models_int4
+```bash
+python cpu/optimize.py --skip-export
 ```
 
 ## Output
