@@ -92,6 +92,7 @@ python test_real_speech.py
 | `tokenizer.json` | HuggingFace Unigram tokenizer (1025 tokens) |
 | `tokenizer_config.json` | T5Tokenizer class routing for ORT Extensions |
 | `vocab.txt` | Raw vocabulary (one token per line) |
+| `silero_vad.onnx` | Silero VAD model (downloaded from onnx-community/silero-vad) |
 
 ## Scripts
 

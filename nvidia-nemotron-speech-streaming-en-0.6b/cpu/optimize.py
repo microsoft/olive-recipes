@@ -161,6 +161,30 @@ def run_kquant_quantization(
     print()
 
 
+def download_silero_vad(output_dir: str):
+    """Download the Silero VAD ONNX model from onnx-community/silero-vad.
+
+    The model is saved as silero_vad.onnx in the output directory alongside
+    the other ONNX models so it is available for voice-activity detection
+    during inference.
+    """
+    from huggingface_hub import hf_hub_download
+
+    print("=== Downloading Silero VAD ONNX model ===")
+    dst_dir = _resolve(output_dir)
+    dst_dir.mkdir(parents=True, exist_ok=True)
+    dst = dst_dir / "silero_vad.onnx"
+
+    cached = hf_hub_download(
+        repo_id="onnx-community/silero-vad",
+        filename="onnx/model.onnx",
+    )
+    shutil.copy2(cached, str(dst))
+    size_mb = dst.stat().st_size / (1024 * 1024)
+    print(f"  Saved Silero VAD model to: {dst} ({size_mb:.1f} MB)")
+    print()
+
+
 def copy_supporting_files(export_dir: str, output_dir: str):
     """Copy decoder, joint, tokenizer, and config files to the output directory.
 
@@ -263,6 +287,19 @@ def main():
     print("=== Copying supporting files ===")
     copy_supporting_files(export_dir=args.export_dir, output_dir=args.output_dir)
     print()
+
+    # Download Silero VAD ONNX model alongside the other ONNX models
+    try:
+        download_silero_vad(output_dir=args.output_dir)
+    except Exception as exc:
+        print(
+            f"  Warning: Silero VAD download failed ({exc}).\n"
+            "  You can download it manually with:\n"
+            "    hf download onnx-community/silero-vad --include onnx/model.onnx --local-dir .\n"
+            "  or:\n"
+            "    huggingface-cli download onnx-community/silero-vad --include onnx/model.onnx --local-dir .\n"
+            f"  and copy onnx/model.onnx to {_resolve(args.output_dir) / 'silero_vad.onnx'}"
+        )
 
     # Summary
     output_path = _resolve(args.output_dir)
