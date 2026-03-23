@@ -89,10 +89,10 @@ python test_real_speech.py
 | `joint.onnx` (+`.data`) | Joint network (encoder + decoder → logits) |
 | `genai_config.json` | Model configuration for onnxruntime-genai |
 | `audio_processor_config.json` | Mel spectrogram parameters (16kHz, 128 mels, 512 FFT) |
+| `silero_vad.onnx` | Silero VAD model (downloaded from onnx-community/silero-vad) |
 | `tokenizer.json` | HuggingFace Unigram tokenizer (1025 tokens) |
 | `tokenizer_config.json` | T5Tokenizer class routing for ORT Extensions |
 | `vocab.txt` | Raw vocabulary (one token per line) |
-| `silero_vad.onnx` | Silero VAD model (downloaded from onnx-community/silero-vad) |
 
 ## Scripts
 
