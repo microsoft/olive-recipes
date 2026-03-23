@@ -84,12 +84,12 @@ python test_real_speech.py
 
 | File | Description |
 |------|-------------|
+| `silero_vad.onnx` | Silero VAD model (downloaded from onnx-community/silero-vad) |
 | `encoder.onnx` (+`.data`) | FastConformer encoder (24 layers, ~2.4 GB weights) |
 | `decoder.onnx` (+`.data`) | RNNT prediction network (2 LSTM layers, stateful h/c I/O) |
 | `joint.onnx` (+`.data`) | Joint network (encoder + decoder → logits) |
 | `genai_config.json` | Model configuration for onnxruntime-genai |
 | `audio_processor_config.json` | Mel spectrogram parameters (16kHz, 128 mels, 512 FFT) |
-| `silero_vad.onnx` | Silero VAD model (downloaded from onnx-community/silero-vad) |
 | `tokenizer.json` | HuggingFace Unigram tokenizer (1025 tokens) |
 | `tokenizer_config.json` | T5Tokenizer class routing for ORT Extensions |
 | `vocab.txt` | Raw vocabulary (one token per line) |
