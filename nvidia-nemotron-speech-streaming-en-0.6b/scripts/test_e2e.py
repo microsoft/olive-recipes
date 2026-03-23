@@ -40,7 +40,7 @@ def test_tokenizer(model):
         57: "is",
     }
     for tid, expected in test_tokens.items():
-        decoded = tokenizer.decode(tid)
+        decoded = tokenizer.decode([tid])
         status = "✓" if expected in decoded else "✗"
         print(f"  {status} Token {tid} -> {decoded!r} (expected contains {expected!r})")
 
@@ -132,9 +132,9 @@ def test_raw_onnx_inference(model_path: str):
     dec_path = str(Path(model_path) / "decoder.onnx")
     joint_path = str(Path(model_path) / "joint.onnx")
 
-    enc_sess = ort.InferenceSession(enc_path)
-    dec_sess = ort.InferenceSession(dec_path)
-    joint_sess = ort.InferenceSession(joint_path)
+    enc_sess = ort.InferenceSession(enc_path, providers=["CPUExecutionProvider"])
+    dec_sess = ort.InferenceSession(dec_path, providers=["CPUExecutionProvider"])
+    joint_sess = ort.InferenceSession(joint_path, providers=["CPUExecutionProvider"])
 
     # Encoder
     audio = np.random.randn(1, 128, 100).astype(np.float32)
@@ -203,7 +203,19 @@ def main():
     print("Nemotron ASR - End-to-End Test via onnxruntime-genai")
     print("=" * 60)
 
-    model_path = str(Path(__file__).parent / "onnx_models_cpu_fp32")
+    scripts_dir = Path(__file__).parent
+    repo_root = scripts_dir.parent
+
+    if len(sys.argv) > 1:
+        model_path = sys.argv[1]
+    else:
+        candidate_paths = [
+            repo_root / "build" / "onnx_models_int4",
+            repo_root / "build" / "onnx_models_fp32",
+            scripts_dir / "onnx_models_cpu_fp32",
+        ]
+        selected = next((p for p in candidate_paths if p.exists()), None)
+        model_path = str(selected if selected is not None else candidate_paths[0])
 
     if not Path(model_path).exists():
         print(f"Error: Model directory not found: {model_path}")

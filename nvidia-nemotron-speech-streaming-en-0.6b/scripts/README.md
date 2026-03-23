@@ -9,7 +9,7 @@ for inference with ONNX Runtime GenAI.
 conda create -n nemotron-export python=3.10 -y
 conda activate nemotron-export
 pip install Cython packaging torch torchaudio onnxruntime
-pip install "git+https://github.com/NVIDIA/NeMo.git@main#egg=nemo_toolkit[asr]"
+pip install "nemo_toolkit[asr]>=2.7.1"
 ```
 
 ## Export
@@ -17,7 +17,7 @@ pip install "git+https://github.com/NVIDIA/NeMo.git@main#egg=nemo_toolkit[asr]"
 ### 1. Export ONNX models (encoder, decoder, joint)
 
 ```bash
-python export_nemotron_to_onnx.py --output_dir ./onnx_models --streaming
+python export_nemotron_to_onnx_static_shape.py --output_dir ./onnx_models --streaming
 ```
 
 The decoder is exported with explicit LSTM state I/O (`h_in`/`c_in` → `h_out`/`c_out`)
@@ -29,8 +29,8 @@ Options:
 |----------|---------|-------------|
 | `--model_name` | `nvidia/nemotron-speech-streaming-en-0.6b` | HuggingFace model name or `.nemo` path |
 | `--output_dir` | `./onnx_models` | Output directory |
-| `--chunk_size` | `1.12` | Streaming chunk size (0.08, 0.16, 0.56, 1.12 seconds) |
-| `--opset_version` | `17` | ONNX opset version |
+| `--chunk_size` | `0.56` | Streaming chunk size (0.08, 0.16, 0.56, 1.12 seconds) |
+| `--opset_version` | `21` | ONNX opset version |
 | `--device` | `cpu` | Device for export (`cpu` or `cuda`) |
 
 ### 2. Export tokenizer
@@ -67,8 +67,8 @@ Options:
 | `--output_dir` | `./onnx_models_optimized` | Output directory for optimized models |
 | `--block_size` | `32` | INT4 quantization block size |
 | `--accuracy_level` | `4` | Accuracy level (0=unset, 4=highest) |
+| `--dtype` | `fp32` | Output dtype for encoder weights (`fp32`, `fp16`, `int8`, `int4`) |
 | `--skip_fusion` | | Skip graph fusion stage |
-| `--skip_quantization` | | Skip INT4 quantization stage |
 
 ## Test
 
@@ -97,7 +97,7 @@ python test_real_speech.py
 
 | Script | Purpose |
 |--------|---------|
-| `export_nemotron_to_onnx.py` | Export encoder, decoder, joint ONNX models from NeMo |
+| `export_nemotron_to_onnx_static_shape.py` | Export encoder, decoder, joint ONNX models from NeMo |
 | `export_tokenizer.py` | Extract vocab from NeMo and create ORT-compatible tokenizer |
 | `optimize_encoder.py` | Optimize encoder: graph fusion (conformer) + INT4 quantization |
 | `test_e2e.py` | End-to-end test: model load, tokenizer, inference, raw ONNX baseline |

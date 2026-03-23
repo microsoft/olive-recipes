@@ -589,7 +589,7 @@ def main():
                 tag = " (FP32, unchanged)"
             print(f"    {f.name:40s} {size_mb:8.1f} MB{tag}")
 
-    print(f"\n  Next: validate with test_real_speech.py using --model_dir {output_dir}")
+    print(f"\n  Next: validate with test_real_speech.py using --model-dir {output_dir}")
 
 
 if __name__ == "__main__":

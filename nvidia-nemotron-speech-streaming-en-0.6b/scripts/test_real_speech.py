@@ -4,6 +4,7 @@ Test Nemotron ASR with real speech audio.
 Compares raw ONNX Runtime inference with onnxruntime-genai pipeline.
 """
 
+import argparse
 import numpy as np
 import torch
 import soundfile as sf
@@ -11,8 +12,23 @@ from pathlib import Path
 
 
 def main():
-    model_dir = Path(__file__).parent / "onnx_models"
-    audio_path = Path(__file__).parent.parent.parent / "test" / "test_models" / "audios" / "jfk.flac"
+    parser = argparse.ArgumentParser(description="Test Nemotron ASR with real speech audio.")
+    parser.add_argument(
+        "--model-dir",
+        type=str,
+        default=str(Path(__file__).parent / "onnx_models"),
+        help="Path to directory containing ONNX models (default: scripts/onnx_models).",
+    )
+    parser.add_argument(
+        "--audio-path",
+        type=str,
+        default=str(Path(__file__).parent.parent.parent / "test" / "test_models" / "audios" / "jfk.flac"),
+        help="Path to the input audio file (default: test/test_models/audios/jfk.flac).",
+    )
+    args = parser.parse_args()
+
+    model_dir = Path(args.model_dir).resolve()
+    audio_path = Path(args.audio_path)
 
     if not audio_path.exists():
         print(f"Audio file not found: {audio_path}")
@@ -57,9 +73,9 @@ def main():
     # ---- Raw ONNX Runtime Greedy Decode ----
     import onnxruntime as ort
 
-    enc = ort.InferenceSession(str(model_dir / "encoder.onnx"))
-    dec = ort.InferenceSession(str(model_dir / "decoder.onnx"))
-    jnt = ort.InferenceSession(str(model_dir / "joint.onnx"))
+    enc = ort.InferenceSession(str(model_dir / "encoder.onnx"), providers=["CPUExecutionProvider"])
+    dec = ort.InferenceSession(str(model_dir / "decoder.onnx"), providers=["CPUExecutionProvider"])
+    jnt = ort.InferenceSession(str(model_dir / "joint.onnx"), providers=["CPUExecutionProvider"])
 
     enc_out = enc.run(
         None,
