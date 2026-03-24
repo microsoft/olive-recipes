@@ -64,12 +64,9 @@ python -c "import torch; print(torch.cuda.is_available())" # Must return `True`
 Follow the above setup instructions, then run the below command to generate the optimized LLM model for VitisAI EP
 
 ```bash
-# Phi-4-mini-instruct
-olive run --config Phi-4-mini-instruct_quark_vitisai_llm.json
-
 # Phi-4-mini-reasoning
 olive run --config Phi-4-mini-reasoning_quark_vitisai_llm.json
 ```
 
-✅ Optimized model saved in: `models/Phi-4-mini-instruct-vai/`
+✅ Optimized model saved in: `models/Phi-4-mini-reasoning-vai/`
 > **Note:** Output model is saved in `output_dir` mentioned in the json files.
