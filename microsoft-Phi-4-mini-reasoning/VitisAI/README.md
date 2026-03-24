@@ -23,7 +23,7 @@ For LLMs - follow the below commands to generate the optimized model for VitisAI
 
 For more details about quark, see the [Quark Documentation](https://quark.docs.amd.com/latest/)
 
-#### **Create a Python 3.10 conda environment and run the below commands**
+#### **Create a Python 3.12 conda environment and run the below commands**
 ```bash
 conda create -n olive python=3.12
 conda activate olive
@@ -40,16 +40,23 @@ pip install -r requirements.txt
 ```bash
 cd olive-recipes/microsoft-Phi-4-mini-reasoning/VitisAI
 pip install --force-reinstall -r requirements_vitisai_llm.txt
-
-# Note: If you're running model generation on a Windows system, please uncomment the following line in requirements_vitisai_llm.txt:
-# --extra-index-url=https://pypi.amd.com/simple
-# model-generate==1.5.1
 ```
 
-Make sure to install the correct version of PyTorch before running quantization. If using AMD GPUs, update PyTorch to use ROCm-compatible PyTorch build. For example see the below commands
+ 
+#### **Install PyTorch**
 
+Make sure to install the correct version of PyTorch before running quantization:
+
+**For AMD GPUs (ROCm):**
 ```bash
 pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/rocm6.1
+
+python -c "import torch; print(torch.cuda.is_available())" # Must return `True`
+```
+
+**For NVIDIA GPUs (CUDA):**
+```bash
+pip install torch==2.7.1 torchvision==0.22.1 torchaudio==2.7.1 --index-url https://download.pytorch.org/whl/cu128
 
 python -c "import torch; print(torch.cuda.is_available())" # Must return `True`
 ```

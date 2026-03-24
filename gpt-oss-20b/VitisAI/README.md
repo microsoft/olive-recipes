@@ -23,7 +23,7 @@ For LLMs - follow the below commands to generate the optimized model for VitisAI
 
 For more details about quark, see the [Quark Documentation](https://quark.docs.amd.com/latest/)
 
-#### **Create a Python 3.10 conda environment and run the below commands**
+#### **Create a Python 3.12 conda environment and run the below commands**
 ```bash
 conda create -n olive python=3.12
 conda activate olive
