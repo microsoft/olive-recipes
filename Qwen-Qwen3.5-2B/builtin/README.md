@@ -59,9 +59,41 @@ cpu_and_mobile/models/          # or cuda/models/
 ### 3. Run Inference
 
 ```bash
-# CPU
-python -m onnxruntime_genai.models.model_mm -m cpu_and_mobile/models --max_length 4096
+# Text-only
+python inference.py --prompt "What is the capital of France?"
 
-# CUDA
-python -m onnxruntime_genai.models.model_mm -m cuda/models --max_length 4096
+# Image + text
+python inference.py --image photo.jpg --prompt "Describe this image"
+
+# Interactive mode
+python inference.py --interactive
+
+# CUDA model
+python inference.py --model_path cuda/models --prompt "Hello"
 ```
+
+Alternatively, use the built-in GenAI multimodal demo:
+
+```bash
+python -m onnxruntime_genai.models.model_mm -m cpu_and_mobile/models --max_length 4096
+```
+
+### 4. Evaluate on AI2D
+
+Run the AI2D (diagram understanding) benchmark to measure accuracy:
+
+```bash
+# ONNX only (100 samples, default)
+python eval.py
+
+# Compare ONNX vs PyTorch side-by-side
+python eval.py --pytorch_model Qwen/Qwen3.5-2B
+
+# Larger evaluation
+python eval.py --num_samples 500 --pytorch_model Qwen/Qwen3.5-2B
+
+# CUDA model
+python eval.py --model_path cuda/models
+```
+
+The eval script reports per-sample accuracy, average latency, and an ONNX-vs-PyTorch comparison summary.
