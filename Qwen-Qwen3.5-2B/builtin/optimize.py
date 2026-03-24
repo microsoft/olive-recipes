@@ -37,7 +37,13 @@ def update_genai_config(output_dir: str = MODELS_DIR, device: str = "cpu"):
     with open(config_path) as f:
         config = json.load(f)
 
-    provider_options = []
+    if device == "gpu":
+        provider_options = [
+            {"cuda": {"enable_cuda_graph": "0", "enable_skip_layer_norm_strict_mode": "1"}}
+        ]
+    else:
+        provider_options = []
+
     session_options = {"log_id": "onnxruntime-genai", "provider_options": provider_options}
 
     config["model"]["embedding"] = {

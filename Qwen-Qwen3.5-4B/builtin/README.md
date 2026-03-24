@@ -2,7 +2,7 @@
 
 This example demonstrates how to convert [Qwen3.5-4B](https://huggingface.co/Qwen/Qwen3.5-4B) vision-language model to ONNX format using Olive and run inference with ONNX Runtime GenAI.
 
-Qwen3.5 is a hybrid architecture combining GatedDeltaNet linear attention layers with standard full attention layers. The pipeline exports three sub-models (vision encoder, text embedding, text decoder), applies graph optimizations, and quantizes all three sub-models to INT4.
+Qwen3.5 is a hybrid architecture combining GatedDeltaNet linear attention layers with standard full attention layers. The pipeline exports three sub-models (vision encoder, text embedding, text decoder) and applies graph optimizations. For CPU, all three sub-models are quantized to INT4. For CUDA, the vision encoder and embedding use FP16 while the text decoder uses INT4.
 
 ## Prerequisites
 

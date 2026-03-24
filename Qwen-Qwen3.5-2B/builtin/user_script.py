@@ -71,7 +71,7 @@ def get_embedding_io_config(model_path=None):
 
 
 def get_embedding_dummy_inputs(model=None):
-    # Qwen3.5-0.8B: out_hidden_size=1024, patch_size=16
+    # Qwen3.5-2B: out_hidden_size=2048, patch_size=16
     batch_size, sequence_length, patches_per_image, out_hidden_size = (
         2, 216, 187, 2048,
     )
