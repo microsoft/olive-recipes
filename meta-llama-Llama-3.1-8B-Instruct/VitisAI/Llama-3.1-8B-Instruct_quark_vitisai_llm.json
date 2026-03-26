@@ -31,7 +31,7 @@
                 "model_decoder_layers": "model.layers"
             }
         },
-        "mg": { "type": "VitisGenerateModelLLM", "packed_const": false, "cpu_only": false }
+        "mg": { "type": "VitisGenerateModelLLM", "packed_const": false, "cpu_only": false, "filtered_zip_path": "filtered_txn.zip" }
     },
     "log_severity_level": 1,
     "output_dir": "models/Llama-3.1-8B-Instruct-vai",
