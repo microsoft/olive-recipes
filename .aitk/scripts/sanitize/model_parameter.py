@@ -252,6 +252,7 @@ class ModelParameter(BaseModelClass):
     pyEnvRuntimeFeatures: Optional[List[str]] = None
     # Default is False - CPU execution provider is only added when explicitly set to True
     addCpu: Optional[bool] = None
+    epMinVersions: Optional[Dict[EPNames, str]] = None
 
     runtime: Optional[Parameter] = None
     runtimeInConversion: Optional[Parameter] = None
@@ -422,8 +423,8 @@ class ModelParameter(BaseModelClass):
         if first_pass_value and first_pass_value[OlivePropertyNames.Type].lower() == OlivePassNames.ModelBuilder:
             self.needHFLogin = True
 
-        if self.evalMetrics and len(self.evalMetrics) > 2:
-            printError(f"{self._file} evalMetrics should not have more than 2 metrics")
+        if self.evalMetrics and len(self.evalMetrics) > 3:
+            printError(f"{self._file} evalMetrics should not have more than 3 metrics")
 
         self.checkPhase(oliveJson, self.evalNoDataConfig or False)
         self.CheckRuntimeInConversion(oliveJson, modelList, modelInfo)
