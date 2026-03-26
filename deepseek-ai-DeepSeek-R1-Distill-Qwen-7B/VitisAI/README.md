@@ -29,7 +29,17 @@ conda create -n olive python=3.12
 conda activate olive
 ```
 
+#### **Install Olive**
+
+**Option 1: Install from PyPI**
 ```bash
+pip install olive-ai[auto-opt]
+pip install transformers onnxruntime-genai
+```
+
+**Option 2: Install from source**
+```bash
+git clone https://github.com/microsoft/Olive.git
 cd Olive
 pip install -e .
 pip install -r requirements.txt
@@ -61,6 +71,20 @@ pip install torch==2.7.1 torchvision==0.22.1 torchaudio==2.7.1 --index-url https
 
 python -c "import torch; print(torch.cuda.is_available())" # Must return `True`
 ```
+
+**For CPU-only (Windows):**
+```bash
+pip install torch==2.7.0 torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
+python -c "import torch; print(torch.__version__)"  # Should print 2.7.0+cpu
+```
+
+
+**For CPU-only (Windows):**
+```bash
+pip install torch==2.7.0 torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
+python -c "import torch; print(torch.__version__)"  # Should print 2.7.0+cpu
+```
+
 #### **Generate optimized LLM model for VitisAI NPU**
 Follow the above setup instructions, then run the below command to generate the optimized LLM model for VitisAI EP
 

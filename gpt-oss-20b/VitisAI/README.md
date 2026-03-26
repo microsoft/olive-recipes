@@ -29,7 +29,17 @@ conda create -n olive python=3.12
 conda activate olive
 ```
 
+#### **Install Olive**
+
+**Option 1: Install from PyPI**
 ```bash
+pip install olive-ai[auto-opt]
+pip install transformers onnxruntime-genai
+```
+
+**Option 2: Install from source**
+```bash
+git clone https://github.com/microsoft/Olive.git
 cd Olive
 pip install -e .
 pip install -r requirements.txt
