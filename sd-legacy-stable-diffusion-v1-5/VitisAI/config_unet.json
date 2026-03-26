@@ -3,7 +3,6 @@
         "type": "PyTorchModel",
         "model_path": "sd-legacy/stable-diffusion-v1-5",
         "model_loader": "unet_load",
-        "script_dir": ".",
         "model_script": "user_script.py",
         "io_config": {
             "input_names": [ "sample", "timestep", "encoder_hidden_states", "return_dict" ],
@@ -30,9 +29,8 @@
         },
         "model_generation": {
             "type": "VitisGenerateModelSD",
-            "model_type": "sd_unet",
-            "fixed_shapes_dim_param": [ "graphs", "batch", "channels", "height", "width", "sequence" ],
-            "fixed_shapes_dim_value": [ 1, 2, 4, 64, 64, 77 ]
+            "model_type": "sd-unet",
+            "resolutions": ["512x512"]
         }
     },
     "log_severity_level": 0,

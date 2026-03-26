@@ -3,7 +3,6 @@
         "type": "PyTorchModel",
         "model_path": "sd-legacy/stable-diffusion-v1-5",
         "model_loader": "vae_decoder_load",
-        "script_dir": ".",
         "model_script": "user_script.py",
         "io_config": {
             "input_names": [ "latent_sample", "return_dict" ],
@@ -23,9 +22,8 @@
         "convert": { "type": "OnnxConversion", "target_opset": 17 },
         "model_generation": {
             "type": "VitisGenerateModelSD",
-            "model_type": "sd_vae_decoder",
-            "fixed_shapes_dim_param": [ "graphs", "batch", "channels", "height", "width" ],
-            "fixed_shapes_dim_value": [ 1, 1, 4, 64, 64 ]
+            "model_type": "sd15-vae-decoder",
+            "resolutions": ["512x512"]
         }
     },
     "log_severity_level": 0,

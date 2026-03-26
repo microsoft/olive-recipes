@@ -28,7 +28,7 @@ def update_vai_config(config: dict, provider: str, submodel_name: str):
         config["evaluator"] = None
 
     if submodel_name in ("text_encoder", "vae_encoder", "safety_checker"):
-        used_passes = {"convert", "optimize"}
+        used_passes = {"convert", "optimize", "dynamic_shape_to_fixed"}
     elif submodel_name in ("unet", "vae_decoder"):
         used_passes = {"convert", "model_generation"}
 
@@ -55,17 +55,28 @@ def save_vai_pipeline(
     """Save VitisAI pipeline: unet/vae_decoder as full dir (dd/, cache/); others as model.onnx."""
     print("\nCreating ONNX pipeline (VitisAI)...")
 
+    # diffusers >= 0.30 expects provider_options in kwargs (kwargs.pop without default).
+    _cpu_onnx_kw = {"providers": ["CPUExecutionProvider"], "provider_options": [{}]}
+
     if has_safety_checker:
-        safety_checker = OnnxRuntimeModel.from_pretrained(model_info["safety_checker"]["unoptimized"]["path"].parent)
+        safety_checker = OnnxRuntimeModel.from_pretrained(
+            str(model_info["safety_checker"]["unoptimized"]["path"].parent), **_cpu_onnx_kw
+        )
     else:
         safety_checker = None
 
     onnx_pipeline = OnnxStableDiffusionPipeline(
-        vae_encoder=OnnxRuntimeModel.from_pretrained(model_info["vae_encoder"]["unoptimized"]["path"].parent),
-        vae_decoder=OnnxRuntimeModel.from_pretrained(model_info["vae_decoder"]["unoptimized"]["path"].parent),
-        text_encoder=OnnxRuntimeModel.from_pretrained(model_info["text_encoder"]["unoptimized"]["path"].parent),
+        vae_encoder=OnnxRuntimeModel.from_pretrained(
+            str(model_info["vae_encoder"]["unoptimized"]["path"].parent), **_cpu_onnx_kw
+        ),
+        vae_decoder=OnnxRuntimeModel.from_pretrained(
+            str(model_info["vae_decoder"]["unoptimized"]["path"].parent), **_cpu_onnx_kw
+        ),
+        text_encoder=OnnxRuntimeModel.from_pretrained(
+            str(model_info["text_encoder"]["unoptimized"]["path"].parent), **_cpu_onnx_kw
+        ),
         tokenizer=pipeline.tokenizer,
-        unet=OnnxRuntimeModel.from_pretrained(model_info["unet"]["unoptimized"]["path"].parent),
+        unet=OnnxRuntimeModel.from_pretrained(str(model_info["unet"]["unoptimized"]["path"].parent), **_cpu_onnx_kw),
         scheduler=pipeline.scheduler,
         safety_checker=safety_checker,
         feature_extractor=pipeline.feature_extractor,

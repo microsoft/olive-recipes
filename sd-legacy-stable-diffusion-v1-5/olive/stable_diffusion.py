@@ -245,7 +245,11 @@ def optimize(
         print(f"\nOptimizing {submodel_name}")
 
         olive_config = None
-        with (script_dir / f"config_{submodel_name}.json").open() as fin:
+        olive_config_dir = script_dir
+        if provider == "vitisai":
+            olive_config_dir = Path(__file__).resolve().parent.parent / "VitisAI"
+        olive_config_path = olive_config_dir / f"config_{submodel_name}.json"
+        with olive_config_path.open() as fin:
             olive_config = json.load(fin)
         olive_config = update_config_with_provider(olive_config, provider, model_format, submodel_name)
 
