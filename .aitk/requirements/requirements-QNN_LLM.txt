@@ -42,7 +42,7 @@ pyzmq==26.3.0
 six==1.17.0
 stack-data==0.6.3
 sympy==1.14.0
-tornado==6.4.2
+tornado==6.5.5
 traitlets==5.14.3
 wasdk-Microsoft.Windows.AI.MachineLearning==1.8.251106002
 wasdk-Microsoft.Windows.ApplicationModel.DynamicDependency.Bootstrap==1.8.251106002

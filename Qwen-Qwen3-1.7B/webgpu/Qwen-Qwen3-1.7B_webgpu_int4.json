@@ -1,9 +1,20 @@
 {
     "input_model": {
         "type": "HfModel",
-        "model_path": "Qwen/Qwen3-4B",
+        "model_path": "Qwen/Qwen3-1.7B",
         "load_kwargs": {
             "torch_dtype": "float16"
+        }
+    },
+    "systems": {
+        "local_system": {
+            "type": "LocalSystem",
+            "accelerators": [
+                {
+                    "device": "gpu",
+                    "execution_providers": ["WebGpuExecutionProvider"]
+                }
+            ]
         }
     },
     "passes": {
@@ -24,17 +35,26 @@
         },
         "r": {
             "type": "rtn",
-            "bits": 4,
+            "bits": 8,
             "sym": false,
             "group_size": 32,
             "lm_head": true,
-            "embeds": true
+            "embeds": true,
+            "overrides": {
+                "lm_head": {"bits": 8},
+                "model.embed_tokens": {"bits": 8}
+            }
         },
         "m": {
             "type": "ModelBuilder",
             "precision": "int4"
+        },
+        "t": {
+            "type": "GraphSurgeries",
+            "surgeries": [{"surgeon": "TieWordEmbeddings"}]
         }
     },
+    "target": "local_system",
     "log_severity_level": 0,
     "output_dir": "model",
     "cache_dir": "cache",
