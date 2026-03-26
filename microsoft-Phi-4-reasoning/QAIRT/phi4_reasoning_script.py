@@ -199,6 +199,8 @@ print("=" * 80)
 print("1.2 Setting NSP Target")
 print("=" * 80)
 
+import sys
+
 sys.path.append('../')
 from utilities.nsptargets import NspTargets
 

@@ -22,5 +22,37 @@ Further, this workflow has been tested on the following target configurations:
 
 ## Preparation Instructions
 
+1. Install olive[qairt]
+
+```bash
+pip install olive[qairt]
+```
+
+2. (Optional) Use qairt-vm to install a non-default version of QAIRT and set QAIRT_SDK_ROOT
+
+```bash
+# List available QAIRT SDK versions
+qairt-vm fetch --list
+
+# Download non-default version of QAIRT SDK
+qairt-vm fetch -v <version>
+
+# Set QAIRT_SDK_ROOT to download location of QAIRT SDK
+# By default, /opt/qcom/aistack/qairt/<version>
+export QAIRT_SDK_ROOT=/path/to/qairt/sdk
+```
+
+3. Install model-specific requirements
+
+```bash
+pip install -r requirements.txt
+```
+
+4. Run Olive recipe
+
+```bash
+olive run --config htp_sc8480xp.json
+```
+
 ## Execution Instructions
 
