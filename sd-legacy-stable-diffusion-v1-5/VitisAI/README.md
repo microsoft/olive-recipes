@@ -4,7 +4,7 @@ This folder contains sample Olive configurations to optimize **Stable Diffusion 
 
 ## Supported models and configs
 
-| Model (Hugging Face) | Config file |
+| Model ID (Hugging Face) | Config file |
 |:---------------------|:------------|
 | `sd-legacy/stable-diffusion-v1-5` | `config_unet.json` |
 | `sd-legacy/stable-diffusion-v1-5` | `config_vae_decoder.json` |
