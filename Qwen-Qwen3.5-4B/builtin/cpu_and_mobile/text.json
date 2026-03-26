@@ -34,10 +34,6 @@
         "m": {
             "type": "ModelBuilder",
             "precision": "int4"
-        },
-        "t": {
-            "type": "GraphSurgeries",
-            "surgeries": [{"surgeon": "TieWordEmbeddings"}]
         }
     },
     "no_artifacts": true,

@@ -37,10 +37,6 @@
             "extra_options": {
                 "filename": "text.onnx"
             }
-        },
-        "t": {
-            "type": "GraphSurgeries",
-            "surgeries": [{"surgeon": "TieWordEmbeddings"}]
         }
     },
     "engine": {
