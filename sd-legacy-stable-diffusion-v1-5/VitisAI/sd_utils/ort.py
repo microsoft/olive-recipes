@@ -70,14 +70,22 @@ def save_optimized_onnx_submodel(submodel_name, provider, model_info):
                 or from_pass == "OnnxStaticQuantization".lower()
                 or from_pass == "EPContextBinaryGenerator".lower()
                 or from_pass == "DynamicToFixedShape".lower()
+                or from_pass == "VitisGenerateModelSD".lower()
             ):
                 optimizer_footprint = footprint
 
         assert conversion_footprint
         assert optimizer_footprint
 
-        unoptimized_olive_model = ONNXModelHandler(**conversion_footprint["model_config"]["config"])
-        optimized_olive_model = ONNXModelHandler(**optimizer_footprint["model_config"]["config"])
+        def _footprint_model_config(node):
+            # Olive serializes FootprintNode with alias "model_config"; accept both keys
+            cfg = node.get("model_config_data") or node.get("model_config")
+            if not cfg:
+                raise KeyError("Footprint node missing model_config_data / model_config")
+            return cfg["config"]
+
+        unoptimized_olive_model = ONNXModelHandler(**_footprint_model_config(conversion_footprint))
+        optimized_olive_model = ONNXModelHandler(**_footprint_model_config(optimizer_footprint))
 
         model_info[submodel_name] = {
             "unoptimized": {
