@@ -1,0 +1,6 @@
+arch: qwen3
+recipes:
+  - name: Qwen-Qwen3-14B_cuda_int4
+    file: Qwen-Qwen3-14B_cuda_int4.json
+    devices: gpu
+    eps: CUDAExecutionProvider

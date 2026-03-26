@@ -1,27 +1,28 @@
-# Qwen-Qwen3-0.6B — CPU optimization
+# Qwen-Qwen3-4B — CUDA optimization
 
-This folder contains Olive recipes for optimizing Qwen-Qwen3-0.6B targeting the CPU EP.
+This folder contains Olive recipes for optimizing Qwen-Qwen3-4B targeting the CUDA EP.
 
 ## What this folder is for
 
-- Execution Provider: CPU EP
+- Execution Provider: CUDA EP
 - Typical precision: INT4 precision by default
-- Example recipe filename: Qwen-Qwen3-0.6B_cpu_int4.json
+- Example recipe filename: Qwen-Qwen3-4B_cuda_int4.json
 
 ## Setup
 
 1) Install the main branch of Olive:
    - pip install git+https://github.com/microsoft/olive.git
 2) Install the appropriate runtime package for this backend:
-   - onnxruntime-genai (CPU build)
+   - onnxruntime-genai-cuda (CUDA build)
 3) Run Olive to build/optimize the model
-   - olive run --config Qwen-Qwen3-0.6B_cpu_int4.json
+   - olive run --config Qwen-Qwen3-4B_cuda_int4.json
 
 Additional notes:
 - Pipeline: `SelectiveMixedPrecision` (kld_gradient) → `GPTQ` → `RTN` (8-bit lm_head/embeddings) → `ModelBuilder` → `TieWordEmbeddings`
 - GPTQ group size: 128
-- Runs purely on CPU; no GPU required.
+- Requires NVIDIA GPU with CUDA support.
+- Ensure CUDA toolkit and cuDNN are properly installed.
 
 ---
 
-This README was auto-generated for the CPU EP of Qwen-Qwen3-0.6B.
+This README was auto-generated for the CUDA EP of Qwen-Qwen3-4B.
