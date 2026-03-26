@@ -1,0 +1,94 @@
+{
+  "module_list":
+  [
+    {
+      "module_name": "QuantizedRmsNorm",
+      "exceptions": {
+        "param_exceptions": {
+          "asymmetric": true,
+          "bitwidth": 16
+        },
+        "input_exceptions": null,
+        "output_exceptions": null
+      }
+    }
+  ],
+  "name_list":[
+    {
+      "module_name": "\\w*model_embed_tokens_Gather",
+      "exceptions": {
+        "param_exceptions": {
+          "bitwidth": 16,
+          "asymmetric": true
+        },
+        "input_exceptions": null,
+        "output_exceptions": null
+      }
+    },
+    {
+      "module_name": "\\w*lm_head_(MatMul|conv_Conv|conv2d_Conv|Conv)",
+      "exceptions": {
+        "param_exceptions": {
+          "bitwidth": 4
+        },
+        "input_exceptions": null,
+        "output_exceptions": null
+      }
+    },
+    {
+      "module_name": "\\w*self_attn_Concat_1",
+      "exceptions": {
+        "param_exceptions": null,
+        "input_exceptions": null,
+        "output_exceptions": [
+          {
+            "output_index": 0,
+            "bitwidth": 8,
+            "asymmetric": false
+          }
+        ]
+      }
+    },
+    {
+      "module_name": "\\w*norm_(Mul_1|Mul_1.module)",
+      "exceptions": {
+        "param_exceptions": null,
+        "input_exceptions": [
+          {
+            "input_index": 0,
+            "bitwidth": 16,
+            "asymmetric": true
+          }
+        ],
+        "output_exceptions": null
+      }
+    },
+    {
+      "module_name": "\\w*norm_(Pow|Pow.module|ReduceMean|Add|Sqrt|Div|Mul)",
+      "exceptions": {
+        "param_exceptions": null,
+        "input_exceptions": null,
+        "output_exceptions": [
+          {
+            "output_index": 0,
+            "enabled": false
+          }
+        ]
+      }
+    }, 
+    {
+      "module_name": "\\w*v_proj_(MatMul|conv_Conv|conv2d_Conv|Conv)(\\.base_layer)?",
+      "exceptions": {
+        "param_exceptions": null,
+        "input_exceptions": null,
+        "output_exceptions": [
+          {
+            "output_index": 0,
+            "bitwidth": 8,
+            "asymmetric": false
+          }
+        ]
+      }
+    }
+  ]
+}
