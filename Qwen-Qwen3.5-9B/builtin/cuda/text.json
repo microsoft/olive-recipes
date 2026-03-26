@@ -13,12 +13,11 @@
             "sym": false,
             "group_size": 128
         },
-        "m": {
-            "type": "ModelBuilder",
-            "precision": "int4",
-            "extra_options": {
-                "filename": "text.onnx"
-            }
+        "g": {
+            "type": "gptq",
+            "bits": 4,
+            "sym": false,
+            "group_size": 128
         },
         "r": {
             "type": "rtn",
@@ -31,6 +30,17 @@
                 "lm_head": {"bits": 8},
                 "model.embed_tokens": {"bits": 8}
             }
+        },
+        "m": {
+            "type": "ModelBuilder",
+            "precision": "int4",
+            "extra_options": {
+                "filename": "text.onnx"
+            }
+        },
+        "t": {
+            "type": "GraphSurgeries",
+            "surgeries": [{"surgeon": "TieWordEmbeddings"}]
         }
     },
     "engine": {
