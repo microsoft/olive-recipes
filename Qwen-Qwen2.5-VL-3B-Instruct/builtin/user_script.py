@@ -134,18 +134,33 @@ def get_vision_model(model_path=None):
     return model
 
 def get_vision_io_config(model_path=None):
+    """Vision model IO config with dynamic shapes.
+
+    Both pixel_values and image_grid_thw have symbolic dim-0 so the model
+    accepts any number of patches (any image resolution) and any number of
+    images in a single call.  The RenameInputDims graph surgery in the Olive
+    config labels dim-0 of image_grid_thw as 'num_images' in the final ONNX.
+
+    Requires torch >= 2.10 for reliable dynamo export with dynamic_shapes.
+    """
     return {
         "input_names": ["pixel_values", "image_grid_thw"],
         "output_names": ["image_features"],
-        "dynamic_shapes": {"pixel_values": {0: "num_patches"}, "image_grid_thw": None},
+        "dynamic_shapes": {
+            "pixel_values": {0: "num_patches"},
+            "image_grid_thw": {0: "num_images"},
+        },
     }
 
+
 def get_vision_dummy_inputs(model=None):
-    pixel_values = torch.randn((14308, 1176), dtype=torch.float32)
-    # Scale the values to the range [-1, 0.95] to fit actual values we observed in the example.
+    """Dummy inputs for vision model export.
+
+    Two images with the same 98x146 grid (14308 patches each, 28616 total)
+    to exercise the dynamic num_images dimension during torch.export tracing.
+    Qwen2.5-VL: patch_size=14, temporal_patch_size=2 → 1176 channels/patch.
+    """
+    pixel_values = torch.randn((2 * 14308, 1176), dtype=torch.float32)
     pixel_values = pixel_values * (0.95 - (-1)) + (-1)
-
-    grid_thw = torch.tensor([[1, 98, 146]], dtype=torch.int64)
-
-    # Dynamo export
+    grid_thw = torch.tensor([[1, 98, 146], [1, 98, 146]], dtype=torch.int64)
     return {"pixel_values": pixel_values, "image_grid_thw": grid_thw}
