@@ -15,8 +15,8 @@
             "soc_details": "chipset:SC8480XP",
             "vtcm_size_in_mb": 8,
             "hvx_threads": 8,
-	        "extended_udma": true,
-	        "sequence_lengths": [32, 128],
+	    "extended_udma": true,
+	    "sequence_lengths": [32, 128],
             "native_kv": true,
             "multi_graph": true
         },
@@ -27,7 +27,7 @@
         }
     },
     "log_severity_level": 1,
-    "output_dir": "models/phi4-qairt-htp-sc8480xp",
+    "output_dir": "models/phi4_reasoning-qairt-htp-sc8480xp",
     "cache_dir": "cache",
     "no_artifacts": true
 }

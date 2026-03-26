@@ -6,7 +6,7 @@
     "passes": {
         "qp": {
             "type": "QairtPreparation",
-            "script_path": "phi4_script.py",
+            "script_path": "phi4_reasoning_script.py",
             "script_config": {
                 "PLATFORM_GEN": 2
             }
@@ -29,7 +29,7 @@
         }
     },
     "log_severity_level": 1,
-    "output_dir": "models/phi4-qairt-htp-sc8380xp",
+    "output_dir": "models/phi4_reasoning-qairt-htp-sc8380xp",
     "cache_dir": "cache",
     "no_artifacts": true
 }

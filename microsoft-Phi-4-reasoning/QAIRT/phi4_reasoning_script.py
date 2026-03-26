@@ -11,7 +11,16 @@
 
 # ---
 # ### Required packages
-# The script assumes AIMET and Phi4 related packages are already installed.
+# The script assumes QAIRT, AIMET and Phi4 related packages are already installed.
+
+try:
+    # Required for proper Python environment configuration of qairt-dev
+    import qairt  # noqa: F401  # pylint: disable=unused-import
+except ImportError as exc:
+    raise ImportError(
+        "Failed to import QAIRT SDK - please install olive-ai[qairt] to use QAIRT passes."
+        "If already installed, please run `qairt-vm -i` for help troubleshooting issues."
+    ) from exc
 
 # Guard to prevent child processes from executing the main script
 if __name__ != '__main__':
