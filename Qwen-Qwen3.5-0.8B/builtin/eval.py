@@ -22,11 +22,8 @@ from PIL import Image
 # Use 1/2/3/4 instead of A/B/C/D to avoid collisions with AI2D region labels.
 NUMBERS = ["1", "2", "3", "4"]
 
-DEFAULT_SYSTEM_PROMPT = (
-    "You are a concise multiple-choice answering assistant. "
-    "When given a question with numbered options, respond with ONLY a single digit (1, 2, 3, or 4). "
-    "Do not include any explanation, reasoning, or other text — just the digit."
-)
+# System prompt with /no_think to suppress verbose reasoning in Qwen3.5.
+DEFAULT_SYSTEM_PROMPT = "Answer concisely with just the option number. /no_think"
 
 
 def build_messages(question: str, options: list[str], system_prompt: str = "") -> str:
@@ -48,11 +45,14 @@ def build_messages(question: str, options: list[str], system_prompt: str = "") -
 
 
 def parse_answer(text: str) -> str | None:
-    """Extract the first 1/2/3/4 digit from a model response."""
+    """Extract the last 1/2/3/4 digit from a model response."""
+    # Strip <think>...</think> blocks (Qwen3.5 thinking model)
+    text = re.sub(r"<think>.*?</think>", "", text, flags=re.DOTALL)
     text = text.strip()
-    m = re.search(r"\b([1-4])\b", text)
-    if m:
-        return m.group(1)
+    # Find the LAST standalone digit — verbose responses often put the answer at the end
+    matches = re.findall(r"\b([1-4])\b", text)
+    if matches:
+        return matches[-1]
     for ch in text:
         if ch in NUMBERS:
             return ch
@@ -115,7 +115,7 @@ def run_onnx(model, processor, tokenizer, pil_image: Image.Image, messages_json:
         inputs = processor(prompt, images=images)
 
         params = og.GeneratorParams(model)
-        params.set_search_options(max_length=3000, do_sample=False)
+        params.set_search_options(max_length=2048, do_sample=False)
 
         generator = og.Generator(model, params)
         generator.set_inputs(inputs)

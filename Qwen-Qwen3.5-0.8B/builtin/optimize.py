@@ -64,12 +64,16 @@ def update_genai_config(output_dir: str = MODELS_DIR, device: str = "cpu"):
         "session_options": session_options,
     }
 
+    config["model"]["bos_token_id"] = 248044
+    config["model"]["context_length"] = 4096
+    config["model"]["eos_token_id"] = [248044]
+    config["model"]["pad_token_id"] = 248044
     config["model"]["image_token_id"] = 248056
     config["model"]["video_token_id"] = 248057
     config["model"]["vision_start_token_id"] = 248053
 
-    if config["search"].get("top_k") is None:
-        config["search"]["top_k"] = 50
+    config["search"]["max_length"] = 4096
+    config["search"]["top_k"] = 1
     if config["search"].get("top_p") is None:
         config["search"]["top_p"] = 1.0
 
@@ -79,19 +83,19 @@ def update_genai_config(output_dir: str = MODELS_DIR, device: str = "cpu"):
 
     processor_config = {
         "processor": {
-            "name": "qwen3_vl_image_processor",
+            "name": "qwen2_5_image_processor",
             "transforms": [
                 {"operation": {"name": "decode_image", "type": "DecodeImage", "attrs": {"color_space": "RGB"}}},
                 {"operation": {"name": "convert_to_rgb", "type": "ConvertRGB"}},
                 {"operation": {"name": "resize", "type": "Resize", "attrs": {
-                    "width": 540, "height": 360, "smart_resize": 1,
-                    "min_pixels": 3136, "max_pixels": 12845056, "patch_size": 16, "merge_size": 2,
+                    "width": 960, "height": 672, "smart_resize": 1,
+                    "min_pixels": 65536, "max_pixels": 16777216, "patch_size": 16, "merge_size": 2,
                 }}},
                 {"operation": {"name": "rescale", "type": "Rescale", "attrs": {
                     "rescale_factor": 0.00392156862745098,
                 }}},
                 {"operation": {"name": "normalize", "type": "Normalize", "attrs": {
-                    "mean": [0.5, 0.5, 0.5], "std": [0.5, 0.5, 0.5], "qwen3_vl": 1,
+                    "mean": [0.5, 0.5, 0.5], "std": [0.5, 0.5, 0.5], "qwen2_5_vl": 1,
                 }}},
                 {"operation": {"name": "patch_image", "type": "PatchImage", "attrs": {
                     "patch_size": 16, "temporal_patch_size": 2, "merge_size": 2,

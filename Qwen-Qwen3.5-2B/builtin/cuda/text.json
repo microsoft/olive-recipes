@@ -4,11 +4,32 @@
         "model_path": "Qwen/Qwen3.5-2B"
     },
     "passes": {
-        "convert": {
+        "s": {
+            "type": "SelectiveMixedPrecision",
+            "algorithm": "kld_gradient",
+            "bits": 4,
+            "high_bits": 8,
+            "ratio": 0.65,
+            "sym": false,
+            "group_size": 128
+        },
+        "m": {
             "type": "ModelBuilder",
             "precision": "int4",
             "extra_options": {
                 "filename": "text.onnx"
+            }
+        },
+        "r": {
+            "type": "rtn",
+            "bits": 8,
+            "sym": false,
+            "group_size": 128,
+            "lm_head": true,
+            "embeds": true,
+            "overrides": {
+                "lm_head": {"bits": 8},
+                "model.embed_tokens": {"bits": 8}
             }
         }
     },

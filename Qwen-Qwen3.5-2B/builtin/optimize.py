@@ -84,8 +84,8 @@ def update_genai_config(output_dir: str = MODELS_DIR, device: str = "cpu"):
                 {"operation": {"name": "decode_image", "type": "DecodeImage", "attrs": {"color_space": "RGB"}}},
                 {"operation": {"name": "convert_to_rgb", "type": "ConvertRGB"}},
                 {"operation": {"name": "resize", "type": "Resize", "attrs": {
-                    "width": 540, "height": 360, "smart_resize": 1,
-                    "min_pixels": 3136, "max_pixels": 12845056, "patch_size": 16, "merge_size": 2,
+                    "width": 960, "height": 672, "smart_resize": 1,
+                    "min_pixels": 65536, "max_pixels": 16777216, "patch_size": 16, "merge_size": 2,
                 }}},
                 {"operation": {"name": "rescale", "type": "Rescale", "attrs": {
                     "rescale_factor": 0.00392156862745098,
