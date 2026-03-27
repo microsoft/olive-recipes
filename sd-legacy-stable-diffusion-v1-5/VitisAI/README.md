@@ -22,6 +22,7 @@ conda activate olive
 ```
 
 ```bash
+git clone https://github.com/microsoft/Olive.git
 cd Olive
 pip install -e .
 pip install -r requirements.txt
@@ -30,13 +31,16 @@ pip install -r requirements.txt
 #### Install VitisAI Stable Diffusion dependencies
 
 ```bash
+git clone https://github.com/microsoft/olive-recipes.git
 cd olive-recipes/sd-legacy-stable-diffusion-v1-5/VitisAI
 pip install --force-reinstall -r requirements_vitisai_sd.txt
 ```
 
-#### Generate optimized subgraphs
+## Generate optimized subgraphs (optional)
 
-Run Olive from the **`VitisAI`** recipe directory so `user_script.py` and model assets resolve correctly:
+Run Olive to generate NPU-ready optimized submodels.
+
+> **Note:** This step is optional. If you only need the optimized ONNX models for NPU, you can run this step alone without the full pipeline.
 
 ```bash
 cd olive-recipes/sd-legacy-stable-diffusion-v1-5/VitisAI
@@ -72,7 +76,7 @@ cd olive-recipes/sd-legacy-stable-diffusion-v1-5/VitisAI
 python stable_diffusion.py --provider vitisai --model_id sd-legacy/stable-diffusion-v1-5 --seed 0 --guidance_scale 7.5 --num_inference_steps 20 --prompt "Photo of an ultra realistic sailing ship, dramatic light, pale sunrise, cinematic lighting, battered, low angle, trending on artstation, 4k, hyper realistic, focused, extreme details, unreal engine 5, cinematic, masterpiece, art by studio ghibli, intricate artwork by john william turner."
 ```
 
-## Outputs (relative to `olive/`)
+## Outputs (relative to `VitisAI/`)
 
 | Item | Location |
 |:-----|:---------|
