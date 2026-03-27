@@ -1,0 +1,12 @@
+keywords:
+    aitk
+arch: swin2sr
+recipes:
+    - file: "swin2SR-realworld-sr-x4-64-bsrgan-psnr_ov_config.json"
+      devices:
+        - npu
+      ep: OpenVINOExecutionProvider
+aitk:
+    modelInfo:
+        id: "huggingface/caidas/swin2SR-realworld-sr-x4-64-bsrgan-psnr"
+        version: 1
