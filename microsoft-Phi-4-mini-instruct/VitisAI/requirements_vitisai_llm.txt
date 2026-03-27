@@ -1,0 +1,28 @@
+# AMD model generation
+--extra-index-url=https://pypi.amd.com/simple
+--extra-index-url=https://pypi.amd.com/olive/1.7.0.1/simple
+accelerate
+
+# Quark
+amd-quark==0.11
+datasets
+evaluate
+
+model-generate
+onnxsim
+
+nltk
+numpy==1.26.4
+
+# Pin onnx version
+onnx==1.18.0
+onnxruntime
+onnxruntime-genai
+optimum
+sentencepiece
+tabulate
+transformers==4.57.6
+
+ryzenai-dynamic-dispatch
+ryzenai-onnx-utils
+
