@@ -7,6 +7,10 @@
     "required": ["name"],
     "additionalProperties": false,
     "properties": {
+        "$schema": {
+            "type": "string",
+            "description": "JSON Schema reference"
+        },
         "name": {
             "type": "string",
             "description": "Name of the model parameter configuration"
