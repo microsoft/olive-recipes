@@ -3,6 +3,7 @@
         "type": "PyTorchModel",
         "model_path": "sd-legacy/stable-diffusion-v1-5",
         "model_loader": "vae_decoder_load",
+        "script_dir": ".",
         "model_script": "user_script.py",
         "io_config": {
             "input_names": [ "latent_sample", "return_dict" ],
