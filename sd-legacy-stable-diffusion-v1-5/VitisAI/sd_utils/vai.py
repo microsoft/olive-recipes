@@ -1,6 +1,6 @@
 # -------------------------------------------------------------------------
-# Copyright (c) Microsoft Corporation. All rights reserved.
-# Licensed under the MIT License.
+# Copyright (C) 2026, Advanced Micro Devices, Inc. All rights reserved.
+# SPDX-License-Identifier: MIT
 # -------------------------------------------------------------------------
 """
 NPU (VitisAI) pipeline save and load: save_npu_pipeline, get_vai_pipeline.
