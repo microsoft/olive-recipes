@@ -36,10 +36,10 @@ pip install --force-reinstall -r requirements_vitisai_sd.txt
 
 #### Generate optimized subgraphs
 
-Run Olive from the **`olive`** recipe directory so `user_script.py` and model assets resolve correctly:
+Run Olive from the **`VitisAI`** recipe directory so `user_script.py` and model assets resolve correctly:
 
 ```bash
-cd olive-recipes/sd-legacy-stable-diffusion-v1-5/olive
+cd olive-recipes/sd-legacy-stable-diffusion-v1-5/VitisAI
 
 olive run --config ../VitisAI/config_unet.json
 olive run --config ../VitisAI/config_vae_decoder.json
@@ -67,7 +67,7 @@ The VitisAI Execution Provider is used only for the **UNet** and **VAE decoder**
 ### End-to-end image generation (inference)
 
 ```bash
-cd olive-recipes/sd-legacy-stable-diffusion-v1-5/olive
+cd olive-recipes/sd-legacy-stable-diffusion-v1-5/VitisAI
 
 python stable_diffusion.py --provider vitisai --model_id sd-legacy/stable-diffusion-v1-5 --seed 0 --guidance_scale 7.5 --num_inference_steps 20 --prompt "Photo of an ultra realistic sailing ship, dramatic light, pale sunrise, cinematic lighting, battered, low angle, trending on artstation, 4k, hyper realistic, focused, extreme details, unreal engine 5, cinematic, masterpiece, art by studio ghibli, intricate artwork by john william turner."
 ```
@@ -76,7 +76,7 @@ python stable_diffusion.py --provider vitisai --model_id sd-legacy/stable-diffus
 
 | Item | Location |
 |:-----|:---------|
-| Generated images | `result_0.png`, `result_1.png`, … in the **current working directory** (typically `olive/` if you run the command from there) |
+| Generated images | `result_0.png`, `result_1.png`, … in the **current working directory** (typically `VitisAI/` if you run the command from there) |
 | Full pipeline, unoptimized | `model/unoptimized/<model_id>/` |
 | Full pipeline, optimized (VitisAI) | `model/optimized-vitisai/<model_id>/` |
 
