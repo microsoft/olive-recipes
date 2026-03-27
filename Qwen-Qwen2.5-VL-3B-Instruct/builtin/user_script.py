@@ -156,11 +156,11 @@ def get_vision_io_config(model_path=None):
 def get_vision_dummy_inputs(model=None):
     """Dummy inputs for vision model export.
 
-    Two images with the same 98x146 grid (14308 patches each, 28616 total)
+    Two images with the same 14x14 grid (196 patches each, 392 total)
     to exercise the dynamic num_images dimension during torch.export tracing.
     Qwen2.5-VL: patch_size=14, temporal_patch_size=2 → 1176 channels/patch.
     """
-    pixel_values = torch.randn((2 * 14308, 1176), dtype=torch.float32)
+    pixel_values = torch.randn((2 * 196, 1176), dtype=torch.float32)
     pixel_values = pixel_values * (0.95 - (-1)) + (-1)
-    grid_thw = torch.tensor([[1, 98, 146], [1, 98, 146]], dtype=torch.int64)
+    grid_thw = torch.tensor([[1, 14, 14], [1, 14, 14]], dtype=torch.int64)
     return {"pixel_values": pixel_values, "image_grid_thw": grid_thw}
