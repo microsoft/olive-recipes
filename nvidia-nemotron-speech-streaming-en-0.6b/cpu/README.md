@@ -2,6 +2,10 @@
 
 This recipe exports **nvidia/nemotron-speech-streaming-en-0.6b** to ONNX, optimizes the encoder, and produces CPU-ready artifacts.
 
+## License
+
+This model has an NVIDIA Open Model License Agreement. The contents of the license agreement can be found [here](https://www.nvidia.com/en-us/agreements/enterprise-software/nvidia-open-model-license/).
+
 ## Files
 - `cpu/nemotron_speech_int4_cpu_kquant.json` – Olive workflow config (export → graph fusion → INT4 quantization)
 - `cpu/olive_passes.py` – custom `NemotronExport` Olive pass that wraps the export script
