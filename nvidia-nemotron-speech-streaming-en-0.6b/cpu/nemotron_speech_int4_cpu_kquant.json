@@ -38,7 +38,8 @@
             "type": "NemotronKQuantQuantization",
             "block_size": 32,
             "is_symmetric": true,
-            "accuracy_level": 4
+            "accuracy_level": 4,
+            "final_output_dir": "build/onnx_models_int4"
         }
     },
     "target": "local_system",

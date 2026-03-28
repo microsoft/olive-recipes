@@ -12,10 +12,10 @@ NemotronExport:
 NemotronKQuantQuantization:
     Applies INT4 weight-only k-quant quantization to an ONNX encoder via
     OnnxRuntime's MatMulNBitsQuantizer with KQuantWeightOnlyQuantConfig.
-    After quantizing the encoder, copies all supporting files (decoder.onnx,
-    joint.onnx, config files, tokenizer files) from the export directory and
-    downloads silero_vad.onnx into the final output directory so that all
-    artifacts needed for ORT GenAI are co-located.
+    After quantizing the encoder, copies the encoder (as encoder.onnx), all
+    supporting files (decoder.onnx, joint.onnx, config files, tokenizer files),
+    and silero_vad.onnx directly into final_output_dir so that all artifacts
+    needed for ORT GenAI are co-located there.
 """
 
 import shutil
@@ -31,10 +31,22 @@ from olive.model.utils import resolve_onnx_path
 from olive.passes import Pass
 from olive.passes.pass_config import PassConfigParam
 
+# Root of the recipe directory (nvidia-nemotron-speech-streaming-en-0.6b/,
+# i.e. the parent of the cpu/ directory that contains this file).
+# Used to resolve relative final_output_dir paths independently of the
+# current working directory at olive run time.
+_RECIPE_DIR = Path(__file__).parent.parent
+
 # Populated by NemotronExport._run_for_config so that NemotronKQuantQuantization
 # can locate the supporting files (decoder, joint, configs, tokenizer) that were
 # produced alongside the encoder during the export pass.
 _export_dir: Optional[Path] = None
+
+
+def _resolve_dir(path_str: str) -> Path:
+    """Resolve a directory path relative to the recipe root if not absolute."""
+    p = Path(path_str)
+    return p if p.is_absolute() else _RECIPE_DIR / path_str
 
 
 class NemotronExport(Pass):
@@ -130,6 +142,10 @@ class NemotronKQuantQuantization(Pass):
     Uses OnnxRuntime's MatMulNBitsQuantizer with KQuantWeightOnlyQuantConfig
     to produce a MatMulNBits INT4-only ONNX model.  All MatMul weights are
     quantized; non-weight tensors remain FP32.
+
+    After quantization, all ORT GenAI artifacts (encoder.onnx, decoder.onnx,
+    joint.onnx, config/tokenizer files, silero_vad.onnx) are written directly
+    to final_output_dir so they are ready for use without additional steps.
     """
 
     @classmethod
@@ -154,6 +170,16 @@ class NemotronKQuantQuantization(Pass):
                 description=(
                     "Accuracy level for the MatMulNBits computation kernel "
                     "(0–4). Higher values use more accurate accumulation. Default: 4."
+                ),
+            ),
+            "final_output_dir": PassConfigParam(
+                type_=str,
+                default_value="build/onnx_models_int4",
+                description=(
+                    "Directory where all ORT GenAI artifacts are written: the quantized "
+                    "encoder.onnx, decoder.onnx, joint.onnx, config files, tokenizer files, "
+                    "and silero_vad.onnx.  Relative paths are resolved from the recipe root "
+                    "(nvidia-nemotron-speech-streaming-en-0.6b/).  Default: build/onnx_models_int4."
                 ),
             ),
         }
@@ -182,8 +208,19 @@ class NemotronKQuantQuantization(Pass):
         quantizer.process()
         quantizer.model.save_model_to_file(str(output_model_path), use_external_data_format=True)
 
+        # Resolve the final output directory and write all ORT GenAI artifacts there.
+        final_dir = _resolve_dir(config.final_output_dir)
+        final_dir.mkdir(parents=True, exist_ok=True)
+
+        # Copy the quantized encoder (and its external data sidecar) to final_dir.
+        encoder_name = Path(output_model_path).name
+        for src_file in output_dir.iterdir():
+            if src_file.is_file() and src_file.name.startswith(encoder_name):
+                shutil.copy2(str(src_file), str(final_dir / src_file.name))
+        print(f"  Saved quantized encoder to: {final_dir / encoder_name}")
+
         # Copy decoder, joint, config, and tokenizer files from the export directory
-        # to the final output directory so all ORT GenAI artifacts are co-located.
+        # to final_dir so all ORT GenAI artifacts are co-located.
         if _export_dir is not None and _export_dir.is_dir():
             copied = 0
             for src_file in sorted(_export_dir.iterdir()):
@@ -191,11 +228,11 @@ class NemotronKQuantQuantization(Pass):
                     continue
                 if src_file.name.startswith("encoder"):
                     continue  # encoder is produced by this pass; skip
-                dst_file = output_dir / src_file.name
+                dst_file = final_dir / src_file.name
                 if src_file.resolve() != dst_file.resolve():
                     shutil.copy2(str(src_file), str(dst_file))
                     copied += 1
-            print(f"  Copied {copied} supporting files to: {output_dir}")
+            print(f"  Copied {copied} supporting files to: {final_dir}")
         else:
             print("  Warning: export directory not found; supporting files not copied.")
 
@@ -207,7 +244,7 @@ class NemotronKQuantQuantization(Pass):
                 repo_id="onnx-community/silero-vad",
                 filename="onnx/model.onnx",
             )
-            dst = output_dir / "silero_vad.onnx"
+            dst = final_dir / "silero_vad.onnx"
             shutil.copy2(cached, str(dst))
             print(f"  Saved Silero VAD model to: {dst}")
         except Exception as exc:
@@ -216,7 +253,7 @@ class NemotronKQuantQuantization(Pass):
                 "  You can download it manually with:\n"
                 "    huggingface-cli download onnx-community/silero-vad "
                 f"--include onnx/model.onnx --local-dir .\n"
-                f"  and copy onnx/model.onnx to {output_dir / 'silero_vad.onnx'}"
+                f"  and copy onnx/model.onnx to {final_dir / 'silero_vad.onnx'}"
             )
 
         return ONNXModelHandler(model_path=output_model_path)
