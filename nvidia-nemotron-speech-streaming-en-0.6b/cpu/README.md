@@ -67,5 +67,9 @@ Expected optimized artifacts in:
 - `build/onnx_models_int4/encoder.onnx`
 - `build/onnx_models_int4/decoder.onnx`
 - `build/onnx_models_int4/joint.onnx`
+- `build/onnx_models_int4/silero_vad.onnx`
 - `build/onnx_models_int4/genai_config.json`
 - `build/onnx_models_int4/audio_processor_config.json`
+- `build/onnx_models_int4/tokenizer.json`
+- `build/onnx_models_int4/tokenizer_config.json`
+- `build/onnx_models_int4/vocab.txt`
