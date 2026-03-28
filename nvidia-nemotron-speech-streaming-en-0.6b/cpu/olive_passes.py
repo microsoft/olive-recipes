@@ -12,11 +12,17 @@ NemotronExport:
 NemotronKQuantQuantization:
     Applies INT4 weight-only k-quant quantization to an ONNX encoder via
     OnnxRuntime's MatMulNBitsQuantizer with KQuantWeightOnlyQuantConfig.
+    After quantizing the encoder, copies all supporting files (decoder.onnx,
+    joint.onnx, config files, tokenizer files) from the export directory and
+    downloads silero_vad.onnx into the final output directory so that all
+    artifacts needed for ORT GenAI are co-located.
 """
 
+import shutil
 import subprocess
 import sys
 from pathlib import Path
+from typing import Optional
 
 import onnx
 from olive.hardware.accelerator import AcceleratorSpec
@@ -24,6 +30,11 @@ from olive.model import ONNXModelHandler
 from olive.model.utils import resolve_onnx_path
 from olive.passes import Pass
 from olive.passes.pass_config import PassConfigParam
+
+# Populated by NemotronExport._run_for_config so that NemotronKQuantQuantization
+# can locate the supporting files (decoder, joint, configs, tokenizer) that were
+# produced alongside the encoder during the export pass.
+_export_dir: Optional[Path] = None
 
 
 class NemotronExport(Pass):
@@ -35,9 +46,9 @@ class NemotronExport(Pass):
     can operate on it.
 
     The decoder, joint network, and config files produced alongside the encoder
-    are written to the same Olive-managed output directory. They are not consumed
-    by later passes but remain available for the user to copy to the final
-    artifact directory after the workflow completes.
+    are written to the same Olive-managed output directory. The export directory
+    path is recorded in _export_dir so that NemotronKQuantQuantization can copy
+    these supporting files to the final output directory after quantization.
     """
 
     @classmethod
@@ -104,6 +115,12 @@ class NemotronExport(Pass):
 
         subprocess.run(cmd, check=True)
 
+        # Record the export directory so NemotronKQuantQuantization can find
+        # the supporting files (decoder, joint, configs, tokenizer) that were
+        # written alongside the encoder.
+        global _export_dir
+        _export_dir = output_dir
+
         return ONNXModelHandler(model_path=output_model_path)
 
 
@@ -148,7 +165,8 @@ class NemotronKQuantQuantization(Pass):
         )
 
         output_model_path = resolve_onnx_path(output_model_path, Path(model.model_path).name)
-        Path(output_model_path).parent.mkdir(parents=True, exist_ok=True)
+        output_dir = Path(output_model_path).parent
+        output_dir.mkdir(parents=True, exist_ok=True)
 
         # MatMulNBitsQuantizer requires the full model graph in memory to rewrite
         # MatMul nodes to MatMulNBits.  For the Nemotron encoder (~600 MB), this
@@ -163,5 +181,42 @@ class NemotronKQuantQuantization(Pass):
         )
         quantizer.process()
         quantizer.model.save_model_to_file(str(output_model_path), use_external_data_format=True)
+
+        # Copy decoder, joint, config, and tokenizer files from the export directory
+        # to the final output directory so all ORT GenAI artifacts are co-located.
+        if _export_dir is not None and _export_dir.is_dir():
+            copied = 0
+            for src_file in sorted(_export_dir.iterdir()):
+                if not src_file.is_file():
+                    continue
+                if src_file.name.startswith("encoder"):
+                    continue  # encoder is produced by this pass; skip
+                dst_file = output_dir / src_file.name
+                if src_file.resolve() != dst_file.resolve():
+                    shutil.copy2(str(src_file), str(dst_file))
+                    copied += 1
+            print(f"  Copied {copied} supporting files to: {output_dir}")
+        else:
+            print("  Warning: export directory not found; supporting files not copied.")
+
+        # Download the Silero VAD ONNX model alongside the other ONNX models.
+        try:
+            from huggingface_hub import hf_hub_download
+
+            cached = hf_hub_download(
+                repo_id="onnx-community/silero-vad",
+                filename="onnx/model.onnx",
+            )
+            dst = output_dir / "silero_vad.onnx"
+            shutil.copy2(cached, str(dst))
+            print(f"  Saved Silero VAD model to: {dst}")
+        except Exception as exc:
+            print(
+                f"  Warning: Silero VAD download failed ({exc}).\n"
+                "  You can download it manually with:\n"
+                "    huggingface-cli download onnx-community/silero-vad "
+                f"--include onnx/model.onnx --local-dir .\n"
+                f"  and copy onnx/model.onnx to {output_dir / 'silero_vad.onnx'}"
+            )
 
         return ONNXModelHandler(model_path=output_model_path)
