@@ -436,6 +436,14 @@ def generate_genai_config(asr_model, output_dir, streaming=False, chunk_size=0.5
         },
     }
 
+    # VAD (Voice Activity Detection) config
+    vad_config = {
+        "filename": "silero_vad.onnx",
+        "threshold": 0.3,
+        "silence_duration_ms": 3360,
+        "prefix_padding_ms": 560,
+    }
+
     config = {
         "model": {
             "type": "nemotron_speech",
@@ -457,6 +465,7 @@ def generate_genai_config(asr_model, output_dir, streaming=False, chunk_size=0.5
             "encoder": encoder_config,
             "decoder": decoder_config,
             "joiner": joiner_config,
+            "vad": vad_config,
         },
     }
 
