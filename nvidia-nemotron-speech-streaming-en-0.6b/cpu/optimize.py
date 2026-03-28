@@ -128,7 +128,17 @@ def run_kquant_quantization(
 
     print("=== Stage 3: INT4 k-quant Quantization ===")
 
-    src = _resolve(fused_dir) / "encoder.onnx"
+    # Olive saves its output as "model.onnx"; a manually-fused dir may have
+    # "encoder.onnx".  Check the Olive default first, then fall back.
+    fused_path = _resolve(fused_dir)
+    src = fused_path / "model.onnx"
+    if not src.exists():
+        src = fused_path / "encoder.onnx"
+    if not src.exists():
+        raise FileNotFoundError(
+            f"Fused encoder not found in {fused_path}. "
+            "Expected 'model.onnx' (Olive output) or 'encoder.onnx'."
+        )
     dst_dir = _resolve(output_dir)
     dst_dir.mkdir(parents=True, exist_ok=True)
     dst = dst_dir / "encoder.onnx"
