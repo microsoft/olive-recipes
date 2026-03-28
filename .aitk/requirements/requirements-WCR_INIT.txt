@@ -7,13 +7,16 @@ numpy==2.2.4
 # We also need to uninstall in case user tries new version, uses previous version and then updates again
 # because uninstalling winml will remove onnxruntime folder but we will not install windowsml to add it back
 # uvpip:uninstall onnxruntime-windowsml;pre
-onnxruntime-windowsml==1.23.2.202512041916
+./onnxruntime_windowsml-1.24.3.202603051904.dev0-cp312-cp312-win_amd64.whl
+# download:onnxruntime_windowsml-1.24.3.202603051904.dev0-cp312-cp312-win_amd64.whl
 packaging==24.2
 protobuf==5.29.6
 pyreadline3==3.5.4
 sympy==1.14.0
-wasdk-Microsoft.Windows.AI.MachineLearning==1.8.251106002
-wasdk-Microsoft.Windows.ApplicationModel.DynamicDependency.Bootstrap==1.8.251106002
+./wasdk_microsoft_windows_ai_machinelearning-2.0.0.dev0-cp312-cp312-win_amd64.whl
+# download:wasdk_microsoft_windows_ai_machinelearning-2.0.0.dev0-cp312-cp312-win_amd64.whl
+./wasdk_microsoft_windows_applicationmodel_dynamicdependency_bootstrap-2.0.0.dev0-cp312-cp312-win_amd64.whl
+# download:wasdk_microsoft_windows_applicationmodel_dynamicdependency_bootstrap-2.0.0.dev0-cp312-cp312-win_amd64.whl
 # winrt-runtime==3.2.1
 winrt-runtime==3.2.1
 # winrt-Windows.Foundation==3.2.1
