@@ -4,18 +4,14 @@
         "model_path": "Qwen/Qwen3.5-0.8B"
     },
     "passes": {
-        "s": {
-            "type": "SelectiveMixedPrecision",
-            "algorithm": "kld_gradient",
-            "bits": 4,
-            "high_bits": 8,
-            "ratio": 0.65,
-            "sym": false,
-            "group_size": 128
-        },
         "m": {
             "type": "ModelBuilder",
-            "precision": "int4"
+            "precision": "int4",
+            "int4_algo_config": "k_quant_mixed",
+            "int4_accuracy_level": 4,
+            "extra_options": {
+                "filename": "text.onnx"
+            }
         }
     },
     "no_artifacts": true,
