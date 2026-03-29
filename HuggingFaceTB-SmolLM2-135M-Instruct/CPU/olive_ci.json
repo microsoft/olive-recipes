@@ -1,0 +1,9 @@
+[
+  {
+    "name": "smollm2_cpu_int4",
+    "os": "windows",
+    "device": "cpu",
+    "requirements_file": "requirements.txt",
+    "command": "python -m olive run --config olive_config.json"
+  }
+]
