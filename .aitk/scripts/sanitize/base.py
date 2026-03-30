@@ -13,6 +13,9 @@ from .utils import open_ex
 def add_schema_to_config(content: str, schema_url: str) -> str:
     """Inject a '$schema' key as the first entry of a JSON object string."""
     data = json.loads(content)
+    # Ensure any existing "$schema" in the input does not override the injected schema URL
+    if isinstance(data, dict):
+        data.pop("$schema", None)
     with_schema = {"$schema": schema_url}
     with_schema.update(data)
     return json.dumps(with_schema, indent=4)
