@@ -83,6 +83,7 @@ def update_genai_config(output_dir: str = MODELS_DIR, device: str = "gpu"):
         "spatial_merge_size": 2,
         "tokens_per_second": 2.0,
         "patch_size": 14,
+        "window_size": 56,
         "inputs": {"pixel_values": "pixel_values", "image_grid_thw": "image_grid_thw"},
         "outputs": {"image_features": "image_features"},
         "session_options": session_options,
