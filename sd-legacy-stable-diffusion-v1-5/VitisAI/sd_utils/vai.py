@@ -132,8 +132,9 @@ def _load_npu_model(model_dir, submodel_name):
     cache_dir = (replaced_onnx_path.parent / "cache").as_posix()
     sess_opts.add_session_config_entry("dd_cache", cache_dir)
     sess_opts.add_provider("VitisAIExecutionProvider", {})
+    provider_options = [{"target": "SD"}]
     session = ort.InferenceSession(
-        str(replaced_onnx_path), sess_options=sess_opts, providers=["VitisAIExecutionProvider"]
+        str(replaced_onnx_path), sess_options=sess_opts, providers=["VitisAIExecutionProvider"], provider_options=provider_options
     )
     model = OnnxRuntimeModel(session)
     config_path = model_dir / submodel_name / "config.json"
