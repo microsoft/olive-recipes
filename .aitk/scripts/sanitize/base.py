@@ -2,11 +2,20 @@
 Base model classes
 """
 
+import json
 from typing import Optional
 
 from pydantic import BaseModel
 
 from .utils import open_ex
+
+
+def add_schema_to_config(content: str, schema_url: str) -> str:
+    """Inject a '$schema' key as the first entry of a JSON object string."""
+    data = json.loads(content)
+    with_schema = {"$schema": schema_url}
+    with_schema.update(data)
+    return json.dumps(with_schema, indent=4)
 
 
 class BaseModelClass(BaseModel):
