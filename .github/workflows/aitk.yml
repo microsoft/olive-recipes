@@ -18,7 +18,9 @@ jobs:
           pip install check-jsonschema
       - name: Validate config schema
         run: |
-          find . -name "*.json.config" ! -name "_copy.json.config" \
-            | xargs check-jsonschema --schemafile .aitk/configs/config_schema.json
+          mapfile -t configs < <(find . -name "*.json.config" ! -name "_copy.json.config" | sort)
+          echo "Checking ${#configs[@]} config files:"
+          printf '  %s\n' "${configs[@]}"
+          check-jsonschema --schemafile .aitk/configs/config_schema.json "${configs[@]}"
       - name: Run script
         run: python .aitk/scripts/sanitize.py
