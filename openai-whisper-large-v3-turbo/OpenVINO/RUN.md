@@ -1,0 +1,7 @@
+- python -m pip install "git+https://github.com/microsoft/olive.git@main#egg=olive-ai[openvino]"
+- uninstall onnxruntime-openvino, install onnxruntime-windowsml
+- python convert_whisper_to_ovir.py -w int4 --enable_npu_ws True
+- Download file https://storage.openvinotoolkit.org/models_contrib/speech/2021.2/librispeech_s5/how_are_you_doing_today.wav
+- download ep.msix
+- Then copied all the DLLs from ExecutionProvider\* to site-packages\onnxruntime\capi\
+- pip install librosa==0.11.0 
