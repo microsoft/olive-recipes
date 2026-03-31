@@ -272,6 +272,7 @@
                 "QNN",
                 "AMDNPU",
                 "NvidiaTRTRTX",
+                "IntelCPU",
                 "IntelGPU",
                 "IntelNPU"
             ],
@@ -319,6 +320,7 @@
             "id": "huggingface/microsoft/Phi-4-mini-reasoning",
             "runtimes": [
                 "AMDNPU",
+                "IntelCPU",
                 "IntelGPU",
                 "IntelNPU"
             ],
@@ -397,7 +399,8 @@
             "runtimes": [
                 "NvidiaTRTRTX",
                 "IntelCPU",
-                "IntelGPU"
+                "IntelGPU",
+                "IntelNPU"
             ],
             "architecture": "Transformer",
             "status": "Ready",
@@ -547,7 +550,8 @@
             "groupItemName": "3B",
             "runtimes": [
                 "IntelCPU",
-                "IntelGPU"
+                "IntelGPU",
+                "IntelNPU"
             ],
             "architecture": "Transformer",
             "status": "Ready",
@@ -584,7 +588,8 @@
             "runtimes": [
                 "NvidiaTRTRTX",
                 "IntelCPU",
-                "IntelGPU"
+                "IntelGPU",
+                "IntelNPU"
             ],
             "architecture": "Transformer",
             "status": "Ready",
@@ -638,7 +643,8 @@
             "groupItemName": "3B",
             "runtimes": [
                 "IntelCPU",
-                "IntelGPU"
+                "IntelGPU",
+                "IntelNPU"
             ],
             "architecture": "Transformer",
             "status": "Ready",
@@ -674,7 +680,8 @@
             "runtimes": [
                 "NvidiaTRTRTX",
                 "IntelCPU",
-                "IntelGPU"
+                "IntelGPU",
+                "IntelNPU"
             ],
             "architecture": "Transformer",
             "status": "Ready",
