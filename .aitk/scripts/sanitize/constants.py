@@ -169,6 +169,9 @@ class OlivePropertyNames:
     WeightFormat = "weight_format"
 
 
+# Schema URL for generated config files
+CONFIG_SCHEMA_URL = "https://github.com/microsoft/olive-recipes/raw/refs/heads/main/.aitk/configs/config_schema.json"
+
 # Path constants
 outputModelRelativePath = r"\\\"./model/model.onnx\\\""
 outputModelIntelNPURelativePath = (
