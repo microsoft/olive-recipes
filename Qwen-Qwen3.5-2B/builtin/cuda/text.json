@@ -7,7 +7,6 @@
         "m": {
             "type": "ModelBuilder",
             "precision": "int4",
-            "int4_algo_config": "k_quant_mixed",
             "extra_options": {
                 "filename": "text.onnx"
             }
