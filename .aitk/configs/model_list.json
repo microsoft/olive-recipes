@@ -254,7 +254,8 @@
                 "AMDNPU",
                 "NvidiaTRTRTX",
                 "IntelCPU",
-                "IntelGPU"
+                "IntelGPU",
+                "IntelNPU"
             ],
             "architecture": "Transformer",
             "status": "Ready",
