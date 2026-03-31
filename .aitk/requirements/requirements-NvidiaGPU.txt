@@ -36,8 +36,8 @@ networkx==3.4.2
 numpy==2.2.4
 # olive-ai==0.11.0
 git+https://github.com/microsoft/Olive.git@b9c975f5651a4446283d9183348add9dcd4ed45f#egg=olive_ai
-# onnx==1.17.0
-onnx==1.17.0
+# onnx==1.21.0rc1
+onnx==1.21.0rc1
 onnx-ir==0.1.10
 # onnxruntime-genai-cuda==0.11.2
 onnxruntime-genai-cuda==0.11.2
