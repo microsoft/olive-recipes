@@ -10,18 +10,33 @@ import onnxruntime as ort
 import torch
 import torch.nn.functional as F
 from PIL import Image
-from transformers import SamProcessor
+from torchvision import transforms
 
 # Load processor
-processor = SamProcessor.from_pretrained("QNN/facebook/sam-vit-base")
+sam2_transform = transforms.Compose(
+    [
+        transforms.Resize((1024, 1024)),  # Resize to 1024x1024
+        transforms.ToTensor(),  # Convert to tensor [C,H,W] and scale to [0,1]
+        transforms.Normalize(
+            mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]
+        ),  # Normalize
+    ]
+)
 
 
-def get_mask_ort(sess_ve, sess_md, image, box, ve_dtype, md_dtype, sess_ve_inputs, sess_md_inputs):
+def get_mask_ort(
+    sess_ve, sess_md, image, box, ve_dtype, md_dtype, sess_ve_inputs, sess_md_inputs
+):
     w, h = image.size
-    inputs = processor(image, return_tensors="np")
-    ort_pixel_values = inputs["pixel_values"]
+    processed_image = sam2_transform(image)
+    inputs = processed_image.float().numpy()[None, :]
+    ort_pixel_values = inputs
 
+    box = np.array(box)
     box_coords = box.reshape(2, 2)
+    box_coords[:, 0] = box_coords[:, 0] * 1024 / w
+    box_coords[:, 1] = box_coords[:, 1] * 1024 / h
+
     box_labels = np.array([2, 3])
     blank_points = np.zeros([3, 2])
     blank_labels = -np.ones(3)
@@ -29,7 +44,9 @@ def get_mask_ort(sess_ve, sess_md, image, box, ve_dtype, md_dtype, sess_ve_input
     ort_input_labels = np.concatenate([blank_labels, box_labels], axis=0)[None, :]
 
     input_ve = {sess_ve_inputs[0].name: np.array(ort_pixel_values, dtype=ve_dtype)}
-    image_embedding, high_res_features1, high_res_features2 = sess_ve.run(None, input_ve)
+    image_embedding, high_res_features1, high_res_features2 = sess_ve.run(
+        None, input_ve
+    )
 
     input_md = {
         sess_md_inputs[0].name: image_embedding.astype(md_dtype),
@@ -43,7 +60,13 @@ def get_mask_ort(sess_ve, sess_md, image, box, ve_dtype, md_dtype, sess_ve_input
     pred_masks = result_md[0]
     scores = result_md[1]
 
-    masks = F.interpolate(torch.Tensor(pred_masks), size=(h, w), mode="bilinear", align_corners=False).detach().numpy()
+    masks = (
+        F.interpolate(
+            torch.Tensor(pred_masks), size=(h, w), mode="bilinear", align_corners=False
+        )
+        .detach()
+        .numpy()
+    )
 
     pred_max_ind = np.argmax(scores)
     mask = masks[0, pred_max_ind]
@@ -52,19 +75,34 @@ def get_mask_ort(sess_ve, sess_md, image, box, ve_dtype, md_dtype, sess_ve_input
 
 def main():
     parser = argparse.ArgumentParser(description="Run SAM ONNX models and save mask.")
-    parser.add_argument("--model_ve", required=True, help="Path to vision encoder ONNX model")
-    parser.add_argument("--model_md", required=True, help="Path to mask decoder ONNX model")
+    parser.add_argument(
+        "--model_ve", required=True, help="Path to vision encoder ONNX model"
+    )
+    parser.add_argument(
+        "--model_md", required=True, help="Path to mask decoder ONNX model"
+    )
     parser.add_argument("--image_path", required=True, help="Path to input image")
-    parser.add_argument("--output_path", default="mask_output.png", help="Path to save the output mask image")
-    parser.add_argument("--box_x", type=int, default=40, help="Top-Left X coordinate of input box")
-    parser.add_argument("--box_y", type=int, default=235, help="To-Left Y coordinate of input box")
+    parser.add_argument(
+        "--output_path",
+        default="mask_output.png",
+        help="Path to save the output mask image",
+    )
+    parser.add_argument(
+        "--box_x", type=int, default=40, help="Top-Left X coordinate of input box"
+    )
+    parser.add_argument(
+        "--box_y", type=int, default=235, help="To-Left Y coordinate of input box"
+    )
     parser.add_argument("--box_w", type=int, default=940, help="Width of input box")
     parser.add_argument("--box_h", type=int, default=490, help="Height of input box")
     args = parser.parse_args()
 
     # Load image
     raw_image = Image.open(args.image_path).convert("RGB")
-    input_box = [[args.box_x, args.box_y], [args.box_x + args.box_w, args.box_y + args.box_h]]
+    input_box = [
+        [args.box_x, args.box_y],
+        [args.box_x + args.box_w, args.box_y + args.box_h],
+    ]
 
     # Load models
     sess_ve = ort.InferenceSession(args.model_ve, providers=["QNNExecutionProvider"])
@@ -77,7 +115,16 @@ def main():
     md_dtype = np.float32 if sess_md_inputs[0].type == "tensor(float)" else np.float16
 
     # Get mask
-    mask = get_mask_ort(sess_ve, sess_md, raw_image, input_box, ve_dtype, md_dtype, sess_ve_inputs, sess_md_inputs)
+    mask = get_mask_ort(
+        sess_ve,
+        sess_md,
+        raw_image,
+        input_box,
+        ve_dtype,
+        md_dtype,
+        sess_ve_inputs,
+        sess_md_inputs,
+    )
 
     # Save mask using PIL
     mask_img = Image.fromarray(mask * 255)  # Convert binary mask to 0-255

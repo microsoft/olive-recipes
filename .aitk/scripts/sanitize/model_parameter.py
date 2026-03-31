@@ -14,8 +14,9 @@ from deepdiff import DeepDiff
 from model_lab import RuntimeEnum
 from pydantic import BaseModel
 
-from .base import BaseModelClass
+from .base import BaseModelClass, add_schema_to_config
 from .constants import (
+    CONFIG_SCHEMA_URL,
     EPNames,
     OliveDeviceTypes,
     OlivePassNames,
@@ -260,6 +261,14 @@ class ModelParameter(BaseModelClass):
     optimizationDefault: Optional[str] = None
     aitkPython: Optional[str] = None
     sections: List[Section] = []
+
+    def writeIfChanged(self):
+        newContent = add_schema_to_config(
+            self.model_dump_json(indent=4, exclude_none=True),
+            CONFIG_SCHEMA_URL,
+        )
+        if self._file:
+            BaseModelClass.writeJsonIfChanged(newContent, self._file, self._fileContent)
 
     @staticmethod
     def Read(parameterFile: str):

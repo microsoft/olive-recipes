@@ -5,6 +5,7 @@ recipes:
     - file: "deepseek_ov_config.json"
       devices:
         - gpu
+        - cpu
       ep: OpenVINOExecutionProvider
     - file: "deepseek_trtrtx.json"
       device: gpu

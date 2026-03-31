@@ -253,6 +253,7 @@
                 "QNN",
                 "AMDNPU",
                 "NvidiaTRTRTX",
+                "IntelCPU",
                 "IntelGPU"
             ],
             "architecture": "Transformer",
@@ -286,6 +287,7 @@
             "id": "huggingface/microsoft/Phi-4",
             "runtimes": [
                 "NvidiaTRTRTX",
+                "IntelCPU",
                 "IntelGPU"
             ],
             "architecture": "Transformer",
@@ -301,6 +303,7 @@
             "runtimes": [
                 "QNN",
                 "AMDNPU",
+                "IntelCPU",
                 "IntelGPU",
                 "IntelNPU"
             ],
@@ -356,6 +359,7 @@
             "modelLink": "https://huggingface.co/deepseek-ai/DeepSeek-R1-Distill-Llama-8B",
             "id": "huggingface/deepseek-ai/DeepSeek-R1-Distill-Llama-8B",
             "runtimes": [
+                "IntelCPU",
                 "IntelGPU",
                 "IntelNPU"
             ],
@@ -374,6 +378,7 @@
             "runtimes": [
                 "AMDNPU",
                 "NvidiaTRTRTX",
+                "IntelCPU",
                 "IntelGPU",
                 "IntelNPU"
             ],
@@ -391,6 +396,7 @@
             "groupItemName": "14B",
             "runtimes": [
                 "NvidiaTRTRTX",
+                "IntelCPU",
                 "IntelGPU"
             ],
             "architecture": "Transformer",
@@ -426,6 +432,7 @@
             "runtimes": [
                 "AMDNPU",
                 "NvidiaTRTRTX",
+                "IntelCPU",
                 "IntelGPU",
                 "IntelNPU"
             ],
@@ -440,6 +447,7 @@
             "modelLink": "https://huggingface.co/mistralai/Mistral-7B-Instruct-v0.3",
             "id": "huggingface/mistralai/Mistral-7B-Instruct-v0.3",
             "runtimes": [
+                "IntelCPU",
                 "IntelGPU"
             ],
             "architecture": "Transformer",
@@ -503,6 +511,7 @@
             "modelLink": "https://huggingface.co/Qwen/Qwen2.5-0.5B",
             "id": "huggingface/Qwen/Qwen2.5-0.5B",
             "runtimes": [
+                "IntelCPU",
                 "IntelGPU"
             ],
             "architecture": "Transformer",
@@ -520,6 +529,7 @@
             "runtimes": [
                 "AMDNPU",
                 "NvidiaTRTRTX",
+                "IntelCPU",
                 "IntelGPU",
                 "IntelNPU"
             ],
@@ -536,6 +546,7 @@
             "groupId": "huggingface/Qwen/Qwen2.5-1.5B-Instruct",
             "groupItemName": "3B",
             "runtimes": [
+                "IntelCPU",
                 "IntelGPU"
             ],
             "architecture": "Transformer",
@@ -554,6 +565,7 @@
                 "QNN",
                 "AMDNPU",
                 "NvidiaTRTRTX",
+                "IntelCPU",
                 "IntelGPU",
                 "IntelNPU"
             ],
@@ -571,6 +583,7 @@
             "groupItemName": "14B",
             "runtimes": [
                 "NvidiaTRTRTX",
+                "IntelCPU",
                 "IntelGPU"
             ],
             "architecture": "Transformer",
@@ -588,6 +601,7 @@
             "runtimes": [
                 "AMDNPU",
                 "NvidiaTRTRTX",
+                "IntelCPU",
                 "IntelGPU",
                 "IntelNPU"
             ],
@@ -606,6 +620,7 @@
             "runtimes": [
                 "AMDNPU",
                 "NvidiaTRTRTX",
+                "IntelCPU",
                 "IntelGPU",
                 "IntelNPU"
             ],
@@ -622,6 +637,7 @@
             "groupId": "huggingface/Qwen/Qwen2.5-Coder-1.5B-Instruct",
             "groupItemName": "3B",
             "runtimes": [
+                "IntelCPU",
                 "IntelGPU"
             ],
             "architecture": "Transformer",
@@ -639,6 +655,7 @@
             "runtimes": [
                 "AMDNPU",
                 "NvidiaTRTRTX",
+                "IntelCPU",
                 "IntelGPU",
                 "IntelNPU"
             ],
@@ -656,6 +673,7 @@
             "groupItemName": "14B",
             "runtimes": [
                 "NvidiaTRTRTX",
+                "IntelCPU",
                 "IntelGPU"
             ],
             "architecture": "Transformer",
