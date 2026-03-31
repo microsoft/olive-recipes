@@ -5,3 +5,9 @@
 - download ep.msix
 - Then copied all the DLLs from ExecutionProvider\* to site-packages\onnxruntime\capi\
 - pip install librosa==0.11.0 
+
+quick start
+- install freeze.txt
+- python convert_whisper_to_ovir.py -w int4 --enable_npu_ws True
+- Download file https://storage.openvinotoolkit.org/models_contrib/speech/2021.2/librispeech_s5/how_are_you_doing_today.wav
+- run.py

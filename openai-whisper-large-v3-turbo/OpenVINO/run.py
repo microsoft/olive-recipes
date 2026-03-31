@@ -1,9 +1,23 @@
 from pathlib import Path
 import numpy as np
 import librosa
+import subprocess
+import json
+import sys
+import os
 import onnxruntime_genai as og
-dllname = "onnxruntime_providers_openvino_plugin.dll"
-og.register_execution_provider_library("OpenVINOExecutionProvider", dllname)
+
+def register_execution_providers():
+    worker_script = os.path.abspath('winml.py')
+    result = subprocess.check_output([sys.executable, worker_script], text=True)
+    paths = json.loads(result)
+    for item in paths.items():
+        try:
+            og.register_execution_provider_library(item[0], item[1])
+        except Exception as e:
+            print(f"Failed to register execution provider {item[0]}: {e}")
+
+register_execution_providers()
 
 def generate_transcript(model_path, audio_path, num_beams=0):
     """Generate transcript using onnxruntime-genai.

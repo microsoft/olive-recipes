@@ -91,3 +91,13 @@ typing-inspection==0.4.2
 tzdata==2025.3
 urllib3==2.6.3
 zipp==3.23.0
+wasdk-Microsoft.Windows.AI.MachineLearning==1.8.251106002
+wasdk-Microsoft.Windows.ApplicationModel.DynamicDependency.Bootstrap==1.8.251106002
+wcwidth==0.2.13
+widgetsnbextension==4.0.13
+# winrt-runtime==3.2.1
+winrt-runtime==3.2.1
+# winrt-Windows.Foundation==3.2.1
+winrt-Windows.Foundation==3.2.1
+# winrt-Windows.Foundation.Collections==3.2.1
+winrt-Windows.Foundation.Collections==3.2.1
