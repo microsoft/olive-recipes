@@ -157,6 +157,7 @@ class OlivePropertyNames:
     Precision = "precision"
     PreProcessDataConfig = "pre_process_data_config"
     PythonEnvironmentPath = "python_environment_path"
+    QuantScheme = "quant_scheme"
     ExternalData = "save_as_external_data"
     Split = "split"
     Subset = "subset"
