@@ -17,8 +17,9 @@ import onnxruntime as ort
 
 
 class PatchedOnnxRuntimeModel(OnnxRuntimeModel):
-    def __init__(self, model=None, **kwargs):
+    def __init__(self, model=None, is_ov_save=False, **kwargs):
         self.model = model
+        self.is_ov_save = is_ov_save
         self.model_save_dir = kwargs.get("model_save_dir", None)
         self.latencies = []
 
@@ -34,6 +35,17 @@ class PatchedOnnxRuntimeModel(OnnxRuntimeModel):
         return ort.InferenceSession(path, sess_options=sess_options)
 
     def _save_pretrained(self, save_directory: Union[str, Path], file_name: Optional[str] = None, **kwargs):
+        if self.is_ov_save:
+            patterns = ("*.onnx", "*.bin", "*.xml")
+            for pattern in patterns:
+                for file in self.model.glob(pattern):
+                    dst_path = Path(save_directory).joinpath(file.name)
+                    try:
+                        shutil.copyfile(file, dst_path)
+                    except shutil.SameFileError:
+                        pass
+            return
+        
         model_file_name = ONNX_WEIGHTS_NAME
 
         src_path = self.model_save_dir.joinpath(model_file_name)
@@ -73,8 +85,12 @@ class PatchedOnnxRuntimeModel(OnnxRuntimeModel):
         model_id: Union[str, Path],
         provider: Optional[str] = None,
         sess_options: Optional["ort.SessionOptions"] = None,
+        is_ov_save: bool = False,
         **kwargs,
     ):
+        if is_ov_save:
+            return cls(model=Path(model_id), is_ov_save=True)
+
         model_file_name = ONNX_WEIGHTS_NAME
         model_path = Path(model_id, model_file_name).as_posix()
 
