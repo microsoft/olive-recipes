@@ -19,6 +19,10 @@ from diffusers.pipelines.pipeline_utils import DiffusionPipeline
 from diffusers.schedulers import DDIMScheduler, LMSDiscreteScheduler, PNDMScheduler
 from transformers import CLIPTokenizer
 
+from sd_utils.onnx_patch import PatchedOnnxRuntimeModel
+from diffusers.pipelines.stable_diffusion.pipeline_onnx_stable_diffusion import OnnxStableDiffusionPipeline
+
+
 OV_OPTIMIZED_MODEL_INFO = "ov_optimized_model_info.json"
 
 # ruff: noqa: T201
@@ -544,9 +548,6 @@ def save_ov_model_info(model_info, optimized_model_dir, pipeline):
     # model_info_path = optimized_model_dir / OV_OPTIMIZED_MODEL_INFO
     # with model_info_path.open("w") as model_info_file:
     #     json.dump(model_info, model_info_file, indent=4)
-    from sd_utils.onnx_patch import PatchedOnnxRuntimeModel
-    from diffusers.pipelines.stable_diffusion.pipeline_onnx_stable_diffusion import OnnxStableDiffusionPipeline
-
     onnx_pipeline = OnnxStableDiffusionPipeline(
         vae_encoder=PatchedOnnxRuntimeModel.from_pretrained(model_info["vae_encoder"], is_ov_save=True),
         vae_decoder=PatchedOnnxRuntimeModel.from_pretrained(model_info["vae_decoder"], is_ov_save=True),
