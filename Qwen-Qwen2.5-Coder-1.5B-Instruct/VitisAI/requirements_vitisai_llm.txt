@@ -17,7 +17,7 @@ nltk
 numpy
 
 # Pin onnx version
-onnx==1.18.0
+onnx==1.21.0
 onnxruntime==1.21.1
 onnxruntime-genai==0.7.1
 optimum
