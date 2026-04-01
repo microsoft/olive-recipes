@@ -272,7 +272,7 @@ def optimize(
     if provider == "openvino":
         from sd_utils.ov import save_ov_model_info
 
-        save_ov_model_info(model_info, optimized_model_dir)
+        save_ov_model_info(model_info, optimized_model_dir, pipeline)
     else:
         from sd_utils.ort import save_onnx_pipeline
 

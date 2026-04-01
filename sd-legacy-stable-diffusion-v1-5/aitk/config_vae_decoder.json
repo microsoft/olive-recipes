@@ -58,6 +58,23 @@
             "example_input_func": "vae_decoder_conversion_inputs",
             "output_model": "vae_decoder"
         },
+        "ov_io_update": {
+            "type": "OpenVINOIoUpdate",
+            "static": true,
+            "input_shapes": [
+                [ 1, 4, 64, 64 ]
+            ],
+            "input_names": [
+                "latent_sample"
+            ],
+            "reuse_cache": false
+        },
+        "ov_encapsulation": {
+            "type": "OpenVINOEncapsulation",
+            "target_device": "gpu",
+            "ov_version": "2025.1",
+            "reuse_cache": false
+        },
         "optimize": {
             "type": "OrtTransformersOptimization",
             "model_type": "vae",

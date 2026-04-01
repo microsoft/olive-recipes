@@ -11,16 +11,16 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Callable, Optional, Union
 
-import cv2
 import numpy as np
-import openvino as ov
 import PIL
 import torch
 from diffusers import StableDiffusionPipeline
 from diffusers.pipelines.pipeline_utils import DiffusionPipeline
 from diffusers.schedulers import DDIMScheduler, LMSDiscreteScheduler, PNDMScheduler
-from openvino.runtime import Model
 from transformers import CLIPTokenizer
+
+from sd_utils.onnx_patch import PatchedOnnxRuntimeModel
+import onnxruntime as ort
 
 OV_OPTIMIZED_MODEL_INFO = "ov_optimized_model_info.json"
 
@@ -95,12 +95,12 @@ class OvStableDiffusionPipelineOutput:
 class OVStableDiffusionPipeline(DiffusionPipeline):
     def __init__(
         self,
-        vae_decoder: Model,
-        text_encoder: Model,
-        tokenizer: CLIPTokenizer,
-        unet: Model,
+        vae_decoder,
+        text_encoder,
+        tokenizer,
+        unet,
         scheduler: Union[DDIMScheduler, PNDMScheduler, LMSDiscreteScheduler],
-        vae_encoder: Model = None,
+        vae_encoder = None,
     ):
         """Pipeline for text-to-image generation using Stable Diffusion.
 
@@ -380,6 +380,8 @@ class OVStableDiffusionPipeline(DiffusionPipeline):
         return latents, meta
 
     def postprocess_image(self, image: np.ndarray, meta: dict, output_type: str = "pil"):
+        import cv2
+        
         """Postprocessing for decoded image.
 
         Takes generated image decoded by VAE decoder, unpad it to initila image size (if required),
@@ -442,23 +444,64 @@ class OVStableDiffusionPipeline(DiffusionPipeline):
 
 
 def update_ov_config(config: dict):
-    config["passes"] = {"ov_convert": config["passes"]["ov_convert"]}
+    config["passes"] = {
+        "ov_convert": config["passes"]["ov_convert"],
+        "ov_io_update": config["passes"]["ov_io_update"],
+        "ov_encapsulation": config["passes"]["ov_encapsulation"]
+        }
+
     config["search_strategy"] = False
+    config["systems"]["local_system"]["accelerators"][0]["device"] = "cpu"
     config["systems"]["local_system"]["accelerators"][0]["execution_providers"] = ["CPUExecutionProvider"]
+    
     del config["evaluators"]
     del config["evaluator"]
+    del config["data_configs"]
     return config
 
 
 def save_optimized_ov_submodel(workflow_output, submodel, optimized_model_dir, optimized_model_path_map):
+    print(f"Saving optimized {submodel} model...")
+    print(f"Best candidate for {submodel}: {workflow_output.get_best_candidate()}")
     output_model_dir = workflow_output.get_best_candidate().model_path
-    optimized_model_path = optimized_model_dir / submodel
-    shutil.copytree(output_model_dir, optimized_model_path)
-    model_path = (optimized_model_path / submodel).with_suffix(".xml")
-    optimized_model_path_map[submodel] = str(model_path)
+    # optimized_model_path = optimized_model_dir / submodel
+    # shutil.copytree(output_model_dir, optimized_model_path)
+    # model_path = (optimized_model_path / submodel).with_suffix(".xml")
+    folder = Path(output_model_dir)
+    onnx_files = sorted(folder.glob("*.onnx"))
+    if onnx_files:
+        first_file = onnx_files[0]
+        target = folder / "model.onnx"
+        first_file.rename(target)
+        print(f"Renamed {first_file.name} -> {target.name}")
+    optimized_model_path_map[submodel] = str(output_model_dir)
 
+
+def add_ep_for_device(session_options, ep_name, device_type, ep_options=None):
+    ep_devices = ort.get_ep_devices()
+    for ep_device in ep_devices:
+        if ep_device.ep_name == ep_name and ep_device.device.type == device_type:
+            print(f"Adding {ep_name} for {device_type}")
+            session_options.add_provider_for_devices([ep_device], {} if ep_options is None else ep_options)
+            break
+
+def register_execution_providers():
+    import json
+    import subprocess
+    import sys
+
+    worker_script = os.path.abspath('winml.py')
+    result = subprocess.check_output([sys.executable, worker_script], text=True)
+    paths = json.loads(result)
+    for item in paths.items():
+        try:
+            ort.register_execution_provider_library(item[0], item[1])
+        except Exception as e:
+            print(f"Failed to register execution provider {item[0]}: {e}")
 
 def get_ov_pipeline(common_args, ov_args, optimized_model_dir):
+    import openvino as ov
+
     if common_args.test_unoptimized:
         return StableDiffusionPipeline.from_pretrained(common_args.model_id)
 
@@ -489,7 +532,25 @@ def get_ov_pipeline(common_args, ov_args, optimized_model_dir):
     )
 
 
-def save_ov_model_info(model_info, optimized_model_dir):
-    model_info_path = optimized_model_dir / OV_OPTIMIZED_MODEL_INFO
-    with model_info_path.open("w") as model_info_file:
-        json.dump(model_info, model_info_file, indent=4)
+def save_ov_model_info(model_info, optimized_model_dir, pipeline):
+    # model_info_path = optimized_model_dir / OV_OPTIMIZED_MODEL_INFO
+    # with model_info_path.open("w") as model_info_file:
+    #     json.dump(model_info, model_info_file, indent=4)
+    from sd_utils.onnx_patch import PatchedOnnxRuntimeModel
+    from diffusers.pipelines.stable_diffusion.pipeline_onnx_stable_diffusion import OnnxStableDiffusionPipeline
+
+    onnx_pipeline = OnnxStableDiffusionPipeline(
+        vae_encoder=PatchedOnnxRuntimeModel.from_pretrained(model_info["vae_encoder"], is_ov_save=True),
+        vae_decoder=PatchedOnnxRuntimeModel.from_pretrained(model_info["vae_decoder"], is_ov_save=True),
+        text_encoder=PatchedOnnxRuntimeModel.from_pretrained(model_info["text_encoder"], is_ov_save=True),
+        tokenizer=pipeline.tokenizer,
+        unet=PatchedOnnxRuntimeModel.from_pretrained(model_info["unet"], is_ov_save=True),
+        scheduler=pipeline.scheduler,
+        safety_checker=None,
+        feature_extractor=pipeline.feature_extractor,
+        requires_safety_checker=True,
+    )
+
+    print("Saving optimized models...")
+    onnx_pipeline.save_pretrained(optimized_model_dir)
+    return
