@@ -39,18 +39,25 @@ def update_genai_config(output_dir: str = MODELS_DIR, device: str = "cpu"):
 
     if device == "gpu":
         provider_options = [
+            {"cuda": {"enable_cuda_graph": "1", "enable_skip_layer_norm_strict_mode": "1"}}
+        ]
+        # Vision model has Loop nodes (one per ViT block) which are incompatible
+        # with CUDA graph capture, so disable it for vision and embedding only.
+        vision_provider_options = [
             {"cuda": {"enable_cuda_graph": "0", "enable_skip_layer_norm_strict_mode": "1"}}
         ]
     else:
         provider_options = []
+        vision_provider_options = []
 
     session_options = {"log_id": "onnxruntime-genai", "provider_options": provider_options}
+    vision_session_options = {"log_id": "onnxruntime-genai", "provider_options": vision_provider_options}
 
     config["model"]["embedding"] = {
         "filename": "embedding.onnx",
         "inputs": {"input_ids": "input_ids", "image_features": "image_features"},
         "outputs": {"inputs_embeds": "inputs_embeds"},
-        "session_options": session_options,
+        "session_options": vision_session_options,
     }
 
     config["model"]["vision"] = {
@@ -61,7 +68,7 @@ def update_genai_config(output_dir: str = MODELS_DIR, device: str = "cpu"):
         "patch_size": 16,
         "inputs": {"pixel_values": "pixel_values", "image_grid_thw": "image_grid_thw"},
         "outputs": {"image_features": "image_features"},
-        "session_options": session_options,
+        "session_options": vision_session_options,
     }
 
     config["model"]["bos_token_id"] = 248044
