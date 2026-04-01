@@ -381,7 +381,7 @@ class OVStableDiffusionPipeline(DiffusionPipeline):
 
     def postprocess_image(self, image: np.ndarray, meta: dict, output_type: str = "pil"):
         import cv2
-        
+
         """Postprocessing for decoded image.
 
         Takes generated image decoded by VAE decoder, unpad it to initila image size (if required),
@@ -453,7 +453,7 @@ def update_ov_config(config: dict):
     config["search_strategy"] = False
     config["systems"]["local_system"]["accelerators"][0]["device"] = "cpu"
     config["systems"]["local_system"]["accelerators"][0]["execution_providers"] = ["CPUExecutionProvider"]
-    
+
     del config["evaluators"]
     del config["evaluator"]
     del config["data_configs"]

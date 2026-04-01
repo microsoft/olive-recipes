@@ -45,7 +45,7 @@ class PatchedOnnxRuntimeModel(OnnxRuntimeModel):
                     except shutil.SameFileError:
                         pass
             return
-        
+
         model_file_name = ONNX_WEIGHTS_NAME
 
         src_path = self.model_save_dir.joinpath(model_file_name)
