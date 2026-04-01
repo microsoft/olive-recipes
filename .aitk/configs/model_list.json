@@ -858,7 +858,10 @@
             "uint16": "a16"
         },
         "QuarkDataType": {
-            "bfloat16": "bf16"
+            "bfloat16": "a:bf16"
+        },
+        "QuarkWeightType": {
+            "w_uint4_per_group_asym": "w:int4"
         }
     }
 }

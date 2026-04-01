@@ -189,6 +189,14 @@ def generate_amd_quantization_config(
                         ),
                     )
                 )
+            quant_scheme = v.get(OlivePropertyNames.QuantScheme)
+            if quant_scheme:
+                parameter.optimizationPaths.append(
+                    OptimizationPath(
+                        name="QuarkWeightType",
+                        path=f"{OlivePropertyNames.Passes}.{k}.{OlivePropertyNames.QuantScheme}",
+                    )
+                )
             data_type = v.get(OlivePropertyNames.DataType)
             if data_type:
                 parameter.optimizationPaths.append(

@@ -737,16 +737,16 @@ class ModelParameter(BaseModelClass):
         if not self.optimizationPaths:
             printError(f"{self._file} optimizationPaths is not set")
             return
-        optimizationDefault = ""
+        optimizationDefaults = []
         for optimizationPath in self.optimizationPaths:
             displayName = optimizationPath.Check(oliveJson, toDisplayName)
             if displayName:
-                optimizationDefault += displayName
+                optimizationDefaults.append(displayName)
             else:
                 printError(f"{self._file} optimization path {optimizationPath.path} has error")
                 return
-        if optimizationDefault:
-            self.optimizationDefault = optimizationDefault
+        if optimizationDefaults:
+            self.optimizationDefault = " ".join(optimizationDefaults)
         else:
             printError(f"{self._file} optimizationDefault is not set")
 
