@@ -20,8 +20,7 @@ from diffusers.schedulers import DDIMScheduler, LMSDiscreteScheduler, PNDMSchedu
 from transformers import CLIPTokenizer
 
 from sd_utils.onnx_patch import PatchedOnnxRuntimeModel
-from diffusers.pipelines.stable_diffusion.pipeline_onnx_stable_diffusion import OnnxStableDiffusionPipeline
-
+import onnxruntime as ort
 
 OV_OPTIMIZED_MODEL_INFO = "ov_optimized_model_info.json"
 
@@ -96,12 +95,12 @@ class OvStableDiffusionPipelineOutput:
 class OVStableDiffusionPipeline(DiffusionPipeline):
     def __init__(
         self,
-        vae_decoder: PatchedOnnxRuntimeModel,
-        text_encoder: PatchedOnnxRuntimeModel,
-        tokenizer: CLIPTokenizer,
-        unet: PatchedOnnxRuntimeModel,
+        vae_decoder,
+        text_encoder,
+        tokenizer,
+        unet,
         scheduler: Union[DDIMScheduler, PNDMScheduler, LMSDiscreteScheduler],
-        vae_encoder: PatchedOnnxRuntimeModel = None,
+        vae_encoder = None,
     ):
         """Pipeline for text-to-image generation using Stable Diffusion.
 
@@ -450,14 +449,20 @@ def update_ov_config(config: dict):
         "ov_io_update": config["passes"]["ov_io_update"],
         "ov_encapsulation": config["passes"]["ov_encapsulation"]
         }
+
     config["search_strategy"] = False
+    config["systems"]["local_system"]["accelerators"][0]["device"] = "cpu"
     config["systems"]["local_system"]["accelerators"][0]["execution_providers"] = ["CPUExecutionProvider"]
+    
     del config["evaluators"]
     del config["evaluator"]
+    del config["data_configs"]
     return config
 
 
 def save_optimized_ov_submodel(workflow_output, submodel, optimized_model_dir, optimized_model_path_map):
+    print(f"Saving optimized {submodel} model...")
+    print(f"Best candidate for {submodel}: {workflow_output.get_best_candidate()}")
     output_model_dir = workflow_output.get_best_candidate().model_path
     # optimized_model_path = optimized_model_dir / submodel
     # shutil.copytree(output_model_dir, optimized_model_path)
@@ -495,42 +500,25 @@ def register_execution_providers():
             print(f"Failed to register execution provider {item[0]}: {e}")
 
 def get_ov_pipeline(common_args, ov_args, optimized_model_dir):
+    import openvino as ov
+
     if common_args.test_unoptimized:
         return StableDiffusionPipeline.from_pretrained(common_args.model_id)
 
     with (optimized_model_dir / OV_OPTIMIZED_MODEL_INFO).open("r") as model_info_file:
         optimized_model_path_map = json.load(model_info_file)
 
-    register_execution_providers()
-
-    print("Loading models into ORT session...")
-    sess_options = ort.SessionOptions()
-
-    provider = common_args.provider
     device = ov_args.device
 
-    provider_map = {
-        "cpu": "CPUExecutionProvider",
-        "cuda": "CUDAExecutionProvider",
-        "qnn": "QNNExecutionProvider",
-    }
-    device_map = {
-        "cpu": ort.OrtHardwareDeviceType.CPU,
-        "gpu": ort.OrtHardwareDeviceType.GPU,
-        "npu": ort.OrtHardwareDeviceType.NPU,
-    }
-    assert provider in provider_map, f"Unsupported provider: {provider}"
-    assert device in device_map, f"Unsupported device: {device}"
+    core = ov.Core()
+    text_enc = core.compile_model(optimized_model_path_map["text_encoder"], device)
+    unet_model = core.compile_model(optimized_model_path_map["unet"], device)
 
-    add_ep_for_device(sess_options, provider_map[provider], device_map[device])
+    ov_config = {"INFERENCE_PRECISION_HINT": "f32"} if device != "CPU" else {}
 
-    from sd_utils.onnx_patch import PatchedOnnxRuntimeModel
-    import onnxruntime as ort
+    vae_decoder = core.compile_model(optimized_model_path_map["vae_decoder"], device, ov_config)
+    vae_encoder = core.compile_model(optimized_model_path_map["vae_encoder"], device, ov_config)
 
-    text_enc = PatchedOnnxRuntimeModel(ort.InferenceSession(optimized_model_path_map["text_encoder"]), sess_options=sess_options)
-    unet_model = PatchedOnnxRuntimeModel(ort.InferenceSession(optimized_model_path_map["unet"]), sess_options=sess_options)
-    vae_decoder = PatchedOnnxRuntimeModel(ort.InferenceSession(optimized_model_path_map["vae_decoder"]), sess_options=sess_options)
-    vae_encoder = PatchedOnnxRuntimeModel(ort.InferenceSession(optimized_model_path_map["vae_encoder"]), sess_options=sess_options)
     lms = LMSDiscreteScheduler(beta_start=0.00085, beta_end=0.012, beta_schedule="scaled_linear")
     tokenizer = CLIPTokenizer.from_pretrained("openai/clip-vit-large-patch14")
 
@@ -548,6 +536,9 @@ def save_ov_model_info(model_info, optimized_model_dir, pipeline):
     # model_info_path = optimized_model_dir / OV_OPTIMIZED_MODEL_INFO
     # with model_info_path.open("w") as model_info_file:
     #     json.dump(model_info, model_info_file, indent=4)
+    from sd_utils.onnx_patch import PatchedOnnxRuntimeModel
+    from diffusers.pipelines.stable_diffusion.pipeline_onnx_stable_diffusion import OnnxStableDiffusionPipeline
+
     onnx_pipeline = OnnxStableDiffusionPipeline(
         vae_encoder=PatchedOnnxRuntimeModel.from_pretrained(model_info["vae_encoder"], is_ov_save=True),
         vae_decoder=PatchedOnnxRuntimeModel.from_pretrained(model_info["vae_decoder"], is_ov_save=True),
