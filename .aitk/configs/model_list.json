@@ -254,7 +254,8 @@
                 "AMDNPU",
                 "NvidiaTRTRTX",
                 "IntelCPU",
-                "IntelGPU"
+                "IntelGPU",
+                "IntelNPU"
             ],
             "architecture": "Transformer",
             "status": "Ready",
@@ -272,6 +273,7 @@
                 "QNN",
                 "AMDNPU",
                 "NvidiaTRTRTX",
+                "IntelCPU",
                 "IntelGPU",
                 "IntelNPU"
             ],
@@ -319,6 +321,7 @@
             "id": "huggingface/microsoft/Phi-4-mini-reasoning",
             "runtimes": [
                 "AMDNPU",
+                "IntelCPU",
                 "IntelGPU",
                 "IntelNPU"
             ],
@@ -397,7 +400,8 @@
             "runtimes": [
                 "NvidiaTRTRTX",
                 "IntelCPU",
-                "IntelGPU"
+                "IntelGPU",
+                "IntelNPU"
             ],
             "architecture": "Transformer",
             "status": "Ready",
@@ -547,7 +551,8 @@
             "groupItemName": "3B",
             "runtimes": [
                 "IntelCPU",
-                "IntelGPU"
+                "IntelGPU",
+                "IntelNPU"
             ],
             "architecture": "Transformer",
             "status": "Ready",
@@ -584,7 +589,8 @@
             "runtimes": [
                 "NvidiaTRTRTX",
                 "IntelCPU",
-                "IntelGPU"
+                "IntelGPU",
+                "IntelNPU"
             ],
             "architecture": "Transformer",
             "status": "Ready",
@@ -638,7 +644,8 @@
             "groupItemName": "3B",
             "runtimes": [
                 "IntelCPU",
-                "IntelGPU"
+                "IntelGPU",
+                "IntelNPU"
             ],
             "architecture": "Transformer",
             "status": "Ready",
@@ -674,7 +681,8 @@
             "runtimes": [
                 "NvidiaTRTRTX",
                 "IntelCPU",
-                "IntelGPU"
+                "IntelGPU",
+                "IntelNPU"
             ],
             "architecture": "Transformer",
             "status": "Ready",
@@ -850,7 +858,10 @@
             "uint16": "a16"
         },
         "QuarkDataType": {
-            "bfloat16": "bf16"
+            "bfloat16": "a:bf16"
+        },
+        "QuarkWeightType": {
+            "w_uint4_per_group_asym": "w:int4"
         }
     }
 }

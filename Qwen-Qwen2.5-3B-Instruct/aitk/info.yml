@@ -7,6 +7,10 @@ recipes:
         - gpu
         - cpu
       ep: OpenVINOExecutionProvider
+    - file: "qwen2_5_ov_npu_config.json"
+      devices:
+        - npu
+      ep: OpenVINOExecutionProvider
 aitk:
     modelInfo:
         id: "huggingface/Qwen/Qwen2.5-3B-Instruct"
