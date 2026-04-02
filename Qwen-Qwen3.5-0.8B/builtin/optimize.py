@@ -56,6 +56,8 @@ def update_genai_config(output_dir: str = MODELS_DIR, device: str = "cpu"):
     session_options = {"log_id": "onnxruntime-genai", "provider_options": provider_options}
     vision_session_options = {"log_id": "onnxruntime-genai", "provider_options": vision_provider_options}
 
+    config["model"]["decoder"]["session_options"] = session_options
+
     config["model"]["embedding"] = {
         "filename": "embedding.onnx",
         "inputs": {"input_ids": "input_ids", "image_features": "image_features"},
