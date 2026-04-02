@@ -25,7 +25,6 @@ conda activate olive
 git clone https://github.com/microsoft/Olive.git
 cd Olive
 pip install -e .
-pip install -r requirements.txt
 ```
 
 #### Install VitisAI Stable Diffusion dependencies
