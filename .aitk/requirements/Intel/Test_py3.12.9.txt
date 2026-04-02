@@ -1,4 +1,4 @@
-aiohttp==3.13.3
+aiohttp==3.13.4
 coloredlogs==15.0.1
 comm==0.2.2
 # datasets==3.5.0
