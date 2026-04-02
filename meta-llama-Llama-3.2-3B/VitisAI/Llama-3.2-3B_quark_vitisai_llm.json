@@ -1,0 +1,24 @@
+{
+    "input_model": { "type": "HFModel", "model_path": "meta-llama/Llama-3.2-3B" },
+    "passes": {
+        "qq": {
+            "type": "QuarkQuantization",
+            "quant_scheme": "uint4_wo_128",
+            "quant_algo": "awq",
+            "dataset": "pileval_for_awq_benchmark",
+            "data_type": "bfloat16",
+            "num_calib_data": 128,
+            "model_export": ["hf_format"],
+            "exclude_layers": []
+        },
+        "mg": {
+            "type": "VitisGenerateModelLLM",
+            "optimize": "full_fusion",
+            "use_ep": true
+        }
+    },
+    "log_severity_level": 1,
+    "output_dir": "models/Llama-3.2-3B-vai",
+    "cache_dir": "cache",
+    "no_artifacts": true
+}

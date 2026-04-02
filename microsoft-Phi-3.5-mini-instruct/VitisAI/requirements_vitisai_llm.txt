@@ -1,26 +1,28 @@
 # AMD model generation
 --extra-index-url=https://pypi.amd.com/simple
+--extra-index-url=https://pypi.amd.com/olive/1.7.0.1/simple
 accelerate
 
 # Quark
-amd-quark==0.9
+amd-quark==0.11
 datasets
 evaluate
 
-# Platform-specific model-generate versions:
-# Linux: use model-generate==1.5.0 (default)
-# Windows: MUST use model-generate==1.5.1
-model-generate==1.5.0; sys_platform != 'win32'
-model-generate==1.5.1; sys_platform == 'win32'
+model-generate
+onnxsim
 
 nltk
-numpy
+numpy==1.26.4
 
 # Pin onnx version
 onnx==1.18.0
-onnxruntime==1.21.1
-onnxruntime-genai==0.7.1
+onnxruntime
+onnxruntime-genai
 optimum
 sentencepiece
 tabulate
-transformers==4.50.0
+transformers==4.57.6
+
+ryzenai-dynamic-dispatch
+ryzenai-onnx-utils
+

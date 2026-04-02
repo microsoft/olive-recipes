@@ -14,21 +14,31 @@ This folder contains sample Olive configuration to optimize Qwen models for AMD 
 For LLMs - follow the below commands to generate the optimized model for VitisAI Execution Provider.
 
 **Platform Support:**
-- ✅ **Linux with ROCm** - Supported
-- ✅ **Linux with CUDA** - Supported
+- ✅ **Linux with ROCm** - Supported on Ubuntu 24.04 and later. For the best experience, we recommend Ubuntu 24.04.
+- ✅ **Linux with CUDA** - Supported on Ubuntu 24.04 and later. For the best experience, we recommend Ubuntu 24.04.
 - ✅ **Windows with CUDA** - Supported
 - ✅ **Windows with CPU** - Supported (quantization will be slower)
 - ⏳ **Windows with ROCm** - Planned for future release
 
 For more details about quark, see the [Quark Documentation](https://quark.docs.amd.com/latest/)
 
-#### **Create a Python 3.10 conda environment and run the below commands**
+#### **Create a Python 3.12 conda environment and run the below commands**
 ```bash
-conda create -n olive python=3.10
+conda create -n olive python=3.12
 conda activate olive
 ```
 
+#### **Install Olive**
+
+**Option 1: Install from PyPI**
 ```bash
+pip install olive-ai[auto-opt]
+pip install transformers onnxruntime-genai
+```
+
+**Option 2: Install from source**
+```bash
+git clone https://github.com/microsoft/Olive.git
 cd Olive
 pip install -e .
 pip install -r requirements.txt
@@ -41,7 +51,7 @@ cd olive-recipes/Qwen-Qwen2.5-7B-Instruct/VitisAI
 pip install --force-reinstall -r requirements_vitisai_llm.txt
 ```
 
-**Note:** The requirements file automatically installs the correct `model-generate` version for your platform (1.5.0 for Linux, 1.5.1 for Windows).
+ 
 
 #### **Install PyTorch**
 
@@ -60,6 +70,13 @@ pip install torch==2.7.1 torchvision==0.22.1 torchaudio==2.7.1 --index-url https
 
 python -c "import torch; print(torch.cuda.is_available())" # Must return `True`
 ```
+
+**For CPU-only (Windows):**
+```bash
+pip install torch==2.7.0 torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
+python -c "import torch; print(torch.__version__)"  # Should print 2.7.0+cpu
+```
+
 #### **Generate optimized LLM model for VitisAI NPU**
 Follow the above setup instructions, then run the below command to generate the optimized LLM model for VitisAI EP
 
