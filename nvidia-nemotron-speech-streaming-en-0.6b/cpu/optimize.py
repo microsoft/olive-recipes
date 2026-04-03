@@ -2,7 +2,9 @@
 
 Stage 1 — Export (NeMo → ONNX):
     Runs scripts/export_nemotron_to_onnx_static_shape.py to produce encoder,
-    decoder, joint network, tokenizer, and config files from the NeMo model.
+    decoder, joint network, and config files from the NeMo model.
+    Then runs scripts/export_tokenizer.py to produce tokenizer files
+    (tokenizer.json, tokenizer_config.json, vocab.txt) in the same directory.
 
 Stage 2 — Olive Graph Fusion (ONNX encoder → fused ONNX):
     Runs the Olive pipeline defined in encoder.json:
@@ -37,6 +39,7 @@ from pathlib import Path
 
 _SCRIPT_DIR = Path(__file__).parent.resolve()
 _EXPORT_SCRIPT = _SCRIPT_DIR.parent / "scripts" / "export_nemotron_to_onnx_static_shape.py"
+_TOKENIZER_SCRIPT = _SCRIPT_DIR.parent / "scripts" / "export_tokenizer.py"
 
 DEFAULT_EXPORT_DIR = "build/onnx_models_fp32"
 DEFAULT_FUSED_DIR = "build/onnx_models_fused"
@@ -71,6 +74,20 @@ def run_export(
     result = subprocess.run(cmd, cwd=str(_SCRIPT_DIR))
     if result.returncode != 0:
         raise RuntimeError(f"Export failed (exit code {result.returncode})")
+
+    # Export tokenizer files (tokenizer.json, tokenizer_config.json, vocab.txt)
+    # to the same directory so they are copied to the final output alongside
+    # decoder, joint, and config files.
+    print("=== Stage 1b: Exporting tokenizer files ===")
+    tokenizer_cmd = [
+        sys.executable,
+        str(_TOKENIZER_SCRIPT),
+        "--model_name", model_name,
+        "--output_dir", str(_resolve(export_dir)),
+    ]
+    result = subprocess.run(tokenizer_cmd, cwd=str(_SCRIPT_DIR))
+    if result.returncode != 0:
+        raise RuntimeError(f"Tokenizer export failed (exit code {result.returncode})")
     print()
 
 

@@ -127,6 +127,16 @@ class NemotronExport(Pass):
 
         subprocess.run(cmd, check=True)
 
+        # Export tokenizer files (tokenizer.json, tokenizer_config.json, vocab.txt)
+        # to the same output directory so they are available for ORT GenAI.
+        tokenizer_script = Path(__file__).parent.parent / "scripts" / "export_tokenizer.py"
+        tokenizer_cmd = [
+            sys.executable, str(tokenizer_script),
+            "--model_name", config.model_name,
+            "--output_dir", str(output_dir),
+        ]
+        subprocess.run(tokenizer_cmd, check=True)
+
         # Record the export directory so NemotronKQuantQuantization can find
         # the supporting files (decoder, joint, configs, tokenizer) that were
         # written alongside the encoder.
