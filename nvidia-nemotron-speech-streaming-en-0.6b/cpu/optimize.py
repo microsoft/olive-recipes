@@ -85,9 +85,7 @@ def run_export(
         "--model_name", model_name,
         "--output_dir", str(_resolve(export_dir)),
     ]
-    result = subprocess.run(tokenizer_cmd, cwd=str(_SCRIPT_DIR))
-    if result.returncode != 0:
-        raise RuntimeError(f"Tokenizer export failed (exit code {result.returncode})")
+    result = subprocess.run(tokenizer_cmd, check=True, cwd=str(_SCRIPT_DIR))
     print()
 
 
