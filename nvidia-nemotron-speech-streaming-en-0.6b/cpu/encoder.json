@@ -1,0 +1,37 @@
+{
+    "input_model": {
+        "type": "PyTorchModel",
+        "model_path": "nvidia/nemotron-speech-streaming-en-0.6b",
+        "model_loader": "get_streaming_encoder",
+        "model_script": "user_script.py",
+        "io_config": "get_encoder_io_config",
+        "dummy_inputs_func": "get_encoder_dummy_inputs"
+    },
+    "passes": {
+        "convert": {
+            "type": "OnnxConversion",
+            "use_dynamo_exporter": true,
+            "dynamic": false
+        },
+        "optimize": {
+            "type": "OrtTransformersOptimization",
+            "model_type": "conformer",
+            "num_heads": 8,
+            "hidden_size": 1024,
+            "opt_level": 0,
+            "only_onnxruntime": false,
+            "optimization_options": {
+                "use_multi_head_attention": false
+            }
+        },
+        "quantize": {
+            "type": "OnnxBlockWiseRtnQuantization",
+            "algorithm": "kquant",
+            "block_size": 32,
+            "is_symmetric": true,
+            "accuracy_level": 4
+        }
+    },
+    "no_artifacts": true,
+    "output_dir": "build/encoder"
+}

@@ -1,0 +1,15 @@
+name: nvidia-nemotron-speech-streaming-en-0.6b
+provider: NVIDIA
+model_id: nvidia/nemotron-speech-streaming-en-0.6b
+task: automatic-speech-recognition
+framework: ONNX Runtime
+execution_provider: CPUExecutionProvider
+summary: >
+  CPU recipe for Nemotron Speech Streaming RNNT. Exports encoder, decoder,
+  and joint to ONNX using Olive's OnnxConversion pass, applies Conformer
+  graph fusion, and INT4 k-quant quantization on the encoder.
+
+artifacts:
+  - cpu/encoder.json
+  - cpu/decoder.json
+  - cpu/joint.json

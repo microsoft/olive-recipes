@@ -1,0 +1,17 @@
+{
+    "input_model": {
+        "type": "PyTorchModel",
+        "model_path": "nvidia/nemotron-speech-streaming-en-0.6b",
+        "model_loader": "get_joint",
+        "model_script": "user_script.py",
+        "io_config": "get_joint_io_config",
+        "dummy_inputs_func": "get_joint_dummy_inputs"
+    },
+    "passes": {
+        "convert": {
+            "type": "OnnxConversion"
+        }
+    },
+    "no_artifacts": true,
+    "output_dir": "build/joint"
+}
