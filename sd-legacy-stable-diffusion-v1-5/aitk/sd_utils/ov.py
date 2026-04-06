@@ -229,7 +229,7 @@ def get_ov_pipeline(common_args, ov_args, optimized_model_dir):
         return StableDiffusionPipeline.from_pretrained(common_args.model_id)
 
     register_execution_providers()
-    
+
     print("Loading models into ORT session...")
     sess_options = ort.SessionOptions()
     provider_options = [{}]
