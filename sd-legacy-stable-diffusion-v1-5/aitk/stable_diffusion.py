@@ -64,8 +64,7 @@ def run_inference_loop(
     while images_saved < num_images:
         print(f"\nInference Batch Start (batch size = {batch_size}).")
 
-        kwargs = {"strength": strength} if provider == "openvino" else {}
-
+        kwargs = {}
         result = pipeline(
             [prompt] * batch_size,
             num_inference_steps=num_inference_steps,
