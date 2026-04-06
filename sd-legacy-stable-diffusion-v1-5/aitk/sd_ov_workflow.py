@@ -57,7 +57,7 @@ def main():
         output_file = os.path.join(os.path.dirname(args.config), "metrics.json")
 
         # Run evaluator
-        subprocess.run([sys.executable, "sd_qnn_evaluation.py",
+        subprocess.run([sys.executable, "sd_ov_evaluation.py",
                         "--script_dir", os.path.dirname(model_path),
                         "--model_dir", "optimized",
                         "--model_id", "stable-diffusion-v1-5/stable-diffusion-v1-5",
