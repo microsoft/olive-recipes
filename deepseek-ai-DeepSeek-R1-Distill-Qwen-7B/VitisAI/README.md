@@ -78,13 +78,6 @@ pip install torch==2.7.0 torchvision torchaudio --index-url https://download.pyt
 python -c "import torch; print(torch.__version__)"  # Should print 2.7.0+cpu
 ```
 
-
-**For CPU-only (Windows):**
-```bash
-pip install torch==2.7.0 torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
-python -c "import torch; print(torch.__version__)"  # Should print 2.7.0+cpu
-```
-
 #### **Generate optimized LLM model for VitisAI NPU**
 Follow the above setup instructions, then run the below command to generate the optimized LLM model for VitisAI EP
 
