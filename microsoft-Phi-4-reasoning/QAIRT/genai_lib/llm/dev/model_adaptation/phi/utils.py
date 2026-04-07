@@ -1,11 +1,8 @@
 #!/usr/bin/env python3
-# =============================================================================
-#
-#  Copyright (c) Qualcomm Technologies, Inc. and/or its subsidiaries.
-#  All rights reserved.
-#  Confidential and Proprietary - Qualcomm Technologies, Inc.
-#
-# =============================================================================
+# -------------------------------------------------------------------------
+# Copyright (c) Qualcomm Technologies, Inc. and/or its subsidiaries.
+# SPDX-License-Identifier: MIT
+# --------------------------------------------------------------------------
 
 """  This file provides utilities that the pipeline would need to work with the adaptations made to Phi3 model. """
 

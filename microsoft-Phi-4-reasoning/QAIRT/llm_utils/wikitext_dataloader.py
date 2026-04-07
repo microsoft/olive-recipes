@@ -1,11 +1,8 @@
 #!/usr/bin/env python3
-# =============================================================================
-#
-#  Copyright (c) Qualcomm Technologies, Inc. and/or its subsidiaries.
-#  All rights reserved.
-#  Confidential and Proprietary - Qualcomm Technologies, Inc.
-#
-# =============================================================================
+# -------------------------------------------------------------------------
+# Copyright (c) Qualcomm Technologies, Inc. and/or its subsidiaries.
+# SPDX-License-Identifier: MIT
+# --------------------------------------------------------------------------
 """  utility method to build and pre-process WikiText dataset """
 from itertools import chain
 from torch.utils.data import DataLoader, Dataset

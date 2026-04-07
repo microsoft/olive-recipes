@@ -1,11 +1,8 @@
 #!/usr/bin/env python3
-# =============================================================================
-#
-#  Copyright (c) Qualcomm Technologies, Inc. and/or its subsidiaries.
-#  All rights reserved.
-#  Confidential and Proprietary - Qualcomm Technologies, Inc.
-#
-# =============================================================================
+# -------------------------------------------------------------------------
+# Copyright (c) Qualcomm Technologies, Inc. and/or its subsidiaries.
+# SPDX-License-Identifier: MIT
+# --------------------------------------------------------------------------
 
 """ This file provides utilities for the pipeline to work with static shape requirements for inputs that go into the model """
 

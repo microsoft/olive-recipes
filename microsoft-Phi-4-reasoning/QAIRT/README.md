@@ -14,10 +14,9 @@ Finally, a prepared QAIRT DLC is encapsulated in an ONNX protobuf and exported t
 
 This workflow has been tested using the following host configuration:
     * Python 3.10
-    * QAIRT 2.45.0
+    * QAIRT 2.45.40
 
 Further, this workflow has been tested on the following target configurations:
-    * HTP backend on SC8380XP
     * HTP backend on SC8480XP
 
 ## Preparation Instructions
@@ -39,6 +38,7 @@ qairt-vm fetch -v <version>
 
 # Set QAIRT_SDK_ROOT to download location of QAIRT SDK
 # By default, /opt/qcom/aistack/qairt/<version>
+# Note: No further QAIRT SDK installation steps are required when using qairt-dev
 export QAIRT_SDK_ROOT=/path/to/qairt/sdk
 ```
 
@@ -55,3 +55,12 @@ olive run --config htp_sc8480xp.json
 ```
 
 ## Execution Instructions
+
+The output of the above olive recipe is a directory compatible with the following versions of onnxruntime-genai and onnxruntime-qnn.
+
+```bash
+pip install onnxruntime-genai>=0.13
+pip install onnxruntime-qnn>=2.1.0
+```
+
+Please see the following script in the onnxruntime-genai repository for [an example of how to run this model directory](https://github.com/microsoft/onnxruntime-genai/blob/main/examples/python/model-qa.py).

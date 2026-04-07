@@ -1,10 +1,7 @@
-# =============================================================================
-#
-#  Copyright (c) Qualcomm Technologies, Inc. and/or its subsidiaries.
-#  All rights reserved.
-#  Confidential and Proprietary - Qualcomm Technologies, Inc.
-#
-# =============================================================================
+# -------------------------------------------------------------------------
+# Copyright (c) Qualcomm Technologies, Inc. and/or its subsidiaries.
+# SPDX-License-Identifier: MIT
+# --------------------------------------------------------------------------
 """ This file provides common utilities to replace Linear layers with Conv2d layers. """
 
 import warnings

@@ -1,10 +1,7 @@
-# =============================================================================
-#
-#  Copyright (c) Qualcomm Technologies, Inc. and/or its subsidiaries. Not a Contribution.
-#  All rights reserved.
-#  Confidential and Proprietary - Qualcomm Technologies, Inc.
-#
-# =============================================================================
+# -------------------------------------------------------------------------
+# Copyright (c) Qualcomm Technologies, Inc. and/or its subsidiaries.
+# SPDX-License-Identifier: MIT
+# --------------------------------------------------------------------------
 # =============================================================================
 # Copyright 2020 Optuna, Hugging Face
 #
