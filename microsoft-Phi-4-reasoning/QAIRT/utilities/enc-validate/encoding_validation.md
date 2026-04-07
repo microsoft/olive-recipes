@@ -23,7 +23,7 @@ The current script supports AIMET encoding versions 0.6 and 1.0. The primary dif
             "max": ,
             "min": ,
             "offset": ,
-            "scale": 
+            "scale":
             },
           {...
           }
@@ -45,7 +45,7 @@ The format example of encoding version 1.0 is shown as below
 ```
 ## Encoding Validation
 ### Single encoding validation
-Single encoding validation includes aimet encoding validation, qnn encoding validation and dlc encoding validation. 
+Single encoding validation includes aimet encoding validation, qnn encoding validation and dlc encoding validation.
 #### AIMET encoding validation
 The AIMET encoding validation uses the onnx and qimet encodings file that are exported from Notebook 1 as the inputs. AIMET encoding validation checks AIMET encodings to detect the encodings that vialate the validation rules.
 #### QNN encoding validation
@@ -86,14 +86,14 @@ The validation rules are listed below:
 - The scale of all the encoding should be less than 1e+10 and larger than 1e-10
 
 4. Rules for LoRA:
-- LoRA Alpha encoding exists inside MHA or SHA aimet encodings 
+- LoRA Alpha encoding exists inside MHA or SHA aimet encodings
 ### LoRA encoding validation:
 LoRA encoding validation gets onnx graph, net.json graph or dlc graph as the first input, the corresponding AIMET encoding file as the second input and the second AIMET encoding of different adapter as the third input. The validation first do single encoding validation for the first AIMET encoding file, and compares the items between two AIMET encoding files according to the following rules:
 
 1. The name of each activation encoding between two encoding files should be exactly the same. If there is any missing encoding, show the missing name.
 2. The name and value of each base weight encoding between two encoding files should be exactly the same.
 3. LoRA weight is 16 bit per tensor in both files
-4. The name of every LoRA weight encoding between two encoding files should be exactly the same, encoding should not be all the same. 
+4. The name of every LoRA weight encoding between two encoding files should be exactly the same, encoding should not be all the same.
 
 ### MHA2SHA encoding validation:
 The MHA2SHA encoding validation gets MHA onnx graph, net.json graph or dlc graph as the first input, the corresponding MHA AIMET encoding file as the second input, the SHA AIMET encoding from G2G as the third input and the MHA to SHA map json as the fourth input. The MHA2SHA validation first do single encoding validation for the MHA AIMET encoding file, then it compares the items between MHA and SHA AIMET encoding files according to the following rules:
@@ -167,4 +167,3 @@ options:
   | llama BQ | llm-bq | -t llm-bq |
   | llama LPBQ | llm-lpbq | -t llm-lpbq |
   | SS Combo | llm-lpbq,lora  | -t llm-lpbq,lora |
-

@@ -29,7 +29,7 @@
 # limitations under the License.
 # =============================================================================
 
-""" This file provides adaptations to the Phi3 model. These adaptations are being done to 
+""" This file provides adaptations to the Phi3 model. These adaptations are being done to
 optimize the model execution on the HTP backend.
 https://github.com/huggingface/transformers/blob/main/src/transformers/models/phi3/modeling_phi3.py"""
 
@@ -97,7 +97,7 @@ class QcPhiAttention(Phi3Attention):
         if getattr(config, "anchor_alpha", None) is not None:
             self.anchor_updater = AnchorUpdaterKeySecond(alpha=config.anchor_alpha)
 
-        
+
 
     """Multi-headed attention from 'Attention Is All You Need' paper"""
     def unpack_qkv(self):
@@ -117,7 +117,7 @@ class QcPhiAttention(Phi3Attention):
         self.q_proj.weight.data.copy_(self.qkv_proj.weight[:total_hidden_size, :])
         self.k_proj.weight.data.copy_(self.qkv_proj.weight[total_hidden_size: total_hidden_size + key_value_size, :])
         self.v_proj.weight.data.copy_(self.qkv_proj.weight[total_hidden_size + key_value_size:, :])
-        
+
     def forward(
         self,
         hidden_states: torch.Tensor,
@@ -346,7 +346,7 @@ class QcPhi3ForCausalLM(Phi3ForCausalLM):
             cache_index: Optional[torch.Tensor]=None,
             **kwargs,
     ) -> Union[Tuple, CausalLMOutputWithPast]:
-        
+
         logits_to_keep = logits_to_keep if logits_to_keep else getattr(self.config, "logits_to_keep", 0)
 
         if cache_index is not None:
@@ -373,7 +373,7 @@ class QcPhi3ForCausalLM(Phi3ForCausalLM):
             valid_token_mask=valid_token_mask,
             anchor_buffer=anchor_buffer,
             **kwargs)
-        
+
         if version('transformers') >= '4.48.0':
             if return_dict:
                 assert type(outputs.past_key_values) != tuple
@@ -436,7 +436,7 @@ def DynamicCache_to_legacy_cache(self):
     if "anchor_buffer" in dir(self):
         return (legacy_cache, self.anchor_buffer)
     return legacy_cache
-    
+
 class QcPhi3Model(Phi3Model):
 
     def forward(

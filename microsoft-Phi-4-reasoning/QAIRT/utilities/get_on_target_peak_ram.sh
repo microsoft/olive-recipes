@@ -4,7 +4,7 @@ if [ "$PROCESS" == "" ]; then
     exit 0
 fi
 PEAK=0
-while true; do 
+while true; do
     PID=$(pgrep $PROCESS)
     if [ "$PID" != "" ]; then
         DMA=$(dmabuf_dump $PID | grep "PROCESS TOTAL" | awk '{ print $3 }')
@@ -18,5 +18,5 @@ while true; do
             echo "New PEAK : $PEAK (DMA:$DMA, PSS:$PSS)"
             log -t PEAKMEM "$PEAK (DMA:$DMA, PSS:$PSS)"
         fi
-    fi 
+    fi
 done

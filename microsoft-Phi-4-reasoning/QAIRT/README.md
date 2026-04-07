@@ -55,4 +55,3 @@ olive run --config htp_sc8480xp.json
 ```
 
 ## Execution Instructions
-

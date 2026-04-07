@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # =============================================================================
 #
-#  Copyright (c) Qualcomm Technologies, Inc. and/or its subsidiaries. 
+#  Copyright (c) Qualcomm Technologies, Inc. and/or its subsidiaries.
 #  All rights reserved.
 #  Confidential and Proprietary - Qualcomm Technologies, Inc.
 #
@@ -108,7 +108,7 @@ class ManualQuantsimMixedPrecisionConfig:
                 print(f"Applying {item['module_name']}:\t{expections_str}")
                 exceptions[etype].update({item['module_name']: item['exceptions']})
         self.exceptions_dict = exceptions
-        
+
     def apply_exceptions(self, quant_sim):
         for etype in ("module", "name"):
             exception_modules = self.exceptions_dict[etype].keys()

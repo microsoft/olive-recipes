@@ -75,7 +75,7 @@
           }
         ]
       }
-    }, 
+    },
     {
       "module_name": "\\w*v_proj_(MatMul|conv_Conv|conv2d_Conv|Conv)(\\.base_layer)?",
       "exceptions": {

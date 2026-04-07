@@ -141,4 +141,3 @@ def get_wiki_dataset(block_size, tokenizer, cache_dir):
     test_dataloader = DataLoader(dataset['test'], shuffle=False, batch_size=1, collate_fn=default_data_collator)
 
     return train_dataloader, test_dataloader, dataset
-

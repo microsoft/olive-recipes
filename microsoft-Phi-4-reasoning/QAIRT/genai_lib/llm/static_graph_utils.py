@@ -64,11 +64,11 @@ def llm_slice_inputs_for_inference(max_input_tokens, model_context_len, input_id
         After 1st iteration: accumulated KV$ = 1
         After 2nd iteration: accumulated KV$ = 4
         After 3rd iteration: accumulated KV$ = 7
-        
+
         Now, when sending the last slice of 3, we will either pad it left or right, irrespective of that, the past KV$
         that can flow into the model/ or the KV$ that the current input slice will attend to can only be ctx_len-ARN, hence
         we will only look at 7 which is accumulated accurately until this point.
-        
+
         Hence, we can pass ctx_len worth of input chunk into the model without needing any eviction logic here.
         This is the default behavior.
         """
@@ -101,11 +101,11 @@ def llm_slice_inputs_for_inference(max_input_tokens, model_context_len, input_id
         After 1st iteration: accumulated KV$ = 3
         After 2nd iteration: accumulated KV$ = 6
         After 3rd iteration: accumulated KV$ = 9
-        
+
         Now, when sending the last slice of 1, we will either pad it left or right, irrespective of that, the past KV$
         that can flow into the model/ or the KV$ that the current input slice will attent to can only be ctx_len-ARN, hence
         we will only look at 7 (instead of 9 KV$) and loose information as we need to evict 2 KV$
-        
+
         More importantly, we will have to evict this extra KV$ otherwise we will run into issues.
         """
         for idx in range(0, input_length, max_input_tokens):

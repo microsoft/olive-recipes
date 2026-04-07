@@ -87,4 +87,3 @@ def _get_model(model_id_or_path):
     config.num_hidden_layers = 1
     model = Phi3Model(config)
     return model
-

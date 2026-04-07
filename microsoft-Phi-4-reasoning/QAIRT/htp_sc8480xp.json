@@ -1,6 +1,6 @@
 {
-    "input_model": { 
-        "type": "HFModel", 
+    "input_model": {
+        "type": "HFModel",
         "model_path": "microsoft/Phi-4-reasoning"
     },
     "passes": {

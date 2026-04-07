@@ -57,13 +57,13 @@ class ScorerKeySecond(nn.Module):
     def forward(self, keys: tuple, anchor_buffer: tuple):
         """
         inputs:
-            keys: tuple of length config.num_hidden_layers 
+            keys: tuple of length config.num_hidden_layers
                   where each item is of shape [bsz, heads, head_dim, context_len]
-            
-            anchor: tuple of length config.num_hidden_layers 
+
+            anchor: tuple of length config.num_hidden_layers
                     where each item is of shape [bsz, heads, 1, head_dim]
         outputs:
-            score:  tuple of length config.num_hidden_layers 
+            score:  tuple of length config.num_hidden_layers
                     where each item is of shape [bsz, heads, 1, contex_len]
         """
         score = ()
@@ -76,7 +76,7 @@ class ScorerKeySecond(nn.Module):
 
         return score
 
-   
+
 def get_scorer_input_output_names(num_hidden_layers):
 
     """
@@ -91,7 +91,7 @@ def get_scorer_input_output_names(num_hidden_layers):
         all = []
         for i in range(n_layers):
             all.append(f'{pfx}_{i}_{sfx}')
-        return all 
+        return all
 
     input_names=[]
     input_names += _get_names("keys", "in", num_hidden_layers)
@@ -99,7 +99,7 @@ def get_scorer_input_output_names(num_hidden_layers):
 
     output_names=[]
     output_names += _get_names("score", "out", num_hidden_layers)
-    return input_names, output_names   
+    return input_names, output_names
 
 
 
@@ -169,12 +169,12 @@ def llm_compute_scores(scorer, past_key_values, anchor, valid_kv_len=None, pad_t
     for score in scores:
         if valid_kv_len is not None:
             max_values, _ = torch.max(score, dim=3, keepdim=True)
-        
+
             if pad_to_left:
                 score[:, :, : ,:-valid_kv_len] = max_values
             else:
                 score[:, :, :, valid_kv_len:] = max_values
-        
+
         updated_scores += (score,)
 
     # the assertion ensures that there is parity between the shape of scores and past_kv shape along the sequence dimension.

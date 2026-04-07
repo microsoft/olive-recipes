@@ -69,7 +69,7 @@ class _Android(_Target):
         GEN3: "V75",
         GEN4: "V79",
     }
-    
+
     _hvx_threads = {
         GEN4: 6,
         GEN5: 8,
@@ -98,7 +98,7 @@ class _Windows(_Target):
         GEN2: "V73",
         GEN3: "V81"
     }
-    
+
     _hvx_threads = {
         GEN2: 4,
         GEN3: 8,

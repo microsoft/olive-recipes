@@ -119,4 +119,3 @@ def llm_search_layers_by_type(model, module_type):
         if isinstance(module, module_type):
             embedding_layers.append(module)
     return embedding_layers
-

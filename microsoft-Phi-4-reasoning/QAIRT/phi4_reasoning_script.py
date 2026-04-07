@@ -6,7 +6,7 @@
 # coding: utf-8
 
 # # AIMET Quantization workflow for Phi 4
-# 
+#
 # This script shows a working code example of how to use AIMET to quantize Phi4 family models
 
 # ---
@@ -73,7 +73,7 @@ Example usage:
   python phi4_script.py --config my_config.json
   python phi4_script.py --help
 ''')
-parser.add_argument('--config', type=str, default=None, 
+parser.add_argument('--config', type=str, default=None,
                     help='Path to JSON configuration file')
 args, unknown = parser.parse_known_args()
 
@@ -95,17 +95,17 @@ def get_config_value(key, default, value_type='str'):
     1. JSON config file
     2. Environment variable
     3. Default value
-    
+
     Args:
         key: Configuration key name
         default: Default value if not found in config or environment
         value_type: Type of value ('str', 'int', 'bool', 'none')
-    
+
     Returns:
         Configuration value with appropriate type
     """
     import os
-    
+
     # Priority 1: Check JSON config
     if key in json_config:
         value = json_config[key]
@@ -120,7 +120,7 @@ def get_config_value(key, default, value_type='str'):
             return value  # Can be None or a value
         else:  # str
             return str(value) if value is not None else None
-    
+
     # Priority 2: Check environment variable
     env_value = os.getenv(key)
     if env_value is not None:
@@ -132,7 +132,7 @@ def get_config_value(key, default, value_type='str'):
             return env_value
         else:  # str
             return env_value
-    
+
     # Priority 3: Use default value
     return default
 
@@ -146,8 +146,8 @@ def get_config_value(key, default, value_type='str'):
 # 6. Evaluation of prepared base model
 # 7. Quantization
 # 8. Exporting base model onnx, encodings and test vectors
-# 
-# ### What this script is not 
+#
+# ### What this script is not
 # * This script is not intended to show the full scope of optimization. For example, the flow will not use QAT, KD-QAT as deliberate choice to have the script execute more quickly.
 
 # ---
@@ -249,12 +249,12 @@ output_dir = get_config_value("OUTPUT_DIR", f"./output_dir_phi4")
 
 os.makedirs(output_dir, exist_ok=True)
 
-# Note: This cell (and the corresponding cells with Recipe_logger tag) can be removed after dumping and verifying the recipe without 
+# Note: This cell (and the corresponding cells with Recipe_logger tag) can be removed after dumping and verifying the recipe without
 # impacting notebook functionality
 from genai_lib.common.debug.recipe_logger import recipe_dump_init
 from genai_lib.common.debug.recipe_logger import llm_lib_log_env_info
 
-# Recipe_logger: Initialize the logger and log environment details 
+# Recipe_logger: Initialize the logger and log environment details
 recipe_dump_init(output_dir)
 
 llm_lib_log_env_info()
@@ -425,7 +425,7 @@ setattr(llm_config, '_attn_implementation_internal', 'eager')
 setattr(llm_config, 'return_dict', False)
 setattr(llm_config, 'logits_to_keep', 0)
 setattr(llm_config, 'input_tokens_per_inference', ARN)
-    
+
 num_slices=(context_length/8 + ARN - 1)//ARN
 MASK_NEG = get_config_value("MASK_NEG", -1000, 'int')
 
@@ -475,11 +475,11 @@ def get_kv_length(past_key_values):
 def adapted_model_prepare_inputs_for_dynamic_shapes(self,input_ids_slice, attn_mask_slice, position_ids_slice, outputs, **kwargs):
     device = input_ids_slice.device
     batch_size = input_ids_slice.shape[0]
-   
+
     kv_length= get_kv_length(outputs['past_key_values'])
 
     past_kv_attn_mask = torch.ones((batch_size, kv_length), dtype=torch.long, device=device)
-    
+
     prepared_1d_attention_mask = llm_create_1d_attn_mask(attn_mask_past_kv=past_kv_attn_mask,
                                                          attn_mask_input=attn_mask_slice)
 
@@ -492,7 +492,7 @@ def adapted_model_prepare_inputs_for_dynamic_shapes(self,input_ids_slice, attn_m
 
     prepared_position_embeddings = llm_create_position_embeddings(config = llm_config,
                                                                   position_ids = position_ids_slice)
-    
+
     prepared_inputs = {
         'input_ids': input_ids_slice,
         'attention_mask': prepared_causal_mask,
@@ -537,9 +537,9 @@ def adapted_model_prepare_inputs_for_static_shapes(self,input_ids_slice, attn_ma
     inp_attn_mask = llm_pad_input_attn_mask(attn_mask_slice=attn_mask_slice,
                                             max_input_tokens=ARN,
                                             pad_to_left=pad_to_left)
-    
+
     kv_length = get_kv_length(outputs['past_key_values'])
-    
+
     past_kv_attn_mask = llm_create_kv_attn_mask(unpadded_past_kv= outputs['past_key_values'],
                                                 model_context_len=context_length,
                                                 max_input_tokens=ARN,
@@ -568,7 +568,7 @@ def adapted_model_prepare_inputs_for_static_shapes(self,input_ids_slice, attn_ma
 
     ########### Position ID preparation #######
     padded_position_ids = llm_pad_position_ids(position_ids_slice=position_ids_slice,
-                                                max_input_tokens=ARN, 
+                                                max_input_tokens=ARN,
                                                 pad_to_left = pad_to_left)
     # model adaptation
     prepared_position_embeddings = llm_create_position_embeddings(config = llm_config,
@@ -603,7 +603,7 @@ def adapted_model_forward(
 ):
     static_shape = hasattr(self, 'num_logits_to_return')
     num_slices = kwargs.get('num_slices', None)
-    
+
     if attention_mask is None:
         attention_mask = torch.ones((input_ids.shape[0], input_ids.shape[1]), dtype = torch.long, device = input_ids.device)
 
@@ -614,12 +614,12 @@ def adapted_model_forward(
     inputs = {'input_ids': (input_ids, 1),
               'attention_mask': (attention_mask, 1),
               'position_ids': (position_ids, 1)}
-    
+
     slice_inputs_gen_obj = slice_tensors(slice_length = ARN if static_shape else input_ids.shape[-1],
                                          max_length = input_ids.shape[-1],
                                          tensor_dict = inputs,
                                          remainder_first = True)
-    
+
     # dictionary to store the running output which contains the logits and the useful past kv cache until that execution
     outputs = {}
     outputs['past_key_values'] = past_key_values
@@ -628,19 +628,19 @@ def adapted_model_forward(
 
         if num_slices is not None and i >= num_slices:
             break
-        
+
         input_ids_slice = inputs['input_ids']
         attn_mask_slice = inputs['attention_mask']
         position_ids_slice = inputs['position_ids']
 
-        if static_shape:  
+        if static_shape:
             prepared_inputs = adapted_model_prepare_inputs_for_static_shapes(self,
                                                                              input_ids_slice=input_ids_slice,
-                                                                             attn_mask_slice=attn_mask_slice, 
+                                                                             attn_mask_slice=attn_mask_slice,
                                                                              position_ids_slice=position_ids_slice,
                                                                              outputs=outputs)
         else:
-            prepared_inputs = adapted_model_prepare_inputs_for_dynamic_shapes(self, 
+            prepared_inputs = adapted_model_prepare_inputs_for_dynamic_shapes(self,
                                                                               input_ids_slice=input_ids_slice,
                                                                               attn_mask_slice=attn_mask_slice,
                                                                               position_ids_slice=position_ids_slice,
@@ -649,7 +649,7 @@ def adapted_model_forward(
         cur_outputs = self.model(**prepared_inputs)
         if not static_shape:
             cur_outputs = (self.lm_head(cur_outputs[0]),) + cur_outputs[1:]
-            
+
 
         outputs['past_key_values'] = llm_update_kv_cache(unpadded_past_kv = outputs['past_key_values'],
                                                          current_key_values= cur_outputs[1],
@@ -701,7 +701,7 @@ with event_marker('FP model adaptation for NSP backend completion'):
     for name,module in model.named_modules():
         if isinstance(module, QcPhiAttention):
             module.unpack_qkv()
-    
+
     model = replace_linears_with_convs(model)
 
 if run_ppl_eval:
@@ -800,9 +800,9 @@ if not skip_prepare:
 
 # ---
 # ### 6.1 Changes to HuggingFace model to work with the prepared model
-# 
+#
 # Replace the model inside the HuggingFace model with the prepared model.
-# Note that the prepared model already fuses model.model and model.lm_head 
+# Note that the prepared model already fuses model.model and model.lm_head
 # into one, so here we simply set model.lm_head to None
 
 print("=" * 80)
@@ -859,11 +859,11 @@ if run_ppl_eval:
 
 # ---
 # ## 7. Quantization
-# 
+#
 # The _Quantization_ step is the primary focus of this notebook, this section could be modified to execute various quantization experiments.
 
 # ---
-# ### 7.1 Create quantsim configured for QNN HTP target 
+# ### 7.1 Create quantsim configured for QNN HTP target
 
 print("=" * 80)
 print("7.1 Create quantsim configured for QNN HTP target")
@@ -936,7 +936,7 @@ propagate_output_encodings(quantsim, aimet_ops.Concat)
 
 # ---
 # ### 7.4 Manual Mixed Precision
-# applying mixed precision configuration to ops 
+# applying mixed precision configuration to ops
 
 print("=" * 80)
 print("7.4 Manual Mixed Precision")
@@ -985,7 +985,7 @@ elif apply_decoder_lpbq:
 elif apply_lm_head_lpbq:
     lm_head_modules = [qmodule for name, qmodule in quantsim.named_qmodules() if "lm_head" in name]
     arg = lambda module: module in lm_head_modules and isinstance(module, QuantizedConv2d)
-    
+
 if arg:
     BLOCK_QUANT_SIZE = 128
     set_grouped_blockwise_quantization_for_weights(sim = quantsim,
@@ -1011,12 +1011,12 @@ def unify_scatter_elements_encodings(source_name, destination_name):
 
     assert len(sources)==len(destinations) and len(sources)> 0, f"Cannot execute encoding alignment due to mismatched pairing of \
     source and destination quantizers. String matching found {len(sources)} sources, and {len(destinations)} destinations."
-    # copying quantizers from source module 
+    # copying quantizers from source module
     for module_name, source_module in sources.items():
         desination_module = destinations[module_name]
         desination_module.input_quantizers[2]=source_module.output_quantizers[0]
         desination_module.input_quantizers[0]=source_module.output_quantizers[0]
-        desination_module.output_quantizers[0]=source_module.output_quantizers[0]        
+        desination_module.output_quantizers[0]=source_module.output_quantizers[0]
 
 if enable_right_padding:
     unify_scatter_elements_encodings('self_attn_Concat_1', 'self_attn_ScatterElements_1')
@@ -1037,7 +1037,7 @@ def _seq_mse_forward_fn(_model, inputs):
 if apply_decoder_seqmse or apply_lm_head_seqmse:
     from aimet_torch.v2.seq_mse import apply_seq_mse, SeqMseParams
 
-    lm_head_fp_modules = [ module for module_name, module in fp_prepared_model.named_modules() if isinstance(module, torch.nn.Conv2d) and 'lm_head' in module_name ]    
+    lm_head_fp_modules = [ module for module_name, module in fp_prepared_model.named_modules() if isinstance(module, torch.nn.Conv2d) and 'lm_head' in module_name ]
     decoder_fp_modules = [ module for module_name, module in fp_prepared_model.named_modules() if isinstance(module, torch.nn.Conv2d) and 'lm_head' not in module_name ]
 
     if apply_decoder_seqmse and apply_lm_head_seqmse:
@@ -1077,7 +1077,7 @@ def _calibration_forward_fn(sim_model, kwargs):
     max_iterations = kwargs['num_batches']
     for batch_id, batch in enumerate(tqdm(data_loader, total=max_iterations)):
         if batch_id < max_iterations:
-            model(input_ids=batch['input_ids'].to(device=torch.device('cuda')), 
+            model(input_ids=batch['input_ids'].to(device=torch.device('cuda')),
                     num_slices=num_slices)
         else:
             break
@@ -1162,14 +1162,14 @@ print("=" * 80)
 from aimet_torch.onnx_utils import OnnxExportApiArgs
 from aimet_torch import onnx_utils
 
-# Get input names and output names. This is different from the input names and output names we created for model preparation. 
+# Get input names and output names. This is different from the input names and output names we created for model preparation.
 # The reason for this difference stems from the fact that we want the prepared model to have inputs and outputs named similar to original HF model
 # ONNX does not allow tupling the inputs or outputs and we want to give meaningful names to the input and output tensors in the ONNX graph
 input_names, output_names = llm_model_input_output_names(llm_config.num_hidden_layers, use_position_embedding_input=True, separate_tuple_input_output=True)
 
 def _get_anchor_buffer_names(sfx, n_layers):
     return [f'anchor_buffer_{i}_{sfx}' for i in range(n_layers)]
-    
+
 
 if enable_right_padding:
     input_names += ["cache_index"]
@@ -1242,8 +1242,8 @@ with event_marker("generate base model test vectors"):
             attn_mask_slice = torch.ones((input_ids_slice.shape[0], ARN), dtype=torch.long, device=torch.device('cuda'))
             position_ids_slice = torch.cumsum(attn_mask_slice, dim=1) - 1
             outputs = {'past_key_values': None}
-            model_inputs = adapted_model_prepare_inputs_for_static_shapes(model, input_ids_slice=input_ids_slice, 
-                                                                          attn_mask_slice=attn_mask_slice, 
+            model_inputs = adapted_model_prepare_inputs_for_static_shapes(model, input_ids_slice=input_ids_slice,
+                                                                          attn_mask_slice=attn_mask_slice,
                                                                           position_ids_slice=position_ids_slice,
                                                                           outputs=outputs)
             generate_test_vectors(sim=quantsim, model_inputs=model_inputs, output_dir=os.path.join(output_dir, 'base'), batch_index=index, test_vector_layers=test_vector_layers)
