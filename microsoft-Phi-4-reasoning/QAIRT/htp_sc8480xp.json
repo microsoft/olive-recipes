@@ -10,7 +10,7 @@
         },
         "qgab": {
             "type": "QairtGenAIBuilder",
-            "log_level": "info",
+            "log_level": "INFO",
             "backend": "HTP",
             "soc_details": "chipset:SC8480XP",
             "vtcm_size_in_mb": 8,
@@ -22,7 +22,7 @@
         },
         "qe": {
             "type": "QairtEncapsulation",
-            "log_level": "info",
+            "log_level": "ERROR",
             "run_checker": "true"
         }
     },
