@@ -13,11 +13,11 @@ Finally, a prepared QAIRT DLC is encapsulated in an ONNX protobuf and exported t
 ## Requirements
 
 This workflow has been tested using the following host configuration:
-    * Python 3.10
-    * QAIRT 2.45.40
+* Python 3.10
+* QAIRT 2.45.40
 
 Further, this workflow has been tested on the following target configurations:
-    * HTP backend on SC8480XP
+* HTP backend on SC8480XP
 
 ## Preparation Instructions
 
