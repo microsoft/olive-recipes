@@ -87,4 +87,3 @@ olive run --config Phi-4-mini-instruct_quark_vitisai_llm.json
 
 ✅ Optimized model saved in: `models/Phi-4-mini-instruct-vai/`
 > **Note:** Output model is saved in `output_dir` mentioned in the json files.
-

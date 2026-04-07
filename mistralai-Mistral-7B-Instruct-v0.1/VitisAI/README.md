@@ -51,7 +51,7 @@ cd olive-recipes/mistralai-Mistral-7B-Instruct-v0.1/VitisAI
 pip install --force-reinstall -r requirements_vitisai_llm.txt
 ```
 
- 
+
 
 #### **Install PyTorch**
 
@@ -82,7 +82,7 @@ Follow the above setup instructions, then run the below command to generate the 
 
 ```bash
 # Mistral-7B-Instruct-v0.1
-olive run --config Mistral-7B-Instruct-v0.1_quark_vitisai_llm.json 
+olive run --config Mistral-7B-Instruct-v0.1_quark_vitisai_llm.json
 
 # Mistral-7B-Instruct-v0.2
 olive run --config Mistral-7B-Instruct-v0.2_quark_vitisai_llm.json

@@ -51,7 +51,7 @@ cd olive-recipes/Qwen-Qwen2.5-0.5B-Instruct/VitisAI
 pip install --force-reinstall -r requirements_vitisai_llm.txt
 ```
 
- 
+
 
 #### **Install PyTorch**
 

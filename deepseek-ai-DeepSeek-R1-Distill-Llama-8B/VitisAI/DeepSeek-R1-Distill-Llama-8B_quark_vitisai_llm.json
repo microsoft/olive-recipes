@@ -16,13 +16,11 @@
         },
         "mg": {
             "type": "VitisGenerateModelLLM",
-            "optimize": "full_fusion",
-            "use_ep": true
+            "recipe": "full_fusion"
         }
     },
     "log_severity_level": 1,
     "output_dir": "models/DeepSeek-R1-Distill-Llama-8B-vai",
-    "cache_dir": "cache",
+    "cache_dir": "olive_cache",
     "no_artifacts": true
 }
-

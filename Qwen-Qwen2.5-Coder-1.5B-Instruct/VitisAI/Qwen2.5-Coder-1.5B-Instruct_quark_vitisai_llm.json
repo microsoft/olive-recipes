@@ -13,12 +13,11 @@
         },
         "mg": {
             "type": "VitisGenerateModelLLM",
-            "optimize": "full_fusion",
-            "use_ep": true
+            "recipe": "full_fusion"
         }
     },
     "log_severity_level": 1,
     "output_dir": "models/Qwen2.5-Coder-1.5B-Instruct-vai",
-    "cache_dir": "cache",
+    "cache_dir": "olive_cache",
     "no_artifacts": true
 }

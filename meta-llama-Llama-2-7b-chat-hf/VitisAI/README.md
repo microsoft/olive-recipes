@@ -51,7 +51,7 @@ cd olive-recipes/meta-llama-Llama-2-7b-chat-hf/VitisAI
 pip install --force-reinstall -r requirements_vitisai_llm.txt
 ```
 
- 
+
 
 #### **Install PyTorch**
 

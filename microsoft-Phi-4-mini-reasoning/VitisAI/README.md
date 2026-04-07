@@ -52,7 +52,7 @@ cd olive-recipes/microsoft-Phi-4-mini-reasoning/VitisAI
 pip install --force-reinstall -r requirements_vitisai_llm.txt
 ```
 
- 
+
 #### **Install PyTorch**
 
 Make sure to install the correct version of PyTorch before running quantization:

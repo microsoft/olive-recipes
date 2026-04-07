@@ -52,7 +52,7 @@ cd olive-recipes/deepseek-ai-DeepSeek-R1-Distill-Llama-8B/VitisAI
 pip install --force-reinstall -r requirements_vitisai_llm.txt
 ```
 
- 
+
 
 #### **Install PyTorch**
 

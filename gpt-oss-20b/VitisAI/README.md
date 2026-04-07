@@ -55,7 +55,7 @@ pip install --force-reinstall -r requirements_vitisai_llm.txt
 #### **Generate optimized LLM model for VitisAI NPU**
 GPT-OSS models are pre-quantized ONNX models that only need NPU optimization (no Quark quantization step).
 
-Follow the above setup instructions, then run the below command to generate the optimized LLM model for VitisAI EP. 
+Follow the above setup instructions, then run the below command to generate the optimized LLM model for VitisAI EP.
 
 1. Download the pre-quantized model:
 ```bash

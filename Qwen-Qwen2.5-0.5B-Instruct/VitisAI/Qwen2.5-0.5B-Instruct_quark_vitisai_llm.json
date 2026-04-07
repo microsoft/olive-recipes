@@ -13,8 +13,7 @@
         },
         "mg": {
             "type": "VitisGenerateModelLLM",
-            "optimize": "full_fusion",
-            "use_ep": true
+            "recipe": "full_fusion"
         }
     },
     "log_severity_level": 1,

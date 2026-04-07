@@ -51,7 +51,7 @@ cd olive-recipes/mistralai-Mistral-7B-Instruct-v0.2/VitisAI
 pip install --force-reinstall -r requirements_vitisai_llm.txt
 ```
 
- 
+
 
 #### **Install PyTorch**
 

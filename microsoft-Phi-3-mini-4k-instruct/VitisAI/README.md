@@ -52,7 +52,7 @@ cd olive-recipes/microsoft-Phi-3-mini-4k-instruct/VitisAI
 pip install --force-reinstall -r requirements_vitisai_llm.txt
 ```
 
- 
+
 
 #### **Install PyTorch**
 

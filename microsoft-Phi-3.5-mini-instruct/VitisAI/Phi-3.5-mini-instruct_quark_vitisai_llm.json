@@ -1,6 +1,6 @@
 {
     "input_model": {
-        "type": "HfModel",
+        "type": "HFModel",
         "model_path": "microsoft/Phi-3.5-mini-instruct"
     },
     "passes": {
@@ -16,12 +16,11 @@
         },
         "mg": {
             "type": "VitisGenerateModelLLM",
-            "optimize": "full_fusion",
-            "use_ep": true
+            "recipe": "full_fusion"
         }
     },
     "log_severity_level": 1,
     "output_dir": "models/Phi-3.5-mini-instruct-vai",
-    "cache_dir": "cache",
+    "cache_dir": "olive_cache",
     "no_artifacts": true
 }
