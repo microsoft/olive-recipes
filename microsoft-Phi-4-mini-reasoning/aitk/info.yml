@@ -11,6 +11,7 @@ recipes:
     - file: "phi4_ov_gpu_config.json"
       devices:
           - gpu
+          - cpu
       ep: OpenVINOExecutionProvider
       aitk:
           oliveFile: "OpenVINO/Phi_4_mini_reasoning_gpu_context_dy.json"

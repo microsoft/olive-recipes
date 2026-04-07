@@ -4,6 +4,7 @@ Parameter classes for model configuration
 
 from __future__ import annotations
 
+import json
 from typing import Any, Dict, List, Optional, Union
 
 import pydash
@@ -268,6 +269,6 @@ def readCheckParameterTemplate(filePath: str):
     for key, parameter in parameters.items():
         if not parameter.Check(True):
             printError(f"{filePath} parameter {key} has error")
-    newContent = adapter.dump_json(parameters, indent=4, exclude_none=True).decode("utf-8")
+    newContent = json.dumps(adapter.dump_python(parameters, exclude_none=True, mode="json"), indent=4, ensure_ascii=True)
     BaseModelClass.writeJsonIfChanged(newContent, filePath, fileContent)
     return parameters
