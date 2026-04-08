@@ -157,6 +157,7 @@ class OlivePropertyNames:
     Precision = "precision"
     PreProcessDataConfig = "pre_process_data_config"
     PythonEnvironmentPath = "python_environment_path"
+    QuantScheme = "quant_scheme"
     ExternalData = "save_as_external_data"
     Split = "split"
     Subset = "subset"
@@ -168,6 +169,9 @@ class OlivePropertyNames:
     UserScript = "user_script"
     WeightFormat = "weight_format"
 
+
+# Schema URL for generated config files
+CONFIG_SCHEMA_URL = "https://github.com/microsoft/olive-recipes/raw/refs/heads/main/.aitk/configs/config_schema.json"
 
 # Path constants
 outputModelRelativePath = r"\\\"./model/model.onnx\\\""
