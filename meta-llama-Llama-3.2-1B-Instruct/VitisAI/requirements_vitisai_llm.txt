@@ -23,4 +23,4 @@ onnxruntime-genai==0.7.1
 optimum
 sentencepiece
 tabulate
-transformers==4.50.0
+transformers==5.0.0rc3
