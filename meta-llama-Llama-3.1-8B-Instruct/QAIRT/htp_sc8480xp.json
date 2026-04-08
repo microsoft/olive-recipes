@@ -6,11 +6,11 @@
     "passes": {
         "qp": {
             "type": "QairtPreparation",
-            "script_path": "llama3_1_instruct_script.py"
+	    "script_path": "llama3_1_instruct_script.py"
         },
         "qgab": {
             "type": "QairtGenAIBuilder",
-            "log_level": "info",
+            "log_level": "INFO",
             "backend": "HTP",
             "soc_details": "chipset:SC8480XP",
             "vtcm_size_in_mb": 8,
@@ -22,12 +22,12 @@
         },
         "qe": {
             "type": "QairtEncapsulation",
-            "log_level": "info",
+            "log_level": "ERROR",
             "run_checker": "true"
         }
     },
     "log_severity_level": 1,
-    "output_dir": "models/llama3_1-8b-qairt-htp-sc8480xp",
+    "output_dir": "models/llama3_1-8b-instruct-qairt-htp-sc8480xp",
     "cache_dir": "cache",
     "no_artifacts": true
 }

@@ -47,6 +47,7 @@ export QAIRT_SDK_ROOT=/path/to/qairt/sdk
 
 ```bash
 pip install -r requirements.txt
+pip install torch==2.1.0
 ```
 
 4. Run Olive recipe

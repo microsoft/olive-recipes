@@ -38,13 +38,13 @@ import os
 
 # Parse command-line arguments for optional config file
 parser = argparse.ArgumentParser(
-    description='Llama 3.1 8B AdaScale + Quantization Script',
+    description='Llama 3.1 8B Instruct AdaScale + Quantization Script',
     formatter_class=argparse.RawDescriptionHelpFormatter,
     epilog='''
 Configurable Variables (via JSON config file, environment variables, or defaults):
 
 AdaScale Phase:
-  MODEL_ID                      Path to the initial Llama 3.1 model
+  MODEL_ID                      Path to the initial Llama 3.1 Instruct model
   ADASCALE_CONTEXT_LENGTH       Context length for AdaScale (default: 2048)
   ADASCALE_ITERATIONS           Number of AdaScale iterations (default: 5000)
   ENABLE_BF16                   Enable BF16 for AdaScale (default: False)
@@ -73,7 +73,7 @@ Shared:
   TARGET_PLATFORM               Target platform: Windows/Android (default: Windows)
   PLATFORM_GEN                  Platform generation: 2/3/4/5 (default: 3)
   RUN_PPL_EVAL                  Run perplexity evaluation (default: True)
-  MODEL_NAME                    Model name identifier (default: llama3_1)
+  MODEL_NAME                    Model name identifier (default: llama3_1_instruct)
   CACHE_DIR                     Cache directory path (default: ./cache_dir)
   OUTPUT_DIR                    Output directory path (default: ./output_dir)
   NUM_HIDDEN_LAYERS             Number of hidden layers, 0=use model default (default: 0)
@@ -82,8 +82,8 @@ Shared:
 Priority Order: JSON config > Environment variables > Default values
 
 Example usage:
-  python llama3_1_script.py --config my_config.json
-  python llama3_1_script.py --help
+  python llama3_1_instruct_script.py --config my_config.json
+  python llama3_1_instruct_script.py --help
 ''')
 parser.add_argument('--config', type=str, default=None,
                     help='Path to JSON configuration file')
@@ -280,8 +280,8 @@ from transformers import AutoModelForCausalLM
 from aimet_torch.utils import place_model, change_tensor_device_placement
 from genai_lib.common.debug.profiler import event_marker
 
-model_name = get_config_value("MODEL_NAME", 'llama3_1')
-model_id = get_config_value("MODEL_ID", "meta-llama/Llama-3.1-8B")
+model_name = get_config_value("MODEL_NAME", 'llama3_1_instruct')
+model_id = get_config_value("MODEL_ID", "meta-llama/Llama-3.1-8B-Instruct")
 
 cache_dir = get_config_value("CACHE_DIR", './cache_dir')
 output_dir = get_config_value("OUTPUT_DIR", "./output_dir")
