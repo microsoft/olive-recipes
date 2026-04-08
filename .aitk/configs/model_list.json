@@ -675,6 +675,32 @@
             "status": "Ready",
             "relativePath": "sd-legacy-stable-diffusion-v1-5/aitk",
             "version": 1
+        },
+        {
+            "displayName": "facebook/sam-vit-base",
+            "icon": "HuggingFace",
+            "modelLink": "https://huggingface.co/facebook/sam-vit-base",
+            "id": "facebook/sam-vit-base",
+            "runtimes": [
+                "QNN"
+            ],
+            "architecture": "Transformer",
+            "status": "Hide",
+            "relativePath": "sam-vit-base/aitk",
+            "version": 1
+        },
+        {
+            "displayName": "facebook/sam2-hiera-small",
+            "icon": "HuggingFace",
+            "modelLink": "https://huggingface.co/facebook/sam2-hiera-small",
+            "id": "facebook/sam2-hiera-small",
+            "runtimes": [
+                "QNN"
+            ],
+            "architecture": "Transformer",
+            "status": "Hide",
+            "relativePath": "sam2-hiera-small/aitk",
+            "version": 1
         }
     ],
     "template_models": [
@@ -751,6 +777,7 @@
         "AIMClab-RUC/COCO-CN": "https://huggingface.co/datasets/AIMClab-RUC/COCO-CN",
         "librispeech_asr": "https://huggingface.co/datasets/openslr/librispeech_asr",
         "phiyodr/coco2017": "https://huggingface.co/datasets/phiyodr/coco2017",
+        "nielsr/coco-panoptic-val2017": "https://huggingface.co/datasets/nielsr/coco-panoptic-val2017",
         "pileval_for_awq_benchmark": "https://huggingface.co/datasets/mit-han-lab/pile-val-backup"
     },
     "LoginRequiredDatasets": [

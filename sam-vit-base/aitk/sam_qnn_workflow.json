@@ -1,0 +1,39 @@
+{
+    "input_model": {
+        "model_path": "facebook/sam-vit-base"
+    },
+    "systems": {
+        "target_system": {
+            "type": "LocalSystem",
+            "accelerators": [
+                {
+                    "device": "npu",
+                    "execution_providers": [
+                        "QNNExecutionProvider"
+                    ]
+                }
+            ]
+        }
+    },
+    "evaluators": {
+        "common_evaluator": {
+        }
+    },
+    "passes": {
+        "aitkpython": {
+            "type": "AitkPython",
+            "activation_type": "uint16",
+            "precision": "uint8",
+            "dataset_name": "nielsr/coco-panoptic-val2017",
+            "split": "train",
+            "length": 100,
+            "user_script": "sam_qnn_workflow.py"
+        }
+    },
+    "evaluator": "common_evaluator",
+    "evaluate_input_model": false,
+    "target": "target_system",
+    "clean_cache": false,
+    "output_dir": "model/sam_qnn",
+    "cache_dir": "cache"
+}

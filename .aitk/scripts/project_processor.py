@@ -29,6 +29,7 @@ org_to_icon = {
     # TODO add
     "OFA-Sys": IconEnum.HuggingFace,
     "stable-diffusion-v1-5": IconEnum.HuggingFace,
+    "facebook": IconEnum.Meta,
 }
 
 
