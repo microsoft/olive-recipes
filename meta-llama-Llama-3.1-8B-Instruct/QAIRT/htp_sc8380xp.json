@@ -1,0 +1,35 @@
+{
+    "input_model": {
+        "type": "HFModel",
+        "model_path": "meta-llama/Llama-3.1-8B-Instruct"
+    },
+    "passes": {
+        "qp": {
+            "type": "QairtPreparation",
+            "script_path": "llama3_1_instruct_script.py",
+            "script_config": {
+                "PLATFORM_GEN": 2
+            }
+        },
+        "qgab": {
+            "type": "QairtGenAIBuilder",
+            "log_level": "info",
+            "backend": "HTP",
+            "soc_details": "chipset:SC8380XP",
+            "hvx_threads": 4,
+            "extended_udma": false,
+	    "sequence_lengths": [32, 128],
+            "native_kv": true,
+            "multi_graph": true
+        },
+        "qe": {
+            "type": "QairtEncapsulation",
+            "log_level": "info",
+            "run_checker": "true"
+        }
+    },
+    "log_severity_level": 1,
+    "output_dir": "models/llama3_1-8b-qairt-htp-sc8380xp",
+    "cache_dir": "cache",
+    "no_artifacts": true
+}
