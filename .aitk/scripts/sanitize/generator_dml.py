@@ -72,6 +72,7 @@ def generator_dml(id: str, recipe, folder: Path, modelList: ModelList):
 
     parameter = create_model_parameter(aitk, name, configFile)
     parameter.isLLM = isLLM
+    parameter.addCpu = True
 
     quantize = generate_quantization_config(configFile, parameter)
     if quantize:

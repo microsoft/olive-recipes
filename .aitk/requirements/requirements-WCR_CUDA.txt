@@ -1,6 +1,6 @@
 --extra-index-url https://download.pytorch.org/whl/cu128
 aiohappyeyeballs==2.6.1
-aiohttp==3.13.3
+aiohttp==3.13.4
 aiosignal==1.4.0
 alembic==1.16.5
 annotated-types==0.7.0
@@ -82,7 +82,7 @@ pure-eval==0.2.3
 pyarrow==19.0.1
 pydantic==2.11.1
 pydantic-core==2.33.0
-pygments==2.19.2
+pygments==2.20.0
 pyreadline3==3.5.4
 python-dateutil==2.9.0.post0
 pytz==2025.2
@@ -90,7 +90,7 @@ pywin32==311
 pyyaml==6.0.2
 pyzmq==26.3.0
 regex==2025.7.34
-requests==2.32.3
+requests==2.33.0
 safetensors==0.6.2
 # scikit-learn==1.6.1
 scikit-learn==1.6.1
