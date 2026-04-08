@@ -7,11 +7,12 @@ This recipe exports **nvidia/nemotron-speech-streaming-en-0.6b** to ONNX, optimi
 This model has an NVIDIA Open Model License Agreement. The contents of the license agreement can be found [here](https://www.nvidia.com/en-us/agreements/enterprise-software/nvidia-open-model-license/).
 
 ## Files
-- `cpu/nemotron_speech_int4_cpu_kquant.json` – Olive workflow config (export → graph fusion → INT4 quantization)
-- `cpu/olive_passes.py` – custom `NemotronExport` Olive pass that wraps the export script
+- `cpu/nemotron_speech_int4_cpu_kquant.json` – Olive workflow config (export → graph fusion → INT4 quantization of the encoder)
+- `cpu/olive_passes.py` – custom `NemotronExport` Olive pass that calls the export helpers directly
 - `cpu/olive_package_config.json` – registers `NemotronExport` so `olive run` can resolve it
-- `scripts/export_nemotron_to_onnx_static_shape.py` – ONNX export (streaming/static-shape)
-- `scripts/optimize_encoder.py` – encoder graph fusion + dtype conversion/quantization
+- `cpu/optimize.py` – end-to-end Python script: export + Olive graph fusion + INT4 k-quant + supporting files + Silero VAD
+- `scripts/export_nemotron_to_onnx_static_shape.py` – ONNX export (streaming/static-shape), callable as `export_to_onnx()`
+- `scripts/export_tokenizer.py` – tokenizer export, callable as `export_tokenizer()`
 - `scripts/test_e2e.py` – e2e smoke test
 
 ## Setup
@@ -28,7 +29,8 @@ pip install -r nvidia-nemotron-speech-streaming-en-0.6b/cpu/requirements.txt
 ### Option A — full Olive workflow (export → fusion → INT4)
 
 Run all three steps as a single Olive workflow from the
-`nvidia-nemotron-speech-streaming-en-0.6b` directory:
+`nvidia-nemotron-speech-streaming-en-0.6b` directory.  This produces the
+optimized `encoder.onnx` only; use Option B for the complete artifact set.
 
 ```bash
 cd nvidia-nemotron-speech-streaming-en-0.6b
@@ -48,7 +50,11 @@ The `--package-config` flag registers the custom `NemotronExport` pass
 (defined in `cpu/olive_passes.py`) with Olive so the export step can be
 executed as a first-class Olive pass.
 
-### Option B — Python script
+### Option B — Python script (recommended for full artifact set)
+
+Runs the complete pipeline: NeMo export → Olive graph fusion → INT4 k-quant
+quantization → copy supporting files (decoder, joint, configs, tokenizer) →
+Silero VAD download.
 
 ```bash
 cd nvidia-nemotron-speech-streaming-en-0.6b
@@ -63,7 +69,7 @@ python cpu/optimize.py --skip-export
 ```
 
 ## Output
-Expected optimized artifacts in:
+Expected optimized artifacts (produced by Option B / `optimize.py`) in:
 - `build/onnx_models_int4/encoder.onnx`
 - `build/onnx_models_int4/decoder.onnx`
 - `build/onnx_models_int4/joint.onnx`

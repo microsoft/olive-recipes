@@ -824,6 +824,34 @@ def verify_onnx_model(onnx_path):
     print(f"  Outputs: {[o.name for o in model.graph.output]}")
 
 
+def export_to_onnx(
+    model_name: str = "nvidia/nemotron-speech-streaming-en-0.6b",
+    output_dir: str = "./onnx_models",
+    streaming: bool = True,
+    chunk_size: float = 0.56,
+    left_chunks: int = 10,
+    device: str = "cpu",
+    opset_version: int = 21,
+):
+    """Export the Nemotron ASR model to ONNX.
+
+    Importable entry point that can be called directly from Python without
+    going through the command-line argument parser.
+    """
+    import argparse
+
+    args = argparse.Namespace(
+        model_name=model_name,
+        output_dir=output_dir,
+        streaming=streaming,
+        chunk_size=chunk_size,
+        left_chunks=left_chunks,
+        device=device,
+        opset_version=opset_version,
+    )
+    export_model(args)
+
+
 if __name__ == "__main__":
     args = parse_args()
     export_model(args)

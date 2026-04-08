@@ -209,5 +209,20 @@ def main():
     print("=" * 60)
 
 
+def export_tokenizer(
+    model_name: str = "nvidia/nemotron-speech-streaming-en-0.6b",
+    output_dir: str = "./onnx_models",
+):
+    """Export the Nemotron ASR tokenizer to ORT-compatible Unigram format.
+
+    Importable entry point that can be called directly from Python without
+    going through the command-line argument parser.
+    """
+    out = Path(output_dir)
+    out.mkdir(parents=True, exist_ok=True)
+    tokens = extract_vocab(model_name, out)
+    create_unigram_tokenizer(tokens, out)
+
+
 if __name__ == "__main__":
     main()
