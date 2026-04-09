@@ -125,5 +125,5 @@ def set_optimization_path(parameter: ModelParameter, configFile: str):
             path = f"{OlivePropertyNames.Passes}.{k}"
             parameter.optimizationPaths.append(OptimizationPath(path=path, name="fp32"))
             return
-    
+
     parameter.optimizationPaths = previousOptimizationPaths
