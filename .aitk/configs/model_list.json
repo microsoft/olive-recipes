@@ -736,6 +736,20 @@
             "extension": true
         },
         {
+            "displayName": "Add Json Template",
+            "icon": "HuggingFace",
+            "modelLink": "https://huggingface.co/",
+            "id": "extension/add_json",
+            "runtimes": [
+                "CPU"
+            ],
+            "architecture": "Others",
+            "status": "Hide",
+            "relativePath": ".aitk/non_model_projects/extensions/add_json",
+            "version": 1,
+            "extension": true
+        },
+        {
             "displayName": "Hugging Face Model Template",
             "description": "Input Hugging face id to download project, generate code by copilot then use it.",
             "icon": "HuggingFace",
