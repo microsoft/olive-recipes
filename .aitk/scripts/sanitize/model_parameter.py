@@ -735,6 +735,7 @@ class ModelParameter(BaseModelClass):
         if modelInfo.template or modelInfo.extension:
             return
         if not self.optimizationPaths:
+            printError(f"{self._file} optimizationPaths is not set")
             return
         optimizationDefaults = []
         for optimizationPath in self.optimizationPaths:
