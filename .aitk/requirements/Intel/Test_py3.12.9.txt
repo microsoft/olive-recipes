@@ -73,7 +73,7 @@ torchvision==0.21.0
 tornado==6.5.5
 tqdm==4.67.1
 traitlets==5.14.3
-transformers==4.48.0
+transformers==5.0.0rc3
 typing-extensions==4.15.0
 widgetsnbextension==4.0.13
 xxhash==3.5.0
