@@ -11,10 +11,5 @@ sympy==1.14.0
 # uvpip:uninstall wasdk-Microsoft.Windows.AI.MachineLearning;pre
 # uvpip:uninstall wasdk-Microsoft.Windows.ApplicationModel.DynamicDependency.Bootstrap;pre
 windowsml==2.0.297rc0
-# winrt-runtime==3.2.1
-winrt-runtime==3.2.1
-# winrt-Windows.Foundation==3.2.1
-winrt-Windows.Foundation==3.2.1
-# winrt-Windows.Foundation.Collections==3.2.1
-winrt-Windows.Foundation.Collections==3.2.1
+# uvpip:uninstall winrt-runtime winrt-Windows.Foundation winrt-Windows.Foundation.Collections;pre
 # not in requires

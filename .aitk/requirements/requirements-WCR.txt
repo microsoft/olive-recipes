@@ -116,11 +116,6 @@ urllib3==2.6.3
 windowsml==2.0.297rc0
 wcwidth==0.2.13
 widgetsnbextension==4.0.13
-# winrt-runtime==3.2.1
-winrt-runtime==3.2.1
-# winrt-Windows.Foundation==3.2.1
-winrt-Windows.Foundation==3.2.1
-# winrt-Windows.Foundation.Collections==3.2.1
-winrt-Windows.Foundation.Collections==3.2.1
+# uvpip:uninstall winrt-runtime winrt-Windows.Foundation winrt-Windows.Foundation.Collections;pre
 xxhash==3.5.0
 yarl==1.20.1
