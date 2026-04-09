@@ -58,6 +58,7 @@ def add_optimization_wa(optimizationPaths: list[OptimizationPath], k: str, v: di
 
 
 def set_optimization_path(parameter: ModelParameter, configFile: str):
+    previousOptimizationPaths = parameter.optimizationPaths
     parameter.optimizationPaths = []
     with open_ex(configFile, "r") as f:
         content = json.load(f)
@@ -115,6 +116,7 @@ def set_optimization_path(parameter: ModelParameter, configFile: str):
                 return
             else:
                 # TODO handle other optimization types if needed
+                parameter.optimizationPaths = previousOptimizationPaths
                 return
 
     # If no known optimization pass found, try to at least set the optimization path for OnnxConversion if present
@@ -123,3 +125,5 @@ def set_optimization_path(parameter: ModelParameter, configFile: str):
             path = f"{OlivePropertyNames.Passes}.{k}"
             parameter.optimizationPaths.append(OptimizationPath(path=path, name="fp32"))
             return
+    
+    parameter.optimizationPaths = previousOptimizationPaths
