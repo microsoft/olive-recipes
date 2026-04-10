@@ -725,7 +725,7 @@
             ],
             "architecture": "Transformer",
             "status": "Hide",
-            "relativePath": "facebook/sam2.1-hiera-small/aitk",
+            "relativePath": "sam2.1-hiera-small/aitk",
             "version": 1
         }
     ],
