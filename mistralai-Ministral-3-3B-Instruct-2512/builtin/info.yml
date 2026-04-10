@@ -1,0 +1,9 @@
+keywords:
+    olive-ai
+ep:
+    CPUExecutionProvider
+    CUDAExecutionProvider
+device:
+    cpu
+    gpu
+name: ministral_3_3b
