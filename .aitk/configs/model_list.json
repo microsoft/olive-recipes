@@ -706,7 +706,7 @@
             "displayName": "facebook/sam-vit-base",
             "icon": "HuggingFace",
             "modelLink": "https://huggingface.co/facebook/sam-vit-base",
-            "id": "facebook/sam-vit-base",
+            "id": "huggingface/facebook/sam-vit-base",
             "runtimes": [
                 "QNN"
             ],
@@ -719,7 +719,7 @@
             "displayName": "facebook/sam2.1-hiera-small",
             "icon": "HuggingFace",
             "modelLink": "https://huggingface.co/facebook/sam2.1-hiera-small",
-            "id": "facebook/sam2.1-hiera-small",
+            "id": "huggingface/facebook/sam2.1-hiera-small",
             "runtimes": [
                 "QNN"
             ],
