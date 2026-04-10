@@ -1,1 +1,3 @@
+onnxsim
+sam2
 transformers==4.56.2

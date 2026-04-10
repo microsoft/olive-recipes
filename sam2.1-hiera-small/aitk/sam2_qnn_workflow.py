@@ -109,10 +109,10 @@ def main():
     subprocess.run([sys.executable, "generate_model.py"], check=True)
     
     # Generate encoder model
-    generate_model("sam_vision_encoder_qnn.json", cache_dir, os.path.join(output_dir, "encoder"),
+    generate_model("sam21_vision_encoder_qnn.json", cache_dir, os.path.join(output_dir, "encoder"),
                    False, activation_type, precision, num_data)
     # Generate decoder model
-    generate_model("sam_mask_decoder_qnn.json", cache_dir, os.path.join(output_dir, "decoder"),
+    generate_model("sam21_mask_decoder_qnn.json", cache_dir, os.path.join(output_dir, "decoder"),
                    False, activation_type, precision, num_data)
 
 
