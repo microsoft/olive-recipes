@@ -1,0 +1,6 @@
+arch: qwen3
+recipes:
+  - name: Qwen-Qwen3-Embedding-8B_webgpu_fp32
+    file: Qwen-Qwen3-Embedding-8B_webgpu_fp32.json
+    devices: gpu
+    eps: WebGpuExecutionProvider
