@@ -1,0 +1,6 @@
+arch: chatglm
+recipes:
+  - name: CodeLlama-7b-Instruct-hf_VitisAI
+    file: CodeLlama-7b-Instruct-hf_quark_vitisai_llm.json
+    devices: npu
+    eps: VitisAIExecutionProvider

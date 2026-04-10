@@ -1,0 +1,6 @@
+arch: llama
+recipes:
+  - name: Llama-3.2-3B_VitisAI
+    file: Llama-3.2-3B_quark_vitisai_llm.json
+    devices: npu
+    eps: VitisAIExecutionProvider
