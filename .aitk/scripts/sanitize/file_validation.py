@@ -170,14 +170,14 @@ def readCheckIpynb(ipynbFile: str, modelItems: dict[str, ModelParameter]):
                 continue
             testPath = outputModelRelativePath
             importStr = importOnnxruntime
-            if modelParameter.isLLM:
+            if modelParameter.aitkPython:
+                testPath = None
+                importStr = None
+            elif modelParameter.isLLM:
                 testPath = outputModelModelBuilderPath
                 importStr = importOnnxgenairuntime
             elif modelParameter.runtime.values and modelParameter.isIntel:
                 testPath = outputModelIntelNPURelativePath
-            elif modelParameter.aitkPython:
-                testPath = None
-                importStr = None
             for item in [testPath, importStr]:
                 if item and not re.search(item, ipynbContent):
                     printError(f"{ipynbFile} does not have '{item}' for {name}, please use it as input")

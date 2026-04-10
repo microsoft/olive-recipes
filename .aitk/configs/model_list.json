@@ -695,12 +695,14 @@
             "modelLink": "https://huggingface.co/stable-diffusion-v1-5/stable-diffusion-v1-5",
             "id": "huggingface/stable-diffusion-v1-5/stable-diffusion-v1-5",
             "runtimes": [
-                "QNN"
+                "QNN",
+                "IntelCPU",
+                "IntelGPU"
             ],
             "architecture": "Transformer",
             "status": "Ready",
             "relativePath": "sd-legacy-stable-diffusion-v1-5/aitk",
-            "version": 1
+            "version": 2
         }
     ],
     "template_models": [

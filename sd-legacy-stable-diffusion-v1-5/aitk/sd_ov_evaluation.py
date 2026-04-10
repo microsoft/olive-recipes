@@ -11,7 +11,7 @@ from pathlib import Path
 import numpy as np
 import onnxruntime as ort
 
-from sd_utils.qdq import OnnxStableDiffusionPipelineWithSave
+from sd_utils.ov import OVStableDiffusionPipeline
 
 logger = logging.getLogger(os.path.basename(__file__))
 logging.basicConfig(level=logging.INFO)
@@ -99,9 +99,10 @@ def main(raw_args=None):
 
     add_ep_for_device(sess_options, args.execution_provider, get_device_type(args.device_str))
 
-    pipeline = OnnxStableDiffusionPipelineWithSave.from_pretrained(
+    pipeline = OVStableDiffusionPipeline.from_pretrained(
         model_dir, provider=args.execution_provider, sess_options=sess_options, provider_options=provider_options
     )
+    pipeline.save_data_dir = None
 
     text_encoder_latencies = []
     unet_latencies = []
