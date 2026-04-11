@@ -22,6 +22,9 @@ recipes:
         oliveFile: "VitisAI/Mistral-7B-Instruct-v0.2_quark_vitisai_llm.json"
         requirements: AMD/Quark_py3.10.17
         evalRuntime: AMDNPU
+    - file: "Mistral_7B_Instruct_v0.2_migraphx_config.json"
+      device: gpu
+      ep: MIGraphXExecutionProvider
 aitk:
     modelInfo:
         id: "huggingface/mistralai/Mistral-7B-Instruct-v0.2"
