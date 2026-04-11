@@ -28,6 +28,9 @@ recipes:
         oliveFile: "VitisAI/Phi-3-mini-128k-instruct_quark_vitisai_llm.json"
         requirements: AMD/Quark_py3.10.17
         evalRuntime: AMDNPU
+    - file: "phi3_migraphx.json"
+      device: gpu
+      ep: MIGraphXExecutionProvider
 aitk:
     modelInfo:
         id: "huggingface/microsoft/Phi-3-mini-128k-instruct"

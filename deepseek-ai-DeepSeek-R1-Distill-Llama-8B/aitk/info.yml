@@ -11,6 +11,9 @@ recipes:
       devices:
         - npu
       ep: OpenVINOExecutionProvider
+    - file: "deepseek_migraphx_config.json"
+      device: gpu
+      ep: MIGraphXExecutionProvider
 aitk:
     modelInfo:
         id: "huggingface/deepseek-ai/DeepSeek-R1-Distill-Llama-8B"
