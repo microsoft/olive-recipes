@@ -1,0 +1,33 @@
+{
+    "input_model": {
+        "type": "HfModel",
+        "model_path": "Qwen/Qwen3.5-9B"
+    },
+    "passes": {
+        "m": {
+            "type": "ModelBuilder",
+            "precision": "int4",
+            "int4_accuracy_level": 4,
+            "int4_block_size": 32,
+            "extra_options": {
+                "filename": "text.onnx",
+                "prune_lm_head": true
+            }
+        }
+    },
+    "engine": {
+        "target": {
+            "type": "LocalSystem",
+            "accelerators": [
+                {
+                    "device": "gpu",
+                    "execution_providers": [
+                        "WebGpuExecutionProvider"
+                    ]
+                }
+            ]
+        }
+    },
+    "no_artifacts": true,
+    "output_dir": "webgpu/models/text.onnx"
+}
