@@ -1,0 +1,37 @@
+{
+    "input_model": {
+        "type": "HfModel",
+        "model_path": "LiquidAI/LFM2.5-1.2B-Thinking",
+        "load_kwargs": { "torch_dtype": "float16" }
+    },
+    "systems": {
+        "local_system": {
+            "type": "LocalSystem",
+            "accelerators": [{ "device": "gpu", "execution_providers": ["CUDAExecutionProvider"] }]
+        }
+    },
+    "passes": {
+        "r": {
+            "type": "rtn",
+            "bits": 4,
+            "sym": false,
+            "group_size": 32,
+            "embeds": true,
+            "lm_head": true,
+            "overrides": {
+                "lm_head": { "bits": 8 },
+                "model.embed_tokens": { "bits": 8 }
+            }
+        },
+        "m": {
+            "type": "ModelBuilder",
+            "precision": "int4",
+            "extra_options": { "int4_algo_config": "k_quant_mixed" }
+        }
+    },
+    "target": "local_system",
+    "log_severity_level": 0,
+    "output_dir": "model",
+    "cache_dir": "cache",
+    "no_artifacts": true
+}
