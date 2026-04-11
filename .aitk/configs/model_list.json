@@ -9,6 +9,7 @@
                 "QNN",
                 "QNNGPU",
                 "AMDNPU",
+                "AMDGPU",
                 "NvidiaTRTRTX",
                 "IntelCPU",
                 "IntelGPU",
@@ -60,6 +61,7 @@
                 "QNN",
                 "QNNGPU",
                 "AMDNPU",
+                "AMDGPU",
                 "NvidiaTRTRTX",
                 "IntelCPU",
                 "IntelGPU",
@@ -184,6 +186,7 @@
                 "QNN",
                 "QNNGPU",
                 "AMDNPU",
+                "AMDGPU",
                 "NvidiaTRTRTX",
                 "IntelCPU",
                 "IntelGPU",
@@ -260,6 +263,7 @@
                 "QNN",
                 "QNNGPU",
                 "AMDNPU",
+                "AMDGPU",
                 "NvidiaTRTRTX",
                 "IntelCPU",
                 "IntelGPU",
@@ -285,6 +289,7 @@
             "runtimes": [
                 "QNN",
                 "AMDNPU",
+                "AMDGPU",
                 "NvidiaTRTRTX",
                 "IntelCPU",
                 "IntelGPU",
@@ -308,6 +313,7 @@
             "runtimes": [
                 "QNN",
                 "AMDNPU",
+                "AMDGPU",
                 "NvidiaTRTRTX",
                 "IntelCPU",
                 "IntelGPU",
@@ -347,6 +353,7 @@
             "runtimes": [
                 "QNN",
                 "AMDNPU",
+                "AMDGPU",
                 "IntelCPU",
                 "IntelGPU",
                 "IntelNPU"
@@ -366,6 +373,7 @@
             "id": "huggingface/microsoft/Phi-4-mini-reasoning",
             "runtimes": [
                 "AMDNPU",
+                "AMDGPU",
                 "IntelCPU",
                 "IntelGPU",
                 "IntelNPU"
@@ -416,6 +424,7 @@
             "modelLink": "https://huggingface.co/deepseek-ai/DeepSeek-R1-Distill-Llama-8B",
             "id": "huggingface/deepseek-ai/DeepSeek-R1-Distill-Llama-8B",
             "runtimes": [
+                "AMDGPU",
                 "IntelCPU",
                 "IntelGPU",
                 "IntelNPU"
@@ -437,6 +446,7 @@
             "groupItemName": "7B",
             "runtimes": [
                 "AMDNPU",
+                "AMDGPU",
                 "NvidiaTRTRTX",
                 "IntelCPU",
                 "IntelGPU",
@@ -501,6 +511,7 @@
             "id": "huggingface/mistralai/Mistral-7B-Instruct-v0.2",
             "runtimes": [
                 "AMDNPU",
+                "AMDGPU",
                 "NvidiaTRTRTX",
                 "IntelCPU",
                 "IntelGPU",
@@ -616,6 +627,7 @@
             "groupItemName": "0.5B",
             "runtimes": [
                 "AMDNPU",
+                "AMDGPU",
                 "NvidiaTRTRTX",
                 "IntelCPU",
                 "IntelGPU",
@@ -659,6 +671,7 @@
             "runtimes": [
                 "QNN",
                 "AMDNPU",
+                "AMDGPU",
                 "NvidiaTRTRTX",
                 "IntelCPU",
                 "IntelGPU",
@@ -702,6 +715,7 @@
             "groupItemName": "0.5B",
             "runtimes": [
                 "AMDNPU",
+                "AMDGPU",
                 "NvidiaTRTRTX",
                 "IntelCPU",
                 "IntelGPU",
@@ -724,6 +738,7 @@
             "groupItemName": "1.5B",
             "runtimes": [
                 "AMDNPU",
+                "AMDGPU",
                 "NvidiaTRTRTX",
                 "IntelCPU",
                 "IntelGPU",
@@ -766,6 +781,7 @@
             "groupItemName": "7B",
             "runtimes": [
                 "AMDNPU",
+                "AMDGPU",
                 "NvidiaTRTRTX",
                 "IntelCPU",
                 "IntelGPU",
