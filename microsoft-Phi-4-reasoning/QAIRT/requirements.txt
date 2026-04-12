@@ -2,7 +2,7 @@ aenum
 aimet-torch==2.14
 datasets==4.0.0
 datasets
-onnx==1.16.1
+onnx==1.21.0
 onnx_graphsurgeon==0.5.8
 onnxruntime==1.23.2
 onnxsim==0.4.36
