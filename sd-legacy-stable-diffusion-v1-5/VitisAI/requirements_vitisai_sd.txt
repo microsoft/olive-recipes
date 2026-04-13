@@ -1,0 +1,25 @@
+# AMD model generation
+--extra-index-url=https://pypi.amd.com/simple
+
+model-generate==1.7.1
+ryzenai-onnx-utils==1.7.1
+ryzenai-dynamic-dispatch==1.7.1
+voe==1.7.1
+onnxruntime-vitisai==1.24.3
+
+accelerate
+datasets
+evaluate
+nltk
+numpy
+
+# Pin onnx version
+diffusers==0.35.0
+pandas==2.2.2
+psutil==6.0.0
+torch==2.6.0
+transformers==4.56.2
+onnx==1.20.1
+optimum
+sentencepiece
+tabulate
