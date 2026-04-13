@@ -64,8 +64,7 @@ def run_inference_loop(
     while images_saved < num_images:
         print(f"\nInference Batch Start (batch size = {batch_size}).")
 
-        kwargs = {"strength": strength} if provider == "openvino" else {}
-
+        kwargs = {}
         result = pipeline(
             [prompt] * batch_size,
             num_inference_steps=num_inference_steps,
@@ -272,7 +271,7 @@ def optimize(
     if provider == "openvino":
         from sd_utils.ov import save_ov_model_info
 
-        save_ov_model_info(model_info, optimized_model_dir)
+        save_ov_model_info(model_info, optimized_model_dir, pipeline)
     else:
         from sd_utils.ort import save_onnx_pipeline
 

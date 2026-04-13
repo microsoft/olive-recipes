@@ -695,12 +695,14 @@
             "modelLink": "https://huggingface.co/stable-diffusion-v1-5/stable-diffusion-v1-5",
             "id": "huggingface/stable-diffusion-v1-5/stable-diffusion-v1-5",
             "runtimes": [
-                "QNN"
+                "QNN",
+                "IntelCPU",
+                "IntelGPU"
             ],
             "architecture": "Transformer",
             "status": "Ready",
             "relativePath": "sd-legacy-stable-diffusion-v1-5/aitk",
-            "version": 1
+            "version": 2
         }
     ],
     "template_models": [
@@ -730,6 +732,20 @@
             "architecture": "Others",
             "status": "Hide",
             "relativePath": ".aitk/non_model_projects/extensions/llm_evaluator",
+            "version": 1,
+            "extension": true
+        },
+        {
+            "displayName": "Add Json Template",
+            "icon": "HuggingFace",
+            "modelLink": "https://huggingface.co/",
+            "id": "extension/add_json",
+            "runtimes": [
+                "CPU"
+            ],
+            "architecture": "Others",
+            "status": "Hide",
+            "relativePath": ".aitk/non_model_projects/extensions/add_json",
             "version": 1,
             "extension": true
         },
