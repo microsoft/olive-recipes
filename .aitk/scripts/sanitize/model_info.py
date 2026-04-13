@@ -106,7 +106,7 @@ class ModelList(BaseModelClass):
         # self.template_models.sort(key=lambda x: x.displayName.lower())
         for i, model in enumerate(self.allModels()):
             if not model.Check():
-                printError(f"{self._file} model {i} has error")
+                printError(f"{self._file} model {i} ({model.id}) has error")
         self.SetupConstants()
         for model in self.template_models:
             if model.extension:
