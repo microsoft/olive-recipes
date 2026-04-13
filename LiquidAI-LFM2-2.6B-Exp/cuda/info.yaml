@@ -1,0 +1,12 @@
+arch: lfm2
+recipes:
+  - name: LiquidAI-LFM2-2.6B-Exp_cuda_int4
+    file: LiquidAI-LFM2-2.6B-Exp_cuda_int4.json
+    devices: gpu
+    eps: CUDAExecutionProvider
+  - name: LiquidAI-LFM2-2.6B-Exp_cuda_int8
+    file: LiquidAI-LFM2-2.6B-Exp_cuda_int8.json
+    devices: gpu
+    eps: CUDAExecutionProvider
+    devices: gpu
+    eps: CUDAExecutionProvider
