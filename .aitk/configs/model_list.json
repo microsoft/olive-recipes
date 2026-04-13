@@ -341,7 +341,7 @@
             "architecture": "Transformer",
             "status": "Ready",
             "relativePath": "microsoft-Phi-4-reasoning/aitk",
-            "version": 3
+            "version": 4
         },
         {
             "displayName": "microsoft/Phi-4-reasoning-plus",
@@ -354,7 +354,7 @@
             "architecture": "Transformer",
             "status": "Ready",
             "relativePath": "microsoft-Phi-4-reasoning-plus/aitk",
-            "version": 3
+            "version": 4
         },
         {
             "displayName": "deepseek-ai/DeepSeek-R1-Distill-Llama-8B",
