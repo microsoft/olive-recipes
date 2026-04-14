@@ -112,7 +112,7 @@ torchvision==0.22.0+cu128
 tornado==6.5.5
 tqdm==4.67.1
 traitlets==5.14.3
-transformers==4.51.3
+transformers==5.0.0rc3
 typing-extensions==4.15.0
 typing-inspection==0.4.1
 tzdata==2025.2

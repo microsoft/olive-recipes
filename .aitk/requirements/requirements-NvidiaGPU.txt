@@ -75,7 +75,7 @@ torchmetrics==1.7.1
 # torchvision==0.23.0+cu128
 torchvision==0.23.0+cu128
 tqdm==4.67.1
-transformers==4.51.3
+transformers==5.0.0rc3
 typing-extensions==4.15.0
 typing-inspection==0.4.1
 tzdata==2025.2
