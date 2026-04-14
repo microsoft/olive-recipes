@@ -28,6 +28,16 @@
             }
         }
     },
+    "evaluators": {
+        "mteb": {
+            "type": "MTEBEvaluator",
+            "tasks": [
+                "STS17"
+            ],
+            "batch_size": 32
+        }
+    },
+    "evaluator": "mteb",
     "target": "local_system",
     "log_severity_level": 0,
     "output_dir": "model",
