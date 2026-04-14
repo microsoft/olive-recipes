@@ -1,0 +1,20 @@
+{
+    "input_model": {
+        "type": "OnnxModel",
+        "model_path": "./models/gpt-oss-20b-onnx/cpu_and_mobile/cpu-int4-rtn-block-32-acc-level-4",
+        "onnx_file_name": "model.onnx"
+    },
+    "passes": {
+        "mg": {
+            "type": "VitisGenerateModelLLM",
+            "recipe": "eager",
+            "extra_options": {
+                "model_type": "gpt-oss"
+            }
+        }
+    },
+    "log_severity_level": 1,
+    "output_dir": "models/gpt-oss-20b-vai",
+    "cache_dir": "olive_cache",
+    "no_artifacts": true
+}
