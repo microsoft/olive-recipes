@@ -1,7 +1,7 @@
 # these are the versions the recipes were last validated with
 datasets==4.2.0
 olive-ai==0.11.0
-onnx==1.19.1
+onnx==1.21.0
 onnx-ir==0.1.13
 onnxruntime-genai-cuda==0.11.2
 onnxruntime-gpu==1.24.1
