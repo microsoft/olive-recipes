@@ -14,6 +14,8 @@ This folder contains Olive recipes for optimizing Qwen-Qwen3-Embedding-8B target
    - pip install git+https://github.com/microsoft/olive.git
 2) Install the requirements for this recipe:
    - pip install -r requirements.txt
+3) Log in to Hugging Face (the 8B model is gated and requires authentication):
+   - huggingface-cli login
 
 ## Build the model
 
