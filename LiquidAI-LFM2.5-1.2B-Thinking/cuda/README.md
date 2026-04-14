@@ -2,16 +2,16 @@
 
 ## Recipes
 
-### `_cuda_int4.json` — Direct INT4 via ModelBuilder
-Simple INT4 quantization. Conv layer projections are automatically promoted to INT8 by the genai builder.
+### `_cuda_int4.json` — Q4_K_M equivalent
+INT4 weights with k_quant_mixed (sensitive layers at INT8) and INT8 embedding/lm_head via RTN.
 
 ```
 olive run --config LiquidAI-LFM2.5-1.2B-Thinking_cuda_int4.json
 ```
 
-### `_cuda_int4_mixed.json` — Mixed precision with RTN
-Pipeline: `SelectiveMixedPrecision` (k_quant_down) → `GPTQ` (INT4, group_size=32) → `RTN` (INT8 embeddings/lm_head) → `ModelBuilder`.
+### `_cuda_int8.json` — Q8_0 equivalent
+Symmetric INT8 weights with INT8 embedding/lm_head via RTN.
 
 ```
-olive run --config LiquidAI-LFM2.5-1.2B-Thinking_cuda_int4_mixed.json
+olive run --config LiquidAI-LFM2.5-1.2B-Thinking_cuda_int8.json
 ```

@@ -18,6 +18,7 @@ class GlobalVars:
     errorList = []
     verbose = False
     olivePath = None
+    fillPipelineTags = False
     # Initialize checks
     pathCheck = 0
     configCheck = []
