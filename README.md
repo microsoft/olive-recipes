@@ -88,8 +88,8 @@ Below are list of available recipes grouped by different criteria. Click the lin
 | [openai-clip-vit-base-patch16](openai-clip-vit-base-patch16/aitk/openai_clip_ov.json) | [Qwen-Qwen2.5-Coder-7B-Instruct](Qwen-Qwen2.5-Coder-7B-Instruct/aitk/qwen2_5_trtrtx.json) | [google-vit-base-patch16-224](google-vit-base-patch16-224/aitk/vit-base-patch16-224_qdq_qnn.json) |
 | [openai-clip-vit-base-patch32](openai-clip-vit-base-patch32/aitk/openai_clip_ov.json) | [Qwen2.5-0.5B-Instruct_Model_Builder_FP16](Qwen-Qwen2.5-0.5B-Instruct/NvTensorRtRtx/Qwen2.5-0.5B-Instruct_model_builder_fp16.json) | [google-vit-base-patch16-224](google-vit-base-patch16-224/aitk/vit_base_patch16_224_context_ov_static.json) |
 | [openai-clip-vit-large-patch14](openai-clip-vit-large-patch14/aitk/openai_clip_ov.json) | [Qwen2.5-14B-Instruct_Model_Builder_INT4](Qwen-Qwen2.5-14B-Instruct/NvTensorRtRtx/Qwen2.5-14B-Instruct_model_builder_int4.json) | [intel-bert-base-uncased-mrpc (AMD)](intel-bert-base-uncased-mrpc/aitk/bert_qdq_amd.json) |
-| [timm-mobilenetv3_small_100.lamb_in1k](timm-mobilenetv3_small_100.lamb_in1k/olive/config.json) | [Qwen2.5-7B-Instruct_Model_Builder_INT4](Qwen-Qwen2.5-7B-Instruct/NvTensorRtRtx/Qwen2.5-7B-Instruct_model_builder_int4.json) | [intel-bert-base-uncased-mrpc (ov)](intel-bert-base-uncased-mrpc/aitk/bert_ov.json) |
-|  | [Qwen2.5-Coder-0.5B-Instruct_Model_Builder_FP16](Qwen-Qwen2.5-Coder-0.5B-Instruct/NvTensorRtRtx/Qwen2.5-Coder-0.5B-Instruct_model_builder_fp16.json) | [intel-bert-base-uncased-mrpc](intel-bert-base-uncased-mrpc/aitk/bert_qdq_qnn.json) |
+| [sd-legacy-stable-diffusion-v1-5](sd-legacy-stable-diffusion-v1-5/aitk/sd_ov_workflow.json) | [Qwen2.5-7B-Instruct_Model_Builder_INT4](Qwen-Qwen2.5-7B-Instruct/NvTensorRtRtx/Qwen2.5-7B-Instruct_model_builder_int4.json) | [intel-bert-base-uncased-mrpc (ov)](intel-bert-base-uncased-mrpc/aitk/bert_ov.json) |
+| [timm-mobilenetv3_small_100.lamb_in1k](timm-mobilenetv3_small_100.lamb_in1k/olive/config.json) | [Qwen2.5-Coder-0.5B-Instruct_Model_Builder_FP16](Qwen-Qwen2.5-Coder-0.5B-Instruct/NvTensorRtRtx/Qwen2.5-Coder-0.5B-Instruct_model_builder_fp16.json) | [intel-bert-base-uncased-mrpc](intel-bert-base-uncased-mrpc/aitk/bert_qdq_qnn.json) |
 |  | [Qwen2.5-Coder-1.5B-Instruct_Model_Builder_FP16](Qwen-Qwen2.5-Coder-1.5B-Instruct/NvTensorRtRtx/Qwen2.5-Coder-1.5B-Instruct_model_builder_fp16.json) | [laion-CLIP-ViT-B-32-laion2B-s34B-b79K](laion-CLIP-ViT-B-32-laion2B-s34B-b79K/aitk/laion_clip_ov.json) |
 |  | [Qwen2.5-Coder-14B-Instruct_Model_Builder_INT4](Qwen-Qwen2.5-Coder-14B-Instruct/NvTensorRtRtx/Qwen2.5-Coder-14B-Instruct_model_builder_int4.json) | [laion-CLIP-ViT-B-32-laion2B-s34B-b79K](laion-CLIP-ViT-B-32-laion2B-s34B-b79K/aitk/laion_clip_qdq_amd.json) |
 |  | [Qwen2.5-Coder-7B-Instruct_Model_Builder_INT4](Qwen-Qwen2.5-Coder-7B-Instruct/NvTensorRtRtx/Qwen2.5-Coder-7B-Instruct_model_builder_int4.json) | [laion-CLIP-ViT-B-32-laion2B-s34B-b79K](laion-CLIP-ViT-B-32-laion2B-s34B-b79K/aitk/laion_clip_qnn.json) |
@@ -119,35 +119,35 @@ Below are list of available recipes grouped by different criteria. Click the lin
 |  | [google-vit-base-patch16-224](google-vit-base-patch16-224/aitk/vit-base-patch16-224_trtrtx.json) | [microsoft-Phi-4-mini-reasoning](microsoft-Phi-4-mini-reasoning/aitk/phi4_ov_config.json) |
 |  | [google-vit-base-patch16-224](google-vit-base-patch16-224/aitk/vit_base_patch16_224_context_ov_static.json) | [microsoft-Phi-4-mini-reasoning](microsoft-Phi-4-mini-reasoning/aitk/phi4_vitis_ai_config.json) |
 |  | [intel-bert-base-uncased-mrpc (ov)](intel-bert-base-uncased-mrpc/aitk/bert_ov.json) | [microsoft-Phi-4-reasoning-plus](microsoft-Phi-4-reasoning-plus/aitk/phi4_ov_config.json) |
-|  | [intel-bert-base-uncased-mrpc](intel-bert-base-uncased-mrpc/QNN/config_gpu_fp32.json) | [microsoft-Phi-4-reasoning](microsoft-Phi-4-reasoning/QNN/config.json) |
-|  | [intel-bert-base-uncased-mrpc](intel-bert-base-uncased-mrpc/aitk/bert_dml.json) | [microsoft-Phi-4-reasoning](microsoft-Phi-4-reasoning/aitk/phi4_ov_config.json) |
-|  | [intel-bert-base-uncased-mrpc](intel-bert-base-uncased-mrpc/aitk/bert_migraphx.json) | [microsoft-resnet-50](microsoft-resnet-50/aitk/resnet_context_ov_static.json) |
-|  | [intel-bert-base-uncased-mrpc](intel-bert-base-uncased-mrpc/aitk/bert_qnn_gpu.json) | [microsoft-resnet-50](microsoft-resnet-50/aitk/resnet_qdq_amd.json) |
-|  | [intel-bert-base-uncased-mrpc](intel-bert-base-uncased-mrpc/aitk/bert_trtrtx.json) | [microsoft-resnet-50](microsoft-resnet-50/aitk/resnet_qdq_qnn.json) |
-|  | [laion-CLIP-ViT-B-32-laion2B-s34B-b79K](laion-CLIP-ViT-B-32-laion2B-s34B-b79K/QNN/config_gpu_fp32.json) | [microsoft-table-transformer-detection](microsoft-table-transformer-detection/QNN/ttd_config.json) |
-|  | [laion-CLIP-ViT-B-32-laion2B-s34B-b79K](laion-CLIP-ViT-B-32-laion2B-s34B-b79K/aitk/laion_clip_dml.json) | [mistralai-Mistral-7B-Instruct-v0.2](mistralai-Mistral-7B-Instruct-v0.2/aitk/Mistral_7B_Instruct_v0.2_npu_context_ov_dy.json) |
-|  | [laion-CLIP-ViT-B-32-laion2B-s34B-b79K](laion-CLIP-ViT-B-32-laion2B-s34B-b79K/aitk/laion_clip_migraphx.json) | [mistralai-Mistral-7B-Instruct-v0.2](mistralai-Mistral-7B-Instruct-v0.2/aitk/Mistral_7B_Instruct_v0.2_vitis_ai_config.json) |
-|  | [laion-CLIP-ViT-B-32-laion2B-s34B-b79K](laion-CLIP-ViT-B-32-laion2B-s34B-b79K/aitk/laion_clip_ov.json) | [openai-clip-vit-base-patch16](openai-clip-vit-base-patch16/aitk/openai_clip_ov.json) |
-|  | [laion-CLIP-ViT-B-32-laion2B-s34B-b79K](laion-CLIP-ViT-B-32-laion2B-s34B-b79K/aitk/laion_clip_qnn_gpu.json) | [openai-clip-vit-base-patch16](openai-clip-vit-base-patch16/aitk/openai_clip_qdq_amd.json) |
-|  | [laion-CLIP-ViT-B-32-laion2B-s34B-b79K](laion-CLIP-ViT-B-32-laion2B-s34B-b79K/aitk/laion_clip_trtrtx.json) | [openai-clip-vit-base-patch16](openai-clip-vit-base-patch16/aitk/openai_clip_qnn.json) |
-|  | [meta-llama-Llama-3.1-8B-Instruct](meta-llama-Llama-3.1-8B-Instruct/aitk/llama3_1_dml_config.json) | [openai-clip-vit-base-patch32](openai-clip-vit-base-patch32/aitk/openai_clip_ov.json) |
-|  | [meta-llama-Llama-3.1-8B-Instruct](meta-llama-Llama-3.1-8B-Instruct/aitk/llama3_1_ov_gpu_config.json) | [openai-clip-vit-base-patch32](openai-clip-vit-base-patch32/aitk/openai_clip_qdq_amd.json) |
-|  | [meta-llama-Llama-3.1-8B-Instruct](meta-llama-Llama-3.1-8B-Instruct/aitk/llama3_1_trtrtx_config.json) | [openai-clip-vit-base-patch32](openai-clip-vit-base-patch32/aitk/openai_clip_qnn.json) |
-|  | [meta-llama-Llama-3.2-1B-Instruct](meta-llama-Llama-3.2-1B-Instruct/QNN/config_gpu.json) | [openai-clip-vit-large-patch14](openai-clip-vit-large-patch14/aitk/openai_clip_ov.json) |
-|  | [meta-llama-Llama-3.2-1B-Instruct](meta-llama-Llama-3.2-1B-Instruct/QNN/config_gpu_ctxbin.json) | [openai-clip-vit-large-patch14](openai-clip-vit-large-patch14/aitk/openai_clip_qdq_amd.json) |
-|  | [meta-llama-Llama-3.2-1B-Instruct](meta-llama-Llama-3.2-1B-Instruct/aitk/llama3_2_dml_config.json) | [openai-clip-vit-large-patch14](openai-clip-vit-large-patch14/aitk/openai_clip_qnn.json) |
-|  | [meta-llama-Llama-3.2-1B-Instruct](meta-llama-Llama-3.2-1B-Instruct/aitk/llama3_2_ov_gpu_config.json) | [openai-whisper-large-v3-turbo](openai-whisper-large-v3-turbo/aitk/qnn_workflow.json) |
-|  | [meta-llama-Llama-3.2-1B-Instruct](meta-llama-Llama-3.2-1B-Instruct/aitk/llama3_2_qnn_gpu_config.json) | [sam-vit-base](sam-vit-base/QNN/sam_mask_box_decoder_qnn_fp16.json) |
-|  | [meta-llama-Llama-3.2-1B-Instruct](meta-llama-Llama-3.2-1B-Instruct/aitk/llama3_2_trtrtx_config.json) | [sam-vit-base](sam-vit-base/QNN/sam_mask_decoder_qnn_fp16_ctx.json) |
-|  | [microsoft-Phi-3-mini-128k-instruct](microsoft-Phi-3-mini-128k-instruct/aitk/phi3_ov_config.json) | [sam-vit-base](sam-vit-base/QNN/sam_mask_point_decoder_qnn_fp16.json) |
-|  | [microsoft-Phi-3-mini-128k-instruct](microsoft-Phi-3-mini-128k-instruct/aitk/phi3_trtrtx.json) | [sam-vit-base](sam-vit-base/QNN/sam_vision_encoder_qnn_w8a8_ctx.json) |
-|  | [microsoft-Phi-3-mini-4k-instruct](microsoft-Phi-3-mini-4k-instruct/aitk/phi3_ov_config.json) | [sam2.1-hiera-small](sam2.1-hiera-small/QNN/sam21_mask_decoder_qnn_ctx.json) |
-|  | [microsoft-Phi-3-mini-4k-instruct](microsoft-Phi-3-mini-4k-instruct/aitk/phi3_trtrtx.json) | [sam2.1-hiera-small](sam2.1-hiera-small/QNN/sam21_vision_encoder_qnn_ctx.json) |
-|  | [microsoft-Phi-3.5-mini-instruct](microsoft-Phi-3.5-mini-instruct/QNN/config_gpu.json) | [sd-legacy-stable-diffusion-v1-5](sd-legacy-stable-diffusion-v1-5/aitk/sd_qnn_workflow.json) |
-|  | [microsoft-Phi-3.5-mini-instruct](microsoft-Phi-3.5-mini-instruct/QNN/config_gpu_ctxbin.json) | [timm-mobilenetv3_small_100.lamb_in1k](timm-mobilenetv3_small_100.lamb_in1k/QNN/mobilenet_qnn_ep.json) |
-|  | [microsoft-Phi-3.5-mini-instruct](microsoft-Phi-3.5-mini-instruct/aitk/phi3_5_dml_config.json) | [timm-mobilenetv3_small_100.lamb_in1k](timm-mobilenetv3_small_100.lamb_in1k/VitisAI/config.json) |
-|  | [microsoft-Phi-3.5-mini-instruct](microsoft-Phi-3.5-mini-instruct/aitk/phi3_5_ov_gpu_config.json) |  |
-|  | [microsoft-Phi-3.5-mini-instruct](microsoft-Phi-3.5-mini-instruct/aitk/phi3_5_qnn_gpu_config.json) |  |
+|  | [intel-bert-base-uncased-mrpc](intel-bert-base-uncased-mrpc/QNN/config_gpu_fp32.json) | [microsoft-Phi-4-reasoning](microsoft-Phi-4-reasoning/QAIRT/htp_sc8380xp.json) |
+|  | [intel-bert-base-uncased-mrpc](intel-bert-base-uncased-mrpc/aitk/bert_dml.json) | [microsoft-Phi-4-reasoning](microsoft-Phi-4-reasoning/QAIRT/htp_sc8480xp.json) |
+|  | [intel-bert-base-uncased-mrpc](intel-bert-base-uncased-mrpc/aitk/bert_migraphx.json) | [microsoft-Phi-4-reasoning](microsoft-Phi-4-reasoning/QNN/config.json) |
+|  | [intel-bert-base-uncased-mrpc](intel-bert-base-uncased-mrpc/aitk/bert_qnn_gpu.json) | [microsoft-Phi-4-reasoning](microsoft-Phi-4-reasoning/aitk/phi4_ov_config.json) |
+|  | [intel-bert-base-uncased-mrpc](intel-bert-base-uncased-mrpc/aitk/bert_trtrtx.json) | [microsoft-resnet-50](microsoft-resnet-50/aitk/resnet_context_ov_static.json) |
+|  | [laion-CLIP-ViT-B-32-laion2B-s34B-b79K](laion-CLIP-ViT-B-32-laion2B-s34B-b79K/QNN/config_gpu_fp32.json) | [microsoft-resnet-50](microsoft-resnet-50/aitk/resnet_qdq_amd.json) |
+|  | [laion-CLIP-ViT-B-32-laion2B-s34B-b79K](laion-CLIP-ViT-B-32-laion2B-s34B-b79K/aitk/laion_clip_dml.json) | [microsoft-resnet-50](microsoft-resnet-50/aitk/resnet_qdq_qnn.json) |
+|  | [laion-CLIP-ViT-B-32-laion2B-s34B-b79K](laion-CLIP-ViT-B-32-laion2B-s34B-b79K/aitk/laion_clip_migraphx.json) | [microsoft-table-transformer-detection](microsoft-table-transformer-detection/QNN/ttd_config.json) |
+|  | [laion-CLIP-ViT-B-32-laion2B-s34B-b79K](laion-CLIP-ViT-B-32-laion2B-s34B-b79K/aitk/laion_clip_ov.json) | [mistralai-Mistral-7B-Instruct-v0.2](mistralai-Mistral-7B-Instruct-v0.2/aitk/Mistral_7B_Instruct_v0.2_npu_context_ov_dy.json) |
+|  | [laion-CLIP-ViT-B-32-laion2B-s34B-b79K](laion-CLIP-ViT-B-32-laion2B-s34B-b79K/aitk/laion_clip_qnn_gpu.json) | [mistralai-Mistral-7B-Instruct-v0.2](mistralai-Mistral-7B-Instruct-v0.2/aitk/Mistral_7B_Instruct_v0.2_vitis_ai_config.json) |
+|  | [laion-CLIP-ViT-B-32-laion2B-s34B-b79K](laion-CLIP-ViT-B-32-laion2B-s34B-b79K/aitk/laion_clip_trtrtx.json) | [openai-clip-vit-base-patch16](openai-clip-vit-base-patch16/aitk/openai_clip_ov.json) |
+|  | [meta-llama-Llama-3.1-8B-Instruct](meta-llama-Llama-3.1-8B-Instruct/aitk/llama3_1_dml_config.json) | [openai-clip-vit-base-patch16](openai-clip-vit-base-patch16/aitk/openai_clip_qdq_amd.json) |
+|  | [meta-llama-Llama-3.1-8B-Instruct](meta-llama-Llama-3.1-8B-Instruct/aitk/llama3_1_ov_gpu_config.json) | [openai-clip-vit-base-patch16](openai-clip-vit-base-patch16/aitk/openai_clip_qnn.json) |
+|  | [meta-llama-Llama-3.1-8B-Instruct](meta-llama-Llama-3.1-8B-Instruct/aitk/llama3_1_trtrtx_config.json) | [openai-clip-vit-base-patch32](openai-clip-vit-base-patch32/aitk/openai_clip_ov.json) |
+|  | [meta-llama-Llama-3.2-1B-Instruct](meta-llama-Llama-3.2-1B-Instruct/QNN/config_gpu.json) | [openai-clip-vit-base-patch32](openai-clip-vit-base-patch32/aitk/openai_clip_qdq_amd.json) |
+|  | [meta-llama-Llama-3.2-1B-Instruct](meta-llama-Llama-3.2-1B-Instruct/QNN/config_gpu_ctxbin.json) | [openai-clip-vit-base-patch32](openai-clip-vit-base-patch32/aitk/openai_clip_qnn.json) |
+|  | [meta-llama-Llama-3.2-1B-Instruct](meta-llama-Llama-3.2-1B-Instruct/aitk/llama3_2_dml_config.json) | [openai-clip-vit-large-patch14](openai-clip-vit-large-patch14/aitk/openai_clip_ov.json) |
+|  | [meta-llama-Llama-3.2-1B-Instruct](meta-llama-Llama-3.2-1B-Instruct/aitk/llama3_2_ov_gpu_config.json) | [openai-clip-vit-large-patch14](openai-clip-vit-large-patch14/aitk/openai_clip_qdq_amd.json) |
+|  | [meta-llama-Llama-3.2-1B-Instruct](meta-llama-Llama-3.2-1B-Instruct/aitk/llama3_2_qnn_gpu_config.json) | [openai-clip-vit-large-patch14](openai-clip-vit-large-patch14/aitk/openai_clip_qnn.json) |
+|  | [meta-llama-Llama-3.2-1B-Instruct](meta-llama-Llama-3.2-1B-Instruct/aitk/llama3_2_trtrtx_config.json) | [openai-whisper-large-v3-turbo](openai-whisper-large-v3-turbo/aitk/qnn_workflow.json) |
+|  | [microsoft-Phi-3-mini-128k-instruct](microsoft-Phi-3-mini-128k-instruct/aitk/phi3_ov_config.json) | [sam-vit-base](sam-vit-base/QNN/sam_mask_box_decoder_qnn_fp16.json) |
+|  | [microsoft-Phi-3-mini-128k-instruct](microsoft-Phi-3-mini-128k-instruct/aitk/phi3_trtrtx.json) | [sam-vit-base](sam-vit-base/QNN/sam_mask_decoder_qnn_fp16_ctx.json) |
+|  | [microsoft-Phi-3-mini-4k-instruct](microsoft-Phi-3-mini-4k-instruct/aitk/phi3_ov_config.json) | [sam-vit-base](sam-vit-base/QNN/sam_mask_point_decoder_qnn_fp16.json) |
+|  | [microsoft-Phi-3-mini-4k-instruct](microsoft-Phi-3-mini-4k-instruct/aitk/phi3_trtrtx.json) | [sam-vit-base](sam-vit-base/QNN/sam_vision_encoder_qnn_w8a8_ctx.json) |
+|  | [microsoft-Phi-3.5-mini-instruct](microsoft-Phi-3.5-mini-instruct/QNN/config_gpu.json) | [sam2.1-hiera-small](sam2.1-hiera-small/QNN/sam21_mask_decoder_qnn_ctx.json) |
+|  | [microsoft-Phi-3.5-mini-instruct](microsoft-Phi-3.5-mini-instruct/QNN/config_gpu_ctxbin.json) | [sam2.1-hiera-small](sam2.1-hiera-small/QNN/sam21_vision_encoder_qnn_ctx.json) |
+|  | [microsoft-Phi-3.5-mini-instruct](microsoft-Phi-3.5-mini-instruct/aitk/phi3_5_dml_config.json) | [sd-legacy-stable-diffusion-v1-5](sd-legacy-stable-diffusion-v1-5/aitk/sd_qnn_workflow.json) |
+|  | [microsoft-Phi-3.5-mini-instruct](microsoft-Phi-3.5-mini-instruct/aitk/phi3_5_ov_gpu_config.json) | [timm-mobilenetv3_small_100.lamb_in1k](timm-mobilenetv3_small_100.lamb_in1k/QNN/mobilenet_qnn_ep.json) |
+|  | [microsoft-Phi-3.5-mini-instruct](microsoft-Phi-3.5-mini-instruct/aitk/phi3_5_qnn_gpu_config.json) | [timm-mobilenetv3_small_100.lamb_in1k](timm-mobilenetv3_small_100.lamb_in1k/VitisAI/config.json) |
 |  | [microsoft-Phi-3.5-mini-instruct](microsoft-Phi-3.5-mini-instruct/aitk/phi3_5_trtrtx_config.json) |  |
 |  | [microsoft-Phi-4-mini-instruct](microsoft-Phi-4-mini-instruct/OpenVINO/Phi-4-mini-instruct-gpu-context-dy.json) |  |
 |  | [microsoft-Phi-4-mini-instruct](microsoft-Phi-4-mini-instruct/OpenVINO/Phi_4_mini_instruct_context_ov_dynamic_sym_gs128_bkp_int8_sym.json) |  |
@@ -186,6 +186,7 @@ Below are list of available recipes grouped by different criteria. Click the lin
 |  | [openai-clip-vit-large-patch14](openai-clip-vit-large-patch14/aitk/openai_clip_ov.json) |  |
 |  | [openai-clip-vit-large-patch14](openai-clip-vit-large-patch14/aitk/openai_clip_trtrtx.json) |  |
 |  | [phi-4_Model_Builder_INT4](microsoft-Phi-4/NvTensorRtRtx/phi-4_model_builder_int4.json) |  |
+|  | [sd-legacy-stable-diffusion-v1-5](sd-legacy-stable-diffusion-v1-5/aitk/sd_ov_workflow.json) |  |
 <!-- end_device_models -->
 </details>
 
@@ -235,32 +236,33 @@ Below are list of available recipes grouped by different criteria. Click the lin
 |  |  |  |  | [microsoft-Phi-3.5-mini-instruct](microsoft-Phi-3.5-mini-instruct/aitk/phi3_5_trtrtx_config.json) | [meta-llama-Llama-3.2-1B-Instruct](meta-llama-Llama-3.2-1B-Instruct/aitk/llama3_2_ov_config.json) | [microsoft-Phi-3.5-mini-instruct](microsoft-Phi-3.5-mini-instruct/aitk/phi3_5_qnn_gpu_config.json) |  |
 |  |  |  |  | [microsoft-Phi-4-mini-instruct_nvmo_ptq_mixed_precision_awq_lite](microsoft-Phi-4-mini-instruct/NvTensorRtRtx/microsoft-Phi-4-mini-instruct_nvmo_ptq_mixed_precision_awq_lite.json) | [meta-llama-Llama-3.2-1B-Instruct](meta-llama-Llama-3.2-1B-Instruct/aitk/llama3_2_ov_gpu_config.json) | [microsoft-Phi-4-mini-instruct](microsoft-Phi-4-mini-instruct/QNN/phi4_mini_qnn_docker.json) |  |
 |  |  |  |  | [microsoft-Phi-4](microsoft-Phi-4/aitk/phi4_trtrtx.json) | [microsoft-Phi-3-mini-128k-instruct](microsoft-Phi-3-mini-128k-instruct/aitk/phi3_ov_config.json) | [microsoft-Phi-4-mini-instruct](microsoft-Phi-4-mini-instruct/aitk/phi4_qnn.json) |  |
-|  |  |  |  | [microsoft-resnet-50](microsoft-resnet-50/aitk/resnet_trtrtx.json) | [microsoft-Phi-3-mini-128k-instruct](microsoft-Phi-3-mini-128k-instruct/aitk/phi3_ov_npu_config.json) | [microsoft-Phi-4-reasoning](microsoft-Phi-4-reasoning/QNN/config.json) |  |
-|  |  |  |  | [mistralai-Mistral-7B-Instruct-v0.2](mistralai-Mistral-7B-Instruct-v0.2/aitk/Mistral_7B_Instruct_v0.2_trtrtx.json) | [microsoft-Phi-3-mini-4k-instruct](microsoft-Phi-3-mini-4k-instruct/aitk/phi3_ov_config.json) | [microsoft-resnet-50](microsoft-resnet-50/aitk/resnet_qdq_qnn.json) |  |
-|  |  |  |  | [openai-clip-vit-base-patch16](openai-clip-vit-base-patch16/aitk/openai_clip_trtrtx.json) | [microsoft-Phi-3-mini-4k-instruct](microsoft-Phi-3-mini-4k-instruct/aitk/phi3_ov_npu_config.json) | [microsoft-resnet-50](microsoft-resnet-50/aitk/resnet_qnn_gpu.json) |  |
-|  |  |  |  | [openai-clip-vit-base-patch32](openai-clip-vit-base-patch32/aitk/openai_clip_trtrtx.json) | [microsoft-Phi-3.5-mini-instruct](microsoft-Phi-3.5-mini-instruct/aitk/phi3_5_ov_config.json) | [microsoft-table-transformer-detection](microsoft-table-transformer-detection/QNN/ttd_config.json) |  |
-|  |  |  |  | [openai-clip-vit-large-patch14](openai-clip-vit-large-patch14/aitk/openai_clip_trtrtx.json) | [microsoft-Phi-3.5-mini-instruct](microsoft-Phi-3.5-mini-instruct/aitk/phi3_5_ov_gpu_config.json) | [openai-clip-vit-base-patch16](openai-clip-vit-base-patch16/QNN/config_gpu_fp32.json) |  |
-|  |  |  |  | [phi-4_Model_Builder_INT4](microsoft-Phi-4/NvTensorRtRtx/phi-4_model_builder_int4.json) | [microsoft-Phi-4-mini-instruct](microsoft-Phi-4-mini-instruct/OpenVINO/Phi-4-mini-instruct-gpu-context-dy.json) | [openai-clip-vit-base-patch16](openai-clip-vit-base-patch16/aitk/openai_clip_qnn.json) |  |
-|  |  |  |  |  | [microsoft-Phi-4-mini-instruct](microsoft-Phi-4-mini-instruct/OpenVINO/Phi_4_mini_instruct_context_ov_dynamic_sym_gs128_bkp_int8_sym.json) | [openai-clip-vit-base-patch16](openai-clip-vit-base-patch16/aitk/openai_clip_qnn_gpu.json) |  |
-|  |  |  |  |  | [microsoft-Phi-4-mini-instruct](microsoft-Phi-4-mini-instruct/aitk/phi4_ov_config.json) | [openai-clip-vit-base-patch32](openai-clip-vit-base-patch32/QNN/config_gpu_fp32.json) |  |
-|  |  |  |  |  | [microsoft-Phi-4-mini-instruct](microsoft-Phi-4-mini-instruct/aitk/phi4_ov_npu_config.json) | [openai-clip-vit-base-patch32](openai-clip-vit-base-patch32/aitk/openai_clip_qnn.json) |  |
-|  |  |  |  |  | [microsoft-Phi-4-mini-reasoning](microsoft-Phi-4-mini-reasoning/OpenVINO/Phi-4-mini-reasoning_context_ov_dynamic_sym_gs128_bkp_int8_sym.json) | [openai-clip-vit-base-patch32](openai-clip-vit-base-patch32/aitk/openai_clip_qnn_gpu.json) |  |
-|  |  |  |  |  | [microsoft-Phi-4-mini-reasoning](microsoft-Phi-4-mini-reasoning/OpenVINO/Phi_4_mini_instruct_context_ov_dynamic_sym_gs128_bkp_int8_sym.json) | [openai-clip-vit-large-patch14](openai-clip-vit-large-patch14/aitk/openai_clip_qnn.json) |  |
-|  |  |  |  |  | [microsoft-Phi-4-mini-reasoning](microsoft-Phi-4-mini-reasoning/aitk/phi4_ov_config.json) | [openai-whisper-large-v3-turbo](openai-whisper-large-v3-turbo/aitk/qnn_workflow.json) |  |
-|  |  |  |  |  | [microsoft-Phi-4-mini-reasoning](microsoft-Phi-4-mini-reasoning/aitk/phi4_ov_gpu_config.json) | [sam-vit-base](sam-vit-base/QNN/sam_mask_box_decoder_qnn_fp16.json) |  |
-|  |  |  |  |  | [microsoft-Phi-4-reasoning-plus](microsoft-Phi-4-reasoning-plus/OpenVINO/Phi-4-Phi-4-reasoning-plus_context_ov_dynamic_sym_gs128_bkp_int8_sym.json) | [sam-vit-base](sam-vit-base/QNN/sam_mask_decoder_qnn_fp16_ctx.json) |  |
-|  |  |  |  |  | [microsoft-Phi-4-reasoning-plus](microsoft-Phi-4-reasoning-plus/aitk/phi4_ov_config.json) | [sam-vit-base](sam-vit-base/QNN/sam_mask_point_decoder_qnn_fp16.json) |  |
-|  |  |  |  |  | [microsoft-Phi-4-reasoning](microsoft-Phi-4-reasoning/OpenVINO/Phi-4-reasoning_context_ov_dynamic_sym_gs128_bkp_int8_sym.json) | [sam-vit-base](sam-vit-base/QNN/sam_vision_encoder_qnn_w8a8_ctx.json) |  |
-|  |  |  |  |  | [microsoft-Phi-4-reasoning](microsoft-Phi-4-reasoning/aitk/phi4_ov_config.json) | [sam2.1-hiera-small](sam2.1-hiera-small/QNN/sam21_mask_decoder_qnn_ctx.json) |  |
-|  |  |  |  |  | [microsoft-Phi-4](microsoft-Phi-4/OpenVINO/phi_4_gpu_context_dy.json) | [sam2.1-hiera-small](sam2.1-hiera-small/QNN/sam21_vision_encoder_qnn_ctx.json) |  |
-|  |  |  |  |  | [microsoft-Phi-4](microsoft-Phi-4/aitk/phi4_ov_config.json) | [sd-legacy-stable-diffusion-v1-5](sd-legacy-stable-diffusion-v1-5/aitk/sd_qnn_workflow.json) |  |
-|  |  |  |  |  | [microsoft-resnet-50](microsoft-resnet-50/aitk/resnet_context_ov_static.json) | [timm-mobilenetv3_small_100.lamb_in1k](timm-mobilenetv3_small_100.lamb_in1k/QNN/mobilenet_qnn_ep.json) |  |
-|  |  |  |  |  | [mistralai-Mistral-7B-Instruct-v0.2](mistralai-Mistral-7B-Instruct-v0.2/aitk/Mistral_7B_Instruct_v0.2_gpu_context_ov_dy.json) |  |  |
-|  |  |  |  |  | [mistralai-Mistral-7B-Instruct-v0.2](mistralai-Mistral-7B-Instruct-v0.2/aitk/Mistral_7B_Instruct_v0.2_npu_context_ov_dy.json) |  |  |
+|  |  |  |  | [microsoft-resnet-50](microsoft-resnet-50/aitk/resnet_trtrtx.json) | [microsoft-Phi-3-mini-128k-instruct](microsoft-Phi-3-mini-128k-instruct/aitk/phi3_ov_npu_config.json) | [microsoft-Phi-4-reasoning](microsoft-Phi-4-reasoning/QAIRT/htp_sc8380xp.json) |  |
+|  |  |  |  | [mistralai-Mistral-7B-Instruct-v0.2](mistralai-Mistral-7B-Instruct-v0.2/aitk/Mistral_7B_Instruct_v0.2_trtrtx.json) | [microsoft-Phi-3-mini-4k-instruct](microsoft-Phi-3-mini-4k-instruct/aitk/phi3_ov_config.json) | [microsoft-Phi-4-reasoning](microsoft-Phi-4-reasoning/QAIRT/htp_sc8480xp.json) |  |
+|  |  |  |  | [openai-clip-vit-base-patch16](openai-clip-vit-base-patch16/aitk/openai_clip_trtrtx.json) | [microsoft-Phi-3-mini-4k-instruct](microsoft-Phi-3-mini-4k-instruct/aitk/phi3_ov_npu_config.json) | [microsoft-Phi-4-reasoning](microsoft-Phi-4-reasoning/QNN/config.json) |  |
+|  |  |  |  | [openai-clip-vit-base-patch32](openai-clip-vit-base-patch32/aitk/openai_clip_trtrtx.json) | [microsoft-Phi-3.5-mini-instruct](microsoft-Phi-3.5-mini-instruct/aitk/phi3_5_ov_config.json) | [microsoft-resnet-50](microsoft-resnet-50/aitk/resnet_qdq_qnn.json) |  |
+|  |  |  |  | [openai-clip-vit-large-patch14](openai-clip-vit-large-patch14/aitk/openai_clip_trtrtx.json) | [microsoft-Phi-3.5-mini-instruct](microsoft-Phi-3.5-mini-instruct/aitk/phi3_5_ov_gpu_config.json) | [microsoft-resnet-50](microsoft-resnet-50/aitk/resnet_qnn_gpu.json) |  |
+|  |  |  |  | [phi-4_Model_Builder_INT4](microsoft-Phi-4/NvTensorRtRtx/phi-4_model_builder_int4.json) | [microsoft-Phi-4-mini-instruct](microsoft-Phi-4-mini-instruct/OpenVINO/Phi-4-mini-instruct-gpu-context-dy.json) | [microsoft-table-transformer-detection](microsoft-table-transformer-detection/QNN/ttd_config.json) |  |
+|  |  |  |  |  | [microsoft-Phi-4-mini-instruct](microsoft-Phi-4-mini-instruct/OpenVINO/Phi_4_mini_instruct_context_ov_dynamic_sym_gs128_bkp_int8_sym.json) | [openai-clip-vit-base-patch16](openai-clip-vit-base-patch16/QNN/config_gpu_fp32.json) |  |
+|  |  |  |  |  | [microsoft-Phi-4-mini-instruct](microsoft-Phi-4-mini-instruct/aitk/phi4_ov_config.json) | [openai-clip-vit-base-patch16](openai-clip-vit-base-patch16/aitk/openai_clip_qnn.json) |  |
+|  |  |  |  |  | [microsoft-Phi-4-mini-instruct](microsoft-Phi-4-mini-instruct/aitk/phi4_ov_npu_config.json) | [openai-clip-vit-base-patch16](openai-clip-vit-base-patch16/aitk/openai_clip_qnn_gpu.json) |  |
+|  |  |  |  |  | [microsoft-Phi-4-mini-reasoning](microsoft-Phi-4-mini-reasoning/OpenVINO/Phi-4-mini-reasoning_context_ov_dynamic_sym_gs128_bkp_int8_sym.json) | [openai-clip-vit-base-patch32](openai-clip-vit-base-patch32/QNN/config_gpu_fp32.json) |  |
+|  |  |  |  |  | [microsoft-Phi-4-mini-reasoning](microsoft-Phi-4-mini-reasoning/OpenVINO/Phi_4_mini_instruct_context_ov_dynamic_sym_gs128_bkp_int8_sym.json) | [openai-clip-vit-base-patch32](openai-clip-vit-base-patch32/aitk/openai_clip_qnn.json) |  |
+|  |  |  |  |  | [microsoft-Phi-4-mini-reasoning](microsoft-Phi-4-mini-reasoning/aitk/phi4_ov_config.json) | [openai-clip-vit-base-patch32](openai-clip-vit-base-patch32/aitk/openai_clip_qnn_gpu.json) |  |
+|  |  |  |  |  | [microsoft-Phi-4-mini-reasoning](microsoft-Phi-4-mini-reasoning/aitk/phi4_ov_gpu_config.json) | [openai-clip-vit-large-patch14](openai-clip-vit-large-patch14/aitk/openai_clip_qnn.json) |  |
+|  |  |  |  |  | [microsoft-Phi-4-reasoning-plus](microsoft-Phi-4-reasoning-plus/OpenVINO/Phi-4-Phi-4-reasoning-plus_context_ov_dynamic_sym_gs128_bkp_int8_sym.json) | [openai-whisper-large-v3-turbo](openai-whisper-large-v3-turbo/aitk/qnn_workflow.json) |  |
+|  |  |  |  |  | [microsoft-Phi-4-reasoning-plus](microsoft-Phi-4-reasoning-plus/aitk/phi4_ov_config.json) | [sam-vit-base](sam-vit-base/QNN/sam_mask_box_decoder_qnn_fp16.json) |  |
+|  |  |  |  |  | [microsoft-Phi-4-reasoning](microsoft-Phi-4-reasoning/OpenVINO/Phi-4-reasoning_context_ov_dynamic_sym_gs128_bkp_int8_sym.json) | [sam-vit-base](sam-vit-base/QNN/sam_mask_decoder_qnn_fp16_ctx.json) |  |
+|  |  |  |  |  | [microsoft-Phi-4-reasoning](microsoft-Phi-4-reasoning/aitk/phi4_ov_config.json) | [sam-vit-base](sam-vit-base/QNN/sam_mask_point_decoder_qnn_fp16.json) |  |
+|  |  |  |  |  | [microsoft-Phi-4](microsoft-Phi-4/OpenVINO/phi_4_gpu_context_dy.json) | [sam-vit-base](sam-vit-base/QNN/sam_vision_encoder_qnn_w8a8_ctx.json) |  |
+|  |  |  |  |  | [microsoft-Phi-4](microsoft-Phi-4/aitk/phi4_ov_config.json) | [sam2.1-hiera-small](sam2.1-hiera-small/QNN/sam21_mask_decoder_qnn_ctx.json) |  |
+|  |  |  |  |  | [microsoft-resnet-50](microsoft-resnet-50/aitk/resnet_context_ov_static.json) | [sam2.1-hiera-small](sam2.1-hiera-small/QNN/sam21_vision_encoder_qnn_ctx.json) |  |
+|  |  |  |  |  | [mistralai-Mistral-7B-Instruct-v0.2](mistralai-Mistral-7B-Instruct-v0.2/aitk/Mistral_7B_Instruct_v0.2_gpu_context_ov_dy.json) | [sd-legacy-stable-diffusion-v1-5](sd-legacy-stable-diffusion-v1-5/aitk/sd_qnn_workflow.json) |  |
+|  |  |  |  |  | [mistralai-Mistral-7B-Instruct-v0.2](mistralai-Mistral-7B-Instruct-v0.2/aitk/Mistral_7B_Instruct_v0.2_npu_context_ov_dy.json) | [timm-mobilenetv3_small_100.lamb_in1k](timm-mobilenetv3_small_100.lamb_in1k/QNN/mobilenet_qnn_ep.json) |  |
 |  |  |  |  |  | [mistralai-Mistral-7B-Instruct-v0.3](mistralai-Mistral-7B-Instruct-v0.3/aitk/mistral-7b-instruct-v0.3-ov.json) |  |  |
 |  |  |  |  |  | [openai-clip-vit-base-patch16](openai-clip-vit-base-patch16/aitk/openai_clip_ov.json) |  |  |
 |  |  |  |  |  | [openai-clip-vit-base-patch32](openai-clip-vit-base-patch32/aitk/openai_clip_ov.json) |  |  |
 |  |  |  |  |  | [openai-clip-vit-large-patch14](openai-clip-vit-large-patch14/aitk/openai_clip_ov.json) |  |  |
+|  |  |  |  |  | [sd-legacy-stable-diffusion-v1-5](sd-legacy-stable-diffusion-v1-5/aitk/sd_ov_workflow.json) |  |  |
 <!-- end_ep_models -->
 </details>
 
