@@ -1,0 +1,405 @@
+"""End-to-end optimization pipeline for Ministral-3-3B ONNX models.
+
+Uses mobius for vision and embedding export (reliable dynamo-free ONNX
+construction), and Olive/ModelBuilder for text decoder export (GQA + INT4).
+
+Pipeline:
+    cpu_and_mobile: Olive/ModelBuilder(INT4) → mobius(FP16) → Olive INT4 quant
+    cuda:           Olive/ModelBuilder(FP16) → mobius(FP16)
+
+Architecture difference from Qwen VLM recipes:
+    Qwen uses Olive passes for all 3 sub-models (export + optimization).
+    Ministral uses mobius for vision/embedding because Pixtral's dynamic
+    image dimensions cause torch.onnx.export/dynamo failures.  Mobius
+    produces already-optimized graphs (fused MHA, SkipLayerNorm, FP16).
+    For cpu_and_mobile, Olive then applies INT4 quantization post-export.
+
+Usage:
+    python optimize.py --config-dir cpu_and_mobile --device cpu
+    python optimize.py --config-dir cuda --device gpu
+    python optimize.py --config-dir cpu_and_mobile --device cpu --skip-export
+    python optimize.py --config-dir cpu_and_mobile --device cpu --model-path /local/dequantized/checkpoint
+"""
+
+import argparse
+import json
+import logging
+import os
+import shutil
+from pathlib import Path
+
+logging.getLogger("onnxscript").setLevel(logging.WARNING)
+logging.getLogger("onnx_ir").setLevel(logging.WARNING)
+
+MODELS_DIR = "models"
+MODEL_NAME = "mistralai/Ministral-3-3B-Instruct-2512"
+
+# Lazy-loaded HuggingFace config (avoids import-time network access)
+_HF_CONFIG = None
+
+
+def _get_hf_config():
+    """Load and cache the HuggingFace model config."""
+    global _HF_CONFIG
+    if _HF_CONFIG is None:
+        from transformers import Mistral3Config
+
+        _HF_CONFIG = Mistral3Config.from_pretrained(MODEL_NAME)
+    return _HF_CONFIG
+
+
+def export_text_decoder(config_dir: str):
+    """Export text decoder using Olive/ModelBuilder (GQA + quantization).
+
+    text.json outputs directly to <config_dir>/models/decoder/model.onnx.
+    ModelBuilder also generates genai_config.json, tokenizer, and chat_template
+    inside decoder/ — we move them to the models root where the VLM pipeline
+    expects them.
+    """
+    try:
+        from olive import run
+    except ImportError:
+        from olive.workflows import run
+
+    config_path = Path(config_dir) / "text.json"
+    if config_path.exists():
+        print(f"  [Olive] Exporting text decoder from {config_path}...")
+        run(str(config_path))
+    else:
+        raise FileNotFoundError(f"Text config not found: {config_path}")
+
+    # Move shared configs from decoder/ to models root for VLM pipeline
+    decoder_dir = Path(config_dir) / MODELS_DIR / "decoder"
+    models_root = Path(config_dir) / MODELS_DIR
+    for filename in (
+        "genai_config.json",
+        "tokenizer.json",
+        "tokenizer_config.json",
+        "chat_template.jinja",
+    ):
+        src = decoder_dir / filename
+        if src.exists():
+            shutil.move(str(src), str(models_root / filename))
+
+
+def export_vision_and_embedding(
+    output_dir: str,
+    model_path: str,
+    dtype: str = "f16",
+):
+    """Export vision encoder and embedding using mobius.
+
+    Mobius constructs the ONNX graph declaratively and applies pretrained
+    weights, avoiding torch.onnx.export dynamo issues with Pixtral's
+    dynamic image dimensions.
+    """
+    from mobius import build
+
+    print(f"  [Mobius] Building VLM from {model_path} (dtype={dtype})...")
+    # mobius.build() accepts dtype as a string (e.g. "f16", "f32", "bf16")
+    # and resolves it internally — pass the CLI string directly
+    pkg = build(model_path, dtype=dtype, load_weights=True)
+
+    os.makedirs(output_dir, exist_ok=True)
+
+    required_components = ("vision", "embedding")
+    missing_components = []
+
+    for component in required_components:
+        if component in pkg:
+            component_dir = os.path.join(output_dir, component)
+            os.makedirs(component_dir, exist_ok=True)
+            try:
+                pkg.save(
+                    component_dir,
+                    components=lambda name, c=component: name == c,
+                    check_weights=True,
+                )
+                # mobius saves as model.onnx directly in component_dir
+                expected_onnx = os.path.join(component_dir, "model.onnx")
+                if not os.path.exists(expected_onnx):
+                    raise FileNotFoundError(
+                        f"Mobius export did not produce expected ONNX file for '{component}': {expected_onnx}"
+                    )
+                print(f"  [Mobius] Saved {expected_onnx}")
+            except Exception:
+                shutil.rmtree(component_dir, ignore_errors=True)
+                raise
+        else:
+            missing_components.append(component)
+
+    if missing_components:
+        raise ValueError(
+            "Mobius package is missing required component(s): "
+            + ", ".join(missing_components)
+        )
+
+    print("  [Mobius] Vision and embedding export complete")
+
+
+def quantize_vision_and_embedding(config_dir: str):
+    """Apply INT4 quantization to mobius-exported vision and embedding models.
+
+    Runs Olive passes defined in vision.json / embedding.json (if they exist
+    in config_dir). These configs use ONNXModel input type and write quantized
+    output directly to the component directory, replacing the FP16 model.
+
+    For cpu_and_mobile: INT4 quantization reduces model size ~73%.
+    For cuda: no vision/embedding configs exist (FP16 is optimal for GPU).
+    """
+    try:
+        from olive import run
+    except ImportError:
+        from olive.workflows import run
+
+    output_dir = str(Path(config_dir) / MODELS_DIR)
+
+    for component in ("vision", "embedding"):
+        config_path = Path(config_dir) / f"{component}.json"
+        if not config_path.exists():
+            continue
+
+        mobius_onnx = os.path.join(output_dir, component, "model.onnx")
+        if not os.path.exists(mobius_onnx):
+            print(
+                f"  [WARN] {mobius_onnx} not found, skipping {component} quantization"
+            )
+            continue
+
+        print(f"  [Olive] Quantizing {component} from {config_path}...")
+        run(str(config_path))
+
+
+def export_models(config_dir: str, model_path: str, dtype: str = "f16"):
+    """Export all 3 sub-models: text (Olive), vision + embedding (mobius).
+
+    For cpu_and_mobile, also applies INT4 quantization to vision and embedding
+    via Olive passes (vision.json / embedding.json).
+    """
+    output_dir = str(Path(config_dir) / MODELS_DIR)
+
+    print("=== Exporting models ===")
+
+    # Text decoder via Olive/ModelBuilder (outputs to decoder/model.onnx directly)
+    export_text_decoder(config_dir)
+
+    # Vision + embedding via mobius (FP16)
+    export_vision_and_embedding(output_dir, model_path, dtype)
+
+    # INT4 quantization of vision + embedding (cpu_and_mobile only)
+    quantize_vision_and_embedding(config_dir)
+
+    print()
+
+
+def update_genai_config(output_dir: str = MODELS_DIR, device: str = "cpu"):
+    """Patch genai_config.json with embedding/vision sections and processor_config.
+
+    Derives model-specific values from the HuggingFace config (lazily loaded)
+    to avoid hardcoded constants drifting from the actual checkpoint.
+    """
+    config_path = Path(output_dir) / "genai_config.json"
+
+    with open(config_path) as f:
+        config = json.load(f)
+
+    if device == "gpu":
+        provider_options = [
+            {
+                "cuda": {
+                    "enable_cuda_graph": "1",
+                    "enable_skip_layer_norm_strict_mode": "1",
+                }
+            }
+        ]
+        vision_provider_options = [
+            {
+                "cuda": {
+                    "enable_cuda_graph": "0",
+                    "enable_skip_layer_norm_strict_mode": "1",
+                }
+            }
+        ]
+    else:
+        provider_options = []
+        vision_provider_options = []
+
+    session_options = {
+        "log_id": "onnxruntime-genai",
+        "provider_options": provider_options,
+    }
+    vision_session_options = {
+        "log_id": "onnxruntime-genai",
+        "provider_options": vision_provider_options,
+    }
+
+    config["model"]["decoder"]["session_options"] = session_options
+    config["model"]["decoder"]["filename"] = "decoder/model.onnx"
+
+    # Sync position_ids with what the decoder ONNX model actually supports
+    decoder_onnx = Path(output_dir) / "decoder" / "model.onnx"
+    if decoder_onnx.exists():
+        import onnx
+
+        decoder_model = onnx.load(str(decoder_onnx), load_external_data=False)
+        onnx_input_names = {inp.name for inp in decoder_model.graph.input}
+        if "position_ids" in onnx_input_names:
+            config["model"]["decoder"].setdefault("inputs", {})["position_ids"] = (
+                "position_ids"
+            )
+        else:
+            config["model"]["decoder"].get("inputs", {}).pop("position_ids", None)
+
+    config["model"]["embedding"] = {
+        "filename": "embedding/model.onnx",
+        "inputs": {"input_ids": "input_ids", "image_features": "image_features"},
+        "outputs": {"inputs_embeds": "inputs_embeds"},
+        "session_options": vision_session_options,
+    }
+
+    # Vision config — values derived from HF config to stay in sync with checkpoint
+    hf_config = _get_hf_config()
+    config["model"]["vision"] = {
+        "filename": "vision/model.onnx",
+        "config_filename": "processor_config.json",
+        "spatial_merge_size": hf_config.spatial_merge_size,
+        "patch_size": hf_config.vision_config.patch_size,
+        "inputs": {"pixel_values": "pixel_values"},
+        "outputs": {"image_features": "image_features"},
+        "session_options": vision_session_options,
+    }
+
+    config["model"]["bos_token_id"] = hf_config.text_config.bos_token_id or 1
+    config["model"]["context_length"] = 32768
+    config["model"]["eos_token_id"] = hf_config.text_config.eos_token_id or 2
+    config["model"]["pad_token_id"] = hf_config.text_config.pad_token_id or 11
+    config["model"]["image_token_id"] = hf_config.image_token_index
+    config["model"]["type"] = "mistral3"
+
+    config["search"]["max_length"] = 32768
+    config["search"]["top_k"] = 1
+    config["search"]["past_present_share_buffer"] = False
+    if config["search"].get("top_p") is None:
+        config["search"]["top_p"] = 1.0
+
+    with open(config_path, "w") as f:
+        json.dump(config, f, indent=4)
+    print(f"  Updated {config_path}")
+
+    # Transforms-based processor config (matches ORT GenAI's image preprocessor format)
+    processor_config = {
+        "processor": {
+            "name": "pixtral_image_processor",
+            "transforms": [
+                {
+                    "operation": {
+                        "name": "decode_image",
+                        "type": "DecodeImage",
+                        "attrs": {"color_space": "RGB"},
+                    }
+                },
+                {
+                    "operation": {
+                        "name": "convert_to_rgb",
+                        "type": "ConvertRGB",
+                    }
+                },
+                {
+                    "operation": {
+                        "name": "resize",
+                        "type": "Resize",
+                        "attrs": {
+                            "height": 1540,
+                            "width": 1540,
+                            "smart_resize": 1,
+                            "min_pixels": 784,
+                            "max_pixels": 2371600,
+                            "patch_size": hf_config.vision_config.patch_size,
+                            "merge_size": hf_config.spatial_merge_size,
+                        },
+                    }
+                },
+                {
+                    "operation": {
+                        "name": "rescale",
+                        "type": "Rescale",
+                        "attrs": {"rescale_factor": 0.00392156862745098},
+                    }
+                },
+                {
+                    "operation": {
+                        "name": "normalize",
+                        "type": "Normalize",
+                        "attrs": {
+                            "mean": [0.48145466, 0.4578275, 0.40821073],
+                            "std": [0.26862954, 0.26130258, 0.27577711],
+                        },
+                    }
+                },
+                {
+                    "operation": {
+                        "name": "permute",
+                        "type": "Permute3D",
+                        "attrs": {"dims": [2, 0, 1]},
+                    }
+                },
+            ],
+        }
+    }
+
+    processor_path = Path(output_dir) / "processor_config.json"
+    with open(processor_path, "w") as f:
+        json.dump(processor_config, f, indent=2)
+    print(f"  Created {processor_path}")
+
+
+def fix_tokenizer(output_dir: str = MODELS_DIR):
+    """Fix tokenizer_config.json for onnxruntime-genai compatibility.
+
+    Ministral3's tokenizer uses 'TokenizersBackend' class which isn't supported
+    by genai's ort-extensions tokenizer. Change to 'LlamaTokenizer'.
+    """
+    tc_path = Path(output_dir) / "tokenizer_config.json"
+    if tc_path.exists():
+        tc = json.loads(tc_path.read_text(encoding="utf-8"))
+        if tc.get("tokenizer_class") == "TokenizersBackend":
+            tc["tokenizer_class"] = "LlamaTokenizer"
+            tc_path.write_text(
+                json.dumps(tc, indent=2, ensure_ascii=False), encoding="utf-8"
+            )
+            print("  Fixed tokenizer_class to LlamaTokenizer")
+
+
+def main():
+    parser = argparse.ArgumentParser(description="Optimize Ministral-3-3B ONNX models")
+    parser.add_argument("--device", choices=["gpu", "cpu"], default="cpu")
+    parser.add_argument("--config-dir", default="cpu_and_mobile")
+    parser.add_argument("--skip-export", action="store_true")
+    parser.add_argument("--models-dir", default=None)
+    parser.add_argument(
+        "--model-path",
+        default=MODEL_NAME,
+        help="HuggingFace model ID or local path to dequantized checkpoint",
+    )
+    parser.add_argument(
+        "--dtype",
+        default="f16",
+        choices=["f16", "f32", "bf16"],
+        help="Dtype for mobius vision/embedding export (default: f16)",
+    )
+    args = parser.parse_args()
+
+    models_dir = args.models_dir or str(Path(args.config_dir) / MODELS_DIR)
+
+    if not args.skip_export:
+        export_models(args.config_dir, args.model_path, args.dtype)
+
+    print("=== Generating configs ===")
+    update_genai_config(output_dir=models_dir, device=args.device)
+    fix_tokenizer(output_dir=models_dir)
+    print()
+    print("Done.")
+
+
+if __name__ == "__main__":
+    main()

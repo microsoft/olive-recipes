@@ -1,0 +1,4 @@
+git+https://github.com/microsoft/Olive.git@main
+git+https://github.com/onnxruntime/mobius.git@3777c18
+torch>=2.10.0,<2.11.0
+transformers>=4.57.0
