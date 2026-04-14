@@ -2,6 +2,7 @@
 accelerate
 datasets
 mteb
+olive-ai
 onnxruntime-genai==0.12.2
 onnxruntime-webgpu==1.24.0.dev20251031004
 sentence-transformers
