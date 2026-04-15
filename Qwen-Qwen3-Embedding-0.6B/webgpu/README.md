@@ -29,7 +29,7 @@ To build the model and run the [MTEB](https://huggingface.co/spaces/mteb/leaderb
 olive run --config Qwen-Qwen3-Embedding-0.6B_webgpu_fp32_with_eval.json
 ```
 
-The evaluation results will be logged at the end of the run, showing scores for both the source (HF) and exported (GenAI) models.
+The evaluation results will be logged at the end of the run, showing scores for both the source (HF) and exported (GenAI) models. The MTEB score of the exported ONNX model should be within 5% of the base PyTorch model.
 
 ## Additional notes
 
