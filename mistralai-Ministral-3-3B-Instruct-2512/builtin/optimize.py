@@ -4,15 +4,16 @@ Uses mobius for vision and embedding export (reliable dynamo-free ONNX
 construction), and Olive/ModelBuilder for text decoder export (GQA + INT4).
 
 Pipeline:
-    cpu_and_mobile: Olive/ModelBuilder(INT4) → mobius(FP16) → Olive INT4 quant
-    cuda:           Olive/ModelBuilder(FP16) → mobius(FP16)
+    cpu_and_mobile: Olive/ModelBuilder(INT4) → mobius(FP16) → Olive INT4 vision
+    cuda:           Olive/ModelBuilder(INT4) → mobius(FP16)
 
 Architecture difference from Qwen VLM recipes:
     Qwen uses Olive passes for all 3 sub-models (export + optimization).
     Ministral uses mobius for vision/embedding because Pixtral's dynamic
     image dimensions cause torch.onnx.export/dynamo failures.  Mobius
     produces already-optimized graphs (fused MHA, SkipLayerNorm, FP16).
-    For cpu_and_mobile, Olive then applies INT4 quantization post-export.
+    For cpu_and_mobile, Olive then applies INT4 quantization to the vision
+    model post-export.
 
 Usage:
     python optimize.py --config-dir cpu_and_mobile --device cpu
@@ -39,7 +40,12 @@ _HF_CONFIG = None
 
 
 def _get_hf_config():
-    """Load and cache the HuggingFace model config."""
+    """Load and cache the HuggingFace model config.
+
+    Always loads from MODEL_NAME (the canonical HF model ID) rather than
+    --model-path, because the config values (image_token_id, patch_size, etc.)
+    are architecture constants that don't change between checkpoints.
+    """
     global _HF_CONFIG
     if _HF_CONFIG is None:
         from transformers import Mistral3Config
@@ -522,7 +528,9 @@ def main():
         "--dtype",
         default="f16",
         choices=["f16", "f32", "bf16"],
-        help="Dtype for mobius vision/embedding export (default: f16)",
+        help="Dtype for mobius vision/embedding export. FP16 is recommended: it serves "
+        "as the intermediate format for Olive INT4 quantization on CPU, and as "
+        "the final format on CUDA. (default: f16)",
     )
     args = parser.parse_args()
 

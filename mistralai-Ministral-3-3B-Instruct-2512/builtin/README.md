@@ -3,8 +3,8 @@
 This example demonstrates how to convert [Ministral-3-3B-Instruct-2512](https://huggingface.co/mistralai/Ministral-3-3B-Instruct-2512) vision-language model to ONNX format using Olive and run inference with ONNX Runtime GenAI.
 
 Ministral-3-3B is a multimodal (VLM) model combining a Pixtral vision encoder with a Mistral text decoder using YaRN RoPE for extended context. The pipeline exports three sub-models:
-- **Vision encoder** and **embedding** via [mobius](https://github.com/onnxruntime/mobius) (declarative ONNX graph construction); vision optionally INT4-quantized via Olive for CPU
-- **Text decoder** via Olive/ModelBuilder (GQA + INT4/FP16 quantization)
+- **Vision encoder** and **embedding** via [mobius](https://github.com/onnxruntime/mobius) (declarative ONNX graph construction); vision INT4-quantized via Olive for CPU
+- **Text decoder** via Olive/ModelBuilder (GQA + INT4 quantization)
 
 ## Exported Configurations
 
@@ -12,10 +12,10 @@ Ministral-3-3B is a multimodal (VLM) model combining a Pixtral vision encoder wi
 |-----------|------|-----|
 | Text decoder | INT4 (`MatMulNBits`) | INT4 (`MatMulNBits`) |
 | Vision encoder | FP16 | INT4 (`MatMulNBits` via Olive) |
-| Embedding | FP16 | FP32 |
+| Embedding | FP16 | FP16 |
 
 - **CUDA**: INT4 text decoder + FP16 vision/embedding. Optimized for throughput on NVIDIA GPUs.
-- **CPU**: INT4 text decoder + INT4 vision + FP32 embedding. Fully quantized for deployment on CPU-only machines. Embedding stays FP32 because INT4 breaks its `Equal`/`Gather` logic.
+- **CPU**: INT4 text decoder + INT4 vision + FP16 embedding. Fully quantized where possible. Embedding stays FP16 because INT4 breaks its `Equal`/`Gather` logic.
 
 ## Benchmark Results
 
@@ -48,13 +48,13 @@ Install ONNX Runtime GenAI:
 
 ### 1. Export & Optimize Models
 
-**CPU (INT4 all models):**
+**CPU (INT4 text + INT4 vision + FP16 embedding):**
 
 ```bash
 python optimize.py --config-dir cpu_and_mobile --device cpu
 ```
 
-**CUDA (FP16 all models):**
+**CUDA (INT4 text + FP16 vision/embedding):**
 
 ```bash
 python optimize.py --config-dir cuda --device gpu

@@ -102,7 +102,7 @@ def ground_truth_number(sample: dict) -> str | None:
         if 0 <= idx < 4:
             return NUMBERS[idx]
     except (ValueError, TypeError):
-        pass
+        pass  # answer is not a valid integer index — return None below
     return None
 
 
@@ -134,7 +134,7 @@ def detect_onnx_precision(model_path: str) -> str:
             if "int4" in json.dumps(decoder_cfg).lower():
                 return "int4"
         except (json.JSONDecodeError, OSError):
-            pass
+            pass  # config unreadable — fall through to path-based heuristic
 
     if "int4" in path_lower:
         return "int4"
