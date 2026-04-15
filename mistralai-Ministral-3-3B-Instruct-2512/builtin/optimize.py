@@ -539,6 +539,18 @@ def main():
     if not args.skip_export:
         export_models(args.config_dir, args.model_path, args.dtype)
 
+        # If --models-dir is specified and differs from the default export location,
+        # copy the exported models there. text.json output_dir is hardcoded in the
+        # JSON config so we can't redirect it — copy after export instead.
+        default_dir = str(Path(args.config_dir) / MODELS_DIR)
+        if models_dir != default_dir:
+            import shutil
+
+            if os.path.exists(models_dir):
+                shutil.rmtree(models_dir)
+            shutil.copytree(default_dir, models_dir)
+            print(f"  Copied models to {models_dir}")
+
     print("=== Generating configs ===")
     update_genai_config(output_dir=models_dir, device=args.device)
     fix_tokenizer(output_dir=models_dir)
