@@ -351,15 +351,9 @@ def update_genai_config(output_dir: str = MODELS_DIR, device: str = "cpu"):
         config = json.load(f)
 
     if device == "gpu":
+        # CUDA graph capture is unsupported for VLMs with dynamic image sizes.
+        # Disable for all models (matches Qwen VLM recipe convention).
         provider_options = [
-            {
-                "cuda": {
-                    "enable_cuda_graph": "1",
-                    "enable_skip_layer_norm_strict_mode": "1",
-                }
-            }
-        ]
-        vision_provider_options = [
             {
                 "cuda": {
                     "enable_cuda_graph": "0",
@@ -367,6 +361,7 @@ def update_genai_config(output_dir: str = MODELS_DIR, device: str = "cpu"):
                 }
             }
         ]
+        vision_provider_options = provider_options
     else:
         provider_options = []
         vision_provider_options = []
