@@ -96,6 +96,7 @@ def main():
 
 def generate_response(model, processor, tokenizer, tokenizer_stream, prompt, image_path, max_length=4096, quiet=False):
     """Run a single generation. Returns (text, token_count, ttft, tps)."""
+    t_start = time.perf_counter()
     images = None
     if image_path:
         if not quiet:
@@ -137,7 +138,6 @@ def generate_response(model, processor, tokenizer, tokenizer_stream, prompt, ima
     token_count = 0
     ttft = None
     tokens = []
-    t_start = time.perf_counter()
 
     if not quiet:
         print("\nResponse: ", end="", flush=True)
@@ -292,7 +292,8 @@ def _run_pytorch(pt_model, pt_proc, device, prompt, image_path, max_length):
         }
     ]
     text_input = pt_proc.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
-    image_inputs, video_inputs = process_vision_info(messages)
+    image_patch_size = int(getattr(pt_proc.image_processor, "patch_size", 16))
+    image_inputs, video_inputs = process_vision_info(messages, image_patch_size=image_patch_size)
     inputs = pt_proc(
         text=[text_input], images=image_inputs, videos=video_inputs,
         padding=True, return_tensors="pt",

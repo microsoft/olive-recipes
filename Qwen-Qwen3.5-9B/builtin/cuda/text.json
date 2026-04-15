@@ -8,8 +8,13 @@
             "type": "ModelBuilder",
             "precision": "int4",
             "extra_options": {
-                "filename": "text.onnx"
+                "filename": "text.onnx",
+                "prune_lm_head": true
             }
+        },
+        "t": {
+            "type": "GraphSurgeries",
+            "surgeries": [{"surgeon": "TieWordEmbeddings"}]
         }
     },
     "engine": {
