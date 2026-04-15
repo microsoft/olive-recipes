@@ -30,4 +30,3 @@ def generator_migraphx(id: str, recipe, folder: Path, modelList: ModelList):
 
     parameter.writeIfChanged()
     print(f"\tGenerated MIGraphX configuration for {file}")
-    
