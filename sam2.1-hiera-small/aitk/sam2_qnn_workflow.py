@@ -27,7 +27,7 @@ def load_update_config(
         oliveJson = json.load(file)
 
     oliveJson["cache_dir"] = cache_dir
-    oliveJson["output_dir"] = os.path.join(os.path.dirname(output_dir), oliveJson["output_dir"])
+    oliveJson["output_dir"] = output_dir
 
     if "quantization" in oliveJson["passes"]:
         if activation_type is not None:
@@ -42,6 +42,7 @@ def load_update_config(
     return oliveJson
 
 def generate_model(
+        history_folder: str,
         config_path: str,
         cache_dir: str,
         output_dir: str,
@@ -54,6 +55,12 @@ def generate_model(
         return
     logger.info(f"Generating model from {config_path}...")
     oliveJson = load_update_config(config_path, cache_dir, output_dir, activation_type, precision, num_data)
+    # save updated config for record
+    config_name = os.path.basename(config_path)
+    os.makedirs(history_folder, exist_ok=True)
+    print("write to: ", os.path.join(history_folder, config_name))
+    with open(os.path.join(history_folder, config_name), 'w', encoding='utf-8') as file:
+        json.dump(oliveJson, file, indent=4)
     output = olive.workflows.run(oliveJson)
     if output is None or not output.has_output_model():
         error = f"Model file is not generated"
@@ -109,10 +116,10 @@ def main():
     subprocess.run([sys.executable, "generate_model.py"], check=True)
     
     # Generate encoder model
-    generate_model("sam21_vision_encoder_qnn.json", cache_dir, os.path.join(output_dir, "encoder"),
+    generate_model(history_folder, "sam21_vision_encoder_qnn.json", cache_dir, os.path.join(output_dir, "encoder"),
                    False, activation_type, precision, num_data)
     # Generate decoder model
-    generate_model("sam21_mask_decoder_qnn.json", cache_dir, os.path.join(output_dir, "decoder"),
+    generate_model(history_folder, "sam21_mask_decoder_qnn.json", cache_dir, os.path.join(output_dir, "decoder"),
                    False, activation_type, precision, num_data)
 
 

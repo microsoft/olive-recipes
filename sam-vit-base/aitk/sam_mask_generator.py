@@ -5,12 +5,35 @@
 
 import numpy as np
 import argparse
+import os
 from PIL import Image
 import onnxruntime as ort
 from transformers import SamProcessor
 
 # Load processor
 processor = SamProcessor.from_pretrained("facebook/sam-vit-base")
+
+def add_ep_for_device(session_options, ep_name, device_type, ep_options=None):
+    ep_devices = ort.get_ep_devices()
+    for ep_device in ep_devices:
+        if ep_device.ep_name == ep_name and ep_device.device.type == device_type:
+            print(f"Adding {ep_name} for {device_type}")
+            session_options.add_provider_for_devices([ep_device], {} if ep_options is None else ep_options)
+            break
+
+def register_execution_providers():
+    import json
+    import subprocess
+    import sys
+
+    worker_script = os.path.abspath('winml.py')
+    result = subprocess.check_output([sys.executable, worker_script], text=True)
+    paths = json.loads(result)
+    for item in paths.items():
+        try:
+            ort.register_execution_provider_library(item[0], item[1])
+        except Exception as e:
+            print(f"Failed to register execution provider {item[0]}: {e}")
 
 def get_mask_ort(sess_ve, sess_md, image, box, ve_dtype, md_dtype, sess_ve_inputs, sess_md_inputs):
     inputs = processor(image, input_boxes = box, return_tensors="np")
@@ -45,6 +68,8 @@ def get_mask_ort(sess_ve, sess_md, image, box, ve_dtype, md_dtype, sess_ve_input
 
 def main():
     parser = argparse.ArgumentParser(description="Run SAM ONNX models and save mask.")
+    parser.add_argument("--execution_provider", type=str, default="CPUExecutionProvider", help="ORT Execution provider")
+    parser.add_argument("--device_str", type=str, default="cpu")
     parser.add_argument("--model_ve", required=True, help="Path to vision encoder ONNX model")
     parser.add_argument("--model_md", required=True, help="Path to mask decoder ONNX model")
     parser.add_argument("--image_path", required=True, help="Path to input image")
@@ -55,13 +80,25 @@ def main():
     parser.add_argument("--box_h", type=int, default=490, help="Height of input box")
     args = parser.parse_args()
 
+    # Loading models into ORT session
+    register_execution_providers()
+    sess_options = ort.SessionOptions()
+
+    device_map = {
+        "cpu": ort.OrtHardwareDeviceType.CPU,
+        "gpu": ort.OrtHardwareDeviceType.GPU,
+        "npu": ort.OrtHardwareDeviceType.NPU,
+    }
+
+    add_ep_for_device(sess_options, args.execution_provider, device_map[args.device_str])
+
     # Load image
     raw_image = Image.open(args.image_path).convert("RGB")
     input_box = [[[args.box_x, args.box_y], [args.box_x + args.box_w, args.box_y + args.box_h]]]
 
     # Load models
-    sess_ve = ort.InferenceSession(args.model_ve, providers=['QNNExecutionProvider'])
-    sess_md = ort.InferenceSession(args.model_md, providers=['QNNExecutionProvider'])
+    sess_ve = ort.InferenceSession(args.model_ve, sess_options=sess_options)
+    sess_md = ort.InferenceSession(args.model_md, sess_options=sess_options)
 
     sess_ve_inputs = sess_ve.get_inputs()
     sess_md_inputs = sess_md.get_inputs()
