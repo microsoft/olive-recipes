@@ -47,7 +47,7 @@ optimum[openvino]==1.24.0
 optuna==4.2.1
 packaging==24.2
 pandas==2.2.3
-pillow==12.1.1
+pillow==12.2.0
 protobuf==5.29.6
 psutil==7.0.0
 pyarrow==19.0.1
@@ -73,7 +73,7 @@ torchvision==0.21.0
 tornado==6.5.5
 tqdm==4.67.1
 traitlets==5.14.3
-transformers==4.48.0
+transformers==5.0.0rc3
 typing-extensions==4.15.0
 widgetsnbextension==4.0.13
 xxhash==3.5.0

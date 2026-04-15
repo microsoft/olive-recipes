@@ -1,6 +1,8 @@
+import json
 import os
+import urllib.request
 from pathlib import Path
-from typing import Dict
+from typing import Dict, List, Optional
 
 import yaml
 from model_lab import RuntimeEnum
@@ -14,6 +16,29 @@ from sanitize.generator_trtrtx import generator_trtrtx
 from sanitize.model_info import ModelInfo, ModelList
 from sanitize.project_config import ModelInfoProject, ModelProjectConfig, WorkflowItem
 from sanitize.utils import GlobalVars, isLLM_by_id, open_ex
+
+def fetch_pipeline_tags(model_link: str) -> Optional[List[str]]:
+    """Fetch pipeline_tag from HuggingFace API for a given model link.
+
+    Returns a list containing the pipeline_tag if the model is valid and has one,
+    an empty list if the model is valid but has no pipeline_tag, or None on failure.
+    """
+    hf_prefix = "https://huggingface.co/"
+    if not model_link.startswith(hf_prefix):
+        return None
+    model_id = model_link[len(hf_prefix):].rstrip("/")
+    if not model_id:
+        return None
+    url = f"https://huggingface.co/api/models/{model_id}"
+    try:
+        with urllib.request.urlopen(url, timeout=10) as response:
+            data = json.loads(response.read())
+        pipeline_tag = data.get("pipeline_tag")
+        return [pipeline_tag] if pipeline_tag else []
+    except Exception as e:
+        print(f"Warning: Failed to fetch pipeline_tag for {model_link}: {e}")
+        return None
+
 
 org_to_icon = {
     "Intel": IconEnum.Intel,
@@ -177,6 +202,7 @@ def project_processor():
     root_dir = Path(__file__).parent.parent.parent
 
     modelList = ModelList.Read(str(root_dir / ".aitk" / "configs"))
+    existing_pipeline_tags = {model.id: model.pipeline_tags for model in modelList.models}
     modelList.models.clear()
 
     all_ids = set()
@@ -200,6 +226,10 @@ def project_processor():
         print(f"Process aitk for {yml_file}")
         # model info
         modelInfo = convert_yaml_to_model_info(root_dir, yml_file, yaml_object)
+        if GlobalVars.fillPipelineTags:
+            modelInfo.pipeline_tags = fetch_pipeline_tags(modelInfo.modelLink)
+        else:
+            modelInfo.pipeline_tags = existing_pipeline_tags.get(modelInfo.id)
         if modelInfo.id.lower() in all_ids:
             raise KeyError(f"same id found in {yml_file}")
         all_ids.add(modelInfo.id.lower())

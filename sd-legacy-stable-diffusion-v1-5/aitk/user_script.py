@@ -255,7 +255,7 @@ def get_unet_ov_example_input():
     encoder_hidden_state = torch.ones((2, 77, 768))
     latents_shape = (2, 4, 512 // 8, 512 // 8)
     latents = torch.randn(latents_shape)
-    t = torch.from_numpy(np.array(1, dtype=float))
+    t = torch.from_numpy(np.array([1], dtype=np.float32))
     return (latents, t, encoder_hidden_state)
 
 
