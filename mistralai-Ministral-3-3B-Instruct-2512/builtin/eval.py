@@ -58,10 +58,15 @@ DEFAULT_SYSTEM_PROMPT = (
 
 
 def build_messages(question: str, options: list[str], system_prompt: str = "") -> str:
-    """Return a JSON-encoded chat messages list (for apply_chat_template)."""
+    """Return a JSON-encoded chat messages list (for apply_chat_template).
+
+    Uses string content with [IMG] prefix instead of structured content
+    because ORT GenAI's Jinja does not support the sort() filter needed
+    by Mistral3's structured-content template path.
+    """
     option_text = "\n".join(f"{N}. {o}" for N, o in zip(NUMBERS, options))
     content = (
-        f"Look at the diagram and answer the multiple-choice question.\n\n"
+        f"[IMG]Look at the diagram and answer the multiple-choice question.\n\n"
         f"Question: {question}\n\n"
         f"Options:\n{option_text}\n\n"
         f"Reply with the number only (1, 2, 3, or 4)."
@@ -69,12 +74,7 @@ def build_messages(question: str, options: list[str], system_prompt: str = "") -
     messages = []
     if system_prompt:
         messages.append({"role": "system", "content": system_prompt})
-    messages.append(
-        {
-            "role": "user",
-            "content": [{"type": "image"}, {"type": "text", "text": content}],
-        }
-    )
+    messages.append({"role": "user", "content": content})
     return json.dumps(messages)
 
 

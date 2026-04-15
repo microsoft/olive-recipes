@@ -6,6 +6,31 @@ Ministral-3-3B is a multimodal (VLM) model combining a Pixtral vision encoder wi
 - **Vision encoder** and **embedding** via [mobius](https://github.com/onnxruntime/mobius) (declarative ONNX graph construction); vision optionally INT4-quantized via Olive for CPU
 - **Text decoder** via Olive/ModelBuilder (GQA + INT4/FP16 quantization)
 
+## Exported Configurations
+
+| Component | CUDA | CPU |
+|-----------|------|-----|
+| Text decoder | INT4 (`MatMulNBits`) | INT4 (`MatMulNBits`) |
+| Vision encoder | FP16 | INT4 (`MatMulNBits` via Olive) |
+| Embedding | FP16 | FP32 |
+
+- **CUDA**: INT4 text decoder + FP16 vision/embedding. Optimized for throughput on NVIDIA GPUs.
+- **CPU**: INT4 text decoder + INT4 vision + FP32 embedding. Fully quantized for deployment on CPU-only machines. Embedding stays FP32 because INT4 breaks its `Equal`/`Gather` logic.
+
+## Benchmark Results
+
+Evaluated on [AI2D](https://allenai.org/data/diagrams) (science diagram multiple-choice QA, 4 options per question).
+
+| Configuration | Accuracy | Samples | Latency (s/sample) | Gap vs PyTorch |
+|---------------|----------|---------|---------------------|----------------|
+| PyTorch FP32 (CPU) | 72.00% | 100 | 21.66 | — baseline — |
+| PyTorch FP16 (CUDA) | 73.00% | 200 | 0.20 | — baseline — |
+| ONNX CUDA (INT4 text + FP16 vision) | 71.65% | 200 | 0.11 | −1.35 pp |
+| ONNX CPU (INT4 text + INT4 vision) | 69.07% | 194 | 33.28 | −2.93 pp |
+
+All ONNX configurations are within the expected precision gap for INT4 quantization (<5 pp).
+The CUDA ONNX model achieves **55× speedup** over CPU ONNX and **2× speedup** over PyTorch CUDA FP16.
+
 ## Prerequisites
 
 ```bash
@@ -91,23 +116,24 @@ python -m onnxruntime_genai.models.model_mm -m cpu_and_mobile/models --max_lengt
 
 ### 4. Evaluate
 
-Run the AI2D science diagram QA benchmark:
+Run the AI2D science diagram QA benchmark (see [Benchmark Results](#benchmark-results) for expected accuracy):
 
 ```bash
 # ONNX only (CPU INT4)
 python eval.py --device cpu --model_path cpu_and_mobile/models
 
-# ONNX only (CUDA FP16)
+# ONNX only (CUDA)
 python eval.py --device cuda --model_path cuda/models
 
-# Compare ONNX vs PyTorch reference
-python eval.py --pytorch_model mistralai/Ministral-3-3B-Instruct-2512 --num_samples 100
+# PyTorch baseline (BF16 variant avoids FP8 kernel requirement)
+python eval.py --skip_onnx --pytorch_model mistralai/Ministral-3-3B-Instruct-2512-BF16 --device cpu --num_samples 100
+
+# Compare ONNX vs PyTorch side-by-side
+python eval.py --model_path cuda/models --pytorch_model mistralai/Ministral-3-3B-Instruct-2512-BF16 --num_samples 100
 ```
 
-Expected precision gaps (ONNX vs PyTorch):
-- **FP32**: ~0 pp (exact parity)
-- **FP16**: <2 pp (precision loss)
-- **INT4**: <5 pp (quantization loss)
+> **Note:** The default HuggingFace checkpoint (`Ministral-3-3B-Instruct-2512`) uses FP8 weights,
+> which require a specific CUDA kernel build. Use the `-BF16` variant for PyTorch baselines.
 
 ## Directory Structure
 
@@ -174,8 +200,16 @@ For `cuda`, no additional Olive passes are needed — FP16 is optimal for GPU.
 
 The text decoder export (`text.json`) and INT4 quantization (`vision.json`) ARE Olive JSON-driven — identical to Qwen.
 
+## Known Limitations
+
+- **CPU INT4 vision: language drift on some images.** The INT4-quantized vision encoder (CPU) occasionally produces embeddings that cause the text decoder to respond in the wrong language (e.g., Chinese instead of English). This has been observed on specific test images (e.g., `challenge.jpg`) and is a known artifact of aggressive vision quantization via the mobius export pipeline. The CUDA FP16 vision model does not exhibit this issue.
+- **FP8 checkpoint requires special kernels.** The default HuggingFace checkpoint uses FP8 weights. Use the `-BF16` variant for PyTorch evaluation on machines without `kernels-community/finegrained-fp8`.
+- **Single-image only.** Multi-image inputs are not yet supported; the runtime rejects prompts with more than one `[IMG]` token.
+
 ## Notes
 
+- **CPU INT4 pipeline**: Mobius exports FP16 as an intermediate format. Olive then quantizes to INT4 for CPU deployment. The final model uses INT4 `MatMulNBits` which runs natively on CPU. FP16 is never used at runtime — it is only the input format required by Olive's `OnnxBlockWiseRtnQuantization` pass.
+- **CUDA pipeline**: Mobius exports FP16 directly for vision/embedding. Text decoder uses INT4 via ModelBuilder. No additional quantization pass needed.
 - The HuggingFace checkpoint uses FP8 quantized weights. The export pipeline dequantizes these automatically (`weight * weight_scale_inv`).
 - The tokenizer uses `TokenizersBackend` class which genai doesn't support. The optimize script fixes this to `LlamaTokenizer`.
 - Pixtral vision supports dynamic image sizes (multiples of 28, up to 1540×1540).

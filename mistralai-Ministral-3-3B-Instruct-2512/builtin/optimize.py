@@ -144,7 +144,11 @@ def quantize_vision_and_embedding(config_dir: str):
     in config_dir). These configs use ONNXModel input type and write quantized
     output directly to the component directory, replacing the FP16 model.
 
-    For cpu_and_mobile: INT4 quantization reduces model size ~73%.
+    After quantization, strips unused initializers (original FP16 weights kept
+    by Olive alongside INT4) and replaces any GatherBlockQuantized nodes with
+    plain Gather (ORT can't load quantized Gather on RoPE caches).
+
+    For cpu_and_mobile: INT4 quantization reduces model size ~87%.
     For cuda: no vision/embedding configs exist (FP16 is optimal for GPU).
     """
     try:
@@ -166,8 +170,145 @@ def quantize_vision_and_embedding(config_dir: str):
             )
             continue
 
+        # Save FP16 Gather data before quantization (for GatherBlockQuantized fix)
+        pre_quant_gathers = _save_gather_data(mobius_onnx)
+
         print(f"  [Olive] Quantizing {component} from {config_path}...")
         run(str(config_path))
+
+        _fix_gather_block_quantized(mobius_onnx, pre_quant_gathers)
+        _strip_unused_initializers(mobius_onnx)
+
+
+def _save_gather_data(onnx_path: str) -> dict:
+    """Save Gather node initializer data before quantization.
+
+    Returns a dict mapping initializer names to numpy arrays for any
+    initializers used by Gather nodes (e.g., RoPE cos/sin caches).
+    """
+    import onnx
+    from onnx import numpy_helper
+
+    model = onnx.load(onnx_path)
+    gather_inputs = set()
+    for node in model.graph.node:
+        if node.op_type == "Gather":
+            gather_inputs.add(node.input[0])
+
+    result = {}
+    for init in model.graph.initializer:
+        if init.name in gather_inputs:
+            result[init.name] = numpy_helper.to_array(init)
+    return result
+
+
+def _fix_gather_block_quantized(onnx_path: str, pre_quant_gathers: dict):
+    """Replace GatherBlockQuantized nodes with plain Gather + original data.
+
+    Olive's INT4 quantization may quantize Gather nodes (e.g., RoPE cos/sin
+    caches) into GatherBlockQuantized, which ORT can't load. This restores
+    the original FP16/FP32 data and replaces with plain Gather.
+    """
+    import onnx
+    from onnx import helper, numpy_helper
+
+    model = onnx.load(onnx_path, load_external_data=False)
+    gbq_nodes = [n for n in model.graph.node if n.op_type == "GatherBlockQuantized"]
+    if not gbq_nodes:
+        return
+
+    model = onnx.load(onnx_path)
+    inits = {i.name: i for i in model.graph.initializer}
+
+    for node in list(model.graph.node):
+        if node.op_type != "GatherBlockQuantized":
+            continue
+
+        q_name = node.input[0]
+        idx_name = node.input[1]
+        orig_name = q_name.replace("_Q4", "")
+
+        if orig_name in pre_quant_gathers:
+            new_init = numpy_helper.from_array(
+                pre_quant_gathers[orig_name], name=orig_name
+            )
+            model.graph.initializer.append(new_init)
+
+        new_node = helper.make_node(
+            "Gather",
+            [orig_name, idx_name],
+            list(node.output),
+            name=node.name.replace("_Q4", ""),
+        )
+
+        idx = list(model.graph.node).index(node)
+        model.graph.node.remove(node)
+        model.graph.node.insert(idx, new_node)
+
+        for inp in node.input:
+            if inp != idx_name and inp in inits:
+                init = inits[inp]
+                if init in model.graph.initializer:
+                    model.graph.initializer.remove(init)
+
+    onnx.save(
+        model,
+        onnx_path,
+        save_as_external_data=True,
+        all_tensors_to_one_file=True,
+        location="model.onnx.data",
+        size_threshold=1024,
+    )
+    print(f"  [PostProcess] Replaced {len(gbq_nodes)} GatherBlockQuantized → Gather")
+
+
+def _strip_unused_initializers(onnx_path: str):
+    """Remove unused initializers and re-save to shrink the external data file.
+
+    Olive's OnnxBlockWiseRtnQuantization keeps original weights alongside
+    the new INT4 (UINT8) weights. Stripping the unused originals typically
+    reduces the data file by ~87% (e.g., 1.7GB → 220MB for the vision model).
+    """
+    if not os.path.exists(onnx_path):
+        return
+
+    import onnx
+    from onnx.external_data_helper import convert_model_to_external_data
+
+    model = onnx.load(onnx_path)
+
+    used_names = set()
+    for node in model.graph.node:
+        for inp in node.input:
+            used_names.add(inp)
+    for inp in model.graph.input:
+        used_names.add(inp.name)
+
+    before = len(model.graph.initializer)
+    new_inits = [init for init in model.graph.initializer if init.name in used_names]
+    removed = before - len(new_inits)
+
+    if removed == 0:
+        return
+
+    del model.graph.initializer[:]
+    model.graph.initializer.extend(new_inits)
+
+    for init in model.graph.initializer:
+        del init.external_data[:]
+
+    data_name = "model.onnx.data"
+    data_path = os.path.join(os.path.dirname(onnx_path), data_name)
+    if os.path.exists(data_path):
+        os.remove(data_path)
+
+    convert_model_to_external_data(
+        model, all_tensors_to_one_file=True, location=data_name, size_threshold=1024
+    )
+    onnx.save(model, onnx_path)
+
+    data_mb = os.path.getsize(data_path) / 1e6 if os.path.exists(data_path) else 0
+    print(f"  [Cleanup] Stripped {removed} unused initializers → {data_mb:.0f} MB")
 
 
 def export_models(config_dir: str, model_path: str, dtype: str = "f16"):
@@ -269,18 +410,14 @@ def update_genai_config(output_dir: str = MODELS_DIR, device: str = "cpu"):
         "session_options": vision_session_options,
     }
 
-    config["model"]["bos_token_id"] = hf_config.text_config.bos_token_id or 1
-    config["model"]["context_length"] = 32768
-    config["model"]["eos_token_id"] = hf_config.text_config.eos_token_id or 2
-    config["model"]["pad_token_id"] = hf_config.text_config.pad_token_id or 11
+    # Add VLM-specific fields not generated by ModelBuilder.
+    # Don't override context_length or max_length — PR #2077's ModelBuilder
+    # sets these correctly (context_length=262144, max_length=32768).
     config["model"]["image_token_id"] = hf_config.image_token_index
-    config["model"]["type"] = "mistral3"
 
-    config["search"]["max_length"] = 32768
+    # Override search defaults for VLM: greedy decoding, no KV sharing
     config["search"]["top_k"] = 1
     config["search"]["past_present_share_buffer"] = False
-    if config["search"].get("top_p") is None:
-        config["search"]["top_p"] = 1.0
 
     with open(config_path, "w") as f:
         json.dump(config, f, indent=4)
