@@ -50,7 +50,7 @@ def update_genai_config(output_dir: str = MODELS_DIR, device: str = "cpu"):
         provider_options = []
         vision_provider_options = []
 
-    session_options = {"log_id": "onnxruntime-genai", "provider_options": provider_options}
+    session_options = {"log_id": "onnxruntime-genai", "intra_op_num_threads": 12, "inter_op_num_threads": 1, "provider_options": provider_options}
     vision_session_options = {"log_id": "onnxruntime-genai", "provider_options": vision_provider_options}
 
     config["model"]["embedding"] = {
@@ -72,14 +72,12 @@ def update_genai_config(output_dir: str = MODELS_DIR, device: str = "cpu"):
     }
 
     config["model"]["bos_token_id"] = 248044
-    config["model"]["context_length"] = 4096
     config["model"]["eos_token_id"] = [248044]
     config["model"]["pad_token_id"] = 248044
     config["model"]["image_token_id"] = 248056
     config["model"]["video_token_id"] = 248057
     config["model"]["vision_start_token_id"] = 248053
 
-    config["search"]["max_length"] = 4096
     config["search"]["top_k"] = 1
     if config["search"].get("top_p") is None:
         config["search"]["top_p"] = 1.0
