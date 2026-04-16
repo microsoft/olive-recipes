@@ -164,6 +164,13 @@ def quantize_vision_and_embedding(config_dir: str):
 
     output_dir = str(Path(config_dir) / MODELS_DIR)
 
+    # Clear Olive cache to prevent stale output paths from previous runs.
+    # Olive caches the full resolved config (including absolute output_dir),
+    # which can cause writes to unexpected directories on re-runs.
+    olive_cache = Path(config_dir) / ".olive-cache"
+    if olive_cache.exists():
+        shutil.rmtree(olive_cache, ignore_errors=True)
+
     for component in ("vision", "embedding"):
         config_path = Path(config_dir) / f"{component}.json"
         if not config_path.exists():
