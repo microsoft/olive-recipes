@@ -32,7 +32,10 @@
         "mteb": {
             "type": "MTEBEvaluator",
             "tasks": [
-                "STS17"
+                "STS17",
+                "NFCorpus",
+                "ArguAna",
+                "SciFact"
             ],
             "batch_size": 32
         }
