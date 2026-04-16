@@ -54,13 +54,13 @@ def _get_hf_config():
     return _HF_CONFIG
 
 
-def export_text_decoder(config_dir: str):
+def export_text_decoder(config_dir: str, models_dir: str):
     """Export text decoder using Olive/ModelBuilder (GQA + quantization).
 
-    text.json outputs directly to <config_dir>/models/decoder/model.onnx.
-    ModelBuilder also generates genai_config.json, tokenizer, and chat_template
-    inside decoder/ — we move them to the models root where the VLM pipeline
-    expects them.
+    Loads text.json as a dict and overrides output_dir to write directly
+    to <models_dir>/decoder. ModelBuilder also generates genai_config.json,
+    tokenizer, and chat_template inside decoder/ — we move them to the
+    models root where the VLM pipeline expects them.
     """
     try:
         from olive import run
@@ -68,15 +68,19 @@ def export_text_decoder(config_dir: str):
         from olive.workflows import run
 
     config_path = Path(config_dir) / "text.json"
-    if config_path.exists():
-        print(f"  [Olive] Exporting text decoder from {config_path}...")
-        run(str(config_path))
-    else:
+    if not config_path.exists():
         raise FileNotFoundError(f"Text config not found: {config_path}")
 
+    # Load config as dict and override output_dir to write directly to models_dir
+    with open(config_path) as f:
+        config = json.load(f)
+    config["output_dir"] = os.path.join(models_dir, "decoder")
+
+    print(f"  [Olive] Exporting text decoder from {config_path}...")
+    run(config)
+
     # Move shared configs from decoder/ to models root for VLM pipeline
-    decoder_dir = Path(config_dir) / MODELS_DIR / "decoder"
-    models_root = Path(config_dir) / MODELS_DIR
+    decoder_dir = Path(models_dir) / "decoder"
     for filename in (
         "genai_config.json",
         "tokenizer.json",
@@ -85,7 +89,7 @@ def export_text_decoder(config_dir: str):
     ):
         src = decoder_dir / filename
         if src.exists():
-            shutil.move(str(src), str(models_root / filename))
+            shutil.move(str(src), str(Path(models_dir) / filename))
 
 
 def export_vision_and_embedding(
@@ -143,16 +147,15 @@ def export_vision_and_embedding(
     print("  [Mobius] Vision and embedding export complete")
 
 
-def quantize_vision_and_embedding(config_dir: str):
+def quantize_vision_and_embedding(config_dir: str, models_dir: str):
     """Apply INT4 quantization to mobius-exported vision and embedding models.
 
-    Runs Olive passes defined in vision.json / embedding.json (if they exist
-    in config_dir). These configs use ONNXModel input type and write quantized
-    output directly to the component directory, replacing the FP16 model.
+    Loads vision.json / embedding.json as dicts and overrides model_path
+    and output_dir to point directly to <models_dir>/<component>/.
+    This avoids writing to the JSON config's hardcoded relative paths.
 
-    After quantization, strips unused initializers (original FP16 weights kept
-    by Olive alongside INT4) and replaces any GatherBlockQuantized nodes with
-    plain Gather (ORT can't load quantized Gather on RoPE caches).
+    After quantization, replaces any GatherBlockQuantized nodes (ORT can't
+    load quantized Gather on RoPE caches) and strips unused initializers.
 
     For cpu_and_mobile: INT4 quantization reduces model size ~87%.
     For cuda: no vision/embedding configs exist (FP16 is optimal for GPU).
@@ -162,35 +165,32 @@ def quantize_vision_and_embedding(config_dir: str):
     except ImportError:
         from olive.workflows import run
 
-    output_dir = str(Path(config_dir) / MODELS_DIR)
-
-    # Clear Olive cache to prevent stale output paths from previous runs.
-    # Olive caches the full resolved config (including absolute output_dir),
-    # which can cause writes to unexpected directories on re-runs.
-    olive_cache = Path(config_dir) / ".olive-cache"
-    if olive_cache.exists():
-        shutil.rmtree(olive_cache, ignore_errors=True)
-
     for component in ("vision", "embedding"):
         config_path = Path(config_dir) / f"{component}.json"
         if not config_path.exists():
             continue
 
-        mobius_onnx = os.path.join(output_dir, component, "model.onnx")
-        if not os.path.exists(mobius_onnx):
+        component_onnx = os.path.join(models_dir, component, "model.onnx")
+        if not os.path.exists(component_onnx):
             print(
-                f"  [WARN] {mobius_onnx} not found, skipping {component} quantization"
+                f"  [WARN] {component_onnx} not found, skipping {component} quantization"
             )
             continue
 
         # Save FP16 Gather data before quantization (for GatherBlockQuantized fix)
-        pre_quant_gathers = _save_gather_data(mobius_onnx)
+        pre_quant_gathers = _save_gather_data(component_onnx)
+
+        # Load config as dict and override paths to target models_dir directly
+        with open(config_path) as f:
+            config = json.load(f)
+        config["input_model"]["model_path"] = component_onnx
+        config["output_dir"] = os.path.join(models_dir, component)
 
         print(f"  [Olive] Quantizing {component} from {config_path}...")
-        run(str(config_path))
+        run(config)
 
-        _fix_gather_block_quantized(mobius_onnx, pre_quant_gathers)
-        _strip_unused_initializers(mobius_onnx)
+        _fix_gather_block_quantized(component_onnx, pre_quant_gathers)
+        _strip_unused_initializers(component_onnx)
 
 
 def _save_gather_data(onnx_path: str) -> dict:
@@ -324,24 +324,27 @@ def _strip_unused_initializers(onnx_path: str):
     print(f"  [Cleanup] Stripped {removed} unused initializers → {data_mb:.0f} MB")
 
 
-def export_models(config_dir: str, model_path: str, dtype: str = "f16"):
+def export_models(
+    config_dir: str, model_path: str, dtype: str = "f16", models_dir: str | None = None
+):
     """Export all 3 sub-models: text (Olive), vision + embedding (mobius).
 
-    For cpu_and_mobile, also applies INT4 quantization to vision and embedding
-    via Olive passes (vision.json / embedding.json).
+    All outputs go directly to models_dir. No post-export copy needed.
+    For cpu_and_mobile, also applies INT4 quantization to vision.
     """
-    output_dir = str(Path(config_dir) / MODELS_DIR)
+    if models_dir is None:
+        models_dir = str(Path(config_dir) / MODELS_DIR)
 
     print("=== Exporting models ===")
 
-    # Text decoder via Olive/ModelBuilder (outputs to decoder/model.onnx directly)
-    export_text_decoder(config_dir)
+    # Text decoder via Olive/ModelBuilder
+    export_text_decoder(config_dir, models_dir)
 
     # Vision + embedding via mobius (FP16)
-    export_vision_and_embedding(output_dir, model_path, dtype)
+    export_vision_and_embedding(models_dir, model_path, dtype)
 
     # INT4 quantization of vision + embedding (cpu_and_mobile only)
-    quantize_vision_and_embedding(config_dir)
+    quantize_vision_and_embedding(config_dir, models_dir)
 
     print()
 
@@ -539,19 +542,7 @@ def main():
     models_dir = args.models_dir or str(Path(args.config_dir) / MODELS_DIR)
 
     if not args.skip_export:
-        export_models(args.config_dir, args.model_path, args.dtype)
-
-        # If --models-dir is specified and differs from the default export location,
-        # copy the exported models there. text.json output_dir is hardcoded in the
-        # JSON config so we can't redirect it — copy after export instead.
-        default_dir = str(Path(args.config_dir) / MODELS_DIR)
-        if models_dir != default_dir:
-            import shutil
-
-            if os.path.exists(models_dir):
-                shutil.rmtree(models_dir)
-            shutil.copytree(default_dir, models_dir)
-            print(f"  Copied models to {models_dir}")
+        export_models(args.config_dir, args.model_path, args.dtype, models_dir)
 
     print("=== Generating configs ===")
     update_genai_config(output_dir=models_dir, device=args.device)
