@@ -204,7 +204,7 @@ def run_onnx(
         inputs = processor(prompt, images=images)
 
         params = og.GeneratorParams(model)
-        params.set_search_options(max_length=2000, do_sample=False)
+        params.set_search_options(max_length=8192, do_sample=False)
 
         generator = og.Generator(model, params)
         generator.set_inputs(inputs)
