@@ -1,0 +1,79 @@
+{
+    "input_model": {
+        "type": "HfModel",
+        "model_path": "Qwen/Qwen3-Embedding-0.6B",
+        "load_kwargs": {
+            "torch_dtype": "float16"
+        }
+    },
+    "systems": {
+        "local_system": {
+            "type": "LocalSystem",
+            "accelerators": [
+                {
+                    "device": "gpu",
+                    "execution_providers": [
+                        "WebGpuExecutionProvider"
+                    ]
+                }
+            ]
+        }
+    },
+    "passes": {
+        "s": {
+            "type": "SelectiveMixedPrecision",
+            "algorithm": "kld_gradient",
+            "bits": 4,
+            "high_bits": 8,
+            "ratio": 0.65,
+            "sym": false,
+            "group_size": 32
+        },
+        "g": {
+            "type": "gptq",
+            "bits": 4,
+            "sym": false,
+            "group_size": 32
+        },
+        "r": {
+            "type": "rtn",
+            "bits": 8,
+            "sym": false,
+            "group_size": 32,
+            "lm_head": true,
+            "embeds": true,
+            "overrides": {
+                "lm_head": {
+                    "bits": 8
+                },
+                "model.embed_tokens": {
+                    "bits": 8
+                }
+            }
+        },
+        "m": {
+            "type": "ModelBuilder",
+            "precision": "int4",
+            "extra_options": {
+                "include_hidden_states": 1
+            }
+        }
+    },
+    "evaluators": {
+        "mteb": {
+            "type": "MTEBEvaluator",
+            "tasks": [
+                "STS17",
+                "NFCorpus",
+                "ArguAna",
+                "SciFact"
+            ],
+            "batch_size": 32
+        }
+    },
+    "evaluator": "mteb",
+    "target": "local_system",
+    "log_severity_level": 0,
+    "output_dir": "model",
+    "cache_dir": "cache"
+}
