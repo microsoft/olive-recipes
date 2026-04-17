@@ -22,7 +22,7 @@
     "passes": {
         "m": {
             "type": "ModelBuilder",
-            "precision": "fp32",
+            "precision": "fp16",
             "extra_options": {
                 "include_hidden_states": 1
             }
