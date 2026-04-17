@@ -190,8 +190,12 @@ def build_onnx_runner(model_path: str):
 
 def run_onnx(
     model, processor, tokenizer, pil_image: Image.Image, messages_json: str
-) -> str:
-    """Run a single inference with the ONNX GenAI model."""
+) -> tuple[str, float]:
+    """Run a single inference with the ONNX GenAI model.
+
+    Returns (decoded_text, ttft) where ttft is the time in seconds for
+    the first generate_next_token() call (time to first token).
+    """
     with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as f:
         pil_image.save(f, format="PNG")
         tmp_path = f.name
@@ -210,12 +214,16 @@ def run_onnx(
         generator.set_inputs(inputs)
 
         tokens = []
+        ttft = 0.0
         while not generator.is_done():
+            t_tok = time.perf_counter()
             generator.generate_next_token()
+            if not tokens:
+                ttft = time.perf_counter() - t_tok
             tokens.append(generator.get_next_tokens()[0])
         del generator
 
-        return tokenizer.decode(tokens)
+        return tokenizer.decode(tokens), ttft
     finally:
         os.unlink(tmp_path)
 
@@ -258,8 +266,11 @@ def run_pytorch(
     options: list[str],
     device: str,
     system_prompt: str = "",
-) -> str:
-    """Run a single inference with the HuggingFace PyTorch model."""
+) -> tuple[str, None]:
+    """Run a single inference with the HuggingFace PyTorch model.
+
+    Returns (decoded_text, None). TTFT is not measured for PyTorch.
+    """
     import torch
 
     option_text = "\n".join(f"{N}. {o}" for N, o in zip(NUMBERS, options))
@@ -292,7 +303,30 @@ def run_pytorch(
         out = pt_model.generate(**inputs, max_new_tokens=8, do_sample=False)
 
     out_ids = out[0][inputs["input_ids"].shape[-1] :]
-    return pt_proc.decode(out_ids, skip_special_tokens=True)
+    return pt_proc.decode(out_ids, skip_special_tokens=True), None
+
+
+# ---------------------------------------------------------------------------
+# Model size
+# ---------------------------------------------------------------------------
+
+
+def calculate_model_size(model_path: str) -> int:
+    """Calculate total size of all files under model_path in bytes."""
+    total = 0
+    for dirpath, _dirnames, filenames in os.walk(model_path):
+        for filename in filenames:
+            total += os.path.getsize(os.path.join(dirpath, filename))
+    return total
+
+
+def format_model_size(size_bytes: int) -> str:
+    """Format byte count as a human-readable string (e.g. '1.6 GB', '210 MB')."""
+    if size_bytes >= 1e9:
+        return f"{size_bytes / 1e9:.2f} GB"
+    if size_bytes >= 1e6:
+        return f"{size_bytes / 1e6:.1f} MB"
+    return f"{size_bytes / 1e3:.1f} KB"
 
 
 # ---------------------------------------------------------------------------
@@ -301,11 +335,16 @@ def run_pytorch(
 
 
 def evaluate(dataset, runner_fn, label: str) -> dict:
-    """Run evaluation on a dataset with the given runner function."""
+    """Run evaluation on a dataset with the given runner function.
+
+    runner_fn must return (text, ttft_or_none) where ttft is seconds for
+    the first token (None when not measured, e.g. PyTorch).
+    """
     correct = 0
     skipped = 0
     total = len(dataset)
     latencies = []
+    ttfts = []
 
     print(f"\n{'=' * 60}")
     print(f"  Evaluating: {label}  ({total} samples)")
@@ -330,9 +369,11 @@ def evaluate(dataset, runner_fn, label: str) -> dict:
 
         try:
             t0 = time.perf_counter()
-            raw = runner_fn(pil_image, question, options)
+            raw, ttft = runner_fn(pil_image, question, options)
             elapsed = time.perf_counter() - t0
             latencies.append(elapsed)
+            if ttft is not None:
+                ttfts.append(ttft)
         except Exception as e:
             print(f"  [WARN] sample {i}: {e}")
             skipped += 1
@@ -353,18 +394,22 @@ def evaluate(dataset, runner_fn, label: str) -> dict:
     evaluated = total - skipped
     accuracy = correct / evaluated if evaluated > 0 else 0.0
     avg_lat = sum(latencies) / len(latencies) if latencies else 0.0
+    avg_ttft = sum(ttfts) / len(ttfts) if ttfts else None
 
     print(
         f"\n  {label}: {correct}/{evaluated} correct  |  "
         f"accuracy = {accuracy:.4f} ({accuracy * 100:.2f}%)"
     )
     print(f"  avg latency per sample: {avg_lat:.2f}s  |  skipped: {skipped}")
+    if avg_ttft is not None:
+        print(f"  avg TTFT: {avg_ttft * 1000:.1f}ms")
     return {
         "label": label,
         "accuracy": accuracy,
         "correct": correct,
         "evaluated": evaluated,
         "avg_latency_s": avg_lat,
+        "avg_ttft_ms": avg_ttft * 1000 if avg_ttft is not None else None,
         "skipped": skipped,
     }
 
@@ -424,6 +469,11 @@ def main():
     # Detect ONNX precision from model path
     onnx_precision = detect_onnx_precision(args.model_path)
 
+    # Calculate model size
+    model_size_bytes = calculate_model_size(args.model_path)
+    model_size_str = format_model_size(model_size_bytes)
+    print(f"\nModel size: {model_size_str}")
+
     # ---- ONNX ----
     if not args.skip_onnx:
         onnx_model, onnx_proc, onnx_tok = build_onnx_runner(args.model_path)
@@ -457,6 +507,7 @@ def main():
     print("  Model       : Ministral-3-3B-Instruct-2512 (VLM)")
     print("  Dataset     : AI2D (science diagram QA, multiple choice)")
     print(f"  Samples     : {args.num_samples}")
+    print(f"  Model size  : {model_size_str}")
     print(f"  ONNX prec   : {onnx_precision.upper()}")
     if pt_precision:
         print(f"  PyTorch prec: {pt_precision.upper()}")
@@ -471,6 +522,8 @@ def main():
             f"    Accuracy : {r['accuracy'] * 100:.2f}%  ({r['correct']}/{r['evaluated']})"
         )
         print(f"    Avg lat  : {r['avg_latency_s']:.2f}s/sample")
+        if r.get("avg_ttft_ms") is not None:
+            print(f"    Avg TTFT : {r['avg_ttft_ms']:.1f}ms")
         print()
 
     if len(results) == 2:
