@@ -5,7 +5,7 @@ construction), and Olive/ModelBuilder for text decoder export (GQA + INT4).
 
 Pipeline:
     cpu_and_mobile: Olive/ModelBuilder(INT4) → mobius(FP16) → Olive INT4 vision
-    cuda:           Olive/ModelBuilder(INT4) → mobius(FP16)
+    cuda:           Olive/ModelBuilder(INT4) → mobius(FP16) → Olive INT4 vision
 
 Architecture difference from Qwen VLM recipes:
     Qwen uses Olive passes for all 3 sub-models (export + optimization).
@@ -158,7 +158,7 @@ def quantize_vision_and_embedding(config_dir: str, models_dir: str):
     load quantized Gather on RoPE caches) and strips unused initializers.
 
     For cpu_and_mobile: INT4 quantization reduces model size ~87%.
-    For cuda: no vision/embedding configs exist (FP16 is optimal for GPU).
+    For cuda: INT4 quantization of vision is also supported (vision.json).
     """
     try:
         from olive import run
