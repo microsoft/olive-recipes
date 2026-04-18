@@ -52,5 +52,6 @@
     "target": "local_system",
     "log_severity_level": 0,
     "output_dir": "model",
-    "cache_dir": "cache"
+    "cache_dir": "cache",
+    "evaluate_input_model": false
 }

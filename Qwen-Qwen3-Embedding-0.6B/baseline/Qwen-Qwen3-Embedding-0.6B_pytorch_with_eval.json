@@ -11,27 +11,7 @@
             "type": "LocalSystem",
             "accelerators": [
                 {
-                    "device": "cpu",
-                    "execution_providers": [
-                        "CPUExecutionProvider"
-                    ]
-                }
-            ]
-        }
-    },
-    "passes": {
-        "m": {
-            "type": "ModelBuilder",
-            "precision": "fp32",
-            "extra_options": {
-                "include_hidden_states": 1
-            }
-        },
-        "t": {
-            "type": "GraphSurgeries",
-            "surgeries": [
-                {
-                    "surgeon": "TieWordEmbeddings"
+                    "device": "gpu"
                 }
             ]
         }
@@ -52,6 +32,5 @@
     "target": "local_system",
     "log_severity_level": 0,
     "output_dir": "model",
-    "cache_dir": "cache",
-    "evaluate_input_model": false
+    "cache_dir": "cache"
 }
