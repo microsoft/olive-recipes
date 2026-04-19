@@ -51,7 +51,7 @@
     "evaluator": "mteb",
     "target": "local_system",
     "log_severity_level": 0,
-    "output_dir": "model",
-    "cache_dir": "cache",
+    "output_dir": "model_cuda_fp16",
+    "cache_dir": "cache_cuda_fp16",
     "evaluate_input_model": false
 }

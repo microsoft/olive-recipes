@@ -74,7 +74,7 @@
     "evaluator": "mteb",
     "target": "local_system",
     "log_severity_level": 0,
-    "output_dir": "model",
-    "cache_dir": "cache",
+    "output_dir": "model_webgpu_int4",
+    "cache_dir": "cache_webgpu_int4",
     "evaluate_input_model": false
 }
