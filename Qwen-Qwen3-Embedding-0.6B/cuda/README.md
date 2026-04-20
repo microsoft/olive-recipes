@@ -27,6 +27,12 @@ After building, copy `config_sentence_transformers.json` into the model output d
 cp ~/.cache/huggingface/hub/models--Qwen--Qwen3-Embedding-0.6B/snapshots/*/config_sentence_transformers.json model_cuda_int4/
 ```
 
+Also set `tie_word_embeddings` to `true` in the output `config.json`. Olive currently writes this as `false` even though the model uses tied embeddings (see [Olive#2424](https://github.com/microsoft/Olive/issues/2424)):
+
+```bash
+python3 -c "import json; f='model_cuda_int4/config.json'; d=json.load(open(f)); d['tie_word_embeddings']=True; json.dump(d,open(f,'w'),indent=2)"
+```
+
 ## Build and evaluate with MTEB
 
 To build the model and run the [MTEB](https://huggingface.co/spaces/mteb/leaderboard) STS17 benchmark comparing the source HuggingFace model against the exported ONNX/GenAI model:
