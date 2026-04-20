@@ -21,7 +21,7 @@ This folder contains Olive recipes for optimizing Qwen-Qwen3-Embedding-0.6B targ
 olive run --config Qwen-Qwen3-Embedding-0.6B_webgpu_int4.json
 ```
 
-After building, copy `config_sentence_transformers.json` into the model output directory. This file provides task-specific query prompts required by MTEB retrieval benchmarks (e.g., NFCorpus). The GraphSurgeries pass does not carry it forward from the ModelBuilder output, so it must be copied manually:
+After building, copy `config_sentence_transformers.json` into the model output directory. This file provides task-specific query prompts required by MTEB retrieval benchmarks (e.g., NFCorpus). ModelBuilder does not include it in its output, so it must be copied manually from the Hugging Face cache:
 
 ```bash
 cp ~/.cache/huggingface/hub/models--Qwen--Qwen3-Embedding-0.6B/snapshots/*/config_sentence_transformers.json model_webgpu_int4/
