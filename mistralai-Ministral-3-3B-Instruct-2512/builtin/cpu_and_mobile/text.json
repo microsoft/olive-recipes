@@ -8,6 +8,7 @@
             "type": "ModelBuilder",
             "precision": "int4",
             "int4_accuracy_level": 4,
+            "int4_algo_config": "k_quant_mixed",
             "extra_options": {
                 "filename": "model.onnx"
             }

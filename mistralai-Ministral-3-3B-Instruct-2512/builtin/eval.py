@@ -250,9 +250,30 @@ def build_pytorch_runner(model_id: str, device: str = "auto"):
     precision_label = "fp16" if device == "cuda" else "fp32"
     print(f"  Device: {device}, dtype: {dtype} ({precision_label})")
 
+    # Load as bfloat16 first — FP8 weights stay as-is for manual dequant.
     pt_model = Mistral3ForConditionalGeneration.from_pretrained(
-        model_id, dtype=dtype, trust_remote_code=True
-    ).to(device)
+        model_id, torch_dtype=torch.bfloat16, trust_remote_code=True
+    )
+
+    # Dequantize FP8 weights if present (Ministral-3-3B ships FP8-only).
+    # The HF finegrained-fp8 Triton kernel may not be available, so we
+    # manually dequantize: weight_bf16 * scale_inv_bf16.
+    fp8_count = 0
+    for name, module in pt_model.named_modules():
+        if isinstance(module, torch.nn.Linear) and module.weight.dtype == torch.float8_e4m3fn:
+            scale_inv = getattr(module, "weight_scale_inv", None)
+            if scale_inv is not None:
+                dequantized = module.weight.to(torch.bfloat16)
+                module.weight = torch.nn.Parameter(
+                    dequantized * scale_inv.to(torch.bfloat16).reshape(-1, 1),
+                    requires_grad=False,
+                )
+                fp8_count += 1
+    if fp8_count > 0:
+        print(f"  Dequantized {fp8_count} FP8 linear layers to bfloat16")
+
+    # Cast entire model to target dtype and move to device
+    pt_model = pt_model.to(dtype=dtype, device=device)
     pt_proc = AutoProcessor.from_pretrained(model_id, trust_remote_code=True)
     print("  PyTorch model loaded.")
     return pt_model, pt_proc, device, precision_label

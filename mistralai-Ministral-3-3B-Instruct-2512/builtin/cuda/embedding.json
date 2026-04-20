@@ -1,17 +1,16 @@
 {
     "input_model": {
-        "type": "HfModel",
-        "model_path": "mistralai/Ministral-3-3B-Instruct-2512"
+        "type": "ONNXModel",
+        "model_path": "cuda/models/embedding/model.onnx"
     },
     "passes": {
-        "convert": {
-            "type": "ModelBuilder",
-            "precision": "int4",
-            "int4_accuracy_level": 4,
-            "int4_algo_config": "k_quant_mixed",
-            "extra_options": {
-                "filename": "model.onnx"
-            }
+        "int4": {
+            "type": "OnnxBlockWiseRtnQuantization",
+            "block_size": 128,
+            "is_symmetric": true,
+            "accuracy_level": 4,
+            "save_as_external_data": true,
+            "external_data_name": "model.onnx.data"
         }
     },
     "engine": {
@@ -28,5 +27,5 @@
         }
     },
     "no_artifacts": true,
-    "output_dir": "cuda/models/decoder"
+    "output_dir": "cuda/models/embedding"
 }
