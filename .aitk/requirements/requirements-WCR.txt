@@ -1,3 +1,4 @@
+./onnxruntime_windowsml-1.24.4.202603181718-cp312-cp312-win_amd64.whl
 aiohappyeyeballs==2.6.1
 aiohttp==3.13.4
 aiosignal==1.4.0
@@ -59,7 +60,6 @@ olive-ai==0.10.1
 onnx==1.17.0
 onnx-ir==0.1.10
 onnxruntime-genai-winml==0.12.1
-./onnxruntime_windowsml-1.24.4.202603181718-cp312-cp312-win_amd64.whl
 onnxscript==0.5.3
 # optimum==1.26.1
 optimum==1.26.1
@@ -67,7 +67,7 @@ optuna==4.2.1
 packaging==24.2
 pandas==2.2.3
 parso==0.8.5
-pillow==12.1.1
+pillow==12.2.0
 platformdirs==4.4.0
 prompt-toolkit==3.0.52
 propcache==0.3.2
@@ -111,11 +111,11 @@ typing-extensions==4.15.0
 typing-inspection==0.4.1
 tzdata==2025.2
 urllib3==2.6.3
+wcwidth==0.2.13
+widgetsnbextension==4.0.13
 # uvpip:uninstall wasdk-Microsoft.Windows.AI.MachineLearning;pre
 # uvpip:uninstall wasdk-Microsoft.Windows.ApplicationModel.DynamicDependency.Bootstrap;pre
 windowsml==2.0.297rc0
-wcwidth==0.2.13
-widgetsnbextension==4.0.13
 # uvpip:uninstall winrt-runtime winrt-Windows.Foundation winrt-Windows.Foundation.Collections;pre
 xxhash==3.5.0
 yarl==1.20.1

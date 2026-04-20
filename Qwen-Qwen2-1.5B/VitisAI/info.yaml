@@ -1,0 +1,6 @@
+arch: qwen2
+recipes:
+  - name: Qwen2-1.5B_VitisAI
+    file: Qwen2-1.5B_quark_vitisai_llm.json
+    devices: npu
+    eps: VitisAIExecutionProvider

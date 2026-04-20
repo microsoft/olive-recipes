@@ -20,10 +20,14 @@ from .utils import GlobalVars, open_ex, printError, printProcess
 
 
 class ModelInfo(BaseModel):
+    # The display name of the model, used for showing to users
+    # May not be related to the actual model name in huggingface, and may contain extra info
     displayName: str
     description: Optional[str] = None
     icon: IconEnum
     modelLink: str
+    # Distinct id for the model, used for model management, should be stable across versions
+    # May not be related to the actual model id in huggingface
     id: str
     groupId: Optional[str] = None
     groupItemName: Optional[str] = None
@@ -35,6 +39,7 @@ class ModelInfo(BaseModel):
     extension: Optional[bool] = None
     template: Optional[bool] = None
     p0: Optional[bool] = None
+    pipeline_tags: Optional[List[str]] = None
 
     def Check(self):
         if self.status == ModelStatusEnum.Hide:
@@ -48,6 +53,8 @@ class ModelInfo(BaseModel):
         if not self.runtimes:
             return False
         if self.version <= 0 and self.status == ModelStatusEnum.Ready:
+            return False
+        if not self.template and not self.extension and not self.pipeline_tags:
             return False
         return True
 
@@ -99,7 +106,7 @@ class ModelList(BaseModelClass):
         # self.template_models.sort(key=lambda x: x.displayName.lower())
         for i, model in enumerate(self.allModels()):
             if not model.Check():
-                printError(f"{self._file} model {i} has error")
+                printError(f"{self._file} model {i} ({model.id}) has error")
         self.SetupConstants()
         for model in self.template_models:
             if model.extension:

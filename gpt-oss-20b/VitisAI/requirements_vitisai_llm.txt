@@ -1,0 +1,22 @@
+--extra-index-url=https://pypi.amd.com/olive/1.7.1/simple
+# AMD model generation
+--extra-index-url=https://pypi.amd.com/simple
+accelerate
+huggingface_hub
+
+model-generate
+
+nltk
+numpy==1.26.4
+
+# Pin onnx version
+onnx==1.18.0
+onnxruntime
+onnxruntime-genai
+optimum
+
+ryzenai-dynamic-dispatch
+ryzenai-onnx-utils
+sentencepiece
+tabulate
+transformers==4.57.6
