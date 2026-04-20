@@ -3,7 +3,7 @@ flatbuffers==25.2.10
 humanfriendly==10.0
 mpmath==1.3.0
 numpy==2.2.4
-./onnxruntime_windowsml-1.24.4.202603181718-cp312-cp312-win_amd64.whl
+onnxruntime-windowsml==1.24.4.202603181718
 packaging==24.2
 protobuf==5.29.6
 pyreadline3==3.5.4
