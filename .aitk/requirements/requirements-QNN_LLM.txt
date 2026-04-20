@@ -40,15 +40,12 @@ stack-data==0.6.3
 sympy==1.14.0
 tornado==6.5.5
 traitlets==5.14.3
-wcwidth==0.2.13
-widgetsnbextension==4.0.13
 # uvpip:uninstall wasdk-Microsoft.Windows.AI.MachineLearning;pre
 # uvpip:uninstall wasdk-Microsoft.Windows.ApplicationModel.DynamicDependency.Bootstrap;pre
+wcwidth==0.2.13
+widgetsnbextension==4.0.13
 windowsml==2.0.297rc0
-# winrt-runtime==3.2.1
-winrt-runtime==3.2.1
-# winrt-Windows.Foundation==3.2.1
-winrt-Windows.Foundation==3.2.1
-# winrt-Windows.Foundation.Collections==3.2.1
-winrt-Windows.Foundation.Collections==3.2.1
+# uvpip:uninstall winrt-runtime;pre
+# uvpip:uninstall winrt-Windows.Foundation;pre
+# uvpip:uninstall winrt-Windows.Foundation.Collections;pre
 # not in requires

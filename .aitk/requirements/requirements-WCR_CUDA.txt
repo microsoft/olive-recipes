@@ -113,16 +113,13 @@ typing-extensions==4.15.0
 typing-inspection==0.4.1
 tzdata==2025.2
 urllib3==2.6.3
-wcwidth==0.2.13
-widgetsnbextension==4.0.13
 # uvpip:uninstall wasdk-Microsoft.Windows.AI.MachineLearning;pre
 # uvpip:uninstall wasdk-Microsoft.Windows.ApplicationModel.DynamicDependency.Bootstrap;pre
+wcwidth==0.2.13
+widgetsnbextension==4.0.13
 windowsml==2.0.297rc0
-# winrt-runtime==3.2.1
-winrt-runtime==3.2.1
-# winrt-Windows.Foundation==3.2.1
-winrt-Windows.Foundation==3.2.1
-# winrt-Windows.Foundation.Collections==3.2.1
-winrt-Windows.Foundation.Collections==3.2.1
+# uvpip:uninstall winrt-runtime;pre
+# uvpip:uninstall winrt-Windows.Foundation;pre
+# uvpip:uninstall winrt-Windows.Foundation.Collections;pre
 xxhash==3.5.0
 yarl==1.20.1
