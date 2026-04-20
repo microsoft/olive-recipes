@@ -55,7 +55,8 @@
             "type": "ModelBuilder",
             "precision": "int4",
             "extra_options": {
-                "include_hidden_states": 1
+                "include_hidden_states": 1,
+                "int4_accuracy_level": 0
             }
         },
         "t": {

@@ -5,8 +5,8 @@ This folder contains Olive recipes for optimizing Qwen-Qwen3-Embedding-8B target
 ## What this folder is for
 
 - Execution Provider: CUDA EP
-- Typical precision: FP32
-- Recipe: `Qwen-Qwen3-Embedding-8B_cuda_fp32.json` (build only), `Qwen-Qwen3-Embedding-8B_cuda_fp32_with_eval.json` (build + evaluate)
+- Typical precision: INT4
+- Recipe: `Qwen-Qwen3-Embedding-8B_cuda_int4.json` (build only), `Qwen-Qwen3-Embedding-8B_cuda_int4_with_eval.json` (build + evaluate)
 
 ## Setup
 
@@ -20,7 +20,7 @@ This folder contains Olive recipes for optimizing Qwen-Qwen3-Embedding-8B target
 ## Build the model
 
 ```bash
-olive run --config Qwen-Qwen3-Embedding-8B_cuda_fp32.json
+olive run --config Qwen-Qwen3-Embedding-8B_cuda_int4.json
 ```
 
 ## Build and evaluate with MTEB
@@ -28,14 +28,25 @@ olive run --config Qwen-Qwen3-Embedding-8B_cuda_fp32.json
 To build the model and run the [MTEB](https://huggingface.co/spaces/mteb/leaderboard) STS17 benchmark comparing the source HuggingFace model against the exported ONNX/GenAI model:
 
 ```bash
-olive run --config Qwen-Qwen3-Embedding-8B_cuda_fp32_with_eval.json
+olive run --config Qwen-Qwen3-Embedding-8B_cuda_int4_with_eval.json
 ```
 
 The evaluation results will be logged at the end of the run, showing scores for both the source (HF) and exported (GenAI) models. The MTEB score of the exported ONNX model should be within 5% of the base PyTorch model.
 
+## Evaluation results (A100)
+
+### ONNX CUDA INT4
+
+| Benchmark | Baseline | Score | Delta |
+|-----------|----------|-------|-------|
+| STS17 | 0.8589 | 0.8553 | -0.42% |
+| NFCorpus | 0.4133 | 0.4105 | -0.68% |
+| ArguAna | 0.7539 | 0.7383 | -2.07% |
+| SciFact | 0.7859 | 0.7804 | -0.70% |
+
 ## Additional notes
 
-- Pipeline: `ModelBuilder` (fp32 with include_hidden_states)
+- Pipeline: SelectiveMixedPrecision → GPTQ → RTN → ModelBuilder (INT4 with include_hidden_states)
 - This is an embedding model — outputs hidden states for embedding generation.
 - Requires NVIDIA GPU with CUDA support.
 - Ensure CUDA toolkit and cuDNN are properly installed.
