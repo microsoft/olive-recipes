@@ -801,24 +801,6 @@
             ]
         },
         {
-            "displayName": "stable-diffusion-v1-5/stable-diffusion-v1-5",
-            "icon": "HuggingFace",
-            "modelLink": "https://huggingface.co/stable-diffusion-v1-5/stable-diffusion-v1-5",
-            "id": "huggingface/stable-diffusion-v1-5/stable-diffusion-v1-5",
-            "runtimes": [
-                "QNN",
-                "IntelCPU",
-                "IntelGPU"
-            ],
-            "architecture": "Transformer",
-            "status": "Ready",
-            "relativePath": "sd-legacy-stable-diffusion-v1-5/aitk",
-            "version": 2,
-            "pipeline_tags": [
-                "text-to-image"
-            ]
-        },
-        {
             "displayName": "sd2-community/stable-diffusion-2-1",
             "icon": "HuggingFace",
             "modelLink": "https://huggingface.co/sd2-community/stable-diffusion-2-1",
@@ -832,6 +814,24 @@
             "status": "Hide",
             "relativePath": "sd2-community-stable-diffusion-2-1/aitk",
             "version": 1,
+            "pipeline_tags": [
+                "text-to-image"
+            ]
+        },
+        {
+            "displayName": "stable-diffusion-v1-5/stable-diffusion-v1-5",
+            "icon": "HuggingFace",
+            "modelLink": "https://huggingface.co/stable-diffusion-v1-5/stable-diffusion-v1-5",
+            "id": "huggingface/stable-diffusion-v1-5/stable-diffusion-v1-5",
+            "runtimes": [
+                "QNN",
+                "IntelCPU",
+                "IntelGPU"
+            ],
+            "architecture": "Transformer",
+            "status": "Ready",
+            "relativePath": "sd-legacy-stable-diffusion-v1-5/aitk",
+            "version": 2,
             "pipeline_tags": [
                 "text-to-image"
             ]

@@ -263,7 +263,7 @@ def main(raw_args=None):
     optimized_model_dir = script_dir / "model" / optimized_dir_name / args.model_id
 
     model_dir = unoptimized_model_dir if args.save_data else optimized_model_dir
-    
+
     pipeline = OnnxStableDiffusionPipelineWithSave.from_pretrained(model_dir, provider=args.provider)
     pipeline.save_data_dir = None
 
