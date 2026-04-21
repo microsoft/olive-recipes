@@ -6,7 +6,7 @@ construction), and Olive/ModelBuilder for text decoder export (GQA + INT4).
 Pipeline:
     1. Text decoder: Olive/ModelBuilder (k_quant_mixed INT4)
     2. Vision + embedding: mobius (FP16)
-    3. Vision quantization: Olive (INT4 or INT8, per vision.json)
+    3. Vision quantization: Olive (INT8 RTN, per vision.json)
 
 Architecture difference from Qwen VLM recipes:
     Qwen uses Olive passes for all 3 sub-models (export + optimization).
@@ -149,7 +149,7 @@ def export_vision_and_embedding(
 def quantize_vision_and_embedding(config_dir: str, models_dir: str):
     """Apply quantization to mobius-exported vision and embedding models.
 
-    Loads vision.json / embedding.json as dicts and overrides model_path
+    Loads vision.json as a dict and overrides model_path
     and output_dir to point directly to <models_dir>/<component>/.
 
     After quantization, strips unused initializers to remove the original
@@ -188,7 +188,7 @@ def _strip_unused_initializers(onnx_path: str):
     """Remove unused initializers and re-save to shrink the external data file.
 
     Olive's OnnxBlockWiseRtnQuantization keeps original weights alongside
-    the new INT4 (UINT8) weights. Stripping the unused originals typically
+    the new quantized weights. Stripping the unused originals typically
     reduces the data file by ~87% (e.g., 1.7GB → 220MB for the vision model).
     """
     if not os.path.exists(onnx_path):
@@ -239,7 +239,7 @@ def export_models(
     """Export all 3 sub-models: text (Olive), vision + embedding (mobius).
 
     All outputs go directly to models_dir. No post-export copy needed.
-    For cpu_and_mobile, also applies INT4 quantization to vision.
+    For both targets, also applies INT8 quantization to vision.
     """
     if models_dir is None:
         models_dir = str(Path(config_dir) / MODELS_DIR)
@@ -443,7 +443,7 @@ def main():
         default="f16",
         choices=["f16", "f32", "bf16"],
         help="Dtype for mobius vision/embedding export. FP16 is recommended: it serves "
-        "as the intermediate format for Olive INT4 quantization on CPU, and as "
+        "as the intermediate format for Olive INT8 quantization, and as "
         "the final format on CUDA. (default: f16)",
     )
     args = parser.parse_args()
