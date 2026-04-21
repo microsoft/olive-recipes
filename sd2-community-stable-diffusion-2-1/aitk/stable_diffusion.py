@@ -5,7 +5,6 @@
 import argparse
 import json
 import shutil
-import sys
 import warnings
 from pathlib import Path
 
@@ -384,7 +383,7 @@ def main(raw_args=None):
     unoptimized_model_dir = script_dir / "model" / "unoptimized" / model_id
     optimized_model_dir = script_dir / "model" / "optimized" / model_id
 
-    if common_args.clean_cache:
+    if common_args.clean_cache and common_args.cache_dir:
         shutil.rmtree(common_args.cache_dir, ignore_errors=True)
 
     guidance_scale = common_args.guidance_scale
