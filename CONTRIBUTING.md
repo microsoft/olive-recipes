@@ -46,7 +46,7 @@ recipes:
 
 ### Foundry Toolkit specific configuration
 
-`info.yml` can also include configuration used by Foundry Toolkit specific models. All relevant information should be rooted under the **aitk** node.
+`info.yml` can also include configuration used by Foundry Toolkit specific models. For compatibility with existing tooling, all relevant information should remain rooted under the **aitk** node in the YAML.
 
 ```yaml
 aitk:
