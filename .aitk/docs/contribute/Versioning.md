@@ -1,6 +1,6 @@
 # Versioning
 
-Given AITK contains every recipe and is versioned, we could safely version our recipes and do not care backward compatiblity.
+Given Foundry Toolkit contains every recipe and is versioned, we could safely version our recipes and do not care backward compatiblity.
 
 So there will be two cases:
 
@@ -15,7 +15,7 @@ We will notify user that there is new version of recipe and user could:
 ### When developer should increase the version
 
 Developers don't need to increase the version until release, they should do it whenever they changes needed files in pr.
-(So in AITK release, version could jump from 1 to 7 like so)
+(So in Foundry Toolkit release, version could jump from 1 to 7 like so)
 
 Should increase:
 

@@ -44,9 +44,9 @@ recipes:
     eps: VitisAIExecutionProvider
 ```
 
-### AITK specific configuration
+### Foundry Toolkit specific configuration
 
-`info.yml` can also include configuration used by AITK specific models. All relevant information should be rooted under the **aitk** node.
+`info.yml` can also include configuration used by Foundry Toolkit specific models. All relevant information should be rooted under the **aitk** node.
 
 ```yaml
 aitk:

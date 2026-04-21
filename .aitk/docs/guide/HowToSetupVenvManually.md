@@ -1,6 +1,6 @@
 # How to setup venv manually
 
-Sometimes, you may want to setup venv and convert model via olive recipe yourselves without AITK. Here is how to do that.
+Sometimes, you may want to setup venv and convert model via olive recipe yourselves without Foundry Toolkit. Here is how to do that.
 
 ## Venv Creation
 
@@ -8,7 +8,7 @@ We recommend using [uv](https://docs.astral.sh/uv/reference/cli/#uv-venv) to man
 
 ## Requirements installation
 
-When AITK setups a venv, we usually install 3 kinds of requirements in order.
+When Foundry Toolkit setups a venv, we usually install 3 kinds of requirements in order.
 
 - Base requirements: the fundamental requirements including all packages
 - Patch (feature) requirements: the additional requirements for the recipe that are installed after base
