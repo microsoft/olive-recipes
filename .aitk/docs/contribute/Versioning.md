@@ -1,6 +1,6 @@
 # Versioning
 
-Given Foundry Toolkit contains every recipe and is versioned, we could safely version our recipes and do not care backward compatiblity.
+Given Foundry Toolkit contains every recipe and is versioned, we could safely version our recipes and do not care backward compatibility.
 
 So there will be two cases:
 
