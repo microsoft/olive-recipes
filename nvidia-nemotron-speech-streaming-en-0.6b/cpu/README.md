@@ -37,7 +37,7 @@ This runs the full pipeline:
 1. **Export** — NeMo model → ONNX (encoder, decoder, joint, tokenizer, configs)
 2. **Optimize encoder** — Olive converts, fuses, and INT4-quantizes the encoder
    using built-in passes (OnnxConversion → OrtTransformersOptimization →
-   OnnxBlockWiseRtnQuantization) via `cpu/nemotron_speech_int4_cpu.json`
+   OnnxKQuantQuantization) via `cpu/nemotron_speech_int4_cpu.json`
 3. **Assemble** — copies decoder, joint, tokenizer, configs, and Silero VAD
    into the final output directory
 

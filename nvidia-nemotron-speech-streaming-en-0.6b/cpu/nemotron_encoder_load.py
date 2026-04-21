@@ -38,7 +38,6 @@ _SCRIPTS_DIR = str(Path(__file__).parent.parent / "scripts")
 
 def _get_streaming_shapes():
     """Compute static streaming tensor shapes from the shared constants."""
-    right_context = {0.08: 0, 0.16: 1, 0.56: 6, 1.12: 13}.get(CHUNK_SIZE, 13)
     chunk_encoded_frames = int(CHUNK_SIZE * 100) // SUBSAMPLING_FACTOR
     left_context = LEFT_CHUNKS * chunk_encoded_frames
 

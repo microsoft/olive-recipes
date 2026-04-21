@@ -33,7 +33,8 @@
         "convert": {
             "type": "OnnxConversion",
             "target_opset": 21,
-            "dynamic": false
+            "dynamic": false,
+            "use_dynamo_exporter": true
         },
         "fusion": {
             "type": "OrtTransformersOptimization",
@@ -49,7 +50,6 @@
         "quantization": {
             "type": "OnnxKQuantQuantization",
             "block_size": 32,
-            "is_symmetric": true,
             "accuracy_level": 4
         }
     },

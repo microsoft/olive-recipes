@@ -12,8 +12,8 @@ Stage 2 — Olive Encoder Pipeline (PyTorch → fused INT4 ONNX):
     - OrtTransformersOptimization (model_type="conformer"):
         Fuses Conformer subgraphs (SkipLayerNorm, BiasGelu, etc.).
         Multi-head attention fusion is disabled to avoid accuracy regression.
-    - OnnxBlockWiseRtnQuantization:
-        INT4 block-wise RTN quantization (block_size=32, symmetric).
+    - OnnxKQuantQuantization:
+        INT4 k-quant quantization (block_size=32, asymmetric).
 
     The decoder and joint networks remain FP32 and are copied unchanged.
 
