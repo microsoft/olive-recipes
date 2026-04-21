@@ -4,21 +4,20 @@ Uses mobius for vision and embedding export (reliable dynamo-free ONNX
 construction), and Olive/ModelBuilder for text decoder export (GQA + INT4).
 
 Pipeline:
-    cpu_and_mobile: Olive/ModelBuilder(INT4) → mobius(FP16) → Olive INT4 vision
-    cuda:           Olive/ModelBuilder(INT4) → mobius(FP16) → Olive INT4 vision
+    1. Text decoder: Olive/ModelBuilder (k_quant_mixed INT4)
+    2. Vision + embedding: mobius (FP16)
+    3. Vision quantization: Olive (INT4 or INT8, per vision.json)
 
 Architecture difference from Qwen VLM recipes:
     Qwen uses Olive passes for all 3 sub-models (export + optimization).
     Ministral uses mobius for vision/embedding because Pixtral's dynamic
     image dimensions cause torch.onnx.export/dynamo failures.  Mobius
     produces already-optimized graphs (fused MHA, SkipLayerNorm, FP16).
-    For cpu_and_mobile, Olive then applies INT4 quantization to the vision
-    model post-export.
 
 Usage:
-    python optimize.py --config-dir cpu_and_mobile --device cpu
     python optimize.py --config-dir cuda --device gpu
-    python optimize.py --config-dir cpu_and_mobile --device cpu --skip-export
+    python optimize.py --config-dir cpu_and_mobile --device cpu
+    python optimize.py --config-dir cuda --device gpu --skip-export
     python optimize.py --config-dir cpu_and_mobile --device cpu --model-path /local/dequantized/checkpoint
 """
 
@@ -148,17 +147,13 @@ def export_vision_and_embedding(
 
 
 def quantize_vision_and_embedding(config_dir: str, models_dir: str):
-    """Apply INT4 quantization to mobius-exported vision and embedding models.
+    """Apply quantization to mobius-exported vision and embedding models.
 
     Loads vision.json / embedding.json as dicts and overrides model_path
     and output_dir to point directly to <models_dir>/<component>/.
-    This avoids writing to the JSON config's hardcoded relative paths.
 
-    After quantization, replaces any GatherBlockQuantized nodes (ORT can't
-    load quantized Gather on RoPE caches) and strips unused initializers.
-
-    For cpu_and_mobile: INT4 quantization reduces model size ~87%.
-    For cuda: INT4 quantization of vision is also supported (vision.json).
+    After quantization, strips unused initializers to remove the original
+    FP16 weights that Olive keeps alongside the quantized weights.
     """
     try:
         from olive import run
@@ -177,9 +172,6 @@ def quantize_vision_and_embedding(config_dir: str, models_dir: str):
             )
             continue
 
-        # Save FP16 Gather data before quantization (for GatherBlockQuantized fix)
-        pre_quant_gathers = _save_gather_data(component_onnx)
-
         # Load config as dict and override paths to target models_dir directly
         with open(config_path) as f:
             config = json.load(f)
@@ -189,90 +181,7 @@ def quantize_vision_and_embedding(config_dir: str, models_dir: str):
         print(f"  [Olive] Quantizing {component} from {config_path}...")
         run(config)
 
-        _fix_gather_block_quantized(component_onnx, pre_quant_gathers)
         _strip_unused_initializers(component_onnx)
-
-
-def _save_gather_data(onnx_path: str) -> dict:
-    """Save Gather node initializer data before quantization.
-
-    Returns a dict mapping initializer names to numpy arrays for any
-    initializers used by Gather nodes (e.g., RoPE cos/sin caches).
-    """
-    import onnx
-    from onnx import numpy_helper
-
-    model = onnx.load(onnx_path)
-    gather_inputs = set()
-    for node in model.graph.node:
-        if node.op_type == "Gather":
-            gather_inputs.add(node.input[0])
-
-    result = {}
-    for init in model.graph.initializer:
-        if init.name in gather_inputs:
-            result[init.name] = numpy_helper.to_array(init)
-    return result
-
-
-def _fix_gather_block_quantized(onnx_path: str, pre_quant_gathers: dict):
-    """Replace GatherBlockQuantized nodes with plain Gather + original data.
-
-    Olive's INT4 quantization may quantize Gather nodes (e.g., RoPE cos/sin
-    caches) into GatherBlockQuantized, which ORT can't load. This restores
-    the original FP16/FP32 data and replaces with plain Gather.
-    """
-    import onnx
-    from onnx import helper, numpy_helper
-
-    model = onnx.load(onnx_path, load_external_data=False)
-    gbq_nodes = [n for n in model.graph.node if n.op_type == "GatherBlockQuantized"]
-    if not gbq_nodes:
-        return
-
-    model = onnx.load(onnx_path)
-    inits = {i.name: i for i in model.graph.initializer}
-
-    for node in list(model.graph.node):
-        if node.op_type != "GatherBlockQuantized":
-            continue
-
-        q_name = node.input[0]
-        idx_name = node.input[1]
-        orig_name = q_name.replace("_Q4", "")
-
-        if orig_name in pre_quant_gathers:
-            new_init = numpy_helper.from_array(
-                pre_quant_gathers[orig_name], name=orig_name
-            )
-            model.graph.initializer.append(new_init)
-
-        new_node = helper.make_node(
-            "Gather",
-            [orig_name, idx_name],
-            list(node.output),
-            name=node.name.replace("_Q4", ""),
-        )
-
-        idx = list(model.graph.node).index(node)
-        model.graph.node.remove(node)
-        model.graph.node.insert(idx, new_node)
-
-        for inp in node.input:
-            if inp != idx_name and inp in inits:
-                init = inits[inp]
-                if init in model.graph.initializer:
-                    model.graph.initializer.remove(init)
-
-    onnx.save(
-        model,
-        onnx_path,
-        save_as_external_data=True,
-        all_tensors_to_one_file=True,
-        location="model.onnx.data",
-        size_threshold=1024,
-    )
-    print(f"  [PostProcess] Replaced {len(gbq_nodes)} GatherBlockQuantized → Gather")
 
 
 def _strip_unused_initializers(onnx_path: str):
@@ -343,7 +252,7 @@ def export_models(
     # Vision + embedding via mobius (FP16)
     export_vision_and_embedding(models_dir, model_path, dtype)
 
-    # INT4 quantization of vision + embedding (cpu_and_mobile only)
+    # Quantization of vision (and embedding if config exists)
     quantize_vision_and_embedding(config_dir, models_dir)
 
     print()

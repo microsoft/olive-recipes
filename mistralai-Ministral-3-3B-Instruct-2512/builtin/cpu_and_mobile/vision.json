@@ -4,15 +4,12 @@
         "model_path": "cpu_and_mobile/models/vision/model.onnx"
     },
     "passes": {
-        "int4": {
+        "int8": {
             "type": "OnnxBlockWiseRtnQuantization",
+            "bits": 8,
             "block_size": 128,
             "is_symmetric": true,
             "accuracy_level": 4,
-            "nodes_to_exclude": [
-                "vision_encoder/vision_tower/rope/Gather_node_23",
-                "vision_encoder/vision_tower/rope/Gather_node_24"
-            ],
             "save_as_external_data": true,
             "external_data_name": "model.onnx.data"
         }
