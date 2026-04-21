@@ -206,7 +206,7 @@ def optimize(
     shutil.rmtree(optimized_model_dir, ignore_errors=True)
 
     # The model_id and base_model_id are identical when optimizing a standard stable diffusion model like
-    # stable-diffusion-v1-5/stable-diffusion-v1-5. These variables are only different when optimizing a LoRA variant.
+    # sd2-community/stable-diffusion-2-1. These variables are only different when optimizing a LoRA variant.
     base_model_id = get_base_model_name(model_id)
     print(f"\nModel {base_model_id}")
 
@@ -286,7 +286,7 @@ def parse_common_args(raw_args):
 
     parser.add_argument("--script_dir", required=True, type=str)
     parser.add_argument("--cache_dir", type=str)
-    parser.add_argument("--model_id", default="stable-diffusion-v1-5/stable-diffusion-v1-5", type=str)
+    parser.add_argument("--model_id", default="sd2-community/stable-diffusion-2-1", type=str)
     parser.add_argument(
         "--provider",
         default="cuda",
@@ -326,7 +326,7 @@ def parse_common_args(raw_args):
             "that are not semantically consistent with the input."
         ),
     )
-    parser.add_argument("--image_size", default=512, type=int, help="Width and height of the images to generate")
+    parser.add_argument("--image_size", default=768, type=int, help="Width and height of the images to generate")
     parser.add_argument(
         "--seed",
         default=None,

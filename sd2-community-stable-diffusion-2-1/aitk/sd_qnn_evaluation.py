@@ -11,7 +11,7 @@ from pathlib import Path
 import numpy as np
 import onnxruntime as ort
 
-from sd_utils.ov import OVStableDiffusionPipeline
+from sd_utils.qdq import OnnxStableDiffusionPipelineWithSave
 
 logger = logging.getLogger(os.path.basename(__file__))
 logging.basicConfig(level=logging.INFO)
@@ -23,7 +23,7 @@ def parse_args(raw_args):
 
     parser.add_argument("--script_dir", required=True, type=str)
     parser.add_argument("--model_dir", default="optimized", type=str, help="model_dir path")
-    parser.add_argument("--model_id", default="stable-diffusion-v1-5/stable-diffusion-v1-5", type=str)
+    parser.add_argument("--model_id", default="sd2-community/stable-diffusion-2-1", type=str)
     parser.add_argument(
         "--guidance_scale",
         default=7.5,
@@ -37,7 +37,7 @@ def parse_args(raw_args):
         type=int,
         help="The seed to give to the generator to generate deterministic results.",
     )
-    parser.add_argument("--image_size", default=512, type=int, help="Width and height of the images to generate")
+    parser.add_argument("--image_size", default=768, type=int, help="Width and height of the images to generate")
     parser.add_argument(
         "--execution_provider",
         type=str,
@@ -99,9 +99,10 @@ def main(raw_args=None):
 
     add_ep_for_device(sess_options, args.execution_provider, get_device_type(args.device_str))
 
-    pipeline = OVStableDiffusionPipeline.from_pretrained(
+    pipeline = OnnxStableDiffusionPipelineWithSave.from_pretrained(
         model_dir, provider=args.execution_provider, sess_options=sess_options, provider_options=provider_options
     )
+    pipeline.save_data_dir = None
 
     text_encoder_latencies = []
     unet_latencies = []
