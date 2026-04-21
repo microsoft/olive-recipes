@@ -400,6 +400,12 @@ def update_genai_config(output_dir: str = MODELS_DIR, device: str = "cpu"):
                         "attrs": {"dims": [2, 0, 1]},
                     }
                 },
+                {
+                    "operation": {
+                        "name": "pixtral_image_sizes",
+                        "type": "PixtralImageSizes",
+                    }
+                },
             ],
         }
     }
