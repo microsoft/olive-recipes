@@ -54,6 +54,7 @@ org_to_icon = {
     # TODO add
     "OFA-Sys": IconEnum.HuggingFace,
     "stable-diffusion-v1-5": IconEnum.HuggingFace,
+    "sd2-community": IconEnum.HuggingFace,
 }
 
 
