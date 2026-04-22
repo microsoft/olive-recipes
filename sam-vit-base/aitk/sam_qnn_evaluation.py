@@ -25,7 +25,6 @@ def add_ep_for_device(session_options, ep_name, device_type, ep_options=None):
             break
 
 def register_execution_providers():
-    import json
     import subprocess
     import sys
 
