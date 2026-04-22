@@ -11,18 +11,6 @@
         }
     },
     "passes": {
-        "r": {
-            "type": "rtn",
-            "bits": 4,
-            "sym": false,
-            "group_size": 32,
-            "embeds": true,
-            "lm_head": true,
-            "overrides": {
-                "lm_head": { "bits": 8 },
-                "model.embed_tokens": { "bits": 8 }
-            }
-        },
         "m": {
             "type": "ModelBuilder",
             "precision": "int4",
