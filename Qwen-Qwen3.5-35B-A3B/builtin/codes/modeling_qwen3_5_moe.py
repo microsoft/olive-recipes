@@ -10,6 +10,10 @@
 # Vision encoder is identical to non-MoE Qwen3.5. MoE text components are
 # included for completeness but the text decoder is exported via OGA ModelBuilder.
 # Used by user_script.py for vision and embedding ONNX export.
+# -------------------------------------------------------------------------
+# Copyright (C) 2026 Advanced Micro Devices, Inc. All rights reserved.
+# Portions of this file consist of AI generated content.
+# --------------------------------------------------------------------------
 
 from typing import Optional
 
