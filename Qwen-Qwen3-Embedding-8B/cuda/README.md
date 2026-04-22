@@ -1,0 +1,52 @@
+# Qwen-Qwen3-Embedding-8B — CUDA optimization
+
+This folder contains Olive recipes for optimizing Qwen-Qwen3-Embedding-8B targeting the CUDA EP.
+
+## What this folder is for
+
+- Execution Provider: CUDA EP
+- Typical precision: INT4
+- Recipe: `Qwen-Qwen3-Embedding-8B_cuda_int4.json` (build only), `Qwen-Qwen3-Embedding-8B_cuda_int4_with_eval.json` (build + evaluate)
+
+## Setup
+
+1) Install the main branch of Olive:
+   - pip install git+https://github.com/microsoft/olive.git
+2) Install the requirements for this recipe:
+   - pip install -r requirements.txt
+3) Log in to Hugging Face (the 8B model is gated and requires authentication):
+   - huggingface-cli login
+
+## Build the model
+
+```bash
+olive run --config Qwen-Qwen3-Embedding-8B_cuda_int4.json
+```
+
+## Build and evaluate with MTEB
+
+To build the model and run the [MTEB](https://huggingface.co/spaces/mteb/leaderboard) STS17 benchmark comparing the source HuggingFace model against the exported ONNX/GenAI model:
+
+```bash
+olive run --config Qwen-Qwen3-Embedding-8B_cuda_int4_with_eval.json
+```
+
+The evaluation results will be logged at the end of the run, showing scores for both the source (HF) and exported (GenAI) models. The MTEB score of the exported ONNX model should be within 5% of the base PyTorch model.
+
+## Evaluation results (A100)
+
+### ONNX CUDA INT4
+
+| Benchmark | Baseline | Score | Delta |
+|-----------|----------|-------|-------|
+| STS17 | 0.8589 | 0.8553 | -0.42% |
+| NFCorpus | 0.4133 | 0.4105 | -0.68% |
+| ArguAna | 0.7539 | 0.7383 | -2.07% |
+| SciFact | 0.7859 | 0.7804 | -0.70% |
+
+## Additional notes
+
+- Pipeline: SelectiveMixedPrecision → GPTQ → RTN → ModelBuilder (INT4 with include_hidden_states)
+- This is an embedding model — outputs hidden states for embedding generation.
+- Requires NVIDIA GPU with CUDA support.
+- Ensure CUDA toolkit and cuDNN are properly installed.
