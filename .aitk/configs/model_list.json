@@ -472,6 +472,38 @@
             ]
         },
         {
+            "displayName": "facebook/sam-vit-base",
+            "icon": "meta",
+            "modelLink": "https://huggingface.co/facebook/sam-vit-base",
+            "id": "huggingface/facebook/sam-vit-base",
+            "runtimes": [
+                "QNN"
+            ],
+            "architecture": "Transformer",
+            "status": "Hide",
+            "relativePath": "sam-vit-base/aitk",
+            "version": 1,
+            "pipeline_tags": [
+                "fill-mask"
+            ]
+        },
+        {
+            "displayName": "facebook/sam2.1-hiera-small",
+            "icon": "meta",
+            "modelLink": "https://huggingface.co/facebook/sam2.1-hiera-small",
+            "id": "huggingface/facebook/sam2.1-hiera-small",
+            "runtimes": [
+                "QNN"
+            ],
+            "architecture": "Transformer",
+            "status": "Hide",
+            "relativePath": "sam2.1-hiera-small/aitk",
+            "version": 1,
+            "pipeline_tags": [
+                "fill-mask"
+            ]
+        },
+        {
             "displayName": "meta-llama/Llama-3.1-8B-Instruct",
             "icon": "meta",
             "modelLink": "https://huggingface.co/meta-llama/Llama-3.1-8B-Instruct",
@@ -834,38 +866,6 @@
             "version": 2,
             "pipeline_tags": [
                 "text-to-image"
-            ]
-        },
-        {
-            "displayName": "facebook/sam-vit-base",
-            "icon": "meta",
-            "modelLink": "https://huggingface.co/facebook/sam-vit-base",
-            "id": "huggingface/facebook/sam-vit-base",
-            "runtimes": [
-                "QNN"
-            ],
-            "architecture": "Transformer",
-            "status": "Hide",
-            "relativePath": "sam-vit-base/aitk",
-            "version": 1,
-            "pipeline_tags": [
-                "fill-mask"
-            ]
-        },
-        {
-            "displayName": "facebook/sam2.1-hiera-small",
-            "icon": "meta",
-            "modelLink": "https://huggingface.co/facebook/sam2.1-hiera-small",
-            "id": "huggingface/facebook/sam2.1-hiera-small",
-            "runtimes": [
-                "QNN"
-            ],
-            "architecture": "Transformer",
-            "status": "Hide",
-            "relativePath": "sam2.1-hiera-small/aitk",
-            "version": 1,
-            "pipeline_tags": [
-                "fill-mask"
             ]
         }
     ],

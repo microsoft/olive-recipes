@@ -22,7 +22,7 @@
     "passes": {
         "aitkpython": {
             "type": "AitkPython",
-            "activation_type": "uint16",
+            "activation_type": "uint8",
             "precision": "uint8",
             "dataset_name": "nielsr/coco-panoptic-val2017",
             "split": "train",
