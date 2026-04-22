@@ -50,7 +50,6 @@ def update_genai_config(output_dir: str = MODELS_DIR, device: str = "cpu"):
         provider_options = []
         vision_provider_options = []
 
-    session_options = {"log_id": "onnxruntime-genai", "intra_op_num_threads": 12, "inter_op_num_threads": 1, "provider_options": provider_options}
     vision_session_options = {"log_id": "onnxruntime-genai", "provider_options": vision_provider_options}
 
     config["model"]["embedding"] = {
