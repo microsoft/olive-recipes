@@ -7,6 +7,7 @@ accelerate
 amd-quark==0.11
 datasets
 evaluate
+huggingface_hub
 
 model-generate
 
