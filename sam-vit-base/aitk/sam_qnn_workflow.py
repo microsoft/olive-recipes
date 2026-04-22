@@ -65,7 +65,7 @@ def generate_model(
     if output is None or not output.has_output_model():
         error = f"Model file is not generated"
         raise Exception(error)
-    
+
 
 def main():
     args = parse_arguments()
@@ -113,7 +113,7 @@ def main():
     ModelConfig.image_dataset = dataset_name
     ModelConfig.image_dataset_split = dataset_split
     ModelConfig.data_dir = "quantization_dataset"
-    
+
     # Generate encoder model
     generate_model(history_folder, "sam_vision_encoder_qnn.json", cache_dir, os.path.join(output_dir, "encoder"),
                    False, activation_type, precision, num_data)
