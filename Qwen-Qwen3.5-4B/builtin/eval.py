@@ -183,7 +183,7 @@ def run_pytorch(
     ).to(device)
 
     with torch.no_grad():
-        out = pt_model.generate(**inputs, max_new_tokens=8, do_sample=False)
+        out = pt_model.generate(**inputs, max_new_tokens=512, do_sample=False)
 
     out_ids = out[0][inputs["input_ids"].shape[-1]:]
     return pt_proc.decode(out_ids, skip_special_tokens=True)

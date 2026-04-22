@@ -7,14 +7,22 @@
         "m": {
             "type": "ModelBuilder",
             "precision": "int4",
+            "int4_accuracy_level": 4,
+            "int4_algo_config": "rtn",
+            "int4_block_size": 32,
             "extra_options": {
                 "filename": "text.onnx",
+                "quant_mode": "int4",
                 "prune_lm_head": true
             }
         },
         "t": {
             "type": "GraphSurgeries",
-            "surgeries": [{"surgeon": "TieWordEmbeddings"}]
+            "surgeries": [
+                {
+                    "surgeon": "TieWordEmbeddings"
+                }
+            ]
         }
     },
     "engine": {
