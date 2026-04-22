@@ -170,14 +170,14 @@ def readCheckIpynb(ipynbFile: str, modelItems: dict[str, ModelParameter]):
                 continue
             testPath = outputModelRelativePath
             importStr = importOnnxruntime
-            if modelParameter.isLLM:
+            if modelParameter.aitkPython:
+                testPath = None
+                importStr = None
+            elif modelParameter.isLLM:
                 testPath = outputModelModelBuilderPath
                 importStr = importOnnxgenairuntime
             elif modelParameter.runtime.values and modelParameter.isIntel:
                 testPath = outputModelIntelNPURelativePath
-            elif modelParameter.aitkPython:
-                testPath = None
-                importStr = None
             for item in [testPath, importStr]:
                 if item and not re.search(item, ipynbContent):
                     printError(f"{ipynbFile} does not have '{item}' for {name}, please use it as input")
@@ -224,8 +224,8 @@ def readCheckRequirements(requirementsFile: str):
 
     oldContents = []
     newContents = [
-        "# This file will be installed together with AITK runtime requirements",
-        "# For the full requirements, see AITK",
+        "# This file will be installed together with Foundry Toolkit runtime requirements",
+        "# For the full requirements, see Foundry Toolkit",
     ]
     ready = False
     if len(requirementsLines) >= len(newContents):

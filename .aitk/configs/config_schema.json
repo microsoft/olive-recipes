@@ -2,7 +2,7 @@
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$id": "config_schema.json",
     "title": "ModelParameter",
-    "description": "Model parameter configuration schema for olive-recipes AI Toolkit",
+    "description": "Model parameter configuration schema for Foundry Toolkit recipes",
     "type": "object",
     "required": ["name"],
     "additionalProperties": false,
@@ -113,6 +113,10 @@
                 "type": "string",
                 "description": "Minimum version string for this execution provider"
             }
+        },
+        "disableConversionGeneration": {
+            "type": "boolean",
+            "description": "When true, suppresses automatic generation of the Conversion section by sanitize.py"
         },
         "runtime": {
             "$ref": "#/$defs/Parameter",

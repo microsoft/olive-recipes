@@ -5,7 +5,6 @@
 import argparse
 import json
 import shutil
-import sys
 import warnings
 from pathlib import Path
 
@@ -64,8 +63,7 @@ def run_inference_loop(
     while images_saved < num_images:
         print(f"\nInference Batch Start (batch size = {batch_size}).")
 
-        kwargs = {"strength": strength} if provider == "openvino" else {}
-
+        kwargs = {}
         result = pipeline(
             [prompt] * batch_size,
             num_inference_steps=num_inference_steps,
@@ -272,7 +270,7 @@ def optimize(
     if provider == "openvino":
         from sd_utils.ov import save_ov_model_info
 
-        save_ov_model_info(model_info, optimized_model_dir)
+        save_ov_model_info(model_info, optimized_model_dir, pipeline)
     else:
         from sd_utils.ort import save_onnx_pipeline
 
@@ -385,7 +383,7 @@ def main(raw_args=None):
     unoptimized_model_dir = script_dir / "model" / "unoptimized" / model_id
     optimized_model_dir = script_dir / "model" / "optimized" / model_id
 
-    if common_args.clean_cache:
+    if common_args.clean_cache and common_args.cache_dir:
         shutil.rmtree(common_args.cache_dir, ignore_errors=True)
 
     guidance_scale = common_args.guidance_scale

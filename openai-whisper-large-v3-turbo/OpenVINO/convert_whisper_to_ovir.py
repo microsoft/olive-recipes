@@ -125,11 +125,19 @@ def reshape_and_save_to_tmp(input_ov_path: str, reshape_dict: dict, tmp_ov_path:
     @param reshape_dict: Dictionary of input names to new shapes.
     @param tmp_ov_path: Path to save the reshaped OpenVINO model.
     """
-    from openvino.runtime import Core, serialize
-    core = Core()
-    ov_model = core.read_model(input_ov_path)
-    ov_model.reshape(reshape_dict)
-    serialize(ov_model, tmp_ov_path)
+    try:
+        from openvino.runtime import Core, serialize
+        core = Core()
+        ov_model = core.read_model(input_ov_path)
+        ov_model.reshape(reshape_dict)
+        serialize(ov_model, tmp_ov_path)
+    except (ImportError, AttributeError):
+        # fallback to the newer 2025+ version of openvino that doesn't have openvino.runtime
+        import openvino as ov
+        core = ov.Core()
+        ov_model = core.read_model(input_ov_path)
+        ov_model.reshape(reshape_dict)
+        ov.serialize(ov_model, tmp_ov_path)
 
 
 def update_genai_overrides(encapsulate_json, w_config: WhisperConfig, enable_npu_ws: bool, reshape: bool, output_directory: str):
