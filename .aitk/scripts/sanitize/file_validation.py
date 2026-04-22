@@ -224,8 +224,8 @@ def readCheckRequirements(requirementsFile: str):
 
     oldContents = []
     newContents = [
-        "# This file will be installed together with AITK runtime requirements",
-        "# For the full requirements, see AITK",
+        "# This file will be installed together with Foundry Toolkit runtime requirements",
+        "# For the full requirements, see Foundry Toolkit",
     ]
     ready = False
     if len(requirementsLines) >= len(newContents):
