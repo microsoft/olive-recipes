@@ -1,11 +1,11 @@
 # AMD model generation
 --extra-index-url=https://pypi.amd.com/simple
 
-model-generate==1.7.1
-ryzenai-onnx-utils==1.7.1
-ryzenai-dynamic-dispatch==1.7.1
-voe==1.7.1
-onnxruntime-vitisai==1.24.3
+#model-generate==1.7.1
+#ryzenai-onnx-utils==1.7.1
+#ryzenai-dynamic-dispatch==1.7.1
+#voe==1.7.1
+#onnxruntime-vitisai==1.24.3
 
 accelerate
 datasets
