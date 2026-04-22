@@ -23,7 +23,7 @@ def parse_args(raw_args):
 
     parser.add_argument("--script_dir", required=True, type=str)
     parser.add_argument("--model_dir", default="optimized", type=str, help="model_dir path")
-    parser.add_argument("--model_id", default="stable-diffusion-v1-5/stable-diffusion-v1-5", type=str)
+    parser.add_argument("--model_id", default="sd2-community/stable-diffusion-2-1", type=str)
     parser.add_argument(
         "--guidance_scale",
         default=7.5,
@@ -37,7 +37,7 @@ def parse_args(raw_args):
         type=int,
         help="The seed to give to the generator to generate deterministic results.",
     )
-    parser.add_argument("--image_size", default=512, type=int, help="Width and height of the images to generate")
+    parser.add_argument("--image_size", default=768, type=int, help="Width and height of the images to generate")
     parser.add_argument(
         "--execution_provider",
         type=str,
