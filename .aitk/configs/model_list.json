@@ -704,7 +704,7 @@
         },
         {
             "displayName": "facebook/sam-vit-base",
-            "icon": "HuggingFace",
+            "icon": "meta",
             "modelLink": "https://huggingface.co/facebook/sam-vit-base",
             "id": "huggingface/facebook/sam-vit-base",
             "runtimes": [
@@ -717,7 +717,7 @@
         },
         {
             "displayName": "facebook/sam2.1-hiera-small",
-            "icon": "HuggingFace",
+            "icon": "meta",
             "modelLink": "https://huggingface.co/facebook/sam2.1-hiera-small",
             "id": "huggingface/facebook/sam2.1-hiera-small",
             "runtimes": [

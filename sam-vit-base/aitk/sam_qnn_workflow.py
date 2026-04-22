@@ -75,20 +75,21 @@ def main():
 
     if args.model_config:
         model_path: str = os.path.dirname(args.model_config)
+        encoder_path: str = os.path.join(model_path, "encoder", "model.onnx")
+        decoder_path: str = os.path.join(model_path, "decoder", "model.onnx")
         execution_provider: str = oliveJson["systems"]["target_system"]["accelerators"][0]["execution_providers"][0]
-        device_str: str = oliveJson["systems"]["target_system"]["accelerators"][0]["device"]
+        device_str = "npu" if execution_provider == "QNNExecutionProvider" else "cpu"
+
         output_file = os.path.join(os.path.dirname(args.config), "metrics.json")
 
-        # TODO add evaluation
-        metrics = {
-            "mask-decoder-latency-avg": 5.26205,
-            "vision-encoder-latency-avg": 2.34567
-        }
-        output_file = os.path.join(os.path.dirname(args.config), "metrics.json")
-        resultStr = json.dumps(metrics, indent=4)
-        with open(output_file, 'w') as file:
-            file.write(resultStr)
-        logger.info("Model lab succeeded for evaluation.\n%s", resultStr)
+        # Run evaluator
+        subprocess.run([sys.executable, "sam_qnn_evaluation.py",
+                        "--model_ve", encoder_path,
+                        "--model_md", decoder_path,
+                        "--execution_provider", execution_provider,
+                        "--device_str", device_str,
+                        "--output_file", output_file],
+                        check=True)
         return
 
 

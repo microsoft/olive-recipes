@@ -3,18 +3,29 @@
 # Licensed under the MIT License.
 # --------------------------------------------------------------------------
 
-import numpy as np
 import argparse
 import json
 import os
 import time
 from urllib import request
-from PIL import Image
+
+import numpy as np
 import onnxruntime as ort
-from transformers import SamProcessor
+import torch
+import torch.nn.functional as F
+from PIL import Image
+from torchvision import transforms
 
 # Load processor
-processor = SamProcessor.from_pretrained("facebook/sam-vit-base")
+sam2_transform = transforms.Compose(
+    [
+        transforms.Resize((1024, 1024)),  # Resize to 1024x1024
+        transforms.ToTensor(),  # Convert to tensor [C,H,W] and scale to [0,1]
+        transforms.Normalize(
+            mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]
+        ),  # Normalize
+    ]
+)
 
 def add_ep_for_device(session_options, ep_name, device_type, ep_options=None):
     ep_devices = ort.get_ep_devices()
@@ -38,25 +49,39 @@ def register_execution_providers():
         except Exception as e:
             print(f"Failed to register execution provider {item[0]}: {e}")
 
-def test_mask_ort(sess_ve, sess_md, image, ve_dtype, md_dtype, sess_ve_inputs, sess_md_inputs):
+def test_mask_ort(
+    sess_ve, sess_md, image, ve_dtype, md_dtype, sess_ve_inputs, sess_md_inputs
+):
     w, h = image.size
-    inputs = processor(image, input_boxes=[[[0, 0], [w, h]]], return_tensors="np")
-    ort_pixel_values = inputs["pixel_values"]
-    input_boxes = inputs["input_boxes"]
+    processed_image = sam2_transform(image)
+    inputs = processed_image.float().numpy()[None, :]
+    ort_pixel_values = inputs
 
-    ort_input_points = input_boxes.reshape(1, 1, 2, 2)
-    ort_input_labels = np.array([2, 3]).reshape(1, 1, 2)
+    box = np.array([[0, 0], [w, h]])
+    box_coords = box.reshape(2, 2)
+    box_coords[:, 0] = box_coords[:, 0] * 1024 / w
+    box_coords[:, 1] = box_coords[:, 1] * 1024 / h
+
+    box_labels = np.array([2, 3])
+    blank_points = np.zeros([3, 2])
+    blank_labels = -np.ones(3)
+    ort_input_points = np.concatenate([blank_points, box_coords], axis=0)[None, :]
+    ort_input_labels = np.concatenate([blank_labels, box_labels], axis=0)[None, :]
 
     input_ve = {sess_ve_inputs[0].name: np.array(ort_pixel_values, dtype=ve_dtype)}
 
     encoder_start = time.perf_counter()
-    result_ve = sess_ve.run(None, input_ve)
+    image_embedding, high_res_features1, high_res_features2 = sess_ve.run(
+        None, input_ve
+    )
     encoder_latency = time.perf_counter() - encoder_start
 
     input_md = {
-        sess_md_inputs[0].name: np.array(ort_input_points, dtype=md_dtype),
-        sess_md_inputs[1].name: np.array(ort_input_labels, dtype=md_dtype),
-        sess_md_inputs[2].name: np.array(result_ve[0], dtype=md_dtype)
+        sess_md_inputs[0].name: image_embedding.astype(md_dtype),
+        sess_md_inputs[1].name: high_res_features1.astype(md_dtype),
+        sess_md_inputs[2].name: high_res_features2.astype(md_dtype),
+        sess_md_inputs[3].name: ort_input_points.astype(md_dtype),
+        sess_md_inputs[4].name: ort_input_labels.astype(md_dtype),
     }
 
     decoder_start = time.perf_counter()
