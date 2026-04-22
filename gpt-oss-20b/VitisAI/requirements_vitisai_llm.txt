@@ -1,8 +1,12 @@
---extra-index-url=https://pypi.amd.com/olive/1.7.1/simple
+--extra-index-url=https://pypi.amd.com/olive/1.7.1-5D/simple
 # AMD model generation
 --extra-index-url=https://pypi.amd.com/simple
 accelerate
-huggingface_hub
+
+# Quark
+amd-quark==0.11
+datasets
+evaluate
 
 model-generate
 
@@ -13,6 +17,7 @@ numpy==1.26.4
 onnx==1.18.0
 onnxruntime
 onnxruntime-genai
+onnxsim
 optimum
 
 ryzenai-dynamic-dispatch
