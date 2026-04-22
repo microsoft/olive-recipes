@@ -11,8 +11,6 @@ from urllib import request
 
 import numpy as np
 import onnxruntime as ort
-import torch
-import torch.nn.functional as F
 from PIL import Image
 from torchvision import transforms
 
