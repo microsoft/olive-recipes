@@ -1,3 +1,7 @@
+# -------------------------------------------------------------------------
+# Copyright (C) 2026 Advanced Micro Devices, Inc. All rights reserved.
+# Portions of this file consist of AI generated content.
+# --------------------------------------------------------------------------
 """End-to-end optimization pipeline for Qwen3.5-35B-A3B MoE VLM.
 
 Exports three sub-models (vision encoder, text embedding, text decoder),
