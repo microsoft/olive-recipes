@@ -7,5 +7,7 @@
         }
     },
     "passes": { "mobius_build": { "type": "MobiusModelBuilder", "precision": "fp32" } },
-    "engine": { "target": "local_system", "output_dir": "models/gemma4-e2b-fp32-cpu", "log_severity_level": 1 }
+    "output_dir": "models/gemma4-e2b-fp32-cpu",
+    "log_severity_level": 1,
+    "engine": { "target": "local_system" }
 }
