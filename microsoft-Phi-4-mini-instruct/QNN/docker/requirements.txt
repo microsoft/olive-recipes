@@ -1,4 +1,4 @@
 auto-gptq
 datasets
 optimum
-transformers==4.53.3
+transformers==5.0.0rc3
