@@ -53,7 +53,6 @@ def update_genai_config(output_dir: str = MODELS_DIR, device: str = "cpu"):
         provider_options = []
         vision_provider_options = []
 
-    session_options = {"log_id": "onnxruntime-genai", "provider_options": provider_options}
     vision_session_options = {"log_id": "onnxruntime-genai", "provider_options": vision_provider_options}
 
     config["model"]["decoder"]["session_options"] = session_options
