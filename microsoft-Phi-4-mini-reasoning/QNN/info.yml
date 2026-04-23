@@ -1,0 +1,7 @@
+keywords:
+  qnn
+recipes:
+  - file: "phi4_mini_qnn_docker.json"
+    devices:
+      - npu
+    ep: QNNExecutionProvider
