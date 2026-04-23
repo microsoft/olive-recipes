@@ -96,6 +96,7 @@ def main():
 
 def generate_response(model, processor, tokenizer, tokenizer_stream, prompt, image_path, max_length=4096, quiet=False):
     """Run a single generation. Returns (text, token_count, ttft, tps)."""
+    t_preproc_start = time.perf_counter()
     images = None
     if image_path:
         if not quiet:
@@ -133,11 +134,12 @@ def generate_response(model, processor, tokenizer, tokenizer_stream, prompt, ima
 
     generator = og.Generator(model, params)
     generator.set_inputs(inputs)
+    t_preproc = time.perf_counter() - t_preproc_start
+    t_start = time.perf_counter()
 
     token_count = 0
     ttft = None
     tokens = []
-    t_start = time.perf_counter()
 
     if not quiet:
         print("\nResponse: ", end="", flush=True)
@@ -151,7 +153,7 @@ def generate_response(model, processor, tokenizer, tokenizer_stream, prompt, ima
         if not quiet:
             print(tokenizer_stream.decode(new_token), end="", flush=True)
 
-    t_total = time.perf_counter() - t_start
+    t_model = time.perf_counter() - t_start
     if not quiet:
         print()
     del generator
@@ -159,14 +161,16 @@ def generate_response(model, processor, tokenizer, tokenizer_stream, prompt, ima
     text = tokenizer.decode(tokens)
 
     decode_tokens = max(token_count - 1, 1)
-    decode_time = t_total - (ttft or 0)
+    decode_time = t_model - (ttft or 0)
     tps = decode_tokens / decode_time if decode_time > 0 else 0
 
     if not quiet:
         print(f"\n  Tokens generated : {token_count}")
-        print(f"  TTFT             : {ttft * 1000:.1f} ms")
+        print(f"  Preprocess       : {t_preproc * 1000:.1f} ms  (image/template/processor; excluded from TTFT)")
+        print(f"  TTFT (model)     : {ttft * 1000:.1f} ms")
         print(f"  Decode TPS       : {tps:.1f} tokens/sec")
-        print(f"  Total time       : {t_total:.2f} s")
+        print(f"  Model time       : {t_model:.2f} s")
+        print(f"  End-to-end time  : {t_preproc + t_model:.2f} s")
 
     return text, token_count, ttft or 0, tps
 
@@ -292,7 +296,8 @@ def _run_pytorch(pt_model, pt_proc, device, prompt, image_path, max_length):
         }
     ]
     text_input = pt_proc.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
-    image_inputs, video_inputs = process_vision_info(messages)
+    image_patch_size = int(getattr(pt_proc.image_processor, "patch_size", 16))
+    image_inputs, video_inputs = process_vision_info(messages, image_patch_size=image_patch_size)
     inputs = pt_proc(
         text=[text_input], images=image_inputs, videos=video_inputs,
         padding=True, return_tensors="pt",

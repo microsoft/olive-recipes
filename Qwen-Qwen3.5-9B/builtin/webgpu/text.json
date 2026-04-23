@@ -10,15 +10,11 @@
             "int4_accuracy_level": 4,
             "extra_options": {
                 "filename": "text.onnx",
-                "quant_mode": "int4",
-                "prune_lm_head": true
+                "prune_lm_head": true,
+                "quant_mode": "int4"
             }
-        },
-        "t": {
-            "type": "GraphSurgeries",
-            "surgeries": [{"surgeon": "TieWordEmbeddings"}]
         }
     },
     "no_artifacts": true,
-    "output_dir": "cpu_and_mobile/models/text.onnx"
+    "output_dir": "webgpu/models/text.onnx"
 }
