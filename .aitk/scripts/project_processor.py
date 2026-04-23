@@ -49,11 +49,13 @@ org_to_icon = {
     "google": IconEnum.Gemini,
     "deepseek-ai": IconEnum.DeepSeek,
     "Qwen": IconEnum.qwen,
+    "facebook": IconEnum.Meta,
     "meta-llama": IconEnum.Meta,
     "mistralai": IconEnum.mistralai,
     # TODO add
     "OFA-Sys": IconEnum.HuggingFace,
     "stable-diffusion-v1-5": IconEnum.HuggingFace,
+    "sd2-community": IconEnum.HuggingFace,
 }
 
 

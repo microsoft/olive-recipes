@@ -2,7 +2,7 @@
 
 ## Overview
 
-In general, the following steps should be done to submit recipes to AITK and these are summary of what they do
+In general, the following steps should be done to submit recipes to Foundry Toolkit and these are summary of what they do
 
 
 | Name | Summary |
@@ -10,10 +10,10 @@ In general, the following steps should be done to submit recipes to AITK and the
 | Create Folder | Create folder for new model |
 | Create Olive recipes | Add Olive recipes for converting the model |
 | Create Requirements file (optional) | Create file to configure stand-alone Python venv |
-| Create info.yml | Info.yml is used to describe the olive recipes and AITK project |
+| Create info.yml | Info.yml is used to describe the olive recipes and Foundry Toolkit project |
 | Update version (for update) | Update version if necessary for updating project |
-| Run sanitize.py | Sanitize.py will help to validate and generate additional files for AITK |
-| Test in AITK | Do E2E test |
+| Run sanitize.py | Sanitize.py will help to validate and generate additional files for Foundry Toolkit |
+| Test in Foundry Toolkit | Do E2E test |
 | Submit pr | Include necessary files, changes and metrics |
 
 ### Demo
@@ -28,10 +28,10 @@ Then inside it, create
 
 - LICENSE: the model license
 - Subfolders: could be any name. For example
-    - aitk: all aitk maintained recipes.
+    - aitk: all Foundry Toolkit maintained recipes.
     - NvTensorRtRtx: recipes for NVIDIA TensorRT for RTX
 
-In this case, since it is a new model and we want to show it in AITK, we use aitk
+In this case, since it is a new model and we want to show it in Foundry Toolkit, we use aitk
 
 
 ## Create Olive recipes
@@ -46,7 +46,7 @@ In the aitk folder, create the following files to do the conversion and inferenc
 
 ## Create Requirements file (optional)
 
-In AITK, the recipe conversion and evaluation process are separated. They could use same venv or totally different ones.
+In Foundry Toolkit, the recipe conversion and evaluation process are separated. They could use same venv or totally different ones.
 
 - For P0 models, these venvs will be maintained by MS and whenever they have updates, P0 recipes will also be verified.
 - For other models, a venv setup for conversion is required. So once verified and checked in, end users could always reliably convert the model.
@@ -74,8 +74,8 @@ Explanations
 - recipes.ep / eps: the list of Eps that recipe supports
 - recipes.aitk.requirements: requirement file explained above
 - recipes.aitk.requirementsPatches: patch file explained above
-- aitk.modelInfo.id: a unique name in aitk. Usually huggingface/ORG/MODEL_NAME
-- aitk.modelInfo.version: when config or inference sample has breaking updates, increase this number and AITK will ask user to upgrade their recipes. Start from 1.
+- aitk.modelInfo.id: a unique name in Foundry Toolkit. Usually huggingface/ORG/MODEL_NAME
+- aitk.modelInfo.version: when config or inference sample has breaking updates, increase this number and Foundry Toolkit will ask user to upgrade their recipes. Start from 1.
 - aitk.modelInfo.groupId: (optional) If we want to group multiple models together like for different size, we could set it
 - aitk.modelInfo.groupItemName: (optional) the name shown in dropdown
 
@@ -93,15 +93,15 @@ When we are updating the project, we may need to increase version. See [Versioni
 
 Version is designed to be an increasing integer for model scope to simplify version management.
 
-For end user, the version could bump more than 1 between each AITK update because AITK release and recipe update are two different processes. This is transparent to end user and they just see update no matter the gap is.
+For end user, the version could bump more than 1 between each Foundry Toolkit update because Foundry Toolkit release and recipe update are two different processes. This is transparent to end user and they just see update no matter the gap is.
 
 ## Run sanitize.py
 
-Run .aitk/scripts/sanitize.py to config and generate AITK specific files. These files are optional for pr creator as they are auto-generated (but need to commit for AITK).
+Run .aitk/scripts/sanitize.py to config and generate Foundry Toolkit specific files. These files are optional for pr creator as they are auto-generated (but need to commit for Foundry Toolkit).
 
 - checks.json: sanity check for changes
 - model_list.json: you could see that new model is correctly added
-- .gitignore: default pattern for AITK project files
+- .gitignore: default pattern for Foundry Toolkit project files
 - model_project.config: list recipes same as info.yml
 - xxx.json.config: UX definition file for xxx.json. Automatically generated for llm model now
     - For new recipes, we may need to work together for generation
@@ -110,7 +110,7 @@ You could also see warnings for your project:
 
 - requirements.txt not exists: This file is optional. If provided, we will install the packages in it in our default venv. The purpose of this file is to enable user to add packages he needed for updated inference sample or olive json
     - This file is not the config for conversion or inference venv
-- inference_model.json not exists: this is for adding converted model to AITK catalog. If tested, we could add that
+- inference_model.json not exists: this is for adding converted model to Foundry Toolkit catalog. If tested, we could add that
 
 Now the changed files are
 
@@ -120,17 +120,17 @@ Now the changed files are
 
 [UxConfig.md](./UxConfig.md)
 
-## Test in AITK
+## Test in Foundry Toolkit
 
-Run `.aitk/scripts/pack_to_extension.py` and it will pack current local olive-recipes repo into installed AITK extension. So you could test in your local branch first before pushing to olive-recipes.
+Run `.aitk/scripts/pack_to_extension.py` and it will pack current local olive-recipes repo into installed Foundry Toolkit extension. So you could test in your local branch first before pushing to olive-recipes.
 
-After the script, reopen VS Code to restart the AITK, you should see it in the model list
+After the script, reopen VS Code to restart the Foundry Toolkit, you should see it in the model list
 
 ![In list](./GetStarted/inlist.png)
 
-It will be converted via your specified environment and run in current WCR environment from AITK.
+It will be converted via your specified environment and run in current WCR environment from Foundry Toolkit.
 
-### Test in AITK source code
+### Test in Foundry Toolkit source code
 
 Run `npm run zip-template`. It will pack olive-recipes into windows-ai-studio-templates first then pack windows-ai-studio-templates into resources/template.zip for extension debugging.
 

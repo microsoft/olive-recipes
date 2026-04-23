@@ -472,6 +472,38 @@
             ]
         },
         {
+            "displayName": "facebook/sam-vit-base",
+            "icon": "meta",
+            "modelLink": "https://huggingface.co/facebook/sam-vit-base",
+            "id": "huggingface/facebook/sam-vit-base",
+            "runtimes": [
+                "QNN"
+            ],
+            "architecture": "Transformer",
+            "status": "Hide",
+            "relativePath": "sam-vit-base/aitk",
+            "version": 1,
+            "pipeline_tags": [
+                "fill-mask"
+            ]
+        },
+        {
+            "displayName": "facebook/sam2.1-hiera-small",
+            "icon": "meta",
+            "modelLink": "https://huggingface.co/facebook/sam2.1-hiera-small",
+            "id": "huggingface/facebook/sam2.1-hiera-small",
+            "runtimes": [
+                "QNN"
+            ],
+            "architecture": "Transformer",
+            "status": "Hide",
+            "relativePath": "sam2.1-hiera-small/aitk",
+            "version": 1,
+            "pipeline_tags": [
+                "fill-mask"
+            ]
+        },
+        {
             "displayName": "meta-llama/Llama-3.1-8B-Instruct",
             "icon": "meta",
             "modelLink": "https://huggingface.co/meta-llama/Llama-3.1-8B-Instruct",
@@ -801,6 +833,24 @@
             ]
         },
         {
+            "displayName": "sd2-community/stable-diffusion-2-1",
+            "icon": "HuggingFace",
+            "modelLink": "https://huggingface.co/sd2-community/stable-diffusion-2-1",
+            "id": "huggingface/sd2-community/stable-diffusion-2-1",
+            "runtimes": [
+                "QNN",
+                "IntelCPU",
+                "IntelGPU"
+            ],
+            "architecture": "Transformer",
+            "status": "Hide",
+            "relativePath": "sd2-community-stable-diffusion-2-1/aitk",
+            "version": 1,
+            "pipeline_tags": [
+                "text-to-image"
+            ]
+        },
+        {
             "displayName": "stable-diffusion-v1-5/stable-diffusion-v1-5",
             "icon": "HuggingFace",
             "modelLink": "https://huggingface.co/stable-diffusion-v1-5/stable-diffusion-v1-5",
@@ -907,6 +957,7 @@
         "AIMClab-RUC/COCO-CN": "https://huggingface.co/datasets/AIMClab-RUC/COCO-CN",
         "librispeech_asr": "https://huggingface.co/datasets/openslr/librispeech_asr",
         "phiyodr/coco2017": "https://huggingface.co/datasets/phiyodr/coco2017",
+        "nielsr/coco-panoptic-val2017": "https://huggingface.co/datasets/nielsr/coco-panoptic-val2017",
         "pileval_for_awq_benchmark": "https://huggingface.co/datasets/mit-han-lab/pile-val-backup"
     },
     "LoginRequiredDatasets": [
