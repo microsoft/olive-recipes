@@ -2,6 +2,8 @@
 # Copyright (C) 2026 Advanced Micro Devices, Inc. All rights reserved.
 # Portions of this file consist of AI generated content.
 # --------------------------------------------------------------------------
+# SPDX-License-Identifier: MIT
+# --------------------------------------------------------------------------
 """End-to-end optimization pipeline for TranslateGemma-4B-IT VLM.
 
 Exports three sub-models (text decoder, vision encoder, embedding),
