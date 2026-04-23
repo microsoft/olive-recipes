@@ -9,7 +9,7 @@
             "precision": "int4",
             "int4_accuracy_level": 4,
             "int4_algo_config": "k_quant_mixed",
-            "int4_block_size": 128,
+            "int4_block_size": 32,
             "extra_options": {
                 "filename": "text.onnx",
                 "prune_lm_head": true,
