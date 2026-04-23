@@ -16,5 +16,7 @@
             "save_as_external_data": true
         }
     },
-    "engine": { "target": "local_system", "output_dir": "models/gemma4-e2b-int4-cuda", "log_severity_level": 1 }
+    "engine": { "target": "local_system" },
+    "output_dir": "models/gemma4-e2b-int4-cuda",
+    "log_severity_level": 1
 }
