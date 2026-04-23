@@ -1041,8 +1041,8 @@ class Qwen2_5_VLTextModel(Qwen2_5_VLPreTrainedModel):
 class Qwen2_5_VLModel(Qwen2_5_VLPreTrainedModel):
     base_model_prefix = "model"
     _checkpoint_conversion_mapping = {
-        "^model.visual": "visual",
-        "^model.language_model": "language_model",
+        r"^model\.visual": "visual",
+        r"^model\.language_model": "language_model",
     }
     # Reference: fix gemma3 grad acc #37208
     accepts_loss_kwargs = False
