@@ -1,0 +1,35 @@
+{
+    "input_model": {
+        "model_path": "sd2-community/stable-diffusion-2-1"
+    },
+    "systems": {
+        "target_system": {
+            "type": "LocalSystem",
+            "accelerators": [
+                {
+                    "device": "gpu",
+                    "execution_providers": [
+                        "OpenVINOExecutionProvider"
+                    ]
+                }
+            ]
+        }
+    },
+    "evaluators": {
+        "common_evaluator": {
+        }
+    },
+    "passes": {
+        "aitkpython": {
+            "type": "AitkPython",
+            "model_precision": "fp32",
+            "user_script": "sd_ov_workflow.py"
+        }
+    },
+    "evaluator": "common_evaluator",
+    "evaluate_input_model": false,
+    "target": "target_system",
+    "clean_cache": false,
+    "output_dir": "model/sd_ov",
+    "cache_dir": "cache"
+}
