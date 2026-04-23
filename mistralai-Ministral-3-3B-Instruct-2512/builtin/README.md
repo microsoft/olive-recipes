@@ -24,14 +24,14 @@ Evaluated on [AI2D](https://allenai.org/data/diagrams) (science diagram multiple
 | Configuration | Accuracy | Samples | Model Size | Latency (s/sample) |
 |---------------|----------|---------|------------|---------------------|
 | PyTorch FP16 (CUDA) | 76.40% | 500 | ~7G | 0.14 |
-| PyTorch FP32 (CPU) | 78.00% | 100 | ~7G | 21.66 |
+| PyTorch FP32 (CPU) | 78.00% | 100 | ~7G | 22.84 |
 | ONNX CUDA (k_quant_mixed + INT8 vision) | 74.00% | 500 | 3.83G | 0.14 |
 | ONNX CPU (k_quant_mixed + INT8 vision) | 77.00% | 100 | 4.92G | 5.85 |
 
 ONNX CUDA is within 2.4pp of PyTorch FP16 at **half the model size** (3.83G vs ~7G).
-ONNX CPU achieves near-parity with PyTorch CPU at **70% smaller** (4.92G vs ~7G) and **3.7× faster**.
+ONNX CPU achieves near-parity with PyTorch CPU at **70% smaller** (4.92G vs ~7G) and **3.9× faster**.
 
-> **Latency Measurement:** Per-sample end-to-end inference time (image in → text out). Includes image preprocessing, tokenization, vision encoding, text generation (max 8 tokens), and decoding. Excludes model loading (one-time cost). Measured with `time.perf_counter()` averaged over all samples. No warmup run.
+> **Latency Measurement:** Per-sample end-to-end inference time (image in → text out). Includes image preprocessing, tokenization, vision encoding, text generation, and decoding. Answers are short (typically 1-2 tokens for multiple-choice). Excludes model loading (one-time cost). Measured with `time.perf_counter()` averaged over all samples. No warmup run.
 
 ## Prerequisites
 
@@ -207,9 +207,9 @@ The text decoder export (`text.json`) and INT8 quantization (`vision.json`) ARE 
 
 - **CPU vision: language drift on some images.** The quantized vision encoder occasionally produces embeddings that cause the text decoder to respond in the wrong language (e.g., Chinese instead of English). This has been observed on specific test images and is a known artifact of vision quantization. INT8 significantly reduces this compared to INT4.
 - **FP8 checkpoint requires special kernels.** The default HuggingFace checkpoint uses FP8 weights. Use the `-BF16` variant for PyTorch evaluation on machines without FP8 kernel support.
-- **Multi-image supported.** The runtime supports variable-count multi-image inputs via PixtralImageSizes metadata. Requires onnxruntime-extensions ≥ PR #1050 and models exported with PixtralImageSizes in `processor_config.json`.
-
 ## Notes
+
+- **Multi-image supported.** The runtime supports variable-count multi-image inputs via PixtralImageSizes metadata. Requires onnxruntime-extensions ≥ PR #1050 and models exported with PixtralImageSizes in `processor_config.json`.
 
 - **CPU pipeline**: Mobius exports FP16 as an intermediate format. Olive then quantizes vision to INT8. For CPU deployment, use `--dtype f32` so embedding outputs float32 natively (CPU EP promotes FP16 to FP32, which causes genai dtype mismatches).
 - **CUDA pipeline**: Mobius exports FP16 directly for vision/embedding. Olive quantizes vision to INT8. Text decoder uses k_quant_mixed INT4 via ModelBuilder.
