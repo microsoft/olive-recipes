@@ -46,11 +46,16 @@ def update_genai_config(output_dir: str = MODELS_DIR, device: str = "cpu"):
         vision_provider_options = [
             {"cuda": {"enable_cuda_graph": "0", "enable_skip_layer_norm_strict_mode": "1"}}
         ]
+    elif device == "webgpu":
+        provider_options = [{"webgpu": {}}]
+        vision_provider_options = [{"webgpu": {}}]
     else:
         provider_options = []
         vision_provider_options = []
 
     vision_session_options = {"log_id": "onnxruntime-genai", "provider_options": vision_provider_options}
+
+    config["model"]["decoder"]["session_options"] = session_options
 
     config["model"]["embedding"] = {
         "filename": "embedding.onnx",
@@ -142,7 +147,7 @@ def fix_tokenizer(output_dir: str = MODELS_DIR):
 
 def main():
     parser = argparse.ArgumentParser(description="Optimize Qwen3.5 ONNX models")
-    parser.add_argument("--device", choices=["gpu", "cpu"], default="cpu")
+    parser.add_argument("--device", choices=["gpu", "cpu", "webgpu"], default="cpu")
     parser.add_argument("--config-dir", default="cpu_and_mobile")
     parser.add_argument("--skip-export", action="store_true")
     parser.add_argument("--models-dir", default=None)
