@@ -31,6 +31,8 @@ Evaluated on [AI2D](https://allenai.org/data/diagrams) (science diagram multiple
 ONNX CUDA is within 2.4pp of PyTorch FP16 at **half the model size** (3.83G vs ~7G).
 ONNX CPU achieves near-parity with PyTorch CPU at **70% smaller** (4.92G vs ~7G) and **3.7× faster**.
 
+> **Latency Measurement:** Per-sample end-to-end inference time (image in → text out). Includes image preprocessing, tokenization, vision encoding, text generation (max 8 tokens), and decoding. Excludes model loading (one-time cost). Measured with `time.perf_counter()` averaged over all samples. No warmup run.
+
 ## Prerequisites
 
 ```bash
@@ -205,7 +207,7 @@ The text decoder export (`text.json`) and INT8 quantization (`vision.json`) ARE 
 
 - **CPU vision: language drift on some images.** The quantized vision encoder occasionally produces embeddings that cause the text decoder to respond in the wrong language (e.g., Chinese instead of English). This has been observed on specific test images and is a known artifact of vision quantization. INT8 significantly reduces this compared to INT4.
 - **FP8 checkpoint requires special kernels.** The default HuggingFace checkpoint uses FP8 weights. Use the `-BF16` variant for PyTorch evaluation on machines without FP8 kernel support.
-- **Single-image only.** Multi-image inputs are not yet supported; the runtime rejects prompts with more than one `[IMG]` token.
+- **Multi-image supported.** The runtime supports variable-count multi-image inputs via PixtralImageSizes metadata. Requires onnxruntime-extensions ≥ PR #1050 and models exported with PixtralImageSizes in `processor_config.json`.
 
 ## Notes
 
