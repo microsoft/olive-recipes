@@ -6,4 +6,4 @@ olive-ai[inc,lora,gpu]
 olive-ai[lora]
 onnxruntime-genai-cuda
 optimum
-transformers==4.45.0
+transformers==5.0.0rc3
