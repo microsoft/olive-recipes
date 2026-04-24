@@ -1,6 +1,6 @@
 {
     "configCheck": 167,
-    "copyCheck": 184,
+    "copyCheck": 183,
     "extensionCheck": 2,
     "gitignoreCheck": 44,
     "inferenceModelCheck": 25,
@@ -13,5 +13,5 @@
     "requirementsCheck": 37,
     "templateCheck": 3,
     "venvRequirementsCheck": 17,
-    "winmlCopyCheck": 40
+    "winmlCopyCheck": 39
 }
