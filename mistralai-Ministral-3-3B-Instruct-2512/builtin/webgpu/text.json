@@ -1,0 +1,33 @@
+{
+    "input_model": {
+        "type": "HfModel",
+        "model_path": "mistralai/Ministral-3-3B-Instruct-2512"
+    },
+    "passes": {
+        "convert": {
+            "type": "ModelBuilder",
+            "precision": "int4",
+            "int4_block_size": 32,
+            "int4_accuracy_level": 4,
+            "int4_algo_config": "k_quant_mixed",
+            "extra_options": {
+                "filename": "model.onnx"
+            }
+        }
+    },
+    "engine": {
+        "target": {
+            "type": "LocalSystem",
+            "accelerators": [
+                {
+                    "device": "gpu",
+                    "execution_providers": [
+                        "WebGpuExecutionProvider"
+                    ]
+                }
+            ]
+        }
+    },
+    "no_artifacts": true,
+    "output_dir": "webgpu/models/decoder"
+}

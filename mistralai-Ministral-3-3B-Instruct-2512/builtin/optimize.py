@@ -17,6 +17,7 @@ Architecture difference from Qwen VLM recipes:
 Usage:
     python optimize.py --config-dir cuda --device gpu
     python optimize.py --config-dir cpu_and_mobile --device cpu
+    python optimize.py --config-dir webgpu --device webgpu
     python optimize.py --config-dir cuda --device gpu --skip-export
     python optimize.py --config-dir cpu_and_mobile --device cpu --model-path /local/dequantized/checkpoint
 """
@@ -281,6 +282,9 @@ def update_genai_config(output_dir: str = MODELS_DIR, device: str = "cpu"):
             }
         ]
         vision_provider_options = provider_options
+    elif device == "webgpu":
+        provider_options = [{"webgpu": {}}]
+        vision_provider_options = provider_options
     else:
         provider_options = []
         vision_provider_options = []
@@ -435,7 +439,7 @@ def fix_tokenizer(output_dir: str = MODELS_DIR):
 
 def main():
     parser = argparse.ArgumentParser(description="Optimize Ministral-3-3B ONNX models")
-    parser.add_argument("--device", choices=["gpu", "cpu"], default="cpu")
+    parser.add_argument("--device", choices=["gpu", "cpu", "webgpu"], default="cpu")
     parser.add_argument("--config-dir", default="cpu_and_mobile")
     parser.add_argument("--skip-export", action="store_true")
     parser.add_argument("--models-dir", default=None)
