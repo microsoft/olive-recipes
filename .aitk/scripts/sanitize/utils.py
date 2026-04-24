@@ -61,6 +61,7 @@ class GlobalVars:
     copyCheck = 0
     licenseCheck = 0
     venvRequirementsCheck = set()
+    winmlCopyCheck = 0
 
     oliveCheck = 0
     RuntimeToEPName = {
