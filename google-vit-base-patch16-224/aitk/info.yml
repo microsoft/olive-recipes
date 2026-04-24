@@ -29,5 +29,5 @@ recipes:
 aitk:
     modelInfo:
         id: "huggingface/google/vit-base-patch16-224"
-        version: 4
+        version: 5
         p0: true

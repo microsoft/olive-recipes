@@ -8,4 +8,4 @@ recipes:
 aitk:
   modelInfo:
     id: "huggingface/openai/whisper-large-v3-turbo"
-    version: 1
+    version: 2

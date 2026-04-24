@@ -92,8 +92,9 @@ def main():
         description="Batch increase or decrease aitk.modelInfo.version across all info.yml files."
     )
     parser.add_argument(
-        "delta",
+        "--delta",
         type=int,
+        default=1,
         help="Integer delta to apply (e.g. +1, -1, 2). Must not reduce any version below 1.",
     )
     parser.add_argument(

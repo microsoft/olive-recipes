@@ -11,5 +11,5 @@ recipes:
 aitk:
     modelInfo:
         id: "huggingface/OFA-Sys/chinese-clip-vit-base-patch16"
-        version: 1
+        version: 2
         p0: false

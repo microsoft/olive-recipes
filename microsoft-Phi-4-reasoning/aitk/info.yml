@@ -12,4 +12,4 @@ recipes:
 aitk:
     modelInfo:
         id: "huggingface/microsoft/Phi-4-reasoning"
-        version: 4
+        version: 5

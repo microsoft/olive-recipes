@@ -26,6 +26,6 @@ recipes:
 aitk:
     modelInfo:
         id: "huggingface/deepseek-ai/DeepSeek-R1-Distill-Qwen-7B"
-        version: 3
+        version: 4
         groupId: "huggingface/deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B"
         groupItemName: "7B"
