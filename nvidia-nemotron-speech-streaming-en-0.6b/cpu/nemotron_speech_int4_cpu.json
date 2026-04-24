@@ -1,7 +1,22 @@
 {
     "input_model": {
         "type": "PyTorchModel",
-        "model_path": "nvidia/nemotron-speech-streaming-en-0.6b"
+        "model_path": "nvidia/nemotron-speech-streaming-en-0.6b",
+        "model_loader": "model_loader",
+        "model_script": "cpu/nemotron_encoder_load.py",
+        "io_config": {
+            "input_names": [
+                "audio_signal", "length",
+                "cache_last_channel", "cache_last_time",
+                "cache_last_channel_len"
+            ],
+            "output_names": [
+                "outputs", "encoded_lengths",
+                "cache_last_channel_next", "cache_last_time_next",
+                "cache_last_channel_len_next"
+            ]
+        },
+        "dummy_inputs_func": "generate_dummy_inputs"
     },
     "systems": {
         "local_system": {
@@ -15,13 +30,11 @@
         }
     },
     "passes": {
-        "export": {
-            "type": "NemotronExport",
-            "model_name": "nvidia/nemotron-speech-streaming-en-0.6b",
-            "streaming": true,
-            "chunk_size": 0.56,
-            "left_chunks": 10,
-            "device": "cpu"
+        "convert": {
+            "type": "OnnxConversion",
+            "target_opset": 21,
+            "dynamic": false,
+            "use_dynamo_exporter": true
         },
         "fusion": {
             "type": "OrtTransformersOptimization",
@@ -35,11 +48,9 @@
             }
         },
         "quantization": {
-            "type": "NemotronKQuantQuantization",
+            "type": "OnnxKQuantQuantization",
             "block_size": 32,
-            "is_symmetric": true,
-            "accuracy_level": 4,
-            "final_output_dir": "build/onnx_models_int4"
+            "accuracy_level": 4
         }
     },
     "target": "local_system",
