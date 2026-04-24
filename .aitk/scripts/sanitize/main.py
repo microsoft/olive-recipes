@@ -24,6 +24,7 @@ from .utils import GlobalVars, open_ex, printError, printWarning
 # Typically contains the canonical source of winml.py that others copy from.
 WINML_COPY_EXEMPT_IDS = {
     "huggingface/Intel/bert-base-uncased-mrpc",
+    "huggingface/deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B"
 }
 
 
