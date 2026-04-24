@@ -6,12 +6,39 @@ import inspect
 import json
 import os
 from contextlib import contextmanager
-from typing import Any
+from pathlib import Path
+from typing import Any, Iterator, Tuple
 
 import pydash
+import yaml
 from model_lab import RuntimeEnum
 
 from .constants import EPNames, OliveDeviceTypes, OlivePropertyNames
+
+
+def iter_aitk_info_yml(root_dir: Path) -> Iterator[Tuple[Path, dict]]:
+    """Yield (yml_file, yaml_object) for each info.yml under root_dir that has
+    a top-level `aitk` key.
+
+    Files that fail to parse are skipped with a printed warning. An info.yml
+    sitting under a folder literally named `aitk` but missing the `aitk` key
+    raises KeyError, matching the invariant enforced by project_processor.
+    """
+    for yml_file in root_dir.rglob("info.yml"):
+        try:
+            with yml_file.open("r", encoding="utf-8") as f:
+                yaml_object = yaml.safe_load(f.read())
+        except yaml.YAMLError as e:
+            print(f"Error reading {yml_file}: {e}")
+            continue
+        if not isinstance(yaml_object, dict):
+            continue
+        aitk = yaml_object.get("aitk")
+        if not aitk:
+            if yml_file.parent.name == "aitk":
+                raise KeyError(f"aitk not found in {yml_file}")
+            continue
+        yield yml_file, yaml_object
 
 
 class GlobalVars:

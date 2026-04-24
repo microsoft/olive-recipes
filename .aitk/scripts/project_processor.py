@@ -4,7 +4,6 @@ import urllib.request
 from pathlib import Path
 from typing import Dict, List, Optional
 
-import yaml
 from model_lab import RuntimeEnum
 from sanitize.constants import ArchitectureEnum, EPNames, IconEnum, ModelStatusEnum
 from sanitize.copy_config import CopyConfig
@@ -15,7 +14,7 @@ from sanitize.generator_qnn import generator_qnn
 from sanitize.generator_trtrtx import generator_trtrtx
 from sanitize.model_info import ModelInfo, ModelList
 from sanitize.project_config import ModelInfoProject, ModelProjectConfig, WorkflowItem
-from sanitize.utils import GlobalVars, isLLM_by_id, open_ex
+from sanitize.utils import GlobalVars, isLLM_by_id, iter_aitk_info_yml, open_ex
 
 def fetch_pipeline_tags(model_link: str) -> Optional[List[str]]:
     """Fetch pipeline_tag from HuggingFace API for a given model link.
@@ -209,22 +208,9 @@ def project_processor():
 
     all_ids = set()
     all_summary = AllModelSummary()
-    for yml_file in root_dir.rglob("info.yml"):
+    for yml_file, yaml_object in iter_aitk_info_yml(root_dir):
         # if "DEBUG_ID" in str(yml_file):
         #    pass
-        # read yml file as yaml object
-        with yml_file.open("r", encoding="utf-8") as file:
-            try:
-                yaml_content = file.read()
-                yaml_object = yaml.safe_load(yaml_content)
-            except yaml.YAMLError as e:
-                print(f"Error reading {yml_file}: {e}")
-                continue
-            aitk = yaml_object.get("aitk", [])
-            if not aitk:
-                if yml_file.parent.name == "aitk":
-                    raise KeyError(f"aitk not found in {yml_file}")
-                continue
         print(f"Process aitk for {yml_file}")
         # model info
         modelInfo = convert_yaml_to_model_info(root_dir, yml_file, yaml_object)
