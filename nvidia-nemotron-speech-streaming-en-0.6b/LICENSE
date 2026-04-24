@@ -1,18 +1,25 @@
-NVIDIA Open Model License Agreement
+Microsoft.
+Copyright (c) Microsoft Corporation.
 
-This NVIDIA Open Model License Agreement (the "Agreement") is a legal agreement between the Legal Entity You represent, or if no
-entity is identified, You and NVIDIA Corporation and its Affiliates ("NVIDIA") and governs Your use of the Models that NVIDIA provides
-to You under this Agreement. NVIDIA and You are each a "party" and collectively the "parties."
+MIT License
 
-NVIDIA models released under this Agreement are intended to be used permissively and enable the further development of AI
-technologies. Subject to the terms of this Agreement, NVIDIA confirms that:
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
 
-• Models are commercially usable.
-• You are free to create and distribute Derivative Models.
-• NVIDIA does not claim ownership to any outputs generated using the Models or Derivative Models.
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
 
-By using, reproducing, modifying, distributing, performing or displaying any portion or element of the Model or Derivative Model, or
-otherwise accepting the terms of this Agreement, you agree to be bound by this Agreement.
+THE SOFTWARE IS PROVIDED *AS IS*, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
 
 1. Definitions. The following definitions apply to this Agreement:
 

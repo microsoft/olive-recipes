@@ -9,10 +9,9 @@ summary: >
   encoder weights to INT4 (k_quant) for low-memory CPU inference.
 
 artifacts:
-  - cpu/nemotron_speech_int4_cpu_kquant.json
+  - cpu/nemotron_speech_int4_cpu.json
 
 scripts:
   - scripts/export_nemotron_to_onnx_static_shape.py
-  - scripts/optimize_encoder.py
   - scripts/test_e2e.py
   - scripts/test_real_speech.py

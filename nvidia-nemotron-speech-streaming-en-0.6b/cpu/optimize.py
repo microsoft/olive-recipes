@@ -6,21 +6,23 @@ Stage 1 — Export (NeMo → ONNX):
     Then runs scripts/export_tokenizer.py to produce tokenizer files
     (tokenizer.json, tokenizer_config.json, vocab.txt) in the same directory.
 
-Stage 2 — Olive Graph Fusion (ONNX encoder → fused ONNX):
-    Runs the Olive pipeline defined in encoder.json:
+Stage 2 — Olive Encoder Pipeline (PyTorch → fused INT4 ONNX):
+    Runs the Olive workflow defined in nemotron_speech_int4_cpu.json:
+    - OnnxConversion: Loads encoder via nemotron_encoder_load.py → ONNX
     - OrtTransformersOptimization (model_type="conformer"):
-        Fuses Conformer subgraphs into SkipLayerNormalization, BiasGelu, etc.
+        Fuses Conformer subgraphs (SkipLayerNorm, BiasGelu, etc.).
         Multi-head attention fusion is disabled to avoid accuracy regression.
+    - OnnxKQuantQuantization:
+        INT4 k-quant quantization (block_size=32, asymmetric).
 
-Stage 3 — INT4 k-quant Quantization (fused encoder → INT4 ONNX):
-    Applies k-quant weight-only quantization (block_size=32, symmetric,
-    accuracy_level=4) via OnnxRuntime's MatMulNBitsQuantizer, producing
-    an INT4-only encoder.onnx.
     The decoder and joint networks remain FP32 and are copied unchanged.
 
 Usage:
-    # Full pipeline: export + Olive graph fusion + INT4 k-quant
+    # Full pipeline: export + Olive encoder pipeline
     python optimize.py
+
+    # Or use Olive CLI directly for the encoder only:
+    python -m olive run --config cpu/nemotron_speech_int4_cpu.json
 
     # Skip NeMo export (models already in build/onnx_models_fp32/)
     python optimize.py --skip-export
@@ -42,7 +44,6 @@ _EXPORT_SCRIPT = _SCRIPT_DIR.parent / "scripts" / "export_nemotron_to_onnx_stati
 _TOKENIZER_SCRIPT = _SCRIPT_DIR.parent / "scripts" / "export_tokenizer.py"
 
 DEFAULT_EXPORT_DIR = "build/onnx_models_fp32"
-DEFAULT_FUSED_DIR = "build/onnx_models_fused"
 DEFAULT_OUTPUT_DIR = "build/onnx_models_int4"
 
 
@@ -89,25 +90,22 @@ def run_export(
     print()
 
 
-def run_olive_graph_fusion(export_dir: str, fused_dir: str):
-    """Run Olive graph fusion on the encoder (OrtTransformersOptimization).
+def run_olive_encoder_pipeline(output_dir: str):
+    """Run the Olive pipeline for the encoder: convert → fusion → INT4 quantization.
 
-    Applies Conformer-specific fusions (SkipLayerNorm, BiasGelu, etc.) using
-    the Olive pipeline defined in encoder.json.  Multi-head attention fusion is
-    intentionally disabled to avoid an accuracy regression on this model.
+    Uses nemotron_speech_int4_cpu.json which loads the model via
+    nemotron_encoder_load.py (model_script) and applies built-in Olive passes:
+    OnnxConversion → OrtTransformersOptimization → OnnxKQuantQuantization.
     """
-    from olive import run
+    from olive import run as olive_run
 
-    print("=== Stage 2: Olive Graph Fusion (encoder.json) ===")
+    print("=== Stage 2: Olive Encoder Pipeline (convert → fusion → k_quant INT4) ===")
 
-    # Load the base config and patch in the actual export/fused paths so that
-    # non-default --export-dir / --fused-dir values are honoured correctly.
-    config_path = _SCRIPT_DIR / "encoder.json"
+    config_path = _SCRIPT_DIR / "nemotron_speech_int4_cpu.json"
     with open(config_path) as f:
         config = json.load(f)
 
-    config["input_model"]["model_path"] = str(_resolve(export_dir) / "encoder.onnx")
-    config["output_dir"] = str(_resolve(fused_dir))
+    config["output_dir"] = str(_resolve(output_dir))
 
     with tempfile.NamedTemporaryFile(
         mode="w", suffix=".json", dir=str(_SCRIPT_DIR), delete=False
@@ -116,73 +114,30 @@ def run_olive_graph_fusion(export_dir: str, fused_dir: str):
         tmp_path = tmp.name
 
     try:
-        run(tmp_path)
+        olive_run(tmp_path)
     finally:
         Path(tmp_path).unlink(missing_ok=True)
 
-    print()
+    # Olive outputs model.onnx; re-save as encoder.onnx for ORT GenAI.
+    # We must re-save (not just rename) to update internal external-data references.
+    olive_out = _resolve(output_dir)
+    model_onnx = olive_out / "model.onnx"
+    encoder_onnx = olive_out / "encoder.onnx"
+    if model_onnx.exists():
+        import onnx
+        from onnx.external_data_helper import convert_model_to_external_data
 
-
-def run_kquant_quantization(
-    fused_dir: str,
-    output_dir: str,
-    block_size: int = 32,
-    is_symmetric: bool = True,
-    accuracy_level: int = 4,
-):
-    """Quantize the fused encoder to INT4 using k-quant (KQuantWeightOnlyQuantConfig).
-
-    Produces an INT4-only encoder with all MatMul weights quantized via the
-    k-quant algorithm from OnnxRuntime's MatMulNBitsQuantizer.
-    """
-    import onnx
-    from onnxruntime.quantization.matmul_nbits_quantizer import (
-        KQuantWeightOnlyQuantConfig,
-        MatMulNBitsQuantizer,
-    )
-
-    print("=== Stage 3: INT4 k-quant Quantization ===")
-
-    # Olive saves its output as "model.onnx"; a manually-fused dir may have
-    # "encoder.onnx".  Check the Olive default first, then fall back.
-    fused_path = _resolve(fused_dir)
-    src = fused_path / "model.onnx"
-    if not src.exists():
-        src = fused_path / "encoder.onnx"
-    if not src.exists():
-        raise FileNotFoundError(
-            f"Fused encoder not found in {fused_path}. "
-            "Expected 'model.onnx' (Olive output) or 'encoder.onnx'."
-        )
-    dst_dir = _resolve(output_dir)
-    dst_dir.mkdir(parents=True, exist_ok=True)
-    dst = dst_dir / "encoder.onnx"
-
-    print(f"  Input:          {src}")
-    print(f"  Output:         {dst}")
-    print(f"  Bits:           4")
-    print(f"  Block size:     {block_size}")
-    print(f"  Symmetric:      {is_symmetric}")
-    print(f"  Accuracy level: {accuracy_level}")
-    print(f"  Algorithm:      k_quant (INT4-only)")
-
-    model = onnx.load(str(src), load_external_data=True)
-    algo_config = KQuantWeightOnlyQuantConfig()
-    quantizer = MatMulNBitsQuantizer(
-        model=model,
-        block_size=block_size,
-        is_symmetric=is_symmetric,
-        accuracy_level=accuracy_level,
-        algo_config=algo_config,
-    )
-    quantizer.process()
-
-    for stale in [dst, Path(str(dst) + ".data")]:
-        if stale.exists():
+        model = onnx.load(str(model_onnx), load_external_data=True)
+        # Remove old files (model.onnx* and any stale encoder.onnx*)
+        for stale in list(olive_out.glob("model.onnx*")) + list(olive_out.glob("encoder.onnx*")):
             stale.unlink()
+        # Re-save with encoder.onnx naming
+        convert_model_to_external_data(
+            model, all_tensors_to_one_file=True, location="encoder.onnx.data"
+        )
+        onnx.save_model(model, str(encoder_onnx))
+        print(f"  Saved as encoder.onnx (with encoder.onnx.data) in {olive_out}")
 
-    quantizer.model.save_model_to_file(str(dst), use_external_data_format=True)
-    print(f"  Saved INT4 encoder to: {dst}")
     print()
 
 
@@ -254,11 +209,6 @@ def main():
         help=f"Directory for exported FP32 ONNX models (default: {DEFAULT_EXPORT_DIR})",
     )
     parser.add_argument(
-        "--fused-dir",
-        default=DEFAULT_FUSED_DIR,
-        help=f"Directory for Olive graph-fused ONNX models (default: {DEFAULT_FUSED_DIR})",
-    )
-    parser.add_argument(
         "--output-dir",
         default=DEFAULT_OUTPUT_DIR,
         help=f"Output directory for optimized INT4 models (default: {DEFAULT_OUTPUT_DIR})",
@@ -290,7 +240,8 @@ def main():
     )
     args = parser.parse_args()
 
-    # Stage 1: Export NeMo model → ONNX (encoder, decoder, joint, configs)
+    # Stage 1: Export NeMo model → ONNX (decoder, joint, configs, tokenizer)
+    # The encoder is handled by Olive in Stage 2.
     if not args.skip_export:
         run_export(
             model_name=args.model_name,
@@ -302,11 +253,8 @@ def main():
     else:
         print(f"=== Stage 1: Skipped (reusing models from {args.export_dir}) ===\n")
 
-    # Stage 2: Olive graph fusion (OrtTransformersOptimization, MHA fusion disabled)
-    run_olive_graph_fusion(export_dir=args.export_dir, fused_dir=args.fused_dir)
-
-    # Stage 3: INT4 k-quant quantization on fused encoder
-    run_kquant_quantization(fused_dir=args.fused_dir, output_dir=args.output_dir)
+    # Stage 2: Olive encoder pipeline (convert → fusion → INT4 quantization)
+    run_olive_encoder_pipeline(output_dir=args.output_dir)
 
     # Copy decoder, joint, and config files to output (FP32, unchanged)
     print("=== Copying supporting files ===")
@@ -325,6 +273,13 @@ def main():
             "    huggingface-cli download onnx-community/silero-vad --include onnx/model.onnx --local-dir .\n"
             f"  and copy onnx/model.onnx to {_resolve(args.output_dir) / 'silero_vad.onnx'}"
         )
+
+    # Clean up intermediate export directory (only if we created it)
+    if not args.skip_export:
+        export_path = _resolve(args.export_dir)
+        if export_path.exists() and export_path.resolve() != _resolve(args.output_dir).resolve():
+            shutil.rmtree(str(export_path))
+            print(f"=== Cleaned up intermediate files: {export_path} ===")
 
     # Summary
     output_path = _resolve(args.output_dir)

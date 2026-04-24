@@ -43,33 +43,6 @@ Extracts the SentencePiece vocabulary from NeMo and converts it to HuggingFace
 Unigram format (`tokenizer.json` + `tokenizer_config.json`) compatible with
 ORT Extensions' T5Tokenizer path.
 
-## Optimize
-
-Optimize the encoder model with graph fusion + INT4 quantization.
-Decoder and Joint remain FP32 (they are small and run many times per token).
-
-```bash
-python optimize_encoder.py --model_dir ./onnx_models --output_dir ./onnx_models_optimized
-```
-
-This applies two optimization stages to the encoder:
-
-1. **Graph fusion** (`model_type=conformer`) — Fuses LayerNorm + residual Add
-   into `SkipLayerNormalization` ops (96 fusions across 24 layers).
-2. **INT4 quantization** — Converts FP32 MatMul weights to 4-bit
-   (`MatMulNBits`, symmetric, block_size=32). Reduces encoder from ~2.4 GB → ~648 MB.
-
-Options:
-
-| Argument | Default | Description |
-|----------|---------|-------------|
-| `--model_dir` | `./onnx_models` | Source directory with original ONNX models |
-| `--output_dir` | `./onnx_models_optimized` | Output directory for optimized models |
-| `--block_size` | `32` | INT4 quantization block size |
-| `--accuracy_level` | `4` | Accuracy level (0=unset, 4=highest) |
-| `--dtype` | `fp32` | Output dtype for encoder weights (`fp32`, `fp16`, `int8`, `int4`) |
-| `--skip_fusion` | | Skip graph fusion stage |
-
 ## Test
 
 ```bash
@@ -100,6 +73,5 @@ python test_real_speech.py
 |--------|---------|
 | `export_nemotron_to_onnx_static_shape.py` | Export encoder, decoder, joint ONNX models from NeMo |
 | `export_tokenizer.py` | Extract vocab from NeMo and create ORT-compatible tokenizer |
-| `optimize_encoder.py` | Optimize encoder: graph fusion (conformer) + INT4 quantization |
 | `test_e2e.py` | End-to-end test: model load, tokenizer, inference, raw ONNX baseline |
 | `test_real_speech.py` | Real speech test with NeMo preprocessing, compares OG vs raw ORT |
