@@ -20,13 +20,6 @@ from .parameters import readCheckParameterTemplate
 from .project_config import ModelInfoProject, ModelProjectConfig
 from .utils import GlobalVars, open_ex, printError, printWarning
 
-# Projects exempt from the "_copy.json.config must copy winml.py" rule.
-# Typically contains the canonical source of winml.py that others copy from.
-WINML_COPY_EXEMPT_IDS = {
-    "huggingface/Intel/bert-base-uncased-mrpc",
-    "huggingface/deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B"
-}
-
 
 def shouldCheckModel(rootDir: str, configDir: str, model: ModelInfo) -> str | None:
     modelDir = os.path.join(rootDir, model.relativePath) if model.relativePath else os.path.join(configDir, model.id)
@@ -70,24 +63,12 @@ def main():
             version = model.version
             modelVerDir = modelDir if model.relativePath else os.path.join(modelDir, str(version))
 
-            # process copy
+            # process copy (post phase — .json.config copies; winml.py is auto-ensured earlier in project_processor)
             copyConfigFile = os.path.join(modelVerDir, "_copy.json.config")
-            copyConfig: CopyConfig | None = None
             if os.path.exists(copyConfigFile):
                 copyConfig = CopyConfig.Read(copyConfigFile)
                 copyConfig.process(modelVerDir, pre=False)
                 copyConfig.writeIfChanged()
-
-            # Every non-template, non-extension project must have a _copy.json.config
-            # with a copy entry for winml.py (so winml.py stays in sync with the canonical
-            # source at intel-bert-base-uncased-mrpc). Exempt list: WINML_COPY_EXEMPT_IDS.
-            if not model.template and not model.extension and model.id not in WINML_COPY_EXEMPT_IDS:
-                if copyConfig is None:
-                    printError(f"{copyConfigFile} not exists (required to copy winml.py)")
-                elif not any(c.dst == "winml.py" for c in copyConfig.copies):
-                    printError(f"{copyConfigFile} missing a copy entry with dst 'winml.py'")
-                else:
-                    GlobalVars.winmlCopyCheck += 1
 
             # check LICENSE
             if not model.extension and not model.template:

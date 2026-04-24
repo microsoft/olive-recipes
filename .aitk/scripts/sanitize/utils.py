@@ -237,6 +237,23 @@ def isLLM_by_id(id: str) -> bool:
     return any(check in id for check in check_list)
 
 
+# Projects that are themselves canonical winml.py sources and should not have
+# a winml.py copy entry auto-added to their _copy.json.config.
+WINML_COPY_EXEMPT_IDS = {
+    "huggingface/Intel/bert-base-uncased-mrpc",
+    "huggingface/deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B",
+}
+
+# Canonical winml.py sources. Paths are relative to the project's aitk folder
+# (matches the CopyConfig `src` format).
+WINML_SRC_LLM = "../../deepseek-ai-DeepSeek-R1-Distill-Qwen-1.5B/aitk/winml.py"
+WINML_SRC_NON_LLM = "../../intel-bert-base-uncased-mrpc/aitk/winml.py"
+
+
+def winml_copy_src_for(model_id: str) -> str:
+    return WINML_SRC_LLM if isLLM_by_id(model_id) else WINML_SRC_NON_LLM
+
+
 # TODO align with Skylight\vscode\ai-mlstudio\src\model-lab\utilities\runtimeUtils.ts
 def get_execute_runtime(runtime: RuntimeEnum) -> RuntimeEnum:
     if runtime in [RuntimeEnum.IntelAny, RuntimeEnum.IntelCPU, RuntimeEnum.IntelGPU, RuntimeEnum.IntelNPU]:
