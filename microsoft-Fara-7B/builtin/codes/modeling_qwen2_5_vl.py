@@ -1305,7 +1305,7 @@ class Qwen2_5_VLModel(Qwen2_5_VLPreTrainedModel):
             special_image_mask = input_ids == self.config.image_token_id
             llm_input_ids = input_ids.clone()
             llm_input_ids[special_image_mask] = 0
-            return input_ids
+            return llm_input_ids
         def false_fn_for_input_ids(input_ids):
             return input_ids
 
@@ -1425,7 +1425,7 @@ class Qwen2_5_VLModel(Qwen2_5_VLPreTrainedModel):
 
         if pixel_values is not None:
             image_embeds = self.get_image_features(pixel_values, image_grid_thw)
-            image_embeds = torch.cat(image_embeds, dim=0).to(inputs_embeds.device, inputs_embeds.dtype)
+            image_embeds = image_embeds.to(inputs_embeds.device, inputs_embeds.dtype)
             image_mask, _ = self.get_placeholder_mask(
                 input_ids, inputs_embeds=inputs_embeds, image_features=image_embeds
             )

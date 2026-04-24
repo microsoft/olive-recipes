@@ -31,7 +31,7 @@ All graph transformations and quantization are declared in the JSON config files
 
 > **Note:** The text model is always exported as INT4 via ModelBuilder. The vision encoder is graph-optimized and quantized by Olive passes. The embedding model's Gather-based embedding table is quantized using GatherBlockQuantized.
 >
-> The vision encoder is exported for a single image using the Dynamo exporter. At runtime, ONNX Runtime GenAI handles multiple images by calling the vision encoder once per image and concatenating the results — so there is no upper bound on the number of images passed to the model.
+> The vision encoder is exported with dynamic `num_images` and `num_patches` dimensions using the Dynamo exporter, so a single ONNX model handles any number of images at any resolution in one call.
 
 ### 2. Run Inference
 
