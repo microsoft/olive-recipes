@@ -1,4 +1,4 @@
---extra-index-url=https://pypi.amd.com/olive/1.7.1/simple
+--extra-index-url=https://pypi.amd.com/olive/1.7.1-5D/simple
 # AMD model generation
 --extra-index-url=https://pypi.amd.com/simple
 accelerate

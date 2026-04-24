@@ -1,0 +1,44 @@
+{
+    "input_model": {
+        "type": "PyTorchModel",
+        "model_path": "facebook/sam-vit-base",
+        "model_loader": "sam_mask_decoder_load",
+        "model_script": "user_script.py",
+        "io_config": {
+            "input_names": [
+                "input_points",
+                "input_labels",
+                "image_embeddings"
+            ],
+            "output_names": [
+                "iou_scores",
+                "pred_masks"
+            ]
+        },
+        "dummy_inputs_func": "mask_decoder_inputs"
+    },
+    "systems": {
+        "local_system": {
+            "type": "LocalSystem"
+        }
+    },
+    "passes": {
+        "convert": {
+            "type": "OnnxConversion",
+            "config": {
+                "target_opset": 20,
+                "optimize": true,
+                "dynamic": false
+            }
+        },
+        "f16": {
+            "type": "OnnxFloatToFloat16",
+            "save_as_external_data": true
+        }
+    },
+    "log_severity_level": 0,
+    "evaluate_input_model": false,
+    "host": "local_system",
+    "cache_dir": "cache_olive_mask_decoder_fp16",
+    "output_dir": "model/sam_olive_mask_decoder_fp16"
+}

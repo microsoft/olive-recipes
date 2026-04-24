@@ -102,6 +102,7 @@ def main(raw_args=None):
     pipeline = OnnxStableDiffusionPipelineWithSave.from_pretrained(
         model_dir, provider=args.execution_provider, sess_options=sess_options, provider_options=provider_options
     )
+    pipeline.save_data_dir = None
 
     text_encoder_latencies = []
     unet_latencies = []

@@ -23,6 +23,7 @@ onnx==1.17.0
 onnxruntime-genai-winml==0.12.1
 onnxruntime-windowsml==1.24.4.202603181718
 packaging==24.2
+pandas==2.2.3
 parso==0.8.5
 platformdirs==4.4.0
 prompt-toolkit==3.0.52
@@ -38,6 +39,7 @@ stack-data==0.6.3
 sympy==1.14.0
 tornado==6.5.5
 traitlets==5.14.3
+tzdata==2025.2
 # uvpip:uninstall wasdk-Microsoft.Windows.AI.MachineLearning;pre
 # uvpip:uninstall wasdk-Microsoft.Windows.ApplicationModel.DynamicDependency.Bootstrap;pre
 wcwidth==0.2.13
