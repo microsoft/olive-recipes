@@ -1,0 +1,4 @@
+accelerate
+datasets
+onnxruntime-genai
+transformers>=4.57.0
