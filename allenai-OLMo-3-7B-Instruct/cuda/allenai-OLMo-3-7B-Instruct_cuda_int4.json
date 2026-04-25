@@ -38,7 +38,7 @@
     },
     "target": "local_system",
     "log_severity_level": 0,
-    "output_dir": "/home/olmo3_basic",
+    "output_dir": "model/allenai-OLMo-3-7B-Instruct_cuda_int4",
     "cache_dir": "cache",
     "no_artifacts": true
 }
