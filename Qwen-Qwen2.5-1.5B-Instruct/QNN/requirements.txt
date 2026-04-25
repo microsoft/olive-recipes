@@ -5,4 +5,4 @@ onnxruntime-genai-cuda==0.11.2
 onnxruntime-gpu==1.23.2
 optimum
 # newer transformers might have incompatibility with gptq passes
-transformers==4.57.3
+transformers==5.0.0rc3
