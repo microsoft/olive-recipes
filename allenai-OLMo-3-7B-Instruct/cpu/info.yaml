@@ -1,0 +1,7 @@
+
+arch: olmo3
+recipes:
+  - name: allenai-OLMo-3-7B-Instruct_cpu_int4
+    file: allenai-OLMo-3-7B-Instruct_cpu_int4.json
+    devices: cpu
+    eps: CPUExecutionProvider

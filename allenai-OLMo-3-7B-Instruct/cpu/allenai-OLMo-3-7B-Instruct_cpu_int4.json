@@ -1,0 +1,44 @@
+{
+    "input_model": {
+        "type": "HfModel",
+        "model_path": "allenai/OLMo-3-7B-Instruct",
+        "load_kwargs": {
+            "torch_dtype": "bfloat16",
+            "attn_implementation": "eager"
+        }
+    },
+    "systems": {
+        "local_system": {
+            "type": "LocalSystem",
+            "accelerators": [
+                {
+                    "device": "cpu",
+                    "execution_providers": ["CPUExecutionProvider"]
+                }
+            ]
+        }
+    },
+    "passes": {
+        "r": {
+            "type": "rtn",
+            "bits": 4,
+            "sym": false,
+            "group_size": 128,
+            "lm_head": true,
+            "embeds": true,
+            "overrides": {
+                "lm_head": {"bits": 8},
+                "model.embed_tokens": {"bits": 8}
+            }
+        },
+        "m": {
+            "type": "ModelBuilder",
+            "precision": "int4"
+        }
+    },
+    "target": "local_system",
+    "log_severity_level": 0,
+    "output_dir": "model/allenai-OLMo-3-7B-Instruct_cpu_int4",
+    "cache_dir": "cache",
+    "no_artifacts": true
+}
