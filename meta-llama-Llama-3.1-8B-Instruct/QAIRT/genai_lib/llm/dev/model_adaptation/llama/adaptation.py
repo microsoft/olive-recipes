@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -------------------------------------------------------------------------
-# Copyright (c) Qualcomm Technologies, Inc. and/or its subsidiaries. Not a contribution.
+# Copyright (c) Qualcomm Technologies, Inc. and/or its subsidiaries.
 # SPDX-License-Identifier: MIT
 # --------------------------------------------------------------------------
 
@@ -26,40 +26,44 @@
 # limitations under the License.
 # =============================================================================
 
-""" This file provides adaptations to the Phi3 model. These adaptations are being done to
+""" This file provides adaptations to the LLaMa model. These adaptations are being done to
 optimize the model execution on the HTP backend.
-https://github.com/huggingface/transformers/blob/main/src/transformers/models/phi3/modeling_phi3.py"""
+https://github.com/huggingface/transformers/blob/main/src/transformers/models/llama/modeling_llama.py"""
+
+""" This file provides adaptations to the LLaMa model. These adaptations are being done to optimize the model execution on the HTP backend. """
 
 import math
 from typing import Any, Dict, List, Optional, Tuple, Union
-
+from importlib.metadata import version
+from importlib import util
 import torch
 import torch.nn.functional as F
 import torch.utils.checkpoint
 from torch import nn
 from transformers.modeling_outputs import CausalLMOutputWithPast
-from transformers.modeling_outputs import BaseModelOutputWithPast
 
-
-from transformers import Phi3ForCausalLM
+from transformers import LlamaForCausalLM
 from transformers import cache_utils
-from transformers.models.phi3 import modeling_phi3
-from transformers.models.phi3.modeling_phi3 import (
+from transformers.models.llama import modeling_llama
+from transformers.models.llama.modeling_llama import (
     repeat_kv,
     Cache,
     DynamicCache,
-    Phi3Attention,
-    Phi3Config,
+    LlamaAttention,
+    LlamaConfig,
     apply_rotary_pos_emb,
-    Phi3Model
 )
+from genai_lib.common.dev.utils import AIMET_TORCH_AVAILABLE
 
-from genai_lib.llm.long_context_utils import AnchorUpdaterKeySecond
+if AIMET_TORCH_AVAILABLE:
+    from genai_lib.llm.long_context_utils import AnchorUpdaterKeySecond
+
 from genai_lib.common.dev.utils import filter_outputs
-from importlib.metadata import version
+
 
 from transformers.utils import logging
 logger = logging.get_logger(__name__)
+
 
 def _apply_rope_single(x, rope_vals: Tuple[torch.Tensor, torch.Tensor]):
     '''
@@ -80,40 +84,23 @@ def _apply_rope_single(x, rope_vals: Tuple[torch.Tensor, torch.Tensor]):
     return x
 
 
-class QcPhiAttention(Phi3Attention):
+class QcLlamaAttention(LlamaAttention):
     """Multi-headed attention from 'Attention Is All You Need' paper
     We override the init and initialize the anchor updater.
     The user can optionally pass in the alpha value to initialize the anchor_updater through the model config.
     """
 
-    def __init__(self, config: Phi3Config, layer_idx: int):
-        super(QcPhiAttention, self).__init__(config, layer_idx)
-        self.use_unpack_qkv = False
+    def __init__(self, config: LlamaConfig, layer_idx: int):
+        super(QcLlamaAttention, self).__init__(config, layer_idx)
 
         # We only initialize anchor_updater when the anchor_alpha is present in the config
         if getattr(config, "anchor_alpha", None) is not None:
+            if not AIMET_TORCH_AVAILABLE:
+                raise ValueError("Long Context is currently only supported in AIMET Torch")
             self.anchor_updater = AnchorUpdaterKeySecond(alpha=config.anchor_alpha)
 
-
-
-    """Multi-headed attention from 'Attention Is All You Need' paper"""
-    def unpack_qkv(self):
-        self.use_unpack_qkv = True
-
-        device = self.qkv_proj.weight.device
-
-        self.q_proj = nn.Linear(self.config.hidden_size, self.config.num_attention_heads * self.head_dim, bias=False).to(device)
-        self.k_proj = nn.Linear(self.config.hidden_size, self.config.num_key_value_heads * self.head_dim, bias=False).to(device)
-        self.v_proj = nn.Linear(self.config.hidden_size, self.config.num_key_value_heads * self.head_dim, bias=False).to(device)
-
-        # Calculate the positions for slicing
-        total_hidden_size = self.config.num_attention_heads * self.head_dim  # query size
-        key_value_size = self.config.num_key_value_heads * self.head_dim  # key and value size
-
-        # Slicing and copying weights to q_proj, k_proj, v_proj
-        self.q_proj.weight.data.copy_(self.qkv_proj.weight[:total_hidden_size, :])
-        self.k_proj.weight.data.copy_(self.qkv_proj.weight[total_hidden_size: total_hidden_size + key_value_size, :])
-        self.v_proj.weight.data.copy_(self.qkv_proj.weight[total_hidden_size + key_value_size:, :])
+        # We only use "torch.where(attention_mask, input, min(input)-20)" sequence when the enable_masked_softmax is present in the config
+        self.enable_masked_softmax = getattr(config, "enable_masked_softmax", False)
 
     def forward(
         self,
@@ -134,16 +121,13 @@ class QcPhiAttention(Phi3Attention):
         transposed_key_cache = self.config.transposed_key_cache if hasattr(self.config, 'transposed_key_cache') else False
 
         bsz, q_len, _ = hidden_states.size()
-        input_shape = hidden_states.shape[:-1]
-        hidden_shape = (*input_shape, -1, self.head_dim)
-
         query_states = self.q_proj(hidden_states)
         key_states = self.k_proj(hidden_states)
         value_states = self.v_proj(hidden_states)
 
-        query_states = query_states.view(hidden_shape).transpose(1, 2)
-        key_states = key_states.view(hidden_shape).transpose(1, 2)
-        value_states = value_states.view(hidden_shape).transpose(1, 2)
+        query_states = query_states.view(bsz, q_len, self.config.num_attention_heads, self.head_dim).transpose(1, 2)
+        key_states = key_states.view(bsz, q_len, self.config.num_key_value_heads, self.head_dim).transpose(1, 2)
+        value_states = value_states.view(bsz, q_len, self.config.num_key_value_heads, self.head_dim).transpose(1, 2)
         if position_embeddings is None:
             logger.warning_once(
                 "The attention layers in this model are transitioning from computing the RoPE embeddings internally "
@@ -171,7 +155,7 @@ class QcPhiAttention(Phi3Attention):
             cache_kwargs = {"sin": sin, "cos": cos, "cache_position": cache_position,
                         "return_new_key_value_only": return_new_key_value_only,
                         "transposed_key_cache": transposed_key_cache,
-                        "num_key_value_heads": self.num_key_value_heads,
+                        "num_key_value_heads": self.config.num_key_value_heads,
                         "head_dim": self.head_dim,
             }
             key_states, value_states = past_key_value.update(key_states, value_states, self.layer_idx, cache_kwargs)
@@ -194,7 +178,12 @@ class QcPhiAttention(Phi3Attention):
             attn_weights = torch.matmul(query_states, key_states.transpose(2, 3)) / math.sqrt(self.head_dim)
 
         if attention_mask is not None:
-            attn_weights = attn_weights + attention_mask
+            if self.enable_masked_softmax:
+                attn_weights_min, _ = torch.min(attn_weights, dim=-1, keepdim=True)
+                minus_value = -20
+                attn_weights = torch.where(attention_mask==0, attn_weights, attn_weights_min + minus_value)
+            else:
+                attn_weights = attn_weights + attention_mask
 
         # upcast attention to fp32
         attn_weights = nn.functional.softmax(attn_weights, dim=-1, dtype=torch.float32).to(query_states.dtype)
@@ -287,36 +276,36 @@ def update_attr(cls, attr_name, new_attr):
     return False
 
 
-orig_causal_mask = modeling_phi3.Phi3Model._update_causal_mask
+orig_causal_mask = modeling_llama.LlamaModel._update_causal_mask
 def adapted_update_causal_mask(self, attention_mask, *args, **kwargs):
     if attention_mask is not None and attention_mask.dim() == 4:
         return attention_mask
     else:
         return orig_causal_mask(self, attention_mask, *args, **kwargs)
 
-orig_embedding_fwd = modeling_phi3.Phi3RotaryEmbedding.forward
+orig_embedding_fwd = modeling_llama.LlamaRotaryEmbedding.forward
 def adapted_RotaryEmbedding(self, x, position_ids, *args, **kwargs):
     if isinstance(position_ids, tuple) and len(position_ids)==2:
         return position_ids
     else:
         return orig_embedding_fwd(self, x, position_ids, *args, **kwargs)
 
-class QcPhi3ForCausalLM(Phi3ForCausalLM):
+class QcLlamaForCausalLM(LlamaForCausalLM):
     """
-    Subclass of original Phi3ForCausalLM. This is needed to serve two purposes:
+    Subclass of original LlamaForCausalLM. This is needed to serve two purposes:
 
     1. Starting from transformers version 4.45.0, the num_logits_to_keep argument is now required argument.
     Consequently, the prepared static graph will always include this additional argument.
     To maintain compatibility with our existing pipelines, we create a new class that inherits from
-    Phi3ForCausalLM. In this new class, we redefine the forward method without the num_logits_to_keep
+    LlamaForCausalLM. In this new class, we redefine the forward method without the num_logits_to_keep
     argument and in inside the forward we infer the num_logits_to_keep from the config and then call the superclass's forward method.
 
     2. For the Long Context scoring model within the LLM, we need to pass two additional arguments:
      anchor_buffer and valid_token_mask. These can be provided as keyword arguments (introduced in transformers version 4.47.0).
      However, this approach is incompatible with Onnx export, as Onnx does not support keyword arguments when creating the onnx graph.
-     Therefore, we pass valid_token_mask and anchor_buffer as model inputs to Phi3ForCausalLM,
+     Therefore, we pass valid_token_mask and anchor_buffer as model inputs to LlamaForCausalLM,
      which in turn get recognized through keyword arguments in the downstream blocks.
-      This is similar to how the DynamicCache object is not traced by jit.trace at the topmost level in Phi3ForCausalLM.
+      This is similar to how the DynamicCache object is not traced by jit.trace at the topmost level in LlamaForCausalLM.
       """
     def __init__(self, config):
         super().__init__(config)
@@ -337,17 +326,16 @@ class QcPhi3ForCausalLM(Phi3ForCausalLM):
             output_hidden_states: Optional[bool] = None,
             return_dict: Optional[bool] = None,
             cache_position: Optional[torch.LongTensor] = None,
-            logits_to_keep: Optional[int] = None,
+            num_logits_to_keep: Optional[int] = None,
             valid_token_mask: Optional[torch.Tensor]=None,
             anchor_buffer: Optional[torch.Tensor]=None,
             cache_index: Optional[torch.Tensor]=None,
             **kwargs,
     ) -> Union[Tuple, CausalLMOutputWithPast]:
-
-        logits_to_keep = logits_to_keep if logits_to_keep else getattr(self.config, "logits_to_keep", 0)
+        num_logits_to_keep = num_logits_to_keep if num_logits_to_keep else getattr(self.config, "num_logits_to_keep", 0)
 
         if cache_index is not None:
-            assert hasattr(self, "cache_tensor"), "QcPhi3ForCausal doesn't have attribute \"cache_tensor\", " \
+            assert hasattr(self, "cache_tensor"), "QcLlamaForCausal doesn't have attribute \"cache_tensor\", " \
                                                   "check if \"input_tokens_per_inference\" is specified in model config"
             cache_position = cache_index + self.cache_tensor
 
@@ -366,7 +354,7 @@ class QcPhi3ForCausalLM(Phi3ForCausalLM):
             output_hidden_states=output_hidden_states,
             return_dict=return_dict,
             cache_position=cache_position,
-            logits_to_keep=logits_to_keep,
+            num_logits_to_keep=num_logits_to_keep,
             valid_token_mask=valid_token_mask,
             anchor_buffer=anchor_buffer,
             **kwargs)
@@ -375,7 +363,7 @@ class QcPhi3ForCausalLM(Phi3ForCausalLM):
             if return_dict:
                 assert type(outputs.past_key_values) != tuple
                 past_key_values_output = DynamicCache.to_legacy_cache(outputs.past_key_values)
-                outputs.past_key_values = past_key_values_output
+                outputs.replace(outputs, past_key_values = past_key_values_output)
             else:
                 new_outputs = []
                 for item in outputs:
@@ -423,8 +411,8 @@ def DynamicCache_to_legacy_cache(self):
     Converts the DynamicCache instance to its equivalent in the legacy cache format for backward compatibility.
 
     The past_key_values passed into the model as input is a tuple.
-    The Phi3Model converts it into a Cache object if it isn't one already. Within the model, past_key_values flow as a DynamicCache object.
-    Just before returning the output, the Phi3Model converts the DynamicCache back to the legacy cache (tuple format).
+    The LlamaModel converts it into a Cache object if it isn't one already. Within the model, past_key_values flow as a DynamicCache object.
+    Just before returning the output, the LlamaModel converts the DynamicCache back to the legacy cache (tuple format).
     Since we added new attributes to our Cache object, we need to ensure they are included as additional entries in the returned tuple."""
 
     legacy_cache = ()
@@ -433,45 +421,3 @@ def DynamicCache_to_legacy_cache(self):
     if "anchor_buffer" in dir(self):
         return (legacy_cache, self.anchor_buffer)
     return legacy_cache
-
-class QcPhi3Model(Phi3Model):
-
-    def forward(
-        self,
-        input_ids: Optional[torch.LongTensor] = None,
-        attention_mask: Optional[torch.Tensor] = None,
-        position_ids: Optional[torch.LongTensor] = None,
-        past_key_values: Optional[Cache] = None,
-        inputs_embeds: Optional[torch.FloatTensor] = None,
-        use_cache: Optional[bool] = None,
-        cache_position: Optional[torch.LongTensor] = None,
-        **kwargs,
-    ):
-        if type(past_key_values) == tuple and version('transformers') >= '4.48.0':
-            past_key_values = DynamicCache.from_legacy_cache(past_key_values)
-
-        outputs = super().forward(
-                                input_ids = input_ids,
-                                attention_mask = attention_mask,
-                                position_ids = position_ids,
-                                past_key_values = past_key_values,
-                                inputs_embeds = inputs_embeds,
-                                use_cache = use_cache,
-                                cache_position = cache_position,
-                                **kwargs
-                                )
-
-        if isinstance(outputs, BaseModelOutputWithPast) and isinstance(outputs.past_key_values, DynamicCache):
-            outputs.past_key_values = outputs.past_key_values.to_legacy_cache()
-        elif isinstance(outputs, tuple):
-            new_outputs = []
-            for item in outputs:
-                if isinstance(item, DynamicCache):
-                    new_outputs.append(item.to_legacy_cache())
-                else:
-                    new_outputs.append(item)
-            outputs = tuple(new_outputs)
-        else:
-            raise ValueError(f"Model output is expected to be an instance of BaseModelOutputWithPast or Tuple, got {type(outputs)}")
-
-        return outputs
