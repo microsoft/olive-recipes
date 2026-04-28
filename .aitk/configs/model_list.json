@@ -858,12 +858,13 @@
             "runtimes": [
                 "QNN",
                 "IntelCPU",
-                "IntelGPU"
+                "IntelGPU",
+                "IntelNPU"
             ],
             "architecture": "Transformer",
             "status": "Ready",
             "relativePath": "sd-legacy-stable-diffusion-v1-5/aitk",
-            "version": 2,
+            "version": 3,
             "pipeline_tags": [
                 "text-to-image"
             ]

@@ -53,10 +53,11 @@
         },
         "ov_io_update": {
             "type": "OpenVINOIoUpdate",
-            "static": false,
-            "input_names": [
-                "input_ids"
+            "static": true,
+            "input_shapes": [
+                [ 1, 77 ]
             ],
+            "input_names": [ "input_ids" ],
             "reuse_cache": false
         },
         "ov_encapsulation": {
