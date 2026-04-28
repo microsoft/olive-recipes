@@ -337,7 +337,7 @@ def parse_common_args(raw_args):
     parser.add_argument(
         "--format", default=None, type=str, help="Currently only support qdq with provider cpu, cuda or qnn"
     )
-    parser.add_argument("--static_shape", default=False, type=bool, help="Use static input shapes during optimization")
+    parser.add_argument("--static_shape", action="store_true", help="Use static input shapes during optimization")
 
     return parser.parse_known_args(raw_args)
 
