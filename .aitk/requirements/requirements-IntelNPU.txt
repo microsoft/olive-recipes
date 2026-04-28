@@ -1,6 +1,6 @@
 about-time==4.2.1
 aiohappyeyeballs==2.6.1
-aiohttp==3.13.4
+aiohttp==3.13.5
 aiosignal==1.4.0
 alembic==1.16.4
 alive-progress==3.3.0
@@ -56,8 +56,8 @@ nncf==2.16.0
 numpy==1.26.4
 # olive-ai==0.10.1
 olive-ai==0.10.1
-# onnx==1.17.0
-onnx==1.17.0
+# onnx==1.21.0
+onnx==1.21.0
 onnx-ir==0.1.10
 # onnxruntime==1.21.0
 onnxruntime==1.21.0
@@ -93,7 +93,7 @@ pytz==2025.2
 pyyaml==6.0.2
 referencing==0.36.2
 regex==2025.7.34
-requests==2.33.0
+requests==2.33.1
 rich==14.0.0
 rpds-py==0.27.0
 safetensors==0.5.3
@@ -114,7 +114,7 @@ torchmetrics==1.7.0
 # torchvision==0.21.0
 torchvision==0.21.0
 tqdm==4.67.1
-transformers==4.51.3
+transformers==5.0.0rc3
 typing-extensions==4.15.0
 typing-inspection==0.4.1
 tzdata==2025.2

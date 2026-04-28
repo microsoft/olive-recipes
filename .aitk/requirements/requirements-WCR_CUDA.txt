@@ -1,6 +1,6 @@
 --extra-index-url https://download.pytorch.org/whl/cu128
 aiohappyeyeballs==2.6.1
-aiohttp==3.13.4
+aiohttp==3.13.5
 aiosignal==1.4.0
 alembic==1.16.5
 annotated-types==0.7.0
@@ -56,8 +56,8 @@ networkx==3.5
 numpy==2.2.4
 # olive-ai==0.10.1
 olive-ai==0.10.1
-# onnx==1.17.0
-onnx==1.17.0
+# onnx==1.21.0
+onnx==1.21.0
 onnx-ir==0.1.10
 onnxruntime-genai-winml==0.12.1
 # uvpip:uninstall onnxruntime-winml;pre
@@ -90,7 +90,7 @@ pywin32==311
 pyyaml==6.0.2
 pyzmq==26.3.0
 regex==2025.7.34
-requests==2.33.0
+requests==2.33.1
 safetensors==0.6.2
 # scikit-learn==1.6.1
 scikit-learn==1.6.1
@@ -112,7 +112,7 @@ torchvision==0.22.0+cu128
 tornado==6.5.5
 tqdm==4.67.1
 traitlets==5.14.3
-transformers==4.51.3
+transformers==5.0.0rc3
 typing-extensions==4.15.0
 typing-inspection==0.4.1
 tzdata==2025.2

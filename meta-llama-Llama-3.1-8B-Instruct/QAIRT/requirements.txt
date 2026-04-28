@@ -2,14 +2,14 @@ absl-py==2.4.0
 aenum==3.1.16
 aimet-torch==2.14
 aiohappyeyeballs==2.6.1
-aiohttp==3.13.3
+aiohttp==3.13.4
 aiosignal==1.4.0
 annotated-types==0.7.0
 asttokens==3.0.1
 async-timeout==5.0.1
 attrs==25.4.0
 bleach==6.3.0
-bokeh==3.6.3
+bokeh==3.8.2
 certifi==2026.1.4
 cffi==2.0.0
 charset-normalizer==3.4.4
@@ -43,7 +43,7 @@ idna==3.11
 ipykernel==7.1.0
 ipython==8.38.0
 jedi==0.19.2
-Jinja2==3.1.0
+Jinja2==3.1.6
 joblib==1.5.3
 jsonschema==4.26.0
 jsonschema-specifications==2025.9.1
@@ -81,7 +81,7 @@ nvidia-nccl-cu12==2.27.5
 nvidia-nvjitlink-cu12==12.8.93
 nvidia-nvshmem-cu12==3.4.5
 nvidia-nvtx-cu12==12.8.90
-onnx>=1.17
+onnx>=1.21.0
 onnx-ir==0.1.15
 onnx_graphsurgeon==0.5.8
 onnxruntime==1.23.2
@@ -95,7 +95,7 @@ param==2.3.1
 paramiko
 parso==0.8.5
 pexpect==4.9.0
-pillow==12.1.0
+pillow==12.2.0
 platformdirs==4.5.1
 prompt_toolkit==3.0.52
 propcache==0.4.1
@@ -117,7 +117,7 @@ PyYAML==6.0.3
 pyzmq==27.1.0
 referencing==0.37.0
 regex==2026.1.15
-requests==2.32.5
+requests==2.33.0
 rich==14.3.2
 rpds-py==0.30.0
 safetensors==0.5.3
@@ -132,10 +132,10 @@ tensorboard-data-server==0.7.2
 threadpoolctl==3.6.0
 tokenizers==0.21.0
 torch<2.9
-tornado==6.5.4
+tornado==6.5.5
 tqdm==4.67.2
 traitlets==5.14.3
-transformers==4.50.1
+transformers==5.0.0rc3
 triton==2.1.0
 typing-inspection==0.4.2
 typing_extensions==4.15.0
@@ -144,7 +144,7 @@ uc-micro-py==1.0.3
 urllib3==2.6.3
 wcwidth==0.5.3
 webencodings==0.5.1
-Werkzeug==3.1.5
+Werkzeug==3.1.6
 xxhash==3.6.0
 xyzservices==2025.11.0
 yarl==1.22.0
