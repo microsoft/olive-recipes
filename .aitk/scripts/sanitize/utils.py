@@ -6,12 +6,39 @@ import inspect
 import json
 import os
 from contextlib import contextmanager
-from typing import Any
+from pathlib import Path
+from typing import Any, Iterator, Tuple
 
 import pydash
+import yaml
 from model_lab import RuntimeEnum
 
 from .constants import EPNames, OliveDeviceTypes, OlivePropertyNames
+
+
+def iter_aitk_info_yml(root_dir: Path) -> Iterator[Tuple[Path, dict]]:
+    """Yield (yml_file, yaml_object) for each info.yml under root_dir that has
+    a top-level `aitk` key.
+
+    Files that fail to parse are skipped with a printed warning. An info.yml
+    sitting under a folder literally named `aitk` but missing the `aitk` key
+    raises KeyError, matching the invariant enforced by project_processor.
+    """
+    for yml_file in root_dir.rglob("info.yml"):
+        try:
+            with yml_file.open("r", encoding="utf-8") as f:
+                yaml_object = yaml.safe_load(f.read())
+        except yaml.YAMLError as e:
+            print(f"Error reading {yml_file}: {e}")
+            continue
+        if not isinstance(yaml_object, dict):
+            continue
+        aitk = yaml_object.get("aitk")
+        if not aitk:
+            if yml_file.parent.name == "aitk":
+                raise KeyError(f"aitk not found in {yml_file}")
+            continue
+        yield yml_file, yaml_object
 
 
 class GlobalVars:
@@ -34,6 +61,7 @@ class GlobalVars:
     copyCheck = 0
     licenseCheck = 0
     venvRequirementsCheck = set()
+    winmlCopyCheck = 0
 
     oliveCheck = 0
     RuntimeToEPName = {
@@ -207,6 +235,23 @@ def checkPath(path: str, oliveJson: Any, printOnNotExist: bool = True):
 def isLLM_by_id(id: str) -> bool:
     check_list = ["deepseek-ai/DeepSeek", "meta-llama/Llama", "microsoft/Phi", "mistralai/Mistral", "Qwen/Qwen"]
     return any(check in id for check in check_list)
+
+
+# Projects that are themselves canonical winml.py sources and should not have
+# a winml.py copy entry auto-added to their _copy.json.config.
+WINML_COPY_EXEMPT_IDS = {
+    "huggingface/Intel/bert-base-uncased-mrpc",
+    "huggingface/deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B",
+}
+
+# Canonical winml.py sources. Paths are relative to the project's aitk folder
+# (matches the CopyConfig `src` format).
+WINML_SRC_LLM = "../../deepseek-ai-DeepSeek-R1-Distill-Qwen-1.5B/aitk/winml.py"
+WINML_SRC_NON_LLM = "../../intel-bert-base-uncased-mrpc/aitk/winml.py"
+
+
+def winml_copy_src_for(model_id: str) -> str:
+    return WINML_SRC_LLM if isLLM_by_id(model_id) else WINML_SRC_NON_LLM
 
 
 # TODO align with Skylight\vscode\ai-mlstudio\src\model-lab\utilities\runtimeUtils.ts

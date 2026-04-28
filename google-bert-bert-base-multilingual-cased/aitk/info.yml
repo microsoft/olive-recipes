@@ -29,5 +29,5 @@ recipes:
 aitk:
     modelInfo:
         id: "huggingface/google-bert/bert-base-multilingual-cased"
-        version: 3
+        version: 4
         p0: true
