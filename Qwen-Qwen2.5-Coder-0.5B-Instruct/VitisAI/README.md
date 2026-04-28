@@ -14,11 +14,9 @@ This folder contains sample Olive configuration to optimize Qwen models for AMD 
 For LLMs - follow the below commands to generate the optimized model for VitisAI Execution Provider.
 
 **Platform Support:**
-- ✅ **Linux with ROCm** - Supported
-- ✅ **Linux with CUDA** - Supported
 - ✅ **Windows with CUDA** - Supported
-- ✅ **Windows with CPU** - Supported (quantization will be slower)
-- ⏳ **Windows with ROCm** - Planned for future release
+- ✅ **Windows with CPU** - Supported
+- ⏳ **Planned for future release:** Linux with ROCm, Linux with CUDA, Windows with ROCm
 
 For more details about quark, see the [Quark Documentation](https://quark.docs.amd.com/latest/)
 
