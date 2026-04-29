@@ -46,6 +46,11 @@ We also prefer **cross-platform models** that run on the majority of consumer
 hardware (CPU, integrated GPU, NPU) rather than models that require a specific
 accelerator or vendor-locked runtime.
 
+**Multilingual models** will be evaluated against **FLEURS**, **Common Voice**,
+**Multilingual LibriSpeech (MLS)**, and **VoxPopuli**. No hard WER thresholds
+are set yet — targets depend on the per-language difficulty and data
+availability. Concrete numbers will likely be added soon.
+
 Future models we plan to compare against (not yet integrated, but in progress):
 
 - **Cohere Transcribe** (batch)
