@@ -62,7 +62,12 @@
             "type": "OpenVINOIoUpdate",
             "static": true,
             "input_shapes": [
-                [ 1, 4, 64, 64 ]
+                [
+                    1,
+                    4,
+                    64,
+                    64
+                ]
             ],
             "input_names": [
                 "latent_sample"
