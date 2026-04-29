@@ -24,7 +24,15 @@ the 8 standard ESB / Open ASR Leaderboard benchmarks (average unweighted WER):
 
 - **Batch models:** WER must be **< 8%**.
 - **Streaming models:** *streaming WER* (computed by concatenating the per-utterance
-  output tokens emitted during streaming inference) must be **< 9%**.
+  output tokens emitted during streaming inference) must be **< 9%**, measured with
+  **sub-second algorithmic latency** (chunk size + lookahead < 1 s).
+
+All WER numbers are computed with the **Open ASR Leaderboard normalizer**:
+`EnglishTextNormalizer` for English benchmarks and `BasicMultilingualTextNormalizer`
+for multilingual benchmarks (see
+[huggingface/open_asr_leaderboard](https://github.com/huggingface/open_asr_leaderboard)
+→ `normalizer/`). This matches Whisper's text-normalization scheme so numbers
+are directly comparable to the public leaderboard.
 
 A relaxation of **+1% WER** is acceptable if, on the same hardware with the same
 number of CPU cores, the candidate model achieves **at least 2× the RTFx** of the
