@@ -178,7 +178,6 @@ def run_onnx(model, processor, tokenizer, pil_image: Image.Image, instruction: s
         generator.set_inputs(inputs)
 
         tokens = []
-        stream = tokenizer.create_stream()
         while not generator.is_done():
             generator.generate_next_token()
             tokens.append(generator.get_next_tokens()[0])
