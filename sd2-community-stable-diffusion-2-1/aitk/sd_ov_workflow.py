@@ -89,7 +89,7 @@ def main():
     cmd = [
         sys.executable, "stable_diffusion.py",
         "--script_dir", history_folder,
-        "--model_id", "stable-diffusion-v1-5/stable-diffusion-v1-5",
+        "--model_id", "sd2-community/stable-diffusion-2-1",
         "--provider", "openvino",
         "--optimize"
     ]

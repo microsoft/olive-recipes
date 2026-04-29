@@ -1,6 +1,6 @@
 {
     "input_model": {
-        "model_path": "stable-diffusion-v1-5/stable-diffusion-v1-5"
+        "model_path": "sd2-community/stable-diffusion-2-1"
     },
     "systems": {
         "target_system": {
