@@ -76,6 +76,8 @@ def parse_click_coords(response: str, img_width: int, img_height: int):
                     y = y * img_height
                 return (x, y)
         except (json.JSONDecodeError, KeyError, TypeError, ValueError):
+            # Tool-call JSON can be malformed or incomplete; ignore and continue
+            # to fallback coordinate parsing below.
             pass
 
     # Fallback: look for coordinate patterns like (450, 230) or [450, 230]
