@@ -7,7 +7,7 @@ from __future__ import annotations
 import json
 import re
 from pathlib import Path
-from typing import Any, Dict, Iterator, List, Optional
+from typing import Any, Dict, Iterator, List, Optional, Union
 
 import pydash
 from deepdiff import DeepDiff
@@ -223,7 +223,7 @@ class OptimizationPath(BaseModel):
 
 class ModelParameter(BaseModelClass):
     name: str
-    oliveFile: Optional[str] = None
+    oliveFile: Optional[Union[str, Dict[str, str]]] = None
     # SET AUTOMATICALLY TO TRUE BY MODEL ID
     isLLM: Optional[bool] = None
     isIntel: Optional[bool] = None
@@ -609,14 +609,79 @@ class ModelParameter(BaseModelClass):
         ):
             printError(f"{self._file}'s olive json should have two data configs for evaluation")
 
+    def _diffOlivePasses(self, localLabel: str, refPasses: Any, localPasses: Any, refName: str):
+        diff = DeepDiff(refPasses, localPasses)
+
+        addeds: list[str] = diff.pop("dictionary_item_added", [])
+        newAddeds = []
+        for added in addeds:
+            if not added.endswith("['save_as_external_data']"):
+                newAddeds.append(added)
+        if newAddeds:
+            diff["dictionary_item_added"] = newAddeds
+
+        removeds: list[str] = diff.pop("dictionary_item_removed", [])
+        newRemoveds = []
+        for removed in removeds:
+            if removed != "root['add_metadata']":
+                newRemoveds.append(removed)
+        if newRemoveds:
+            diff["dictionary_item_removed"] = newRemoveds
+
+        changeds: dict[str, Any] = diff.pop("values_changed", {})
+        newChangeds = {}
+        for changed in changeds:
+            if not (changed.endswith("['data_config']") or changed.endswith("['user_script']") or changed.endswith("['save_as_external_data']")):
+                newChangeds[changed] = changeds[changed]
+        if newChangeds:
+            diff["values_changed"] = newChangeds
+
+        if diff:
+            printWarning(f"{localLabel} different from {refName}\r\n{diff}")
+        GlobalVars.oliveCheck += 1
+
+    def _resolveRefFile(self, refFile: str) -> Optional[Path]:
+        if refFile.startswith("o:"):
+            if not GlobalVars.olivePath:
+                return None
+            return Path(GlobalVars.olivePath) / "examples" / refFile[2:]
+        if not self._file:
+            raise Exception("Internal error: _file is not set")
+        return Path(self._file).parent.parent / refFile
+
     def checkOliveFile(self, oliveJson: Any, modelInfo: ModelInfo):
         if modelInfo.extension:
             return
         if modelInfo.template:
             return
-        if self.aitkPython:
+
+        oliveFileRef = self.oliveFile
+
+        if isinstance(oliveFileRef, dict):
+            # key: local olive file relative to the aitk folder (same folder as the json.config)
+            # value: reference file to diff against, resolved the same way as the string oliveFile
+            if not self._file:
+                raise Exception("Internal error: _file is not set")
+            for localFile, refFile in oliveFileRef.items():
+                localPath = Path(self._file).parent / localFile
+                if not localPath.exists():
+                    printError(f"{self._file}'s oliveFile key {localFile!r} does not exist")
+                    continue
+                refPath = self._resolveRefFile(refFile)
+                if refPath is None:
+                    continue
+                if not refPath.exists():
+                    printError(f"{self._file}'s oliveFile value {refFile!r} does not exist")
+                    continue
+                with open_ex(localPath, "r") as f:
+                    localJson = json.load(f)
+                with open_ex(refPath, "r") as f:
+                    refJson = json.load(f)
+                label = "/".join(Path(self._file).parts[-3:-1]) + "/" + localFile
+                self._diffOlivePasses(label, refJson[OlivePropertyNames.Passes], localJson[OlivePropertyNames.Passes], refFile)
             return
-        if not self.oliveFile:
+
+        if not oliveFileRef:
             if (
                 self.runtime
                 and self.runtime.displayNames
@@ -633,63 +698,16 @@ class ModelParameter(BaseModelClass):
                 return
             printWarning(f"{self._file} does not have oliveFile")
             return
-        if self.oliveFile.startswith("o:"):
-            if GlobalVars.olivePath:
-                oliveFile = Path(GlobalVars.olivePath) / "examples" / self.oliveFile[2:]
-            else:
-                return
-        elif self._file:
-            # relative to aitk folder
-            oliveFile = Path(self._file).parent.parent / self.oliveFile
-            if not oliveFile.exists():
-                printError(f"{self._file}'s oliveFile {self.oliveFile} does not exist")
-                return
-        else:
-            raise Exception("Internal error: _file is not set")
+        oliveFile = self._resolveRefFile(oliveFileRef)
+        if oliveFile is None:
+            return
+        if not oliveFile.exists():
+            printError(f"{self._file}'s oliveFile {oliveFileRef} does not exist")
+            return
         with open_ex(oliveFile, "r") as file:
             oliveFileJson = json.load(file)
-
-        diff = DeepDiff(
-            oliveFileJson[OlivePropertyNames.Passes],
-            oliveJson[OlivePropertyNames.Passes],
-        )
-
-        addeds: list[str] = diff.pop("dictionary_item_added", [])
-        newAddeds = []
-        for added in addeds:
-            if added.endswith("['save_as_external_data']"):
-                # We add it to align model format
-                pass
-            else:
-                newAddeds.append(added)
-        if newAddeds:
-            diff["dictionary_item_added"] = newAddeds
-
-        removeds: list[str] = diff.pop("dictionary_item_removed", [])
-        newRemoveds = []
-        for removed in removeds:
-            if removed == "root['add_metadata']":
-                pass
-            else:
-                newRemoveds.append(removed)
-        if newRemoveds:
-            diff["dictionary_item_removed"] = newRemoveds
-
-        changeds: dict[str, Any] = diff.pop("values_changed", {})
-        newChangeds = {}
-        for changed in changeds:
-            if changed.endswith("['data_config']") or changed.endswith("['user_script']") or changed.endswith("['save_as_external_data']"):
-                # Data config name or *.py could be different
-                pass
-            else:
-                newChangeds[changed] = changeds[changed]
-        if newChangeds:
-            diff["values_changed"] = newChangeds
-
-        if diff:
-            path = Path(self._file if self._file else "UNKNOWN")
-            printWarning(f"{"/".join(path.parts[-3:])} different from {self.oliveFile}\r\n{diff}")
-        GlobalVars.oliveCheck += 1
+        label = "/".join(Path(self._file if self._file else "UNKNOWN").parts[-3:])
+        self._diffOlivePasses(label, oliveFileJson[OlivePropertyNames.Passes], oliveJson[OlivePropertyNames.Passes], oliveFileRef)
 
     def checkDebugInfo(self, oliveJson: Any):
         self.debugInfo = DebugInfo()
