@@ -60,7 +60,15 @@
         },
         "ov_io_update": {
             "type": "OpenVINOIoUpdate",
-            "static": false,
+            "static": true,
+            "input_shapes": [
+                [
+                    1,
+                    4,
+                    96,
+                    96
+                ]
+            ],
             "input_names": [
                 "latent_sample"
             ],
