@@ -1,10 +1,10 @@
-# Phi-4 Reasoning Model Optimization
+# Llama3.1-8B-Instruct Model Optimization
 
-This directory demonstrates the optimization of the [Microsoft Phi-4 Reasoning](https://huggingface.co/microsoft/Phi-4-reasoning) model using various AIMET quantization techniques.
+This directory demonstrates the optimization of the [Llama3.1-8B-Instruct](https://huggingface.co/meta-llama/Llama-3.1-8B) model using various AIMET quantization techniques.
 
 ## Overview
 
-This workflow utilizes a Phi-4 Reasoning script to perform quantization based on the [Qualcomm-distributed Jupyter notebook](https://qpm.qualcomm.com/#/main/tools/details/Tutorial_for_Phi4_Reasoning_14B_Compute) for Phi-4-reasoning which is available for download via QPM.
+This workflow utilizes a Llama3.1-8B-Instruct script to perform quantization based on the [Qualcomm-distributed Jupyter notebook](https://qpm.qualcomm.com/#/main/tools/details/Tutorial_for_Llama3_1_Compute) for Llama3.1-8B-Instruct (v1.0.1.260219) which is available for download via QPM.
 
 After quantization, the QAIRT GenAIBuilder API is utilized to apply additional model transformations, perform conversion, and compile the model for execution on the HTP backend.
 
@@ -49,6 +49,7 @@ export QAIRT_SDK_ROOT=/path/to/qairt/sdk
 
 ```bash
 pip install -r requirements.txt
+pip install torch==2.1.0
 ```
 
 4. Run Olive recipe
