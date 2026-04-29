@@ -34,12 +34,23 @@ for multilingual benchmarks (see
 → `normalizer/`). This matches Whisper's text-normalization scheme so numbers
 are directly comparable to the public leaderboard.
 
-A relaxation of **+1% WER** is acceptable if, on the same hardware with the same
-number of CPU cores, the candidate model achieves **at least 2× the RTFx** of the
-current best supported model in its category:
+A relaxation of **+1% WER** is acceptable if, on the same hardware under the
+same compute budget (e.g. number of CPU cores, GPU, or NPU), the candidate
+model achieves **at least 2× the RTFx** of the current best supported model in
+its category:
 
-- Batch baseline: Whisper of similar parameter size.
-- Streaming baseline: Nemotron Speech Streaming.
+- **Batch baseline:** the Whisper variant from
+  [openai/whisper](https://huggingface.co/openai) whose total parameter count is
+  closest to the candidate (within ±25%) — currently `whisper-tiny` (39M),
+  `whisper-base` (74M), `whisper-small` (244M), `whisper-medium` (769M),
+  `whisper-large-v3` (1.55B), or `whisper-large-v3-turbo` (809M).
+- **Streaming baseline:** the model in this recipe,
+  [`nvidia/nemotron-speech-streaming-en-0.6b`](https://huggingface.co/nvidia/nemotron-speech-streaming-en-0.6b),
+  exported and quantized via the [`cpu/`](./cpu) recipe (INT4 ONNX, the same
+  artifact whose numbers are reported above).
+
+Both baselines must be benchmarked with the same audio inputs, the same
+normalizer, and the same hardware/compute budget as the candidate.
 
 We also prefer models with lower long-form WER. Required long-form thresholds:
 
@@ -55,9 +66,10 @@ hardware (CPU, integrated GPU, NPU) rather than models that require a specific
 accelerator or vendor-locked runtime.
 
 **Multilingual models** will be evaluated against **FLEURS**, **Common Voice**,
-**Multilingual LibriSpeech (MLS)**, and **VoxPopuli**. No hard WER thresholds
-are set yet — targets depend on the per-language difficulty and data
-availability. Concrete numbers will likely be added soon.
+**Multilingual LibriSpeech (MLS)**, and **VoxPopuli**, on the subset of those
+datasets where the target language is available. No hard WER thresholds are
+set yet — targets depend on the per-language difficulty and data availability.
+Concrete numbers will likely be added soon.
 
 Future models we plan to compare against (not yet integrated, but in progress):
 
