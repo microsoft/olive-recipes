@@ -42,6 +42,10 @@ We also prefer **quantized models that fit under 2 GB on disk** — and ideally
 under **1 GB**. We acknowledge this may not always be achievable for very
 strong models, in which case the accuracy/RTFx criteria above take precedence.
 
+We also prefer **cross-platform models** that run on the majority of consumer
+hardware (CPU, integrated GPU, NPU) rather than models that require a specific
+accelerator or vendor-locked runtime.
+
 Future models we plan to compare against (not yet integrated, but in progress):
 
 - **Cohere Transcribe** (batch)
