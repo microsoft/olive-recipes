@@ -35,8 +35,7 @@ _RECIPE_ROOT = _SCRIPT_DIR.parent
 if str(_RECIPE_ROOT) not in sys.path:
     sys.path.insert(0, str(_RECIPE_ROOT))
 
-_SCRIPT_DIR = Path(__file__).parent.resolve()
-_TOKENIZER_SCRIPT = _SCRIPT_DIR.parent / "scripts" / "export_tokenizer.py"
+_TOKENIZER_SCRIPT = _RECIPE_ROOT / "scripts" / "export_tokenizer.py"
 
 DEFAULT_OUTPUT_DIR = "build/onnx_models_int4"
 
@@ -119,7 +118,6 @@ def generate_configs(model_name: str, output_dir: str, chunk_size: float):
     dst.mkdir(parents=True, exist_ok=True)
 
     encoder = asr_model.encoder
-    decoder = asr_model.decoder
     joint = asr_model.joint
 
     vocab_size = joint.num_classes_with_blank
@@ -291,12 +289,14 @@ def download_silero_vad(output_dir: str):
 
 
 def main():
+    from cpu.nemotron_model_load import MODEL_NAME, CHUNK_SIZE
+
     parser = argparse.ArgumentParser(
         description="Optimize Nemotron Speech Streaming for CPU inference"
     )
     parser.add_argument(
         "--model-name",
-        default="nvidia/nemotron-speech-streaming-en-0.6b",
+        default=MODEL_NAME,
         help="HuggingFace model name or path to a local .nemo file",
     )
     parser.add_argument(
@@ -304,14 +304,15 @@ def main():
         default=DEFAULT_OUTPUT_DIR,
         help=f"Output directory for optimized models (default: {DEFAULT_OUTPUT_DIR})",
     )
-    parser.add_argument(
-        "--chunk-size",
-        type=float,
-        default=0.56,
-        choices=[0.08, 0.16, 0.56, 1.12],
-        help="Streaming chunk size in seconds (default: 0.56)",
-    )
     args = parser.parse_args()
+
+    # Validate model name — the Olive configs and model_load.py constants are
+    # specific to the 0.6B model architecture.
+    if not args.model_name.endswith(".nemo") and args.model_name != MODEL_NAME:
+        raise ValueError(
+            f"This recipe only supports '{MODEL_NAME}' (or a .nemo file with the same architecture). "
+            f"Got: '{args.model_name}'"
+        )
 
     # Stages 1-3: Run Olive pipelines for encoder, decoder, joint
     run_olive_pipelines(output_dir=args.output_dir)
@@ -319,20 +320,22 @@ def main():
     # Stage 4: Export tokenizer
     run_tokenizer_export(model_name=args.model_name, output_dir=args.output_dir)
 
-    # Stage 5: Generate config files
+    # Stage 5: Generate config files (chunk_size matches the hardcoded export shapes)
     generate_configs(
         model_name=args.model_name,
         output_dir=args.output_dir,
-        chunk_size=args.chunk_size,
+        chunk_size=CHUNK_SIZE,
     )
 
     # Stage 6: Download Silero VAD
+    vad_dest = _resolve(args.output_dir) / "silero_vad.onnx"
     try:
         download_silero_vad(output_dir=args.output_dir)
     except Exception as exc:
         print(
             f"  Warning: Silero VAD download failed ({exc}).\n"
-            "  You can download it manually later."
+            f"  Download manually from https://huggingface.co/onnx-community/silero-vad\n"
+            f"  and place silero_vad.onnx at: {vad_dest}"
         )
 
     # Summary

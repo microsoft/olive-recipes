@@ -18,6 +18,13 @@ import torch.nn as nn
 # ---------------------------------------------------------------------------
 # Shared streaming constants
 # ---------------------------------------------------------------------------
+# CHUNK_SIZE is hardcoded because it determines the static ONNX input shapes
+# at export time. The NeMo model supports multiple chunk sizes (0.08, 0.16,
+# 0.56, 1.12s) at runtime, but once exported to ONNX with static shapes the
+# encoder is locked to a single chunk size. 0.56s is the recommended default
+# per NVIDIA's documentation (best latency/accuracy trade-off). The value is
+# not available from a HuggingFace config — it lives inside the .nemo archive
+# as encoder.att_context_size and requires loading the full model to read.
 CHUNK_SIZE = 0.56  # seconds
 LEFT_CHUNKS = 10
 MEL_FEATURES = 128

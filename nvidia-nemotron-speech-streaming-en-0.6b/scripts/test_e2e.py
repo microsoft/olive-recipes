@@ -12,6 +12,12 @@ import sys
 import numpy as np
 from pathlib import Path
 
+# Add recipe root to path for imports
+_SCRIPT_DIR = Path(__file__).resolve().parent
+_RECIPE_ROOT = _SCRIPT_DIR.parent
+if str(_RECIPE_ROOT) not in sys.path:
+    sys.path.insert(0, str(_RECIPE_ROOT))
+
 
 def test_model_loading(model_path: str):
     """Test that the model loads correctly."""
@@ -136,19 +142,22 @@ def test_raw_onnx_inference(model_path: str):
     dec_sess = ort.InferenceSession(dec_path, providers=["CPUExecutionProvider"])
     joint_sess = ort.InferenceSession(joint_path, providers=["CPUExecutionProvider"])
 
-    # Streaming encoder constants (chunk_size=0.56s)
-    n_layers = 24
-    d_model = 1024
-    static_mel_frames = 65  # 56 chunk + 9 pre_encode_cache
-    mel_features = 128
-    last_channel_cache_size = 70  # left_chunks(10) * chunk_encoded_frames(7)
-    conv_context = 8
+    # Import streaming constants from shared module
+    from cpu.nemotron_model_load import (
+        N_LAYERS, D_MODEL, MEL_FEATURES, CONV_CONTEXT, CHUNK_SIZE, LEFT_CHUNKS, SUBSAMPLING_FACTOR,
+        DECODER_HIDDEN, DECODER_LSTM_LAYERS,
+    )
+
+    chunk_mel_frames = int(CHUNK_SIZE * 100)  # 56
+    static_mel_frames = chunk_mel_frames + 9  # 65 (chunk + pre_encode_cache)
+    chunk_encoded_frames = chunk_mel_frames // SUBSAMPLING_FACTOR  # 7
+    last_channel_cache_size = LEFT_CHUNKS * chunk_encoded_frames  # 70
 
     # Encoder: one chunk with zero caches
-    audio = np.random.randn(1, static_mel_frames, mel_features).astype(np.float32)
+    audio = np.random.randn(1, static_mel_frames, MEL_FEATURES).astype(np.float32)
     length = np.array([static_mel_frames], dtype=np.int64)
-    cache_ch = np.zeros((1, n_layers, last_channel_cache_size, d_model), dtype=np.float32)
-    cache_tm = np.zeros((1, n_layers, d_model, conv_context), dtype=np.float32)
+    cache_ch = np.zeros((1, N_LAYERS, last_channel_cache_size, D_MODEL), dtype=np.float32)
+    cache_tm = np.zeros((1, N_LAYERS, D_MODEL, CONV_CONTEXT), dtype=np.float32)
     cache_len = np.zeros((1,), dtype=np.int64)
 
     enc_out = enc_sess.run(None, {
@@ -160,16 +169,13 @@ def test_raw_onnx_inference(model_path: str):
     enc_len = int(enc_out[1][0])
     print(f"  Encoder output: {encoded.shape}, encoded_length={enc_len}")
 
-    # Stateful decoder: inputs are targets[B,1], h_in[2,B,640], c_in[2,B,640]
-    hidden_size = 640
-    num_lstm_layers = 2
-    h = np.zeros((num_lstm_layers, 1, hidden_size), dtype=np.float32)
-    c = np.zeros((num_lstm_layers, 1, hidden_size), dtype=np.float32)
+    # Stateful decoder: inputs are targets[B,1], h_in[LSTM_LAYERS,B,HIDDEN], c_in[LSTM_LAYERS,B,HIDDEN]
+    h = np.zeros((DECODER_LSTM_LAYERS, 1, DECODER_HIDDEN), dtype=np.float32)
+    c = np.zeros((DECODER_LSTM_LAYERS, 1, DECODER_HIDDEN), dtype=np.float32)
 
     targets = np.array([[0]], dtype=np.int64)  # BOS token
     dec_out = dec_sess.run(None, {"targets": targets, "h_in": h, "c_in": c})
     dec_output = dec_out[0]  # [1, 640, 1]
-    h, c = dec_out[1], dec_out[2]
     print(f"  Decoder output: {dec_output.shape}")
 
     # Extract decoder hidden: [1, 640, 1] -> [1, 1, 640]
@@ -191,8 +197,8 @@ def test_raw_onnx_inference(model_path: str):
     # Full greedy decode (limit to 5 frames for speed)
     tokens = []
     current_token = 0  # BOS
-    h = np.zeros((num_lstm_layers, 1, hidden_size), dtype=np.float32)
-    c = np.zeros((num_lstm_layers, 1, hidden_size), dtype=np.float32)
+    h = np.zeros((DECODER_LSTM_LAYERS, 1, DECODER_HIDDEN), dtype=np.float32)
+    c = np.zeros((DECODER_LSTM_LAYERS, 1, DECODER_HIDDEN), dtype=np.float32)
     max_sym = 10
 
     for t in range(min(enc_len, 5)):

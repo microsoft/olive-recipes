@@ -5,10 +5,17 @@ Compares raw ONNX Runtime inference with onnxruntime-genai pipeline.
 """
 
 import argparse
+import sys
 import numpy as np
 import torch
 import soundfile as sf
 from pathlib import Path
+
+# Add recipe root to path for imports
+_SCRIPT_DIR = Path(__file__).resolve().parent
+_RECIPE_ROOT = _SCRIPT_DIR.parent
+if str(_RECIPE_ROOT) not in sys.path:
+    sys.path.insert(0, str(_RECIPE_ROOT))
 
 
 def main():
@@ -77,23 +84,25 @@ def main():
     dec = ort.InferenceSession(str(model_dir / "decoder.onnx"), providers=["CPUExecutionProvider"])
     jnt = ort.InferenceSession(str(model_dir / "joint.onnx"), providers=["CPUExecutionProvider"])
 
-    # Streaming encoder constants (chunk_size=0.56s)
-    n_layers = 24
-    d_model = 1024
-    mel_features = 128
-    chunk_mel_frames = 56
+    # Import streaming constants from shared module
+    from cpu.nemotron_model_load import (
+        N_LAYERS, D_MODEL, MEL_FEATURES, CONV_CONTEXT, CHUNK_SIZE, LEFT_CHUNKS, SUBSAMPLING_FACTOR,
+        DECODER_HIDDEN, DECODER_LSTM_LAYERS,
+    )
+
+    chunk_mel_frames = int(CHUNK_SIZE * 100)  # 56 for 0.56s
     pre_encode_cache = 9
     static_mel_frames = chunk_mel_frames + pre_encode_cache  # 65
-    last_channel_cache_size = 70  # left_chunks(10) * chunk_encoded_frames(7)
-    conv_context = 8
+    chunk_encoded_frames = chunk_mel_frames // SUBSAMPLING_FACTOR  # 7
+    last_channel_cache_size = LEFT_CHUNKS * chunk_encoded_frames  # 70
 
     # mel_np is [1, 128, T] from NeMo preprocessor; transpose to [1, T, 128]
     mel_t = mel_np.transpose(0, 2, 1)  # [1, T, 128]
     total_frames = mel_t.shape[1]
 
     # Initialize caches
-    cache_ch = np.zeros((1, n_layers, last_channel_cache_size, d_model), dtype=np.float32)
-    cache_tm = np.zeros((1, n_layers, d_model, conv_context), dtype=np.float32)
+    cache_ch = np.zeros((1, N_LAYERS, last_channel_cache_size, D_MODEL), dtype=np.float32)
+    cache_tm = np.zeros((1, N_LAYERS, D_MODEL, CONV_CONTEXT), dtype=np.float32)
     cache_len_val = np.zeros((1,), dtype=np.int64)
 
     # Process audio in chunks, accumulate encoded frames
@@ -104,17 +113,17 @@ def main():
 
         # Prepend pre-encode cache (zeros for first chunk, previous frames otherwise)
         if start == 0:
-            prefix = np.zeros((1, pre_encode_cache, mel_features), dtype=np.float32)
+            prefix = np.zeros((1, pre_encode_cache, MEL_FEATURES), dtype=np.float32)
         else:
             prefix_start = max(0, start - pre_encode_cache)
             prefix = mel_t[:, prefix_start:start, :]
             if prefix.shape[1] < pre_encode_cache:
-                pad = np.zeros((1, pre_encode_cache - prefix.shape[1], mel_features), dtype=np.float32)
+                pad = np.zeros((1, pre_encode_cache - prefix.shape[1], MEL_FEATURES), dtype=np.float32)
                 prefix = np.concatenate([pad, prefix], axis=1)
 
         # Pad chunk to full size if needed (last chunk)
         if chunk.shape[1] < chunk_mel_frames:
-            pad = np.zeros((1, chunk_mel_frames - chunk.shape[1], mel_features), dtype=np.float32)
+            pad = np.zeros((1, chunk_mel_frames - chunk.shape[1], MEL_FEATURES), dtype=np.float32)
             chunk = np.concatenate([chunk, pad], axis=1)
 
         audio_input = np.concatenate([prefix, chunk], axis=1)  # [1, 65, 128]
@@ -138,10 +147,8 @@ def main():
     print(f"Encoder: enc_len={enc_len}")
 
     # Stateful RNNT greedy decode
-    hidden_size = 640
-    num_lstm_layers = 2
-    h = np.zeros((num_lstm_layers, 1, hidden_size), dtype=np.float32)
-    c = np.zeros((num_lstm_layers, 1, hidden_size), dtype=np.float32)
+    h = np.zeros((DECODER_LSTM_LAYERS, 1, DECODER_HIDDEN), dtype=np.float32)
+    c = np.zeros((DECODER_LSTM_LAYERS, 1, DECODER_HIDDEN), dtype=np.float32)
 
     tokens_raw = []
     cur = 0
