@@ -50,10 +50,12 @@
         "quantization": {
             "type": "OnnxKQuantQuantization",
             "block_size": 32,
-            "accuracy_level": 4
+            "accuracy_level": 4,
+            "save_as_external_data": true,
+            "external_data_name": "encoder.onnx.data"
         }
     },
     "target": "local_system",
-    "output_dir": "build/onnx_models_int4",
+    "output_dir": "build/onnx_models_int4/encoder.onnx",
     "no_artifacts": true
 }

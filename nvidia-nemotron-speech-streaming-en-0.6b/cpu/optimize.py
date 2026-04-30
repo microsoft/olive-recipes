@@ -105,7 +105,7 @@ def run_olive_encoder_pipeline(output_dir: str):
     with open(config_path) as f:
         config = json.load(f)
 
-    config["output_dir"] = str(_resolve(output_dir))
+    config["output_dir"] = str(_resolve(output_dir) / "encoder.onnx")
 
     with tempfile.NamedTemporaryFile(
         mode="w", suffix=".json", dir=str(_SCRIPT_DIR), delete=False
@@ -117,26 +117,6 @@ def run_olive_encoder_pipeline(output_dir: str):
         olive_run(tmp_path)
     finally:
         Path(tmp_path).unlink(missing_ok=True)
-
-    # Olive outputs model.onnx; re-save as encoder.onnx for ORT GenAI.
-    # We must re-save (not just rename) to update internal external-data references.
-    olive_out = _resolve(output_dir)
-    model_onnx = olive_out / "model.onnx"
-    encoder_onnx = olive_out / "encoder.onnx"
-    if model_onnx.exists():
-        import onnx
-        from onnx.external_data_helper import convert_model_to_external_data
-
-        model = onnx.load(str(model_onnx), load_external_data=True)
-        # Remove old files (model.onnx* and any stale encoder.onnx*)
-        for stale in list(olive_out.glob("model.onnx*")) + list(olive_out.glob("encoder.onnx*")):
-            stale.unlink()
-        # Re-save with encoder.onnx naming
-        convert_model_to_external_data(
-            model, all_tensors_to_one_file=True, location="encoder.onnx.data"
-        )
-        onnx.save_model(model, str(encoder_onnx))
-        print(f"  Saved as encoder.onnx (with encoder.onnx.data) in {olive_out}")
 
     print()
 
