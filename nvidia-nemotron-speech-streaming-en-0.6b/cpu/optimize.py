@@ -15,7 +15,7 @@ Usage:
     python cpu/optimize.py
 
     # Or use Olive CLI directly for individual components:
-    python -m olive run --config cpu/nemotron_speech_int4_cpu.json
+    python -m olive run --config cpu/nemotron_encoder_int4_cpu.json
     python -m olive run --config cpu/nemotron_decoder_fp32_cpu.json
     python -m olive run --config cpu/nemotron_joint_fp32_cpu.json
 """
@@ -71,7 +71,7 @@ def _run_olive_pipeline(config_name: str, output_dir: str, output_subdir: str):
 def run_olive_pipelines(output_dir: str):
     """Run all Olive pipelines: encoder (INT4), decoder (FP32), joint (FP32)."""
     print("=== Stage 1: Olive Encoder (OnnxConversion → fusion → INT4 quant) ===")
-    _run_olive_pipeline("nemotron_speech_int4_cpu.json", output_dir, "encoder.onnx")
+    _run_olive_pipeline("nemotron_encoder_int4_cpu.json", output_dir, "encoder.onnx")
     print()
 
     print("=== Stage 2: Olive Decoder (OnnxConversion, FP32) ===")

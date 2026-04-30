@@ -8,7 +8,7 @@ All model components are handled through Olive's declarative pass system:
 - **Joint**: OnnxConversion (FP32)
 
 ## Files
-- `cpu/nemotron_speech_int4_cpu.json` – Olive encoder config (convert → fusion → INT4)
+- `cpu/nemotron_encoder_int4_cpu.json` – Olive encoder config (convert → fusion → INT4)
 - `cpu/nemotron_decoder_fp32_cpu.json` – Olive decoder config (convert only)
 - `cpu/nemotron_joint_fp32_cpu.json` – Olive joint config (convert only)
 - `cpu/nemotron_model_load.py` – model loaders + dummy inputs for all components
@@ -47,7 +47,7 @@ This runs the full pipeline:
 Or run individual components directly with Olive CLI:
 
 ```bash
-python -m olive run --config cpu/nemotron_speech_int4_cpu.json
+python -m olive run --config cpu/nemotron_encoder_int4_cpu.json
 python -m olive run --config cpu/nemotron_decoder_fp32_cpu.json
 python -m olive run --config cpu/nemotron_joint_fp32_cpu.json
 ```
