@@ -10,7 +10,11 @@ recipes:
       - gpu
       - cpu
     ep: OpenVINOExecutionProvider
+  - file: "sd_ov_npu_workflow.json"
+    devices:
+      - npu
+    ep: OpenVINOExecutionProvider
 aitk:
   modelInfo:
     id: "huggingface/stable-diffusion-v1-5/stable-diffusion-v1-5"
-    version: 2
+    version: 3

@@ -85,13 +85,19 @@ def main():
         config_name = f"config_{submodel_name}.json"
         copy_olive_config(history_folder, config_name, cache_dir, output_dir)
 
+    static_shape = oliveJson["passes"]["aitkpython"]["static_shape"]
+    cmd = [
+        sys.executable, "stable_diffusion.py",
+        "--script_dir", history_folder,
+        "--model_id", "stable-diffusion-v1-5/stable-diffusion-v1-5",
+        "--provider", "openvino",
+        "--optimize"
+    ]
+    if static_shape:
+        cmd.append("--static_shape")
+
     # run stable_diffusion.py to generate onnx model
-    subprocess.run([sys.executable, "stable_diffusion.py",
-                    "--script_dir", history_folder,
-                    "--model_id", "stable-diffusion-v1-5/stable-diffusion-v1-5",
-                    "--provider", "openvino",
-                    "--optimize"],
-                   check=True)
+    subprocess.run(cmd, check=True)
 
 if __name__ == "__main__":
     main()

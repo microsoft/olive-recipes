@@ -157,12 +157,16 @@ class OVStableDiffusionPipeline(OnnxStableDiffusionPipeline):
         return StableDiffusionPipelineOutput(images=image, nsfw_content_detected=has_nsfw_concept)
 
 
-def update_ov_config(config: dict):
+def update_ov_config(config: dict, static_shape: bool):
     config["passes"] = {
         "ov_convert": config["passes"]["ov_convert"],
         "ov_io_update": config["passes"]["ov_io_update"],
         "ov_encapsulation": config["passes"]["ov_encapsulation"]
         }
+
+    if static_shape == False:
+        config["passes"]["ov_io_update"]["static"] = False
+        del config["passes"]["ov_io_update"]["input_shapes"]
 
     config["search_strategy"] = False
     config["systems"]["local_system"]["accelerators"][0]["device"] = "cpu"
