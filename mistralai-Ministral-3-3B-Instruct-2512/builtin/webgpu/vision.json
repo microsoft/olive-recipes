@@ -1,0 +1,32 @@
+{
+    "input_model": {
+        "type": "ONNXModel",
+        "model_path": "webgpu/models/vision/model.onnx"
+    },
+    "passes": {
+        "int8": {
+            "type": "OnnxBlockWiseRtnQuantization",
+            "bits": 8,
+            "block_size": 32,
+            "is_symmetric": true,
+            "accuracy_level": 4,
+            "save_as_external_data": true,
+            "external_data_name": "model.onnx.data"
+        }
+    },
+    "engine": {
+        "target": {
+            "type": "LocalSystem",
+            "accelerators": [
+                {
+                    "device": "gpu",
+                    "execution_providers": [
+                        "WebGpuExecutionProvider"
+                    ]
+                }
+            ]
+        }
+    },
+    "no_artifacts": true,
+    "output_dir": "webgpu/models/vision"
+}

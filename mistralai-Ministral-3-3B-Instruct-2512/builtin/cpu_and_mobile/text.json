@@ -1,0 +1,19 @@
+{
+    "input_model": {
+        "type": "HfModel",
+        "model_path": "mistralai/Ministral-3-3B-Instruct-2512"
+    },
+    "passes": {
+        "convert": {
+            "type": "ModelBuilder",
+            "precision": "int4",
+            "int4_accuracy_level": 4,
+            "int4_algo_config": "k_quant_mixed",
+            "extra_options": {
+                "filename": "model.onnx"
+            }
+        }
+    },
+    "no_artifacts": true,
+    "output_dir": "cpu_and_mobile/models/decoder"
+}
