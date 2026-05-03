@@ -1,0 +1,47 @@
+{
+	"input_model": {
+		"type": "HfModel",
+		"model_path": "allenai/Olmo-3-7B-Instruct",
+		"load_kwargs": {
+			"torch_dtype": "float16"
+		}
+	},
+	"systems": {
+		"local_system": {
+			"type": "LocalSystem",
+			"accelerators": [
+				{
+					"device": "cpu",
+					"execution_providers": [
+						"CPUExecutionProvider"
+					]
+				}
+			]
+		}
+	},
+	"passes": {
+		"m": {
+			"type": "ModelBuilder",
+			"precision": "fp32"
+		}
+	},
+	"target": "local_system",
+	"log_severity_level": 0,
+	"output_dir": "model_cpu_fp32",
+	"cache_dir": "cache_cpu_fp32",
+	"evaluators": {
+		"mmlu": {
+			"type": "LMEvaluator",
+			"tasks": [
+				"mmlu"
+			],
+			"batch_size": 1,
+			"max_length": 2048,
+			"provider_options": {
+				"enable_skip_layer_norm_strict_mode": "1"
+			}
+		}
+	},
+	"evaluator": "mmlu",
+	"evaluate_input_model": false
+}

@@ -1,0 +1,18 @@
+arch: smollm3
+recipes:
+  - name: HuggingFaceTB-SmolLM3-3B_cpu_fp32
+    file: HuggingFaceTB-SmolLM3-3B_cpu_fp32.json
+    devices: cpu
+    eps: CPUExecutionProvider
+  - name: HuggingFaceTB-SmolLM3-3B_cpu_fp32_with_eval
+    file: HuggingFaceTB-SmolLM3-3B_cpu_fp32_with_eval.json
+    devices: cpu
+    eps: CPUExecutionProvider
+  - name: HuggingFaceTB-SmolLM3-3B_cpu_int4
+    file: HuggingFaceTB-SmolLM3-3B_cpu_int4.json
+    devices: cpu
+    eps: CPUExecutionProvider
+  - name: HuggingFaceTB-SmolLM3-3B_cpu_int4_with_eval
+    file: HuggingFaceTB-SmolLM3-3B_cpu_int4_with_eval.json
+    devices: cpu
+    eps: CPUExecutionProvider

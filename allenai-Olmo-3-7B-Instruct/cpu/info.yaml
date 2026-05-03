@@ -1,0 +1,18 @@
+arch: olmo3
+recipes:
+  - name: allenai-Olmo-3-7B-Instruct_cpu_fp32
+    file: allenai-Olmo-3-7B-Instruct_cpu_fp32.json
+    devices: cpu
+    eps: CPUExecutionProvider
+  - name: allenai-Olmo-3-7B-Instruct_cpu_fp32_with_eval
+    file: allenai-Olmo-3-7B-Instruct_cpu_fp32_with_eval.json
+    devices: cpu
+    eps: CPUExecutionProvider
+  - name: allenai-Olmo-3-7B-Instruct_cpu_int4
+    file: allenai-Olmo-3-7B-Instruct_cpu_int4.json
+    devices: cpu
+    eps: CPUExecutionProvider
+  - name: allenai-Olmo-3-7B-Instruct_cpu_int4_with_eval
+    file: allenai-Olmo-3-7B-Instruct_cpu_int4_with_eval.json
+    devices: cpu
+    eps: CPUExecutionProvider
