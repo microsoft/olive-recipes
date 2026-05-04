@@ -2,13 +2,20 @@
 
 This recipe exports **nvidia/nemotron-speech-streaming-en-0.6b** to ONNX, optimizes the encoder, and produces CPU-ready artifacts.
 
+All model components are handled through Olive's declarative pass system:
+- **Encoder**: OnnxConversion → OrtTransformersOptimization (Conformer fusion) → OnnxKQuantQuantization (INT4)
+- **Decoder**: OnnxConversion (FP32)
+- **Joint**: OnnxConversion (FP32)
+
 ## Files
-- `cpu/nemotron_speech_int4_cpu.json` – Olive workflow config (OnnxConversion → graph fusion → INT4 quantization)
-- `cpu/nemotron_encoder_load.py` – model loader script for Olive (loads encoder with streaming wrapper)
-- `cpu/optimize.py` – full pipeline script (export decoder/joint/tokenizer + Olive encoder + assembly)
-- `scripts/export_nemotron_to_onnx_static_shape.py` – ONNX export (streaming/static-shape)
+- `cpu/nemotron_encoder_int4_cpu.json` – Olive encoder config (convert → fusion → INT4)
+- `cpu/nemotron_decoder_fp32_cpu.json` – Olive decoder config (convert only)
+- `cpu/nemotron_joint_fp32_cpu.json` – Olive joint config (convert only)
+- `cpu/nemotron_model_load.py` – model loaders + dummy inputs for all components
+- `cpu/optimize.py` – full pipeline script (Olive × 3 + tokenizer + configs + VAD)
 - `scripts/export_tokenizer.py` – tokenizer export
 - `scripts/test_e2e.py` – e2e smoke test
+- `scripts/test_real_speech.py` – real speech test
 
 ## Setup
 From repo root:
@@ -30,27 +37,29 @@ python cpu/optimize.py
 ```
 
 This runs the full pipeline:
-1. **Export** — NeMo model → ONNX (encoder, decoder, joint, tokenizer, configs)
-2. **Optimize encoder** — Olive converts, fuses, and INT4-quantizes the encoder
-   using built-in passes (OnnxConversion → OrtTransformersOptimization →
-   OnnxKQuantQuantization) via `cpu/nemotron_speech_int4_cpu.json`
-3. **Assemble** — copies decoder, joint, tokenizer, configs, and Silero VAD
-   into the final output directory
+1. **Encoder** — Olive: OnnxConversion → graph fusion → INT4 quantization
+2. **Decoder** — Olive: OnnxConversion (FP32)
+3. **Joint** — Olive: OnnxConversion (FP32)
+4. **Tokenizer** — exports vocab + tokenizer.json
+5. **Configs** — generates genai_config.json + audio_processor_config.json
+6. **VAD** — downloads Silero VAD ONNX model
 
-To skip the NeMo export step if models are already in `cpu/build/onnx_models_fp32/`:
+Or run individual components directly with Olive CLI:
 
 ```bash
-python cpu/optimize.py --skip-export
+python -m olive run --config cpu/nemotron_encoder_int4_cpu.json
+python -m olive run --config cpu/nemotron_decoder_fp32_cpu.json
+python -m olive run --config cpu/nemotron_joint_fp32_cpu.json
 ```
 
 ## Output
-Expected optimized artifacts in:
-- `cpu/build/onnx_models_int4/encoder.onnx`
-- `cpu/build/onnx_models_int4/decoder.onnx`
-- `cpu/build/onnx_models_int4/joint.onnx`
-- `cpu/build/onnx_models_int4/silero_vad.onnx`
-- `cpu/build/onnx_models_int4/genai_config.json`
-- `cpu/build/onnx_models_int4/audio_processor_config.json`
-- `cpu/build/onnx_models_int4/tokenizer.json`
-- `cpu/build/onnx_models_int4/tokenizer_config.json`
-- `cpu/build/onnx_models_int4/vocab.txt`
+Expected optimized artifacts in `cpu/build/onnx_models_int4/`:
+- `encoder.onnx` (INT4 k-quant)
+- `decoder.onnx` (FP32)
+- `joint.onnx` (FP32)
+- `silero_vad.onnx`
+- `genai_config.json`
+- `audio_processor_config.json`
+- `tokenizer.json`
+- `tokenizer_config.json`
+- `vocab.txt`
