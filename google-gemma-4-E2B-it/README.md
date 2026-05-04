@@ -19,6 +19,8 @@ Build the model in fp32 for CPU inference:
 olive run --config gemma4_fp32_cpu.json
 ```
 
+Output: 4 ONNX components (decoder, vision_encoder, audio_encoder, embedding) with ORT GenAI config files.
+
 ### INT4 CUDA
 
 Build in fp16, then quantize to INT4 with block-wise RTN for CUDA:
@@ -27,7 +29,7 @@ Build in fp16, then quantize to INT4 with block-wise RTN for CUDA:
 olive run --config gemma4_int4_cuda.json
 ```
 
-Output: 4 quantized ONNX components (decoder, vision_encoder, audio_encoder, embedding) totaling ~2.8GB.
+Output: 4 quantized ONNX components (decoder, vision_encoder, audio_encoder, embedding) totaling ~2.8GB, with ORT GenAI config files.
 
 ## Model info
 
