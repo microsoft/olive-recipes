@@ -7,7 +7,7 @@
         }
     },
     "passes": {
-        "mobius_build": { "type": "MobiusModelBuilder", "precision": "fp16" },
+        "mobius_build": { "type": "MobiusModelBuilder", "precision": "fp32" },
         "int4_quantize": {
             "type": "OnnxBlockWiseRtnQuantization",
             "block_size": 128,
