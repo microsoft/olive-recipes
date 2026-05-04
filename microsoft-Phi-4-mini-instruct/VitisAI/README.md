@@ -15,11 +15,9 @@ This folder contains sample Olive configuration to optimize Phi-4 models for AMD
 For LLMs - follow the below commands to generate the optimized model for VitisAI Execution Provider.
 
 **Platform Support:**
-- ✅ **Linux with ROCm** - Supported on Ubuntu 24.04 and later. For the best experience, we recommend Ubuntu 24.04.
-- ✅ **Linux with CUDA** - Supported on Ubuntu 24.04 and later. For the best experience, we recommend Ubuntu 24.04.
 - ✅ **Windows with CUDA** - Supported
-- ✅ **Windows with CPU** - Supported (quantization will be slower)
-- ⏳ **Windows with ROCm** - Planned for future release
+- ✅ **Windows with CPU** - Supported
+- ⏳ **Planned for future release:** Linux with ROCm, Linux with CUDA, Windows with ROCm
 
 For more details about quark, see the [Quark Documentation](https://quark.docs.amd.com/latest/)
 

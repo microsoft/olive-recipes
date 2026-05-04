@@ -1,7 +1,9 @@
-# Nemotron ONNX Export Tool
+# Nemotron Scripts
 
-Export NVIDIA Nemotron-Speech-Streaming-En-0.6b ASR model to ONNX format
-for inference with ONNX Runtime GenAI.
+Test and utility scripts for the Nemotron Speech Streaming recipe.
+
+All ONNX export is now handled through Olive configs — see `cpu/README.md`
+for the full pipeline.
 
 ## Prerequisites
 
@@ -12,82 +14,35 @@ pip install Cython packaging torch torchaudio onnxruntime
 pip install "nemo_toolkit[asr]>=2.7.1"
 ```
 
-## Export
+## Export (via Olive)
 
-### 1. Export ONNX models (encoder, decoder, joint)
-
-```bash
-python export_nemotron_to_onnx_static_shape.py --output_dir ./onnx_models --streaming
-```
-
-The decoder is exported with explicit LSTM state I/O (`h_in`/`c_in` → `h_out`/`c_out`)
-for stateful RNNT decoding.
-
-Options:
-
-| Argument | Default | Description |
-|----------|---------|-------------|
-| `--model_name` | `nvidia/nemotron-speech-streaming-en-0.6b` | HuggingFace model name or `.nemo` path |
-| `--output_dir` | `./onnx_models` | Output directory |
-| `--chunk_size` | `0.56` | Streaming chunk size (0.08, 0.16, 0.56, 1.12 seconds) |
-| `--opset_version` | `21` | ONNX opset version |
-| `--device` | `cpu` | Device for export (`cpu` or `cuda`) |
-
-### 2. Export tokenizer
+From the `nvidia-nemotron-speech-streaming-en-0.6b` directory:
 
 ```bash
-python export_tokenizer.py --output_dir ./onnx_models
+python cpu/optimize.py
 ```
 
-Extracts the SentencePiece vocabulary from NeMo and converts it to HuggingFace
-Unigram format (`tokenizer.json` + `tokenizer_config.json`) compatible with
-ORT Extensions' T5Tokenizer path.
-
-## Optimize
-
-Optimize the encoder model with graph fusion + INT4 quantization.
-Decoder and Joint remain FP32 (they are small and run many times per token).
-
-```bash
-python optimize_encoder.py --model_dir ./onnx_models --output_dir ./onnx_models_optimized
-```
-
-This applies two optimization stages to the encoder:
-
-1. **Graph fusion** (`model_type=conformer`) — Fuses LayerNorm + residual Add
-   into `SkipLayerNormalization` ops (96 fusions across 24 layers).
-2. **INT4 quantization** — Converts FP32 MatMul weights to 4-bit
-   (`MatMulNBits`, symmetric, block_size=32). Reduces encoder from ~2.4 GB → ~648 MB.
-
-Options:
-
-| Argument | Default | Description |
-|----------|---------|-------------|
-| `--model_dir` | `./onnx_models` | Source directory with original ONNX models |
-| `--output_dir` | `./onnx_models_optimized` | Output directory for optimized models |
-| `--block_size` | `32` | INT4 quantization block size |
-| `--accuracy_level` | `4` | Accuracy level (0=unset, 4=highest) |
-| `--dtype` | `fp32` | Output dtype for encoder weights (`fp32`, `fp16`, `int8`, `int4`) |
-| `--skip_fusion` | | Skip graph fusion stage |
+This exports all components (encoder, decoder, joint, tokenizer, configs)
+through Olive's declarative pass system. See `cpu/README.md` for details.
 
 ## Test
 
 ```bash
 # End-to-end test via onnxruntime-genai (requires built wheel)
-python test_e2e.py
+python scripts/test_e2e.py
 
 # Real speech test with jfk.flac
-python test_real_speech.py
+python scripts/test_real_speech.py
 ```
 
-## Exported Files
+## Output Files
 
 | File | Description |
 |------|-------------|
 | `silero_vad.onnx` | Silero VAD model (downloaded from onnx-community/silero-vad) |
-| `encoder.onnx` (+`.data`) | FastConformer encoder (24 layers, ~2.4 GB weights) |
-| `decoder.onnx` (+`.data`) | RNNT prediction network (2 LSTM layers, stateful h/c I/O) |
-| `joint.onnx` (+`.data`) | Joint network (encoder + decoder → logits) |
+| `encoder.onnx` (+`.data`) | FastConformer encoder (24 layers, INT4 quantized) |
+| `decoder.onnx` (+`.data`) | RNNT prediction network (2 LSTM layers, stateful h/c I/O, FP32) |
+| `joint.onnx` (+`.data`) | Joint network (encoder + decoder → logits, FP32) |
 | `genai_config.json` | Model configuration for onnxruntime-genai |
 | `audio_processor_config.json` | Mel spectrogram parameters (16kHz, 128 mels, 512 FFT) |
 | `tokenizer.json` | HuggingFace Unigram tokenizer (1025 tokens) |
@@ -98,8 +53,6 @@ python test_real_speech.py
 
 | Script | Purpose |
 |--------|---------|
-| `export_nemotron_to_onnx_static_shape.py` | Export encoder, decoder, joint ONNX models from NeMo |
 | `export_tokenizer.py` | Extract vocab from NeMo and create ORT-compatible tokenizer |
-| `optimize_encoder.py` | Optimize encoder: graph fusion (conformer) + INT4 quantization |
 | `test_e2e.py` | End-to-end test: model load, tokenizer, inference, raw ONNX baseline |
 | `test_real_speech.py` | Real speech test with NeMo preprocessing, compares OG vs raw ORT |

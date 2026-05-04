@@ -1,32 +1,23 @@
 """End-to-end optimization pipeline for Nemotron Speech Streaming.
 
-Stage 1 — Export (NeMo → ONNX):
-    Runs scripts/export_nemotron_to_onnx_static_shape.py to produce encoder,
-    decoder, joint network, and config files from the NeMo model.
-    Then runs scripts/export_tokenizer.py to produce tokenizer files
-    (tokenizer.json, tokenizer_config.json, vocab.txt) in the same directory.
+All model components (encoder, decoder, joint) are exported and optimized
+using Olive's declarative pass system:
 
-Stage 2 — Olive Graph Fusion (ONNX encoder → fused ONNX):
-    Runs the Olive pipeline defined in encoder.json:
-    - OrtTransformersOptimization (model_type="conformer"):
-        Fuses Conformer subgraphs into SkipLayerNormalization, BiasGelu, etc.
-        Multi-head attention fusion is disabled to avoid accuracy regression.
+  - Encoder: OnnxConversion → OrtTransformersOptimization → OnnxKQuantQuantization
+  - Decoder: OnnxConversion (FP32)
+  - Joint:   OnnxConversion (FP32)
 
-Stage 3 — INT4 k-quant Quantization (fused encoder → INT4 ONNX):
-    Applies k-quant weight-only quantization (block_size=32, symmetric,
-    accuracy_level=4) via OnnxRuntime's MatMulNBitsQuantizer, producing
-    an INT4-only encoder.onnx.
-    The decoder and joint networks remain FP32 and are copied unchanged.
+After the Olive pipelines, tokenizer and config files are generated and
+Silero VAD is downloaded.
 
 Usage:
-    # Full pipeline: export + Olive graph fusion + INT4 k-quant
-    python optimize.py
+    # Full pipeline
+    python cpu/optimize.py
 
-    # Skip NeMo export (models already in build/onnx_models_fp32/)
-    python optimize.py --skip-export
-
-    # Custom streaming chunk size
-    python optimize.py --chunk-size 1.12 --left-chunks 10
+    # Or use Olive CLI directly for individual components:
+    python -m olive run --config cpu/nemotron_encoder_int4_cpu.json
+    python -m olive run --config cpu/nemotron_decoder_fp32_cpu.json
+    python -m olive run --config cpu/nemotron_joint_fp32_cpu.json
 """
 
 import argparse
@@ -37,12 +28,15 @@ import sys
 import tempfile
 from pathlib import Path
 
-_SCRIPT_DIR = Path(__file__).parent.resolve()
-_EXPORT_SCRIPT = _SCRIPT_DIR.parent / "scripts" / "export_nemotron_to_onnx_static_shape.py"
-_TOKENIZER_SCRIPT = _SCRIPT_DIR.parent / "scripts" / "export_tokenizer.py"
+# Ensure the recipe root is on sys.path so `from cpu.nemotron_model_load import ...` works
+# regardless of where the script is invoked from.
+_SCRIPT_DIR = Path(__file__).resolve().parent
+_RECIPE_ROOT = _SCRIPT_DIR.parent
+if str(_RECIPE_ROOT) not in sys.path:
+    sys.path.insert(0, str(_RECIPE_ROOT))
 
-DEFAULT_EXPORT_DIR = "build/onnx_models_fp32"
-DEFAULT_FUSED_DIR = "build/onnx_models_fused"
+_TOKENIZER_SCRIPT = _RECIPE_ROOT / "scripts" / "export_tokenizer.py"
+
 DEFAULT_OUTPUT_DIR = "build/onnx_models_int4"
 
 
@@ -52,62 +46,15 @@ def _resolve(path: str) -> Path:
     return p if p.is_absolute() else _SCRIPT_DIR / p
 
 
-def run_export(
-    model_name: str,
-    export_dir: str,
-    chunk_size: float,
-    left_chunks: int,
-    device: str,
-):
-    """Export NeMo model to ONNX using the custom export script."""
-    print(f"=== Stage 1: Exporting {model_name} to ONNX ===")
-    cmd = [
-        sys.executable,
-        str(_EXPORT_SCRIPT),
-        "--model_name", model_name,
-        "--output_dir", str(_resolve(export_dir)),
-        "--streaming",
-        "--chunk_size", str(chunk_size),
-        "--left_chunks", str(left_chunks),
-        "--device", device,
-    ]
-    result = subprocess.run(cmd, cwd=str(_SCRIPT_DIR))
-    if result.returncode != 0:
-        raise RuntimeError(f"Export failed (exit code {result.returncode})")
+def _run_olive_pipeline(config_name: str, output_dir: str, output_subdir: str):
+    """Run an Olive pipeline from a JSON config, overriding output_dir."""
+    from olive import run as olive_run
 
-    # Export tokenizer files (tokenizer.json, tokenizer_config.json, vocab.txt)
-    # to the same directory so they are copied to the final output alongside
-    # decoder, joint, and config files.
-    print("=== Stage 1b: Exporting tokenizer files ===")
-    tokenizer_cmd = [
-        sys.executable,
-        str(_TOKENIZER_SCRIPT),
-        "--model_name", model_name,
-        "--output_dir", str(_resolve(export_dir)),
-    ]
-    result = subprocess.run(tokenizer_cmd, check=True, cwd=str(_SCRIPT_DIR))
-    print()
-
-
-def run_olive_graph_fusion(export_dir: str, fused_dir: str):
-    """Run Olive graph fusion on the encoder (OrtTransformersOptimization).
-
-    Applies Conformer-specific fusions (SkipLayerNorm, BiasGelu, etc.) using
-    the Olive pipeline defined in encoder.json.  Multi-head attention fusion is
-    intentionally disabled to avoid an accuracy regression on this model.
-    """
-    from olive import run
-
-    print("=== Stage 2: Olive Graph Fusion (encoder.json) ===")
-
-    # Load the base config and patch in the actual export/fused paths so that
-    # non-default --export-dir / --fused-dir values are honoured correctly.
-    config_path = _SCRIPT_DIR / "encoder.json"
+    config_path = _SCRIPT_DIR / config_name
     with open(config_path) as f:
         config = json.load(f)
 
-    config["input_model"]["model_path"] = str(_resolve(export_dir) / "encoder.onnx")
-    config["output_dir"] = str(_resolve(fused_dir))
+    config["output_dir"] = str(_resolve(output_dir) / output_subdir)
 
     with tempfile.NamedTemporaryFile(
         mode="w", suffix=".json", dir=str(_SCRIPT_DIR), delete=False
@@ -116,86 +63,217 @@ def run_olive_graph_fusion(export_dir: str, fused_dir: str):
         tmp_path = tmp.name
 
     try:
-        run(tmp_path)
+        olive_run(tmp_path)
     finally:
         Path(tmp_path).unlink(missing_ok=True)
 
+
+def run_olive_pipelines(output_dir: str):
+    """Run all Olive pipelines: encoder (INT4), decoder (FP32), joint (FP32)."""
+    print("=== Stage 1: Olive Encoder (OnnxConversion → fusion → INT4 quant) ===")
+    _run_olive_pipeline("nemotron_encoder_int4_cpu.json", output_dir, "encoder.onnx")
+    print()
+
+    print("=== Stage 2: Olive Decoder (OnnxConversion, FP32) ===")
+    _run_olive_pipeline("nemotron_decoder_fp32_cpu.json", output_dir, "decoder.onnx")
+    print()
+
+    print("=== Stage 3: Olive Joint (OnnxConversion, FP32) ===")
+    _run_olive_pipeline("nemotron_joint_fp32_cpu.json", output_dir, "joint.onnx")
     print()
 
 
-def run_kquant_quantization(
-    fused_dir: str,
-    output_dir: str,
-    block_size: int = 32,
-    is_symmetric: bool = True,
-    accuracy_level: int = 4,
-):
-    """Quantize the fused encoder to INT4 using k-quant (KQuantWeightOnlyQuantConfig).
+def run_tokenizer_export(model_name: str, output_dir: str):
+    """Export tokenizer files to the output directory."""
+    print("=== Stage 4: Exporting tokenizer ===")
+    cmd = [
+        sys.executable,
+        str(_TOKENIZER_SCRIPT),
+        "--model_name", model_name,
+        "--output_dir", str(_resolve(output_dir)),
+    ]
+    result = subprocess.run(cmd, cwd=str(_SCRIPT_DIR))
+    if result.returncode != 0:
+        raise RuntimeError(f"Tokenizer export failed (exit code {result.returncode})")
+    print()
 
-    Produces an INT4-only encoder with all MatMul weights quantized via the
-    k-quant algorithm from OnnxRuntime's MatMulNBitsQuantizer.
+
+def generate_configs(model_name: str, output_dir: str, chunk_size: float):
+    """Generate genai_config.json and audio_processor_config.json.
+
+    Loads the NeMo model to extract architecture parameters, then writes
+    the config files needed by onnxruntime-genai for inference.
     """
-    import onnx
-    from onnxruntime.quantization.matmul_nbits_quantizer import (
-        KQuantWeightOnlyQuantConfig,
-        MatMulNBitsQuantizer,
-    )
+    print("=== Stage 5: Generating config files ===")
+    import nemo.collections.asr as nemo_asr
+    from cpu.nemotron_model_load import get_att_context_size, D_MODEL, N_LAYERS, DECODER_HIDDEN, DECODER_LSTM_LAYERS
 
-    print("=== Stage 3: INT4 k-quant Quantization ===")
+    if model_name.endswith(".nemo"):
+        asr_model = nemo_asr.models.ASRModel.restore_from(model_name)
+    else:
+        asr_model = nemo_asr.models.ASRModel.from_pretrained(model_name=model_name)
+    asr_model.eval()
 
-    # Olive saves its output as "model.onnx"; a manually-fused dir may have
-    # "encoder.onnx".  Check the Olive default first, then fall back.
-    fused_path = _resolve(fused_dir)
-    src = fused_path / "model.onnx"
-    if not src.exists():
-        src = fused_path / "encoder.onnx"
-    if not src.exists():
-        raise FileNotFoundError(
-            f"Fused encoder not found in {fused_path}. "
-            "Expected 'model.onnx' (Olive output) or 'encoder.onnx'."
-        )
-    dst_dir = _resolve(output_dir)
-    dst_dir.mkdir(parents=True, exist_ok=True)
-    dst = dst_dir / "encoder.onnx"
+    dst = _resolve(output_dir)
+    dst.mkdir(parents=True, exist_ok=True)
 
-    print(f"  Input:          {src}")
-    print(f"  Output:         {dst}")
-    print(f"  Bits:           4")
-    print(f"  Block size:     {block_size}")
-    print(f"  Symmetric:      {is_symmetric}")
-    print(f"  Accuracy level: {accuracy_level}")
-    print(f"  Algorithm:      k_quant (INT4-only)")
+    encoder = asr_model.encoder
+    joint = asr_model.joint
 
-    model = onnx.load(str(src), load_external_data=True)
-    algo_config = KQuantWeightOnlyQuantConfig()
-    quantizer = MatMulNBitsQuantizer(
-        model=model,
-        block_size=block_size,
-        is_symmetric=is_symmetric,
-        accuracy_level=accuracy_level,
-        algo_config=algo_config,
-    )
-    quantizer.process()
+    vocab_size = joint.num_classes_with_blank
+    blank_id = vocab_size - 1
 
-    for stale in [dst, Path(str(dst) + ".data")]:
-        if stale.exists():
-            stale.unlink()
+    preprocessor_cfg = asr_model.cfg.get('preprocessor', {})
+    sample_rate = preprocessor_cfg.get('sample_rate', 16000)
+    n_mels = preprocessor_cfg.get('features', preprocessor_cfg.get('nfilt', 128))
+    n_fft = preprocessor_cfg.get('n_fft', 512)
+    hop_length = preprocessor_cfg.get('hop_length', 160)
+    win_length = preprocessor_cfg.get('win_length', 400)
+    preemph = preprocessor_cfg.get('preemph', 0.97)
 
-    quantizer.model.save_model_to_file(str(dst), use_external_data_format=True)
-    print(f"  Saved INT4 encoder to: {dst}")
+    subsampling_factor = getattr(encoder, 'subsampling_factor', 8)
+    att_context_size = get_att_context_size(chunk_size)
+    left_context = att_context_size[0]
+
+    conv_context = 8
+    if hasattr(encoder, 'layers') and len(encoder.layers) > 0:
+        layer = encoder.layers[0]
+        if hasattr(layer, 'conv') and hasattr(layer.conv, 'conv'):
+            conv = layer.conv.conv
+            if hasattr(conv, 'kernel_size'):
+                ks = conv.kernel_size[0] if isinstance(conv.kernel_size, tuple) else conv.kernel_size
+                conv_context = ks - 1
+
+    pre_encode_cache_size = getattr(encoder, 'pre_encode_cache_size', 9)
+    if isinstance(pre_encode_cache_size, (list, tuple)):
+        pre_encode_cache_size = pre_encode_cache_size[-1]
+
+    chunk_samples = int(chunk_size * sample_rate)
+    max_symbols = asr_model.cfg.get('decoding', {}).get('greedy', {}).get('max_symbols', 10)
+
+    genai_config = {
+        "model": {
+            "type": "nemotron_speech",
+            "vocab_size": vocab_size,
+            "num_mels": n_mels,
+            "fft_size": n_fft,
+            "hop_length": hop_length,
+            "win_length": win_length,
+            "preemph": preemph,
+            "log_eps": 5.96046448e-08,
+            "subsampling_factor": subsampling_factor,
+            "left_context": left_context,
+            "conv_context": conv_context,
+            "pre_encode_cache_size": pre_encode_cache_size,
+            "sample_rate": sample_rate,
+            "chunk_samples": chunk_samples,
+            "blank_id": blank_id,
+            "max_symbols_per_step": max_symbols,
+            "encoder": {
+                "filename": "encoder.onnx",
+                "hidden_size": D_MODEL,
+                "num_hidden_layers": N_LAYERS,
+                "inputs": {
+                    "audio_features": "audio_signal",
+                    "input_lengths": "length",
+                    "cache_last_channel": "cache_last_channel",
+                    "cache_last_time": "cache_last_time",
+                    "cache_last_channel_len": "cache_last_channel_len",
+                },
+                "outputs": {
+                    "encoder_outputs": "outputs",
+                    "output_lengths": "encoded_lengths",
+                    "cache_last_channel_next": "cache_last_channel_next",
+                    "cache_last_time_next": "cache_last_time_next",
+                    "cache_last_channel_len_next": "cache_last_channel_len_next",
+                },
+            },
+            "decoder": {
+                "filename": "decoder.onnx",
+                "hidden_size": DECODER_HIDDEN,
+                "num_hidden_layers": DECODER_LSTM_LAYERS,
+                "inputs": {
+                    "targets": "targets",
+                    "lstm_hidden_state": "h_in",
+                    "lstm_cell_state": "c_in",
+                },
+                "outputs": {
+                    "outputs": "decoder_output",
+                    "lstm_hidden_state": "h_out",
+                    "lstm_cell_state": "c_out",
+                },
+            },
+            "joiner": {
+                "filename": "joint.onnx",
+                "inputs": {
+                    "encoder_outputs": "encoder_output",
+                    "decoder_outputs": "decoder_output",
+                },
+                "outputs": {
+                    "logits": "joint_output",
+                },
+            },
+            "vad": {
+                "filename": "silero_vad.onnx",
+                "threshold": 0.3,
+                "silence_duration_ms": 3360,
+                "prefix_padding_ms": 560,
+            },
+        },
+    }
+
+    with open(dst / "genai_config.json", "w") as f:
+        json.dump(genai_config, f, indent=2)
+    print(f"  [OK] genai_config.json")
+
+    # Audio processor config
+    window_size = preprocessor_cfg.get('window_size', preprocessor_cfg.get('n_window_size', 0.025))
+    window_stride = preprocessor_cfg.get('window_stride', preprocessor_cfg.get('n_window_stride', 0.01))
+    if isinstance(window_size, float) and window_size < 1.0:
+        window_length_samples = int(window_size * sample_rate)
+    elif isinstance(window_size, int):
+        window_length_samples = window_size
+    else:
+        window_length_samples = 400
+    if isinstance(window_stride, float) and window_stride < 1.0:
+        hop_length_samples = int(window_stride * sample_rate)
+    elif isinstance(window_stride, int):
+        hop_length_samples = window_stride
+    else:
+        hop_length_samples = 160
+
+    audio_config = {
+        "model_type": "speech_features",
+        "audio_params": {
+            "sample_rate": sample_rate,
+            "n_fft": n_fft,
+            "hop_length": hop_length_samples,
+            "n_mels": n_mels,
+            "window_length": window_length_samples,
+            "window_type": "hann",
+            "fmin": 0,
+            "fmax": sample_rate // 2,
+            "dither": preprocessor_cfg.get('dither', 0.0),
+            "preemphasis": preemph,
+            "log_zero_guard_type": "add",
+            "log_zero_guard_value": 1e-10,
+            "normalize": preprocessor_cfg.get('normalize', 'none'),
+            "center": True,
+            "mag_power": 2.0,
+        },
+    }
+
+    with open(dst / "audio_processor_config.json", "w") as f:
+        json.dump(audio_config, f, indent=2)
+    print(f"  [OK] audio_processor_config.json")
     print()
 
 
 def download_silero_vad(output_dir: str):
-    """Download the Silero VAD ONNX model from onnx-community/silero-vad.
-
-    The model is saved as silero_vad.onnx in the output directory alongside
-    the other ONNX models so it is available for voice-activity detection
-    during inference.
-    """
+    """Download the Silero VAD ONNX model from onnx-community/silero-vad."""
     from huggingface_hub import hf_hub_download
 
-    print("=== Downloading Silero VAD ONNX model ===")
+    print("=== Stage 6: Downloading Silero VAD ===")
     dst_dir = _resolve(output_dir)
     dst_dir.mkdir(parents=True, exist_ok=True)
     dst = dst_dir / "silero_vad.onnx"
@@ -210,120 +288,54 @@ def download_silero_vad(output_dir: str):
     print()
 
 
-def copy_supporting_files(export_dir: str, output_dir: str):
-    """Copy decoder, joint, tokenizer, and config files to the output directory.
-
-    The encoder is produced by Olive and is intentionally excluded here.
-    All other files (decoder.onnx, joint.onnx, genai_config.json,
-    audio_processor_config.json, tokenizer files) remain FP32 and are
-    copied unchanged.
-    """
-    src = _resolve(export_dir)
-    dst = _resolve(output_dir)
-    dst.mkdir(parents=True, exist_ok=True)
-
-    copied = 0
-    for src_file in sorted(src.iterdir()):
-        if not src_file.is_file():
-            continue
-        if src_file.name.startswith("encoder"):
-            continue  # Encoder is produced by Olive; skip
-        dst_file = dst / src_file.name
-        if src_file.resolve() != dst_file.resolve():
-            shutil.copy2(str(src_file), str(dst_file))
-            copied += 1
-
-    print(
-        f"  Copied {copied} supporting files "
-        f"(decoder, joint, configs, tokenizer) → {dst}"
-    )
-
-
 def main():
+    from cpu.nemotron_model_load import MODEL_NAME, CHUNK_SIZE
+
     parser = argparse.ArgumentParser(
         description="Optimize Nemotron Speech Streaming for CPU inference"
     )
     parser.add_argument(
         "--model-name",
-        default="nvidia/nemotron-speech-streaming-en-0.6b",
+        default=MODEL_NAME,
         help="HuggingFace model name or path to a local .nemo file",
-    )
-    parser.add_argument(
-        "--export-dir",
-        default=DEFAULT_EXPORT_DIR,
-        help=f"Directory for exported FP32 ONNX models (default: {DEFAULT_EXPORT_DIR})",
-    )
-    parser.add_argument(
-        "--fused-dir",
-        default=DEFAULT_FUSED_DIR,
-        help=f"Directory for Olive graph-fused ONNX models (default: {DEFAULT_FUSED_DIR})",
     )
     parser.add_argument(
         "--output-dir",
         default=DEFAULT_OUTPUT_DIR,
-        help=f"Output directory for optimized INT4 models (default: {DEFAULT_OUTPUT_DIR})",
-    )
-    parser.add_argument(
-        "--chunk-size",
-        type=float,
-        default=0.56,
-        choices=[0.08, 0.16, 0.56, 1.12],
-        help="Streaming chunk size in seconds (default: 0.56)",
-    )
-    parser.add_argument(
-        "--left-chunks",
-        type=int,
-        default=10,
-        help="Number of left chunks to look back in streaming mode (default: 10). "
-             "left_context = left_chunks * (chunk_mel_frames / subsampling_factor)",
-    )
-    parser.add_argument(
-        "--device",
-        default="cpu",
-        choices=["cpu", "cuda"],
-        help="Device for NeMo model export (default: cpu)",
-    )
-    parser.add_argument(
-        "--skip-export",
-        action="store_true",
-        help="Skip the NeMo export step (reuse models already in --export-dir)",
+        help=f"Output directory for optimized models (default: {DEFAULT_OUTPUT_DIR})",
     )
     args = parser.parse_args()
 
-    # Stage 1: Export NeMo model → ONNX (encoder, decoder, joint, configs)
-    if not args.skip_export:
-        run_export(
-            model_name=args.model_name,
-            export_dir=args.export_dir,
-            chunk_size=args.chunk_size,
-            left_chunks=args.left_chunks,
-            device=args.device,
+    # Validate model name — the Olive configs and model_load.py constants are
+    # specific to the 0.6B model architecture.
+    if not args.model_name.endswith(".nemo") and args.model_name != MODEL_NAME:
+        raise ValueError(
+            f"This recipe only supports '{MODEL_NAME}' (or a .nemo file with the same architecture). "
+            f"Got: '{args.model_name}'"
         )
-    else:
-        print(f"=== Stage 1: Skipped (reusing models from {args.export_dir}) ===\n")
 
-    # Stage 2: Olive graph fusion (OrtTransformersOptimization, MHA fusion disabled)
-    run_olive_graph_fusion(export_dir=args.export_dir, fused_dir=args.fused_dir)
+    # Stages 1-3: Run Olive pipelines for encoder, decoder, joint
+    run_olive_pipelines(output_dir=args.output_dir)
 
-    # Stage 3: INT4 k-quant quantization on fused encoder
-    run_kquant_quantization(fused_dir=args.fused_dir, output_dir=args.output_dir)
+    # Stage 4: Export tokenizer
+    run_tokenizer_export(model_name=args.model_name, output_dir=args.output_dir)
 
-    # Copy decoder, joint, and config files to output (FP32, unchanged)
-    print("=== Copying supporting files ===")
-    copy_supporting_files(export_dir=args.export_dir, output_dir=args.output_dir)
-    print()
+    # Stage 5: Generate config files (chunk_size matches the hardcoded export shapes)
+    generate_configs(
+        model_name=args.model_name,
+        output_dir=args.output_dir,
+        chunk_size=CHUNK_SIZE,
+    )
 
-    # Download Silero VAD ONNX model alongside the other ONNX models
+    # Stage 6: Download Silero VAD
+    vad_dest = _resolve(args.output_dir) / "silero_vad.onnx"
     try:
         download_silero_vad(output_dir=args.output_dir)
     except Exception as exc:
         print(
             f"  Warning: Silero VAD download failed ({exc}).\n"
-            "  You can download it manually with:\n"
-            "    hf download onnx-community/silero-vad --include onnx/model.onnx --local-dir .\n"
-            "  or:\n"
-            "    huggingface-cli download onnx-community/silero-vad --include onnx/model.onnx --local-dir .\n"
-            f"  and copy onnx/model.onnx to {_resolve(args.output_dir) / 'silero_vad.onnx'}"
+            f"  Download manually from https://huggingface.co/onnx-community/silero-vad\n"
+            f"  and place silero_vad.onnx at: {vad_dest}"
         )
 
     # Summary
@@ -334,7 +346,7 @@ def main():
         print(f"=== Done! Optimized models → {output_path} ===")
         print(f"    Total size: {total_mb:.1f} MB")
         for f in files:
-            tag = " ← encoder (INT4 k-quant, Olive-optimized)" if f.name.startswith("encoder") else ""
+            tag = " ← INT4 k-quant (Olive)" if f.name.startswith("encoder") else ""
             print(f"    {f.name} ({f.stat().st_size / (1024 * 1024):.1f} MB){tag}")
 
 

@@ -16,8 +16,18 @@
             "description": "Name of the model parameter configuration"
         },
         "oliveFile": {
-            "type": "string",
-            "description": "Path to the olive json file. Relative to aitk folder, or prefixed with 'o:' for olive examples directory"
+            "description": "Path(s) to olive json file(s). A string is a single path (relative to aitk folder, or 'o:' prefix for olive examples). An object maps names to paths for multi-file workflows.",
+            "oneOf": [
+                {
+                    "type": "string"
+                },
+                {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
+                }
+            ]
         },
         "isLLM": {
             "type": "boolean",

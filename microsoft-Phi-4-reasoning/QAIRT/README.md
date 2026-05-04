@@ -14,6 +14,7 @@ Finally, a prepared QAIRT DLC is encapsulated in an ONNX protobuf and exported t
 
 This workflow has been tested using the following host configuration:
 * Python 3.10
+* qairt-dev 0.5.0
 * QAIRT 2.45.40
 
 Further, this workflow has been tested on the following target configurations:
@@ -25,6 +26,8 @@ Further, this workflow has been tested on the following target configurations:
 
 ```bash
 pip install olive[qairt]
+pip list | grep qairt-dev  # Ensure the proper qairt-dev version  was installed
+pip install qairt-dev[onnx]==<version>  # Install the proper qairt-dev version, if not installed
 ```
 
 2. (Optional) Use qairt-vm to install a non-default version of QAIRT and set QAIRT_SDK_ROOT
