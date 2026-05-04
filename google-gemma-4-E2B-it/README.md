@@ -31,6 +31,16 @@ olive run --config gemma4_int4_cuda.json
 
 Output: 4 quantized ONNX components (decoder, vision_encoder, audio_encoder, embedding) totaling ~2.8GB, with ORT GenAI config files.
 
+### INT4 CPU (K-Quant)
+
+Build in fp32, then quantize to INT4 with k-quant on CPU:
+
+```bash
+olive run --config gemma4_int4_kquant_cpu.json
+```
+
+Output: 4 quantized ONNX components with k-quant weights and ORT GenAI config files.
+
 ## Model info
 
 - **Architecture**: Gemma 4 any-to-any multimodal (vision + audio + text)

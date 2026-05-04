@@ -1,6 +1,7 @@
 keywords:
   - gemma
   - int4
+  - kquant
 arch: gemma
 recipes:
   - name: gemma4-e2b-fp32-cpu
@@ -13,3 +14,8 @@ recipes:
     devices:
       - gpu
     eps: CUDAExecutionProvider
+  - name: gemma4-e2b-int4-kquant-cpu
+    file: gemma4_int4_kquant_cpu.json
+    devices:
+      - cpu
+    eps: CPUExecutionProvider

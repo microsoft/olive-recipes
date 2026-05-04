@@ -1,0 +1,21 @@
+{
+    "input_model": { "type": "HfModel", "model_path": "google/gemma-4-E2B-it", "task": "text-generation" },
+    "systems": {
+        "local_system": {
+            "type": "LocalSystem",
+            "accelerators": [ { "device": "cpu", "execution_providers": [ "CPUExecutionProvider" ] } ]
+        }
+    },
+    "passes": {
+        "mobius_build": { "type": "MobiusModelBuilder", "precision": "fp32" },
+        "int4_kquant": {
+            "type": "OnnxKQuantQuantization",
+            "bits": 4,
+            "block_size": 32,
+            "save_as_external_data": true
+        }
+    },
+    "engine": { "target": "local_system" },
+    "output_dir": "models/gemma4-e2b-int4-kquant-cpu",
+    "log_severity_level": 1
+}
