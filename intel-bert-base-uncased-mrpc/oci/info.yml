@@ -4,14 +4,24 @@ keywords:
     - latency
     - accuracy
     - search
-ep:
-    - CPUExecutionProvider
-    - CUDAExecutionProvider
-device:
-    - cpu
-    - gpu
-name: intel-bert-base-uncased-mrpc
 features:
     - search
     - evaluator
     - data-config
+recipes:
+    - name: intel-bert-base-uncased-mrpc-inc-smooth-quant
+      file: cpu/inc_smooth_quant.json
+      ep: CPUExecutionProvider
+      decide: cpu
+    - name: intel-bert-base-uncased-mrpc-ptq
+      file: cpu/ptq.json
+      ep: CPUExecutionProvider
+      decide: cpu
+    - name: intel-bert-base-uncased-mrpc-inc-quant
+      file: gpu/cuda/inc_quant.json
+      ep: CUDAExecutionProvider
+      device: gpu
+    - name: intel-bert-base-uncased-mrpc-ptq
+      file: gpu/cuda/ptq.json
+      ep: CUDAExecutionProvider
+      device: gpu

@@ -1,5 +1,4 @@
-arch:
-  - whisper
+arch: whisper
 recipes:
   - file: "encoder_decoder_init.json"
     devices:
