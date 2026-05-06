@@ -1,7 +1,7 @@
 keywords:
   - whisper
 recipes:
-  - name: openai-whisper-large-v3-webgpu-int4
-    file: whisper-large-v3_webgpu_int4.json
+  - name: openai-whisper-large-v3-webgpu-fp16
+    file: whisper-large-v3_webgpu_fp16.json
     devices: gpu
     eps: WebGpuExecutionProvider

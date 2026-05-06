@@ -1,7 +1,7 @@
 keywords:
   - whisper
 recipes:
-  - name: openai-whisper-large-v3-cpu-int4
-    file: whisper-large-v3_cpu_int4.json
+  - name: openai-whisper-large-v3-cpu-fp32
+    file: whisper-large-v3_cpu_fp32.json
     devices: cpu
     eps: CPUExecutionProvider

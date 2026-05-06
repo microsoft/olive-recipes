@@ -1,7 +1,7 @@
 keywords:
   - whisper
 recipes:
-  - name: openai-whisper-large-v3-cuda-int4
-    file: whisper-large-v3_cuda_int4.json
+  - name: openai-whisper-large-v3-cuda-fp16
+    file: whisper-large-v3_cuda_fp16.json
     devices: gpu
     eps: CUDAExecutionProvider
