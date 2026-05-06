@@ -9,7 +9,6 @@ a dict of metric values {"wer": float, "rtfx": float}.
 
 import json
 import os
-import time
 
 import jiwer
 import numpy as np
