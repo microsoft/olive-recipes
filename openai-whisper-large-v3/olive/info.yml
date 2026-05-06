@@ -1,9 +1,0 @@
-keywords:
-  - whisper
-eps:
-  - CPUExecutionProvider
-devices:
-  - cpu
-recipes:
-  - name: openai-whisper-large-v3-model-builder-cpu-int4
-    file: whisper-large-v3_model_builder_cpu_int4.json
