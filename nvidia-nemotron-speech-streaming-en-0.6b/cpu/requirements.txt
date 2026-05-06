@@ -8,3 +8,6 @@ onnxruntime>=1.24.4
 sentencepiece>=0.2.1
 soundfile>=0.13.1
 torch>=2.9.1
+jiwer>=3.0.0
+whisper-normalizer>=0.0.5
+datasets>=3.0.0
