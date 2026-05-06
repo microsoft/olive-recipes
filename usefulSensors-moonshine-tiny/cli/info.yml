@@ -1,9 +1,11 @@
 keywords:
-    olive
-ep:
-    CUDAExecutionProvider
-    CPUExecutionProvider
-device:
-    gpu
-    cpu
-name: moonshine-tiny
+  - olive
+recipes:
+  - name: moonshine-tiny
+    file: optimize.sh
+    eps:
+      - CUDAExecutionProvider
+      - CPUExecutionProvider
+    devices:
+      - gpu
+      - cpu

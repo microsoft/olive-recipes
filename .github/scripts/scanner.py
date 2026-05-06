@@ -3,11 +3,36 @@
 # Licensed under the MIT License.
 # --------------------------------------------------------------------------
 
+import copy
 import itertools
+import traceback
 import yaml
 from pathlib import Path
 from collections import defaultdict
 from typing import Dict, List, Set, Tuple
+
+_valid_devices = set([
+    "cpu",
+    "gpu",
+    "npu",
+    "vpu",
+    "xpu",
+])
+_valid_eps = set([
+    "CPUExecutionProvider",
+    "CUDAExecutionProvider",
+    "DmlExecutionProvider",
+    "OpenVINOExecutionProvider",
+    "TensorrtExecutionProvider",
+    "ROCMExecutionProvider",
+    "MIGraphXExecutionProvider",
+    "NvTensorRTRTXExecutionProvider",
+    "JsExecutionProvider",
+    "QNNExecutionProvider",
+    "VitisAIExecutionProvider",
+    "WebGpuExecutionProvider",
+])
+
 
 def _scan(dirpath: Path) -> Tuple[
     Dict[str, Set[Tuple[str, Path]]], Dict[str, Set[Tuple[str, Path]]], Dict[str, Set[Tuple[str, Path]]]
@@ -29,18 +54,40 @@ def _scan(dirpath: Path) -> Tuple[
             if arch:
                 grouped_by_arch[arch].add((model_name, relpath.parent))
 
+            shared_eps = data.get("eps") or data.get("ep")
+            shared_devices = data.get("devices") or data.get("device")
+
+            if isinstance(shared_devices, str):
+                shared_devices = [shared_devices]
+
             recipes = data.get('recipes') or []
+            if not recipes:
+                raise ValueError(f"Recipe list is empty in {filepath}")
+
             for recipe in recipes:
                 name = recipe.get("name") or model_name
                 filename = recipe.get("file")
                 if filename:
-                    eps = recipe.get("eps") or recipe.get("ep") or ["CPUExecutionProvider"]
-                    devices = recipe.get("devices") or recipe.get("device") or ["cpu"]
+                    eps = recipe.get("eps") or recipe.get("ep")
+                    devices = recipe.get("devices") or recipe.get("device")
+
+                    if not eps:
+                        eps = copy.copy(shared_eps)
+                    if not devices:
+                        devices = copy.copy(shared_devices)
+
+                    if not eps:
+                        eps = ["CPUExecutionProvider"]
+                    if not devices:
+                        devices = ["cpu"]
 
                     if isinstance(eps, str):
                         eps = [eps]
 
                     for ep in eps:
+                        if ep not in _valid_eps:
+                            raise ValueError(f"Invalid execution provider {ep} in {filepath}.")
+
                         ep = ep[:-len("ExecutionProvider")]
                         grouped_by_ep[ep].add((name, relpath.parent / filename))
 
@@ -48,9 +95,13 @@ def _scan(dirpath: Path) -> Tuple[
                         devices = [devices]
 
                     for device in devices:
+                        if device not in _valid_devices:
+                            raise ValueError(f"Unknown device {device} in {filepath}.")
+
                         grouped_by_device[device].add((name, relpath.parent / filename))
         except Exception as e:
             print(f"Failed to load/parse {filepath}.", e)
+            traceback.print_exception(e)
 
     return grouped_by_arch, grouped_by_device, grouped_by_ep
 
