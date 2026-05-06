@@ -9,6 +9,7 @@ a dict of metric values {"wer": float, "rtfx": float}.
 
 import json
 import os
+import time
 
 import jiwer
 import numpy as np
@@ -105,7 +106,7 @@ def evaluate_nemotron_wer(
         max_samples: Deprecated alias for limit (for backward compat)
 
     Returns:
-        dict with "wer" float value
+        dict with "wer" and "rtfx" float values
 
     """
     import onnxruntime_genai as og
@@ -151,6 +152,8 @@ def evaluate_nemotron_wer(
 
     predictions = []
     references = []
+    total_audio_s = 0.0
+    total_inference_s = 0.0
 
     for sample in dataset:
         audio_array = np.array(sample["audio"]["array"], dtype=np.float32)
@@ -160,16 +163,23 @@ def evaluate_nemotron_wer(
         if not ref_norm.strip():
             continue
 
+        audio_dur = len(audio_array) / sample_rate
+        t0 = time.time()
         pred_text = _transcribe_streaming(og_model, tokenizer, audio_array, chunk_samples)
+        elapsed = time.time() - t0
+
         pred_norm = _normalize_text(pred_text)
 
         predictions.append(pred_norm)
         references.append(ref_norm)
+        total_audio_s += audio_dur
+        total_inference_s += elapsed
 
     if not predictions:
-        return {"wer": 1.0}
+        return {"wer": 1.0, "rtfx": 0.0}
 
     wer = jiwer.wer(references, predictions)
+    rtfx = total_audio_s / max(total_inference_s, 1e-9)
 
-    print(f"Nemotron WER: {100*wer:.2f}% ({len(predictions)} samples)")
-    return {"wer": wer}
+    print(f"Nemotron WER: {100*wer:.2f}% RTFx: {rtfx:.2f} ({len(predictions)} samples)")
+    return {"wer": wer, "rtfx": rtfx}
