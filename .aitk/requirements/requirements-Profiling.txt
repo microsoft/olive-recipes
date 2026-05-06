@@ -40,7 +40,7 @@ sympy==1.14.0
 tornado==6.5.5
 traitlets==5.14.3
 tzdata==2025.2
-wasdk-Microsoft.Windows.AI.MachineLearning==2.0.1
+# uvpip:install wasdk-Microsoft.Windows.AI.MachineLearning==2.0.1 --no-deps;post
 wasdk-Microsoft.Windows.ApplicationModel.DynamicDependency.Bootstrap==2.0.1
 wcwidth==0.2.13
 # winrt-runtime==3.2.1

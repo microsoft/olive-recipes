@@ -113,7 +113,7 @@ typing-extensions==4.15.0
 typing-inspection==0.4.1
 tzdata==2025.2
 urllib3==2.6.3
-wasdk-Microsoft.Windows.AI.MachineLearning==2.0.1
+# uvpip:install wasdk-Microsoft.Windows.AI.MachineLearning==2.0.1 --no-deps;post
 wasdk-Microsoft.Windows.ApplicationModel.DynamicDependency.Bootstrap==2.0.1
 wcwidth==0.2.13
 widgetsnbextension==4.0.13

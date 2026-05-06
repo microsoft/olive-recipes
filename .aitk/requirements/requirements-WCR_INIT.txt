@@ -8,7 +8,7 @@ packaging==24.2
 protobuf==5.29.6
 pyreadline3==3.5.4
 sympy==1.14.0
-wasdk-Microsoft.Windows.AI.MachineLearning==2.0.1
+# uvpip:install wasdk-Microsoft.Windows.AI.MachineLearning==2.0.1 --no-deps;post
 wasdk-Microsoft.Windows.ApplicationModel.DynamicDependency.Bootstrap==2.0.1
 # winrt-runtime==3.2.1
 winrt-runtime==3.2.1
