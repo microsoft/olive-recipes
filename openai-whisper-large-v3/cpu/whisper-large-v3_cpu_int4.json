@@ -12,6 +12,13 @@
     },
     "engine": { "target": "local_system" },
     "passes": {
-        "builder": { "type": "ModelBuilder", "precision": "int4" }
+        "builder": { "type": "ModelBuilder", "precision": "fp32" },
+        "onnx_dynamic_quantization": {
+            "type": "OnnxDynamicQuantization",
+            "per_channel": false,
+            "reduce_range": false,
+            "op_types_to_quantize": ["MatMul", "Gemm", "Gather"],
+            "MatMulConstBOnly": false
+        }
     }
 }
