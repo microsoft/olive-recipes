@@ -36,8 +36,8 @@ networkx==3.4.2
 numpy==2.2.4
 # olive-ai==0.11.0
 git+https://github.com/microsoft/Olive.git@b9c975f5651a4446283d9183348add9dcd4ed45f#egg=olive_ai
-# onnx==1.17.0
-onnx==1.17.0
+# onnx==1.21.0
+onnx==1.21.0
 onnx-ir==0.1.10
 # onnxruntime-genai-cuda==0.11.2
 onnxruntime-genai-cuda==0.11.2
@@ -75,7 +75,7 @@ torchmetrics==1.7.1
 # torchvision==0.23.0+cu128
 torchvision==0.23.0+cu128
 tqdm==4.67.1
-transformers==4.51.3
+transformers==5.0.0rc3
 typing-extensions==4.15.0
 typing-inspection==0.4.1
 tzdata==2025.2

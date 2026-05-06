@@ -36,7 +36,7 @@ networkx==3.5
 numpy==2.2.4
 # olive-ai==0.11.0
 git+https://github.com/microsoft/Olive.git@b9c975f5651a4446283d9183348add9dcd4ed45f#egg=olive_ai
-onnx==1.17.0
+onnx==1.21.0
 onnx-ir==0.1.10
 # uvpip:install onnxruntime-qnn==1.23.2 --extra-index-url https://aiinfra.pkgs.visualstudio.com/PublicPackages/_packaging/ORT-Nightly/pypi/simple --no-deps;post
 onnxscript==0.5.3
@@ -68,7 +68,7 @@ torchmetrics==1.7.0
 # torchvision==0.22.0
 torchvision==0.22.0
 tqdm==4.67.1
-transformers==4.51.3
+transformers==5.0.0rc3
 typing-extensions==4.15.0
 typing-inspection==0.4.1
 tzdata==2025.2
