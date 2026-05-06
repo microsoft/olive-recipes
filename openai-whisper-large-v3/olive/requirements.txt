@@ -1,4 +1,2 @@
-librosa
 olive-ai
-onnxruntime
-optimum[exporters]
+onnxruntime-genai

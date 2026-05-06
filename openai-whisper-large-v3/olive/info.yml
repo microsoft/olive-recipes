@@ -2,14 +2,8 @@ keywords:
   - whisper
 eps:
   - CPUExecutionProvider
-  - CUDAExecutionProvider
 devices:
   - cpu
-  - gpu
 recipes:
-  - name: openai-whisper-large-v3-decoder-with-past
-    file: decoder_with_past.json
-  - name: openai-whisper-large-v3-decoder
-    file: decoder.json
-  - name: openai-whisper-large-v3-encoder
-    file: encoder.json
+  - name: openai-whisper-large-v3-model-builder-cpu-int4
+    file: whisper-large-v3_model_builder_cpu_int4.json
