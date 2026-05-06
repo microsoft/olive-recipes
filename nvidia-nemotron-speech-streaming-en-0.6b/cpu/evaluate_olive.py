@@ -105,7 +105,7 @@ def evaluate_nemotron_wer(
         max_samples: Deprecated alias for limit (for backward compat)
 
     Returns:
-        dict with "wer" and "rtfx" float values
+        dict with "wer" float value
 
     """
     import onnxruntime_genai as og
@@ -133,7 +133,7 @@ def evaluate_nemotron_wer(
 
     # Load dataset
     dataset = load_dataset(
-        dataset_path, dataset_name, split=split, streaming=False, trust_remote_code=True
+        dataset_path, dataset_name, split=split, streaming=False
     )
     dataset = dataset.cast_column("audio", Audio(sampling_rate=sample_rate))
 
@@ -167,7 +167,7 @@ def evaluate_nemotron_wer(
         references.append(ref_norm)
 
     if not predictions:
-        return {"wer": 1.0, "rtfx": 0.0}
+        return {"wer": 1.0}
 
     wer = jiwer.wer(references, predictions)
 

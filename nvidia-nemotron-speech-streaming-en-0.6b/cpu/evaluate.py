@@ -55,7 +55,7 @@ def _load_model_config(model_dir: str):
     return sample_rate, chunk_samples
 
 
-def _transcribe_streaming(model, processor, tokenizer, audio_array: np.ndarray, chunk_samples: int) -> str:
+def _transcribe_streaming(model, tokenizer, audio_array: np.ndarray, chunk_samples: int) -> str:
     """Run streaming transcription on a single audio sample using onnxruntime-genai."""
     import onnxruntime_genai as og
 
@@ -152,7 +152,7 @@ def _apply_limit(dataset, limit: float, seed: int = 42):
     return dataset
 
 
-def load_dataset_with_limit(args):
+def load_dataset_with_limit(args, sample_rate: int = SAMPLE_RATE):
     """Load HuggingFace ASR dataset and apply sampling limit."""
     from datasets import Audio, load_dataset
 
@@ -162,9 +162,8 @@ def load_dataset_with_limit(args):
         args.dataset,
         split=args.split,
         streaming=False,
-        trust_remote_code=True,
     )
-    dataset = dataset.cast_column("audio", Audio(sampling_rate=SAMPLE_RATE))
+    dataset = dataset.cast_column("audio", Audio(sampling_rate=sample_rate))
 
     # Apply limit (same semantics as Olive's --limit)
     dataset = _apply_limit(dataset, args.limit, args.seed)
@@ -185,10 +184,9 @@ def main(args):
         config.clear_providers()
         config.append_provider(args.execution_provider)
     model = og.Model(config)
-    processor = og.StreamingProcessor(model)
     tokenizer = og.Tokenizer(model)
 
-    dataset = load_dataset_with_limit(args)
+    dataset = load_dataset_with_limit(args, sample_rate=sample_rate)
 
     predictions = []
     references = []
@@ -212,7 +210,7 @@ def main(args):
 
         # Run inference
         t0 = time.time()
-        pred_text = _transcribe_streaming(model, processor, tokenizer, audio_array, chunk_samples)
+        pred_text = _transcribe_streaming(model, tokenizer, audio_array, chunk_samples)
         elapsed = time.time() - t0
 
         pred_norm = _normalize_text(pred_text)
