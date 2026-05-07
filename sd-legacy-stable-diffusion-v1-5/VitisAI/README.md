@@ -44,11 +44,11 @@ Run Olive to generate NPU-ready optimized submodels.
 ```bash
 cd olive-recipes/sd-legacy-stable-diffusion-v1-5/VitisAI
 
-olive run --config ../VitisAI/config_unet.json
-olive run --config ../VitisAI/config_vae_decoder.json
-olive run --config ../VitisAI/config_vae_encoder.json
-olive run --config ../VitisAI/config_text_encoder.json
-olive run --config ../VitisAI/config_safety_checker.json
+olive run --config config_unet.json
+olive run --config config_vae_decoder.json
+olive run --config config_vae_encoder.json
+olive run --config config_text_encoder.json
+olive run --config config_safety_checker.json
 ```
 
 Optimized artifacts are written to the `output_dir` defined in each JSON (for example `footprints/unet`, `footprints/vae_decoder`, …).
