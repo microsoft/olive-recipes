@@ -3,7 +3,9 @@ keywords:
 arch: mistral
 recipes:
     - file: "mistral-7b-instruct-v0.3-ov.json"
-      device: gpu
+      devices:
+        - gpu
+        - cpu
       ep: OpenVINOExecutionProvider
 aitk:
     modelInfo:

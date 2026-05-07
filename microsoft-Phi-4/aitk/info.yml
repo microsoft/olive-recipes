@@ -5,6 +5,7 @@ recipes:
     - file: "phi4_ov_config.json"
       devices:
         - gpu
+        - cpu
       ep: OpenVINOExecutionProvider
       aitk:
           oliveFile: "OpenVINO/phi_4_gpu_context_dy.json"

@@ -5,6 +5,11 @@ recipes:
     - file: "phi3_ov_config.json"
       devices:
         - gpu
+        - cpu
+      ep: OpenVINOExecutionProvider
+    - file: "phi3_ov_npu_config.json"
+      devices:
+        - npu
       ep: OpenVINOExecutionProvider
     - file: "phi3_trtrtx.json"
       device: gpu

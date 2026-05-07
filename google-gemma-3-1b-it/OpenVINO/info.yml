@@ -1,0 +1,13 @@
+keywords:
+    openvino
+    olive
+arch: gemma
+recipes:
+    - file: "gemma_3_1b_it_context_ov_npu_config.json"
+      devices:
+        - npu
+      ep: OpenVINOExecutionProvider
+    - file: "gemma_3_1b_it_context_ov_gpu_config.json"
+      devices:
+        - gpu
+      ep: OpenVINOExecutionProvider

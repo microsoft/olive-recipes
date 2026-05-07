@@ -66,6 +66,20 @@
             "example_input_func": "get_unet_ov_example_input",
             "output_model": "unet"
         },
+        "ov_io_update": {
+            "type": "OpenVINOIoUpdate",
+            "static": false,
+            "input_names": [
+                "sample", "timestep", "encoder_hidden_states"
+            ],
+            "reuse_cache": false
+        },
+        "ov_encapsulation": {
+            "type": "OpenVINOEncapsulation",
+            "target_device": "gpu",
+            "ov_version": "2025.1",
+            "reuse_cache": false
+        },
         "optimize": {
             "type": "OrtTransformersOptimization",
             "model_type": "unet",

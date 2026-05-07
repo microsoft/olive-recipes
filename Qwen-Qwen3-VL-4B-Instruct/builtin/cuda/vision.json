@@ -26,6 +26,12 @@
                     "output_idx": 0,
                     "dim_idx": 0,
                     "dim_name": "num_logical_patches"
+                },
+                {
+                    "surgeon": "RenameInputDims",
+                    "input_name": "image_grid_thw",
+                    "dim_idx": 0,
+                    "dim_name": "num_images"
                 }
             ]
         },
@@ -65,6 +71,9 @@
             "surgeries": [
                 {
                     "surgeon": "DeduplicateNodes"
+                },
+                {
+                    "surgeon": "RemoveMemcpy"
                 }
             ],
             "save_as_external_data": true,

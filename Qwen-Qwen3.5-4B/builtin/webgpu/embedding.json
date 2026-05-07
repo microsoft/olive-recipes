@@ -1,0 +1,45 @@
+{
+    "input_model": {
+        "type": "PyTorchModel",
+        "model_path": "Qwen/Qwen3.5-4B",
+        "model_loader": "get_embedding_model",
+        "model_script": "user_script.py",
+        "io_config": "get_embedding_io_config",
+        "dummy_inputs_func": "get_embedding_dummy_inputs"
+    },
+    "passes": {
+        "convert": {
+            "type": "OnnxConversion",
+            "use_dynamo_exporter": false
+        },
+        "ort": {
+            "type": "OrtTransformersOptimization",
+            "model_type": "",
+            "opt_level": 1,
+            "only_onnxruntime": true
+        },
+        "cast": {
+            "type": "OnnxPeepholeOptimizer",
+            "onnxscript_optimize": false,
+            "onnxoptimizer_optimize": false,
+            "fuse_reshape_operations": false,
+            "fix_com_microsoft_opset": true,
+            "cast_chain_elimination": true
+        },
+        "gemm2mm": {
+            "type": "GraphSurgeries",
+            "surgeries": [
+                {
+                    "surgeon": "GemmToMatMulAdd"
+                }
+            ]
+        },
+        "fp16": {
+            "type": "OnnxFloatToFloat16",
+            "save_as_external_data": true,
+            "external_data_name": "embedding.onnx.data"
+        }
+    },
+    "no_artifacts": true,
+    "output_dir": "webgpu/models/embedding.onnx"
+}

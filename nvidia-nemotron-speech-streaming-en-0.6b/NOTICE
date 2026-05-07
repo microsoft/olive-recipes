@@ -1,0 +1,9 @@
+NOTICES
+
+This Model incorporates models or materials from other models as listed below or described in the code.
+
+Model Name: nemotron-speech-streaming-en-0.6b
+Model license and any use restrictions: https://www.nvidia.com/en-us/agreements/enterprise-software/nvidia-open-model-license/
+
+Model Name: silero-vad
+Model license and any use restrictions: MIT License

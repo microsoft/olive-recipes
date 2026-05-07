@@ -1,0 +1,57 @@
+{
+    "input_model": {
+        "type": "HfModel",
+        "model_path": "google/gemma-3-1b-it"
+    },
+    "systems": {
+        "local_system": {
+            "type": "LocalSystem",
+            "accelerators": [
+                {
+                    "device": "gpu",
+                    "execution_providers": [
+                        "OpenVINOExecutionProvider"
+                    ]
+                }
+            ]
+        }
+    },
+    "passes": {
+        "optimum_convert": {
+            "type": "OpenVINOOptimumConversion",
+            "extra_args": {
+                "device": "gpu"
+            },
+            "ov_quant_config": {
+                "weight_format": "int4",
+                "group_size": 128,
+                "ratio": 0.8,
+                "trust_remote_code": true
+            }
+        },
+        "encapsulation": {
+            "type": "OpenVINOEncapsulation",
+            "target_device": "gpu",
+            "keep_ov_dynamic_dims": true,
+            "ov_version": "2026.1",
+            "reuse_cache": true,
+            "genai_config_override": {
+                "model": {
+                    "context_length": 32768
+                },
+                "search": {
+                    "do_sample": true,
+                    "max_length": 32768,
+                    "repetition_penalty": 1.1,
+                    "temperature": 1.0,
+                    "top_k": 64,
+                    "top_p": 0.95
+                }
+            }
+        }
+    },
+    "search_strategy": false,
+    "target": "local_system",
+    "evaluate_input_model": false,
+    "output_dir": "models/gemma_3_1b_it_context_ov_gpu"
+}

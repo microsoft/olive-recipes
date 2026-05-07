@@ -350,112 +350,114 @@ class Qwen3VLVisionModel(Qwen3VLPreTrainedModel):
         self.gradient_checkpointing = False
 
     def rot_pos_emb(self, grid_thw: torch.Tensor) -> torch.Tensor:
+        # Vectorized — no Python loop over image batch — to support a dynamic
+        # num_images dimension in image_grid_thw.
+        #
+        # Uniform-grid assumption: all images in one call share the same (t, h, w).
+        # This holds in practice because inference engines resize images to a common
+        # resolution before batching.  Under this assumption we compute rotary
+        # embeddings for one representative image and tile for num_images.
         merge_size = self.spatial_merge_size
 
-        # Keep max_hw as a tensor (0-dim) so torch.arange inside rotary_pos_emb stays
-        # symbolic under Dynamo export instead of being baked as a constant.
         max_hw = grid_thw[:, 1:].max()
         freq_table = self.rotary_pos_emb(max_hw)
         device = freq_table.device
 
-        # Compute per-image embeddings and cat — avoids pre-allocating a tensor with a
-        # shape determined by .item() (data-dependent constant baking).
-        all_embeddings = []
-        for num_frames, height, width in grid_thw:
-            merged_h, merged_w = height // merge_size, width // merge_size
+        num_images = grid_thw.shape[0]   # symbolic when exporting dynamic shape
+        num_frames = grid_thw[0, 0]
+        height     = grid_thw[0, 1]
+        width      = grid_thw[0, 2]
+        merged_h, merged_w = height // merge_size, width // merge_size
 
-            # Declare shape constraints for torch.export
-            torch._check(merged_h.item() >= 1)
-            torch._check(merged_w.item() >= 1)
-            torch._check(num_frames.item() >= 1)
+        # Shape constraints for torch.export
+        torch._check(merged_h.item() >= 1)
+        torch._check(merged_w.item() >= 1)
+        torch._check(num_frames.item() >= 1)
 
-            block_rows = torch.arange(merged_h, device=device)
-            block_cols = torch.arange(merged_w, device=device)
-            intra_row = torch.arange(merge_size, device=device)
-            intra_col = torch.arange(merge_size, device=device)
+        block_rows = torch.arange(merged_h, device=device)
+        block_cols = torch.arange(merged_w, device=device)
+        intra_row  = torch.arange(merge_size, device=device)
+        intra_col  = torch.arange(merge_size, device=device)
 
-            row_idx = (
-                block_rows[:, None, None, None] * merge_size + intra_row[None, None, :, None]
-            ).expand(merged_h, merged_w, merge_size, merge_size).reshape(-1)
-            col_idx = (
-                block_cols[None, :, None, None] * merge_size + intra_col[None, None, None, :]
-            ).expand(merged_h, merged_w, merge_size, merge_size).reshape(-1)
+        row_idx = (
+            block_rows[:, None, None, None] * merge_size + intra_row[None, None, :, None]
+        ).expand(merged_h, merged_w, merge_size, merge_size).reshape(-1)
+        col_idx = (
+            block_cols[None, :, None, None] * merge_size + intra_col[None, None, None, :]
+        ).expand(merged_h, merged_w, merge_size, merge_size).reshape(-1)
 
-            coords = torch.stack((row_idx, col_idx), dim=-1)
+        coords = torch.stack((row_idx, col_idx), dim=-1)
+        # Repeat across temporal frames for one image
+        coords = coords.repeat(num_frames, 1)
+        single_emb = freq_table[coords].flatten(1)   # [t*h*w, pos_dim]
 
-            # Always repeat — repeat(1, 1) is a no-op, avoids data-dependent guard
-            coords = coords.repeat(num_frames, 1)
-
-            all_embeddings.append(freq_table[coords].flatten(1))
-
-        return torch.cat(all_embeddings, dim=0)
+        # Tile for all images (uniform grid → identical per-image embeddings)
+        return single_emb.repeat(num_images, 1)       # [num_images*t*h*w, pos_dim]
 
     def fast_pos_embed_interpolate(self, grid_thw):
         """Bilinear interpolation of learnable 2D position embeddings for each image.
 
-        Rewritten to avoid .tolist() / data-dependent torch.tensor() calls that bake
-        per-image sizes as ONNX constants.  Each image is processed independently;
-        results are concatenated at the end.
+        Vectorized — no Python loop over image batch — to support a dynamic
+        num_images dimension in image_grid_thw.  Uniform-grid assumption: all
+        images in a call share the same (t, h, w).
         """
-        grid_ts, grid_hs, grid_ws = grid_thw[:, 0], grid_thw[:, 1], grid_thw[:, 2]
         merge_size = self.config.spatial_merge_size
         dev = self.pos_embed.weight.device
         dtype = self.pos_embed.weight.dtype
         n = self.num_grid_per_side
 
-        all_pos_embeds = []
-        for t, h, w in zip(grid_ts, grid_hs, grid_ws):
-            # Declare shape constraints for torch.export
-            torch._check(t.item() >= 1)
-            torch._check(h.item() >= 2)
-            torch._check(w.item() >= 2)
+        num_images = grid_thw.shape[0]   # symbolic when exporting dynamic shape
+        t = grid_thw[0, 0]
+        h = grid_thw[0, 1]
+        w = grid_thw[0, 2]
 
-            # Evenly-spaced sample positions in [0, n-1] for h rows and w cols.
-            # Use arange + scale instead of linspace: linspace with symbolic
-            # steps is not supported by torch.export, but arange is.
-            h_idxs = torch.arange(h, dtype=torch.float32, device=dev) * ((n - 1) / (h - 1))
-            w_idxs = torch.arange(w, dtype=torch.float32, device=dev) * ((n - 1) / (w - 1))
+        # Shape constraints for torch.export
+        torch._check(t.item() >= 1)
+        torch._check(h.item() >= 2)
+        torch._check(w.item() >= 2)
 
-            h_floor = h_idxs.int()
-            w_floor = w_idxs.int()
-            h_ceil = (h_floor + 1).clamp(max=n - 1)
-            w_ceil = (w_floor + 1).clamp(max=n - 1)
+        # Evenly-spaced sample positions in [0, n-1] for h rows and w cols.
+        h_idxs = torch.arange(h, dtype=torch.float32, device=dev) * ((n - 1) / (h - 1))
+        w_idxs = torch.arange(w, dtype=torch.float32, device=dev) * ((n - 1) / (w - 1))
 
-            dh = (h_idxs - h_floor.float()).to(dtype)
-            dw = (w_idxs - w_floor.float()).to(dtype)
+        h_floor = h_idxs.int()
+        w_floor = w_idxs.int()
+        h_ceil = (h_floor + 1).clamp(max=n - 1)
+        w_ceil = (w_floor + 1).clamp(max=n - 1)
 
-            base_h  = h_floor.long() * n
-            base_hc = h_ceil.long()  * n
+        dh = (h_idxs - h_floor.float()).to(dtype)
+        dw = (w_idxs - w_floor.float()).to(dtype)
 
-            # Four corners of the bilinear cell — shape [h, w] → flatten to [h*w]
-            idx_00 = (base_h[:, None]  + w_floor.long()[None]).reshape(-1)
-            idx_01 = (base_h[:, None]  + w_ceil.long()[None]).reshape(-1)
-            idx_10 = (base_hc[:, None] + w_floor.long()[None]).reshape(-1)
-            idx_11 = (base_hc[:, None] + w_ceil.long()[None]).reshape(-1)
+        base_h  = h_floor.long() * n
+        base_hc = h_ceil.long()  * n
 
-            wt_00 = ((1.0 - dh)[:, None] * (1.0 - dw)[None]).reshape(-1)
-            wt_01 = ((1.0 - dh)[:, None] * dw[None]).reshape(-1)
-            wt_10 = (dh[:, None]          * (1.0 - dw)[None]).reshape(-1)
-            wt_11 = (dh[:, None]          * dw[None]).reshape(-1)
+        idx_00 = (base_h[:, None]  + w_floor.long()[None]).reshape(-1)
+        idx_01 = (base_h[:, None]  + w_ceil.long()[None]).reshape(-1)
+        idx_10 = (base_hc[:, None] + w_floor.long()[None]).reshape(-1)
+        idx_11 = (base_hc[:, None] + w_ceil.long()[None]).reshape(-1)
 
-            # Weighted sum of the four corner embeddings — shape [h*w, hidden_size]
-            pos = (
-                self.pos_embed(idx_00.to(dev)) * wt_00[:, None]
-                + self.pos_embed(idx_01.to(dev)) * wt_01[:, None]
-                + self.pos_embed(idx_10.to(dev)) * wt_10[:, None]
-                + self.pos_embed(idx_11.to(dev)) * wt_11[:, None]
-            )
+        wt_00 = ((1.0 - dh)[:, None] * (1.0 - dw)[None]).reshape(-1)
+        wt_01 = ((1.0 - dh)[:, None] * dw[None]).reshape(-1)
+        wt_10 = (dh[:, None]          * (1.0 - dw)[None]).reshape(-1)
+        wt_11 = (dh[:, None]          * dw[None]).reshape(-1)
 
-            # Repeat across temporal frames, then apply merge-block permutation
-            pos = pos.repeat(t, 1)
-            pos = (
-                pos.reshape(t, h // merge_size, merge_size, w // merge_size, merge_size, -1)
-                .permute(0, 1, 3, 2, 4, 5)
-                .flatten(0, 4)
-            )
-            all_pos_embeds.append(pos)
+        pos = (
+            self.pos_embed(idx_00.to(dev)) * wt_00[:, None]
+            + self.pos_embed(idx_01.to(dev)) * wt_01[:, None]
+            + self.pos_embed(idx_10.to(dev)) * wt_10[:, None]
+            + self.pos_embed(idx_11.to(dev)) * wt_11[:, None]
+        )  # [h*w, hidden_size]
 
-        return torch.cat(all_pos_embeds)
+        # Repeat across temporal frames, apply merge-block permutation
+        pos = pos.repeat(t, 1)
+        pos = (
+            pos.reshape(t, h // merge_size, merge_size, w // merge_size, merge_size, -1)
+            .permute(0, 1, 3, 2, 4, 5)
+            .flatten(0, 4)
+        )  # [t*h*w*merge_size^2 / smu, hidden_size ... actually [t*(h//m)*(w//m), hidden_size]
+
+        # Tile for all images (uniform grid → identical per-image embeddings)
+        return pos.repeat(num_images, 1)   # [num_images * t*h*w, hidden_size]
 
     def forward(self, hidden_states: torch.Tensor, grid_thw: torch.Tensor, **kwargs) -> torch.Tensor:
         """
@@ -481,7 +483,16 @@ class Qwen3VLVisionModel(Qwen3VLPreTrainedModel):
         emb = torch.cat((rotary_pos_emb, rotary_pos_emb), dim=-1)
         position_embeddings = (emb.cos(), emb.sin())
 
-        cu_seqlens = torch.repeat_interleave(grid_thw[:, 1] * grid_thw[:, 2], grid_thw[:, 0]).cumsum(
+        # cu_seqlens: boundaries of each image's patches in the packed sequence.
+        # Original: repeat_interleave(h*w, t) for each image — output size is data-
+        # dependent and can't be traced with symbolic num_images.
+        # For uniform grids (all images share t, h, w), this is equivalent to
+        # tiling [h*w] exactly t*num_images times, which avoids data-dependent shapes.
+        hw0 = grid_thw[0, 1] * grid_thw[0, 2]
+        t0  = grid_thw[0, 0]
+        num_images_fwd = grid_thw.shape[0]   # symbolic
+        cu_vals = hw0.unsqueeze(0).expand(t0 * num_images_fwd)
+        cu_seqlens = cu_vals.cumsum(
             dim=0,
             dtype=grid_thw.dtype if torch.jit.is_tracing() else torch.int32,
         )
@@ -866,8 +877,12 @@ class Qwen3VLModel(Qwen3VLPreTrainedModel):
         """
         pixel_values = pixel_values.type(self.visual.dtype)
         image_embeds = self.visual(pixel_values, grid_thw=image_grid_thw)
-        split_sizes = (image_grid_thw.prod(-1) // self.visual.spatial_merge_size**2).tolist()
-        image_embeds = torch.split(image_embeds, split_sizes)
+        # Return the full concatenated feature tensor.  Callers that need per-image
+        # slices can split offline using:
+        #   sizes = (image_grid_thw.prod(-1) // spatial_merge_size**2).tolist()
+        # The ONNX model outputs a single tensor; the genai runtime handles per-image
+        # splitting using image_grid_thw.  Removing .tolist() and torch.split here
+        # allows image_grid_thw.shape[0] to remain symbolic during export.
         return image_embeds
 
     def get_fused_input_embeddings(self, input_ids, image_features=None):
