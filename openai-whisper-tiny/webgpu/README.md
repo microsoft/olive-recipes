@@ -18,7 +18,8 @@ This folder contains Olive recipes for optimizing openai-whisper-tiny targeting 
    - olive run --config whisper-tiny_webgpu_int8.json
 
 Additional notes:
-- Pipeline: `ModelBuilder` (fp16) → `OnnxDynamicQuantization` (int8, MatMul/Gemm/Gather)
+- Sets all MatMul nodes to 8-bit using k-quant.
+- Pipeline: `ModelBuilder` (fp16) → `OnnxKQuantQuantization` (k-quant INT8 MatMul weights)
 - WebGPU enables GPU-accelerated inference in web browsers.
 - Ensure your browser supports WebGPU (Chrome 113+, Edge 113+).
 

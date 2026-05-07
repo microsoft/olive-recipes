@@ -18,7 +18,8 @@ This folder contains Olive recipes for optimizing openai-whisper-tiny.en targeti
    - olive run --config whisper-tiny.en_cpu_int8.json
 
 Additional notes:
-- Pipeline: `ModelBuilder` (fp32) → `OnnxDynamicQuantization` (int8, MatMul/Gemm/Gather)
+- Sets all MatMul nodes to 8-bit using k-quant.
+- Pipeline: `ModelBuilder` (fp32) → `OnnxKQuantQuantization` (k-quant INT8 MatMul weights)
 - Runs purely on CPU; no GPU required.
 
 ---

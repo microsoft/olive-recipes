@@ -7,18 +7,28 @@
     "systems": {
         "local_system": {
             "type": "LocalSystem",
-            "accelerators": [ { "device": "gpu", "execution_providers": [ "CUDAExecutionProvider" ] } ]
+            "accelerators": [
+                {
+                    "device": "gpu",
+                    "execution_providers": [
+                        "CUDAExecutionProvider"
+                    ]
+                }
+            ]
         }
     },
-    "engine": { "target": "local_system" },
+    "engine": {
+        "target": "local_system"
+    },
     "passes": {
-        "builder": { "type": "ModelBuilder", "precision": "fp16" },
-        "onnx_dynamic_quantization": {
-            "type": "OnnxDynamicQuantization",
-            "per_channel": false,
-            "reduce_range": false,
-            "op_types_to_quantize": ["MatMul", "Gemm", "Gather"],
-            "MatMulConstBOnly": false
+        "builder": {
+            "type": "ModelBuilder",
+            "precision": "fp16"
+        },
+        "onnx_kquant_quantization": {
+            "type": "OnnxKQuantQuantization",
+            "bits": 8,
+            "block_size": 32
         }
     }
 }

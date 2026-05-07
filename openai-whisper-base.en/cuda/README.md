@@ -18,7 +18,8 @@ This folder contains Olive recipes for optimizing openai-whisper-base.en targeti
    - olive run --config whisper-base.en_cuda_int8.json
 
 Additional notes:
-- Pipeline: `ModelBuilder` (fp16) → `OnnxDynamicQuantization` (int8, MatMul/Gemm/Gather)
+- Sets all MatMul nodes to 8-bit using k-quant.
+- Pipeline: `ModelBuilder` (fp16) → `OnnxKQuantQuantization` (k-quant INT8 MatMul weights)
 - Requires NVIDIA GPU with CUDA support.
 - Ensure CUDA toolkit and cuDNN are properly installed.
 
