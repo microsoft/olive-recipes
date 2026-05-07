@@ -28,7 +28,8 @@
         "onnx_kquant_quantization": {
             "type": "OnnxKQuantQuantization",
             "bits": 8,
-            "block_size": 32
+            "block_size": 32,
+            "save_as_external_data": true
         }
     }
 }
