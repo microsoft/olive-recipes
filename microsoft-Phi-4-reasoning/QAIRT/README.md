@@ -12,11 +12,12 @@ Finally, a prepared QAIRT DLC is encapsulated in an ONNX protobuf and exported t
 
 ## Requirements
 
-This workflow has been tested using the following host configuration:
 * Python 3.10.12
 * Ubuntu 22.04
 * qairt-dev 0.5.0
 * QAIRT 2.45.40
+
+Other configurations may work but have not been validated.
 
 Further, this workflow has been tested on the following target configurations:
 * HTP backend on SC8480XP
