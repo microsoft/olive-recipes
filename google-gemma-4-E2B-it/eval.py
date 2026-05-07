@@ -22,20 +22,14 @@ from lm_eval import simple_evaluate
 from lm_eval.api.registry import get_model
 from lm_eval.tasks import TaskManager
 
+from utils import resolve_model_path
+
 
 # Published reference scores for google/gemma-4-E2B-it
 REFERENCE_SCORES = {
     "leaderboard_mmlu_pro": 0.600,  # 60.0% (Google reported, CoT format)
     "gpqa_diamond_n_shot": 0.434,   # 43.4% (Google reported)
 }
-
-
-def resolve_model_path(device: str, variant: str | None) -> str:
-    """Resolve the model directory path from device/variant args."""
-    if device == "cpu":
-        return "cpu/models"
-    variant = variant or "int4"
-    return f"cuda/{variant}/models"
 
 
 def main():
@@ -87,6 +81,7 @@ def main():
     print()
 
     # Load model
+    # Gemma4 requires past_present_share_buffer=False for correct KV cache handling
     print("Loading model...")
     start = time.time()
     model = get_model("ortgenai")(
@@ -94,6 +89,7 @@ def main():
         batch_size=1,
         max_length=args.max_length,
         ep=ep,
+        past_present_share_buffer=False,
     )
     print(f"Model loaded in {time.time() - start:.1f}s")
 

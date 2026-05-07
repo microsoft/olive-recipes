@@ -6,11 +6,11 @@ keywords:
   - mobius
 arch: gemma
 ep:
-  CPUExecutionProvider
-  CUDAExecutionProvider
+  - CPUExecutionProvider
+  - CUDAExecutionProvider
 device:
-  cpu
-  gpu
+  - cpu
+  - gpu
 name: gemma4_e2b
 recipes:
   - name: gemma4-e2b-fp32-cpu

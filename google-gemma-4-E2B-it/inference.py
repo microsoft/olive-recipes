@@ -17,13 +17,7 @@ from pathlib import Path
 
 import onnxruntime_genai as og
 
-
-def resolve_model_path(device: str, variant: str | None) -> str:
-    """Resolve the model directory path from device/variant args."""
-    if device == "cpu":
-        return "cpu/models"
-    variant = variant or "int4"
-    return f"cuda/{variant}/models"
+from utils import resolve_model_path
 
 
 def format_chat_prompt(tokenizer, prompt: str, system_prompt: str | None = None) -> str:
