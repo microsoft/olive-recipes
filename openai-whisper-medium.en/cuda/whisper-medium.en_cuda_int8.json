@@ -31,5 +31,6 @@
             "block_size": 32,
             "save_as_external_data": true
         }
-    }
+    },
+    "output_dir": "build/whisper-medium.en_cuda_int8"
 }

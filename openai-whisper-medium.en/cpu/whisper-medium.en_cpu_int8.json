@@ -32,5 +32,6 @@
             "accuracy_level": 4,
             "save_as_external_data": true
         }
-    }
+    },
+    "output_dir": "build/whisper-medium.en_cpu_int8"
 }
