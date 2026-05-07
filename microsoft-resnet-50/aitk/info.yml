@@ -26,6 +26,9 @@ recipes:
     - file: "resnet_qnn_gpu.json"
       device: gpu
       ep: QNNExecutionProvider
+    - file: "resnet_webgpu.json"
+      device: gpu
+      ep: WebGpuExecutionProvider
 aitk:
     modelInfo:
         id: "huggingface/microsoft/resnet-50"

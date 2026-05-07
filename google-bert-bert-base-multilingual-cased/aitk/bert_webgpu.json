@@ -1,11 +1,8 @@
 {
     "input_model": {
         "type": "HfModel",
-        "model_path": "Intel/bert-base-uncased-mrpc",
-        "task": "text-classification",
-        "load_kwargs": {
-            "attn_implementation": "eager"
-        }
+        "model_path": "google-bert/bert-base-multilingual-cased",
+        "task": "feature-extraction"
     },
     "systems": {
         "local_system": {
