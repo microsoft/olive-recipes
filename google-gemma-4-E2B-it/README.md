@@ -1,7 +1,7 @@
 # Gemma 4 E2B (google/gemma-4-E2B-it)
 
 Olive recipes for building and optimizing the Gemma 4 E2B multimodal model
-using the [MobiusModelBuilder](https://github.com/microsoft/Olive) pass.
+using the [MobiusBuilder](https://github.com/microsoft/Olive/tree/main/olive/passes/onnx/mobius_model_builder.py) pass.
 
 Gemma 4 is an any-to-any multimodal model with vision, audio, and text
 capabilities. The pipeline produces four ONNX components (decoder,
@@ -10,6 +10,7 @@ vision_encoder, audio_encoder, embedding) for use with ORT GenAI.
 ## Prerequisites
 
 ```bash
+pip install olive-ai[gpu,mobius-ai]
 pip install -r requirements.txt
 ```
 
@@ -98,5 +99,5 @@ python eval.py --model-path /path/to/models --task leaderboard_mmlu_pro
 
 - **Architecture**: Gemma 4 any-to-any multimodal (vision + audio + text)
 - **Components**: decoder, vision_encoder, audio_encoder, embedding
-- **Builder**: MobiusModelBuilder (builds all components in one pass)
+- **Builder**: MobiusBuilder (builds all components in one pass)
 - **HuggingFace**: [google/gemma-4-E2B-it](https://huggingface.co/google/gemma-4-E2B-it)

@@ -1,7 +1,7 @@
 """End-to-end optimization pipeline for Gemma 4 ONNX models.
 
 Builds four sub-models (decoder, vision_encoder, audio_encoder, embedding)
-via MobiusModelBuilder, optionally applies INT4 quantization, and validates
+via MobiusBuilder, optionally applies INT4 quantization, and validates
 the output GenAI package.
 
 Usage:

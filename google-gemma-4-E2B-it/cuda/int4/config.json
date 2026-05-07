@@ -1,7 +1,7 @@
 {
     "input_model": { "type": "HfModel", "model_path": "google/gemma-4-E2B-it", "task": "text-generation" },
     "passes": {
-        "mobius_build": { "type": "MobiusModelBuilder", "precision": "fp16" },
+        "mobius_build": { "type": "MobiusBuilder", "precision": "fp16" },
         "int4_quantize": {
             "type": "OnnxBlockWiseRtnQuantization",
             "block_size": 128,
@@ -10,11 +10,9 @@
             "save_as_external_data": true
         }
     },
-    "engine": {
-        "target": {
-            "type": "LocalSystem",
-            "accelerators": [{ "device": "gpu", "execution_providers": ["CUDAExecutionProvider"] }]
-        }
+    "target": {
+        "type": "LocalSystem",
+        "accelerators": [{ "device": "gpu", "execution_providers": ["CUDAExecutionProvider"] }]
     },
     "output_dir": "cuda/int4/models",
     "log_severity_level": 1

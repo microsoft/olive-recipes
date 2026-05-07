@@ -101,7 +101,7 @@ def interactive_mode(model: og.Model, tokenizer: og.Tokenizer, max_length: int):
             break
 
         print("Gemma: ", end="", flush=True)
-        response = generate(model, tokenizer, prompt, max_length=max_length, verbose=True)
+        generate(model, tokenizer, prompt, max_length=max_length, verbose=True)
         print()
 
 
@@ -147,7 +147,7 @@ def main():
         demo_prompt = "What are the three laws of thermodynamics? Explain briefly."
         print(f"Demo prompt: {demo_prompt}")
         print()
-        response = generate(
+        generate(
             model, tokenizer, demo_prompt,
             max_length=args.max_length,
             verbose=True,
