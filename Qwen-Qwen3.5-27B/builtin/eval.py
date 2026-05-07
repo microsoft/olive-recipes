@@ -259,8 +259,8 @@ def main():
         description="Eval ONNX (quantized) vs PyTorch VL model on AI2D"
     )
     parser.add_argument(
-        "--model_path", default="cpu_and_mobile/models",
-        help="Path to ONNX model dir (default: cpu_and_mobile/models/)",
+        "--model_path", default="cuda/models",
+        help="Path to ONNX model dir (default: cuda/models/)",
     )
     parser.add_argument(
         "--pytorch_model", default=None,

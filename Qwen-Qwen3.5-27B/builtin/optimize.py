@@ -4,8 +4,8 @@ Exports three sub-models (vision encoder, text embedding, text decoder),
 applies graph optimizations and INT4 quantization via Olive passes.
 
 Usage:
-    python optimize.py --config-dir cpu_and_mobile --device cpu
-    python optimize.py --config-dir cpu_and_mobile --device cpu --skip-export
+    python optimize.py --config-dir cuda --device gpu
+    python optimize.py --config-dir cuda --device gpu --skip-export
 """
 import argparse
 import json
@@ -149,7 +149,7 @@ def fix_tokenizer(output_dir: str = MODELS_DIR):
 def main():
     parser = argparse.ArgumentParser(description="Optimize Qwen3.5-27B ONNX models")
     parser.add_argument("--device", choices=["gpu", "cpu", "webgpu"], default="cpu")
-    parser.add_argument("--config-dir", default="cpu_and_mobile")
+    parser.add_argument("--config-dir", default="cuda")
     parser.add_argument("--skip-export", action="store_true")
     parser.add_argument("--models-dir", default=None)
     args = parser.parse_args()
