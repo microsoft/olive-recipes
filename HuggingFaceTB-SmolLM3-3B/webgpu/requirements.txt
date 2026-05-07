@@ -6,6 +6,6 @@ olive-ai
 sentencepiece
 tiktoken
 torch
-transformers>=4.57.1
+transformers==4.57.1
 onnxruntime-genai
 onnxruntime-webgpu
