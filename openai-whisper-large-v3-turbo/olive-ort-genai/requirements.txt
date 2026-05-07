@@ -1,5 +1,5 @@
 librosa
-olive-ai
+olive-ai[speech] @ git+https://github.com/microsoft/Olive.git@main
 onnxruntime-genai-cuda
 optimum[exporters]==1.27.0
 torch==2.7.0
