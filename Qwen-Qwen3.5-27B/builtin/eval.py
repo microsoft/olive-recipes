@@ -67,7 +67,8 @@ def ground_truth_number(sample: dict) -> str | None:
         if 0 <= idx < 4:
             return NUMBERS[idx]
     except (ValueError, TypeError):
-        pass
+        # Invalid or missing answer format; treat as unknown ground truth.
+        return None
     return None
 
 
