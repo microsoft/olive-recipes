@@ -5,7 +5,7 @@ Usage:
     python inference.py --image photo.jpg --prompt "Describe this image"
     python inference.py --interactive
     python inference.py --benchmark D:/test-images --verbose
-    python inference.py --benchmark D:/test-images --pytorch_model Qwen/Qwen3.5-0.8B
+    python inference.py --benchmark D:/test-images --pytorch_model Qwen/Qwen3.5-27B
     python inference.py --model_path cuda/models --prompt "Hello"
 """
 
@@ -68,7 +68,7 @@ def main():
         "--pytorch_model",
         type=str,
         default=None,
-        help="HuggingFace model ID for PyTorch comparison (e.g. Qwen/Qwen3.5-0.8B)",
+        help="HuggingFace model ID for PyTorch comparison (e.g. Qwen/Qwen3.5-27B)",
     )
     parser.add_argument(
         "--verbose",
@@ -304,10 +304,11 @@ def _run_pytorch(pt_model, pt_proc, device, prompt, image_path, max_length):
     ).to(device)
 
     prompt_len = inputs["input_ids"].shape[-1]
+    max_new = max(0, max_length - prompt_len)
 
     t_start = time.perf_counter()
     with torch.no_grad():
-        out = pt_model.generate(**inputs, max_new_tokens=max_length, do_sample=False)
+        out = pt_model.generate(**inputs, max_new_tokens=max_new, do_sample=False)
     t_total = time.perf_counter() - t_start
 
     out_ids = out[0][prompt_len:]

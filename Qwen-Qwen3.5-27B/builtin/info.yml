@@ -4,8 +4,6 @@ recipes:
   - name: qwen3.5-27B
     file: optimize.py
     eps:
-      - CPUExecutionProvider
       - CUDAExecutionProvider
     devices:
-      - cpu
       - gpu

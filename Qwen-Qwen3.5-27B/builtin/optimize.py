@@ -148,7 +148,7 @@ def fix_tokenizer(output_dir: str = MODELS_DIR):
 
 def main():
     parser = argparse.ArgumentParser(description="Optimize Qwen3.5-27B ONNX models")
-    parser.add_argument("--device", choices=["gpu", "cpu", "webgpu"], default="cpu")
+    parser.add_argument("--device", choices=["gpu", "cpu", "webgpu"], default="gpu")
     parser.add_argument("--config-dir", default="cuda")
     parser.add_argument("--skip-export", action="store_true")
     parser.add_argument("--models-dir", default=None)

@@ -2,7 +2,7 @@
 
 Usage:
     python eval.py
-    python eval.py --pytorch_model Qwen/Qwen3.5-0.8B
+    python eval.py --pytorch_model Qwen/Qwen3.5-27B
     python eval.py --num_samples 200
     python eval.py --system_prompt ""
 """
@@ -264,7 +264,7 @@ def main():
     )
     parser.add_argument(
         "--pytorch_model", default=None,
-        help="HuggingFace model ID for PyTorch comparison, e.g. Qwen/Qwen3.5-0.8B",
+        help="HuggingFace model ID for PyTorch comparison, e.g. Qwen/Qwen3.5-27B",
     )
     parser.add_argument(
         "--num_samples", type=int, default=100,
@@ -302,11 +302,12 @@ def main():
     # ---- PyTorch (optional) ----
     if args.pytorch_model:
         pt_model, pt_proc, device = build_pytorch_runner(args.pytorch_model)
+        pt_dtype = "fp16" if device == "cuda" else "fp32"
 
         def pt_runner(pil_image, question, options):
             return run_pytorch(pt_model, pt_proc, pil_image, question, options, device, sys_prompt)
 
-        results.append(evaluate(ds, pt_runner, f"PyTorch+sysprompt (fp32) @ {args.pytorch_model}"))
+        results.append(evaluate(ds, pt_runner, f"PyTorch+sysprompt ({pt_dtype}) @ {args.pytorch_model}"))
 
     # ---- Summary ----
     print(f"\n{'=' * 60}")
