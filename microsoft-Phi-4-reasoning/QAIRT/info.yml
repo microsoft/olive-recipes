@@ -1,0 +1,12 @@
+keywords:
+    qairt
+    qnn
+recipes:
+    - file: "htp_sc8380xp.json"
+      devices:
+        - npu
+      ep: QNNExecutionProvider
+    - file: "htp_sc8480xp.json"
+      devices:
+        - npu
+      ep: QNNExecutionProvider

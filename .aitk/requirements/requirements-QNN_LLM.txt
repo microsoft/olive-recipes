@@ -34,7 +34,7 @@ prompt-toolkit==3.0.52
 protobuf==5.29.6
 psutil==7.0.0
 pure-eval==0.2.3
-pygments==2.19.2
+pygments==2.20.0
 pyreadline3==3.5.4
 python-dateutil==2.9.0.post0
 pywin32==311

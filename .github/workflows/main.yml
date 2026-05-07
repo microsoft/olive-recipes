@@ -1,6 +1,9 @@
 name: main
 description: "CI workflow for Olive Recipes"
 
+permissions:
+  contents: read
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true

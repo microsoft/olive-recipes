@@ -1,0 +1,12 @@
+keywords:
+  aitk
+arch: sam
+recipes:
+  - file: "sam_qnn_workflow.json"
+    device: npu
+    ep: QNNExecutionProvider
+aitk:
+  modelInfo:
+    id: "huggingface/facebook/sam-vit-base"
+    version: 1
+    status: Hide

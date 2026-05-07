@@ -1,5 +1,4 @@
-arch:
-  - whisper
+arch: whisper
 recipes:
   - file: "whisper_large_v3_turbo_default_ov_npu.json"
     devices:

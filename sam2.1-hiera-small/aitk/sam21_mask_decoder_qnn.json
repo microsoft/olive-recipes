@@ -1,0 +1,24 @@
+{
+    "input_model": {
+        "type": "ONNXModel",
+        "model_path": "sam21_mask_decoder.onnx"
+    },
+    "systems": {
+        "host_system": {
+            "type": "LocalSystem"
+        }
+    },
+    "passes": {
+        "f16": {
+            "type": "OnnxFloatToFloat16",
+            "save_as_external_data": true
+        }
+    },
+    "host": "host_system",
+    "log_severity_level": 0,
+    "ort_log_severity_level": 1,
+    "ort_py_log_severity_level": 1,
+    "cache_dir": "cache_decoder",
+    "output_dir": "model/decoder",
+    "no_artifacts": true
+}

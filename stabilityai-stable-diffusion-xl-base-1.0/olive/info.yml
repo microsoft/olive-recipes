@@ -1,11 +1,13 @@
 keywords:
-    olive-ai
-ep:
-    CPUExecutionProvider
-    CUDAExecutionProvider
-    QNNExecutionProvider
-device:
-    cpu
-    gpu
-    npu
-name: stable-diffusion-xl-base-1.0
+  - olive-ai
+recipes:
+  - name: stable-diffusion-xl-base-1.0
+    file: stable_diffusion_xl.py
+    eps:
+      - CPUExecutionProvider
+      - CUDAExecutionProvider
+      - QNNExecutionProvider
+    devices:
+      - cpu
+      - gpu
+      - npu
