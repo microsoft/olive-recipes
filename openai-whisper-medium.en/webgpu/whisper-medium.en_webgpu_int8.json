@@ -32,5 +32,5 @@
             "save_as_external_data": true
         }
     },
-    "output_dir": "build/whisper-medium.en_webgpu_int8"
+    "output_dir": "build/whisper-medium-en_webgpu_int8"
 }
