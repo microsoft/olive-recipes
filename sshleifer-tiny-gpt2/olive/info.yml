@@ -1,6 +1,11 @@
 keywords:
   - sparsegpt
-devices:
-  - gpu
-  - cpu
-name: sshleifer-tiny-gpt2
+recipes:
+  - name: sshleifer-tiny-gpt2-sparsegpt
+    file: sparsegpt.json
+    devices:
+      - gpu
+      - cpu
+    eps:
+      - CUDAExecutionProvider
+      - CPUExecutionProvider

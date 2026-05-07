@@ -1,11 +1,11 @@
 keywords:
   - olive-ai
 recipes:
-  - name: qwen3vl-4B-Instruct
-    file: optimize.py
+  - name: gpt-oss-20b
+    file: gpt-oss-20b.sh
     eps:
       - CPUExecutionProvider
       - CUDAExecutionProvider
-    devices:
+    device:
       - cpu
       - gpu
