@@ -21,10 +21,8 @@ import torch.nn.functional as F
 from transformers.activations import ACT2FN
 from transformers.modeling_layers import GradientCheckpointingLayer
 from transformers.modeling_utils import ALL_ATTENTION_FUNCTIONS, PreTrainedModel
-from transformers.utils import auto_docstring, logging
+from transformers.utils import auto_docstring
 from transformers.models.qwen3_5.configuration_qwen3_5 import Qwen3_5Config, Qwen3_5VisionConfig
-
-logger = logging.get_logger(__name__)
 
 
 # ═══════════════════════════════════════════════════════════════
