@@ -17,7 +17,7 @@ def register_execution_providers():
     import sys
     import onnxruntime as ort
 
-    worker_script = os.path.abspath('winml.py')
+    worker_script = __file__
     result = subprocess.check_output([sys.executable, worker_script], text=True)
     paths = json.loads(result)
     for item in paths.items():
