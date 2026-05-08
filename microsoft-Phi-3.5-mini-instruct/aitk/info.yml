@@ -39,6 +39,12 @@ recipes:
         isGPURequired: true
         runtimeOverwrite:
           executeEp: NvTensorRTRTXExecutionProvider
+    - file: "phi3_5_webgpu.json"
+      device: gpu
+      ep: WebGpuExecutionProvider
+      aitk:
+        requirements: WebGPU/WebGPU_py3.12.13
+        evalRuntime: WebGPU
 aitk:
     modelInfo:
         id: "huggingface/microsoft/Phi-3.5-mini-instruct"

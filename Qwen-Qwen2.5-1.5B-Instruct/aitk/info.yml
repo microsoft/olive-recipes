@@ -39,6 +39,12 @@ recipes:
         isGPURequired: true
         runtimeOverwrite:
           executeEp: NvTensorRTRTXExecutionProvider
+    - file: "qwen2_5_webgpu.json"
+      device: gpu
+      ep: WebGpuExecutionProvider
+      aitk:
+        requirements: WebGPU/WebGPU_py3.12.13
+        evalRuntime: WebGPU
 aitk:
     modelInfo:
         id: "huggingface/Qwen/Qwen2.5-1.5B-Instruct"
