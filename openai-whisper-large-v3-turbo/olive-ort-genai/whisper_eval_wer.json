@@ -1,5 +1,4 @@
 {
-    "description": "Evaluate Whisper Large V3 Turbo ONNX model with WER and RTFx metrics. GenAI inference with 30s audio chunking is auto-detected via genai_config.json.",
     "input_model": {
         "type": "OnnxModel",
         "model_path": "models"

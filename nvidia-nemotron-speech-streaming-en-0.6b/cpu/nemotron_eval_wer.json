@@ -1,5 +1,4 @@
 {
-    "description": "Evaluate Nemotron Speech Streaming model with WER and RTFx metrics. Streaming inference is auto-detected via genai_config.json model.type = nemotron_speech.",
     "input_model": {
         "type": "OnnxModel",
         "model_path": "build/onnx_models_int4"
