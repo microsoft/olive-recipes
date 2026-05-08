@@ -5,7 +5,6 @@
 import argparse
 import json
 import shutil
-import sys
 import warnings
 from pathlib import Path
 
@@ -34,10 +33,7 @@ def save_image(result, batch_size, provider, num_images, images_saved, image_cal
                 images_saved += 1
                 print(f"Generated {output_path}")
     print(f"Inference Batch End ({passed_safety_checker}/{batch_size} images).")
-    if provider == "openvino":
-        print("WARNING: Safety checker is not supported by OpenVINO. It will be disabled.")
-    else:
-        print("Images passed the safety checker.")
+    print("Images passed the safety checker.")
     return images_saved
 
 
@@ -64,8 +60,6 @@ def run_inference_loop(
     while images_saved < num_images:
         print(f"\nInference Batch Start (batch size = {batch_size}).")
 
-        kwargs = {"strength": strength} if provider == "openvino" else {}
-
         result = pipeline(
             [prompt] * batch_size,
             num_inference_steps=num_inference_steps,
@@ -74,7 +68,6 @@ def run_inference_loop(
             width=image_size,
             guidance_scale=guidance_scale,
             generator=generator,
-            **kwargs,
         )
 
         images_saved = save_image(result, batch_size, provider, num_images, images_saved, image_callback)
@@ -174,25 +167,19 @@ def run_inference_gui(
     window.mainloop()
 
 
-def update_config_with_provider(config: dict, provider: str, model_format: str, submodel_name: str):
-    if provider == "cuda" and not model_format:
-        from sd_utils.ort import update_cuda_config
-
-        return update_cuda_config(config)
-    elif provider == "openvino":
-        from sd_utils.ov import update_ov_config
-
-        return update_ov_config(config)
-    elif provider in ("cpu", "cuda", "qnn") and model_format == "qdq":
-        from sd_utils.qdq import update_qdq_config
-
-        return update_qdq_config(config, provider, submodel_name)
-    elif provider == "vitisai":
+def update_config_with_provider(config: dict, provider: str, submodel_name: str):
+    if provider == "vitisai":
         from sd_utils.vai import update_vai_config
 
         return update_vai_config(config, provider, submodel_name)
+    elif provider == "cuda":
+        from sd_utils.ort import update_cuda_config
+
+        return update_cuda_config(config)
+    elif provider == "cpu":
+        return config
     else:
-        raise ValueError(f"Unsupported provider: {provider} with format: {model_format}")
+        raise ValueError(f"Unsupported provider: {provider}")
 
 
 def optimize(
@@ -202,7 +189,6 @@ def optimize(
 ):
     model_id = common_args.model_id
     provider = common_args.provider
-    model_format = common_args.format
 
     script_dir = Path(__file__).resolve().parent
 
@@ -224,22 +210,14 @@ def optimize(
     config.vae_sample_size = pipeline.vae.config.sample_size
     config.cross_attention_dim = pipeline.unet.config.cross_attention_dim
     config.unet_sample_size = pipeline.unet.config.sample_size
-    if model_format == "qdq":
-        config.vae_sample_size = common_args.image_size
-        # config.unet_sample_size = common_args.image_size // 8
 
     model_info = {}
 
     submodel_names = ["vae_encoder", "vae_decoder", "unet", "text_encoder"]
 
     has_safety_checker = getattr(pipeline, "safety_checker", None) is not None
-
     if has_safety_checker:
-        if provider == "openvino" or model_format == "qdq":
-            print(f"WARNING: Safety checker is not supported by {provider}. It will be disabled.")
-            has_safety_checker = False
-        else:
-            submodel_names.append("safety_checker")
+        submodel_names.append("safety_checker")
 
     for submodel_name in submodel_names:
         print(f"\nOptimizing {submodel_name}")
@@ -248,7 +226,7 @@ def optimize(
         olive_config_path = script_dir / f"config_{submodel_name}.json"
         with olive_config_path.open() as fin:
             olive_config = json.load(fin)
-        olive_config = update_config_with_provider(olive_config, provider, model_format, submodel_name)
+        olive_config = update_config_with_provider(olive_config, provider, submodel_name)
 
         if submodel_name in ("unet", "text_encoder"):
             olive_config["input_model"]["model_path"] = model_id
@@ -258,22 +236,13 @@ def optimize(
             # base model ID should be able to reuse previously optimized copies.
             olive_config["input_model"]["model_path"] = base_model_id
 
-        workflow_output = olive_run(olive_config)
+        olive_run(olive_config)
 
-        if provider == "openvino":
-            from sd_utils.ov import save_optimized_ov_submodel
+        from sd_utils.ort import save_optimized_onnx_submodel
 
-            save_optimized_ov_submodel(workflow_output, submodel_name, optimized_model_dir, model_info)
-        else:
-            from sd_utils.ort import save_optimized_onnx_submodel
+        save_optimized_onnx_submodel(submodel_name, provider, model_info)
 
-            save_optimized_onnx_submodel(submodel_name, provider, model_info)
-
-    if provider == "openvino":
-        from sd_utils.ov import save_ov_model_info
-
-        save_ov_model_info(model_info, optimized_model_dir)
-    elif provider == "vitisai":
+    if provider == "vitisai":
         from sd_utils.vai import save_vai_pipeline
 
         save_vai_pipeline(
@@ -295,9 +264,9 @@ def parse_common_args(raw_args):
     parser.add_argument("--model_id", default="CompVis/stable-diffusion-v1-4", type=str)
     parser.add_argument(
         "--provider",
-        default="cuda",
+        default="vitisai",
         type=str,
-        choices=["cuda", "openvino", "cpu", "qnn", "vitisai"],
+        choices=["vitisai", "cpu", "cuda"],
         help="Execution provider to use",
     )
     parser.add_argument("--optimize", action="store_true", help="Runs the optimization step")
@@ -339,10 +308,6 @@ def parse_common_args(raw_args):
         type=int,
         help="The seed to give to the generator to generate deterministic results.",
     )
-    parser.add_argument(
-        "--format", default=None, type=str, help="Currently only support qdq with provider cpu, cuda or qnn"
-    )
-
 
     return parser.parse_known_args(raw_args)
 
@@ -360,28 +325,6 @@ def parse_ort_args(raw_args):
     return parser.parse_known_args(raw_args)
 
 
-def parse_ov_args(raw_args):
-    parser = argparse.ArgumentParser("OpenVINO arguments")
-
-    parser.add_argument("--device", choices=["CPU", "GPU", "NPU"], default="CPU", type=str)
-    parser.add_argument("--image_path", default=None, type=str)
-    parser.add_argument("--img_to_img_example", action="store_true", help="Runs the image to image example")
-
-    return parser.parse_known_args(raw_args)
-
-
-def parse_qdq_args(raw_args):
-    parser = argparse.ArgumentParser("QDQ arguments")
-
-    parser.add_argument("--save_data", action="store_true", help="Save the input data for qdq")
-    parser.add_argument("--data_dir", default="quantize_data/data", type=str)
-    parser.add_argument(
-        "--only_conversion", action="store_true", help="Only generate unoptimized model to generate data for qdq"
-    )
-
-    return parser.parse_known_args(raw_args)
-
-
 def main(raw_args=None):
     common_args, extra_args = parse_common_args(raw_args)
 
@@ -390,10 +333,7 @@ def main(raw_args=None):
 
     script_dir = Path(__file__).resolve().parent
     unoptimized_model_dir = script_dir / "model" / "unoptimized" / model_id
-    optimized_dir_name = f"optimized-{provider}"
-    if common_args.format:
-        optimized_dir_name += f"_{common_args.format}"
-    optimized_model_dir = script_dir / "model" / optimized_dir_name / model_id
+    optimized_model_dir = script_dir / "model" / f"optimized-{provider}" / model_id
 
     if common_args.clean_cache:
         shutil.rmtree(script_dir / "cache", ignore_errors=True)
@@ -404,25 +344,17 @@ def main(raw_args=None):
         guidance_scale = 0.0
         print(f"WARNING: Classifier free guidance has been forcefully disabled since {model_id} doesn't support it.")
 
-    ov_args, qdq_args, ort_args = None, None, None
-    if provider == "openvino":
-        ov_args, extra_args = parse_ov_args(extra_args)
-    elif common_args.format == "qdq":
-        qdq_args, extra_args = parse_qdq_args(extra_args)
-        config.only_conversion = qdq_args.only_conversion
-        config.data_dir = script_dir / qdq_args.data_dir
-    else:
-        ort_args, extra_args = parse_ort_args(extra_args)
+    ort_args, extra_args = parse_ort_args(extra_args)
+
     if common_args.optimize or not optimized_model_dir.exists():
         set_tempdir(common_args.tempdir)
 
         # TODO(jstoecker): clean up warning filter (mostly during conversion from torch to ONNX)
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
-            if not (provider == "openvino" or common_args.format == "qdq"):
-                from sd_utils.ort import validate_args
+            from sd_utils.ort import validate_args
 
-                validate_args(ort_args, common_args.provider)
+            validate_args(ort_args, provider)
             optimize(
                 common_args,
                 unoptimized_model_dir,
@@ -435,44 +367,14 @@ def main(raw_args=None):
         model_dir = unoptimized_model_dir if common_args.test_unoptimized else optimized_model_dir
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
-            if provider == "openvino":
-                from sd_utils.ov import get_ov_pipeline
-
-                pipeline = get_ov_pipeline(common_args, ov_args, optimized_model_dir)
-            elif provider == "vitisai":
+            if provider == "vitisai":
                 from sd_utils.vai import get_vai_pipeline
 
                 pipeline = get_vai_pipeline(model_dir, common_args)
-            elif common_args.format == "qdq":
-                from sd_utils.qdq import get_qdq_pipeline
-
-                pipeline = get_qdq_pipeline(model_dir, common_args, qdq_args, script_dir)
             else:
                 from sd_utils.ort import get_ort_pipeline
 
                 pipeline = get_ort_pipeline(model_dir, common_args, ort_args, guidance_scale)
-            if provider == "openvino" and (ov_args.image_path or ov_args.img_to_img_example):
-                res = None
-                if ov_args.image_path:
-                    from sd_utils.ov import run_ov_image_inference
-
-                    res = run_ov_image_inference(
-                        pipeline,
-                        ov_args.image_path,
-                        common_args.prompt,
-                        common_args.strength,
-                        guidance_scale,
-                        common_args.image_size,
-                        common_args.num_inference_steps,
-                        common_args,
-                        generator=generator,
-                    )
-                if ov_args.img_to_img_example:
-                    from sd_utils.ov import run_ov_img_to_img_example
-
-                    res = run_ov_img_to_img_example(pipeline, guidance_scale, common_args)
-                save_image(res, common_args.batch_size, "openvino", common_args.num_images, 0)
-                sys.exit(0)
 
             if common_args.interactive:
                 run_inference_gui(
