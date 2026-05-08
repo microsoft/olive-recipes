@@ -168,6 +168,15 @@ def quantize_vision_and_embedding(config_dir: str, models_dir: str):
 
         _strip_unused_initializers(os.path.join(models_dir, component, "model.onnx"))
 
+    # Clean up intermediate vision_encoder/ after all quantization succeeds.
+    # This directory (~3.3 GB FP16) is no longer needed once vision/ (INT8) exists.
+    # Cleanup is intentionally placed after the loop so it only runs on success —
+    # any exception from run() or _strip_unused_initializers will propagate before this point.
+    vision_encoder_dir = os.path.join(models_dir, "vision_encoder")
+    if os.path.exists(vision_encoder_dir):
+        print("  Cleaning up intermediate vision_encoder export...")
+        shutil.rmtree(vision_encoder_dir, ignore_errors=True)
+
 
 def _strip_unused_initializers(onnx_path: str):
     """Remove unused initializers and re-save to shrink the external data file.
