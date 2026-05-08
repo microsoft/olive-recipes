@@ -21,7 +21,7 @@ Architecture:
   images [B, T, 3, 224, 224]
       → InternVideo2 ViT (39 blocks, 1408-dim, 3D sincos pos-embed)
       → mm_projector (ToMe token compression + MLP 1408→3584)
-      → visual_tokens [B, num_visual_tokens, 3584
+      → visual_tokens [B, num_visual_tokens, 3584]
 
   input_ids [B, seq]  +  image_features [1, N, 3584]
       → embed_tokens(input_ids) → cumsum+where merge at <|image_pad|> positions

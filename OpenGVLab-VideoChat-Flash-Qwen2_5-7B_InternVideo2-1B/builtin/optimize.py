@@ -438,13 +438,9 @@ def main():
         "--skip-export", action="store_true",
         help="Skip Olive export (models already exist)",
     )
-    parser.add_argument(
-        "--models-dir", default=None,
-        help="Models output directory (default: <config-dir>/models)",
-    )
     args = parser.parse_args()
 
-    models_dir = Path(args.models_dir or str(Path(args.config_dir) / MODELS_DIR))
+    models_dir = Path(args.config_dir) / MODELS_DIR
     staging_dir = Path(args.staging_dir) if args.staging_dir else None
 
     check_prerequisites()
