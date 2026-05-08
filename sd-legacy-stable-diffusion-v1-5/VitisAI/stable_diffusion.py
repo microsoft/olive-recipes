@@ -342,7 +342,7 @@ def parse_common_args(raw_args):
     parser.add_argument(
         "--format", default=None, type=str, help="Currently only support qdq with provider cpu, cuda or qnn"
     )
-   
+
 
     return parser.parse_known_args(raw_args)
 
