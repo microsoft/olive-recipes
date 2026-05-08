@@ -92,69 +92,49 @@ def export_text_decoder(config_dir: str, models_dir: str):
             shutil.move(str(src), str(Path(models_dir) / filename))
 
 
-def export_vision_and_embedding(
-    output_dir: str,
-    model_path: str,
-    dtype: str = "f16",
-):
-    """Export vision encoder and embedding using mobius.
+def export_vision_and_embedding(config_dir: str, models_dir: str, model_path: str = MODEL_NAME):
+    """Export vision encoder and embedding using Olive MobiusBuilder pass.
+
+    Runs cuda/vision_embedding_export.json which calls MobiusBuilder with
+    components_to_export=["vision_encoder", "embedding"], writing two
+    sub-directories under models_dir:
+        vision_encoder/model.onnx  — FP16, fed into INT8 quantization step
+        embedding/model.onnx       — FP16 final (not quantized)
 
     Mobius constructs the ONNX graph declaratively and applies pretrained
     weights, avoiding torch.onnx.export dynamo issues with Pixtral's
     dynamic image dimensions.
     """
-    from mobius import build
+    try:
+        from olive import run
+    except ImportError:
+        from olive.workflows import run
 
-    print(f"  [Mobius] Building VLM from {model_path} (dtype={dtype})...")
-    # mobius.build() accepts dtype as a string (e.g. "f16", "f32", "bf16")
-    # and resolves it internally — pass the CLI string directly
-    pkg = build(model_path, dtype=dtype, load_weights=True)
+    config_path = Path(config_dir) / "vision_embedding_export.json"
+    if not config_path.exists():
+        raise FileNotFoundError(f"Vision/embedding export config not found: {config_path}")
 
-    os.makedirs(output_dir, exist_ok=True)
+    with open(config_path) as f:
+        config = json.load(f)
 
-    required_components = ("vision", "embedding")
-    missing_components = []
+    # Write component sub-dirs (vision_encoder/, embedding/) directly into models_dir
+    # so they land alongside decoder/ in the same parent directory.
+    config["output_dir"] = models_dir
+    if model_path != MODEL_NAME:
+        config["input_model"]["model_path"] = model_path
 
-    for component in required_components:
-        if component in pkg:
-            component_dir = os.path.join(output_dir, component)
-            os.makedirs(component_dir, exist_ok=True)
-            try:
-                pkg.save(
-                    component_dir,
-                    components=lambda name, c=component: name == c,
-                    check_weights=True,
-                )
-                # mobius saves as model.onnx directly in component_dir
-                expected_onnx = os.path.join(component_dir, "model.onnx")
-                if not os.path.exists(expected_onnx):
-                    raise FileNotFoundError(
-                        f"Mobius export did not produce expected ONNX file for '{component}': {expected_onnx}"
-                    )
-                print(f"  [Mobius] Saved {expected_onnx}")
-            except Exception:
-                shutil.rmtree(component_dir, ignore_errors=True)
-                raise
-        else:
-            missing_components.append(component)
-
-    if missing_components:
-        raise ValueError(
-            "Mobius package is missing required component(s): "
-            + ", ".join(missing_components)
-        )
-
-    print("  [Mobius] Vision and embedding export complete")
+    print(f"  [Olive] Exporting vision encoder and embedding from {config_path}...")
+    run(config)
 
 
 def quantize_vision_and_embedding(config_dir: str, models_dir: str):
-    """Apply quantization to mobius-exported vision and embedding models.
+    """Apply quantization to Olive-exported vision and embedding models.
 
-    Loads vision.json as a dict and overrides model_path
-    and output_dir to point directly to <models_dir>/<component>/.
+    Loads vision.json as a dict and overrides model_path and output_dir.
+    Vision encoder is sourced from vision_encoder/ (MobiusBuilder output)
+    and quantized output is written to vision/ (the name ort-genai expects).
 
-    After quantization, strips unused initializers to remove the original
-    FP16 weights that Olive keeps alongside the quantized weights.
+    Embedding stays FP16 (no quantization needed, no embedding.json).
     """
     try:
         from olive import run
@@ -166,7 +146,10 @@ def quantize_vision_and_embedding(config_dir: str, models_dir: str):
         if not config_path.exists():
             continue
 
-        component_onnx = os.path.join(models_dir, component, "model.onnx")
+        # MobiusBuilder outputs vision_encoder/ but ort-genai expects vision/.
+        # Source from vision_encoder/ and write quantized output to vision/.
+        source_dir = "vision_encoder" if component == "vision" else component
+        component_onnx = os.path.join(models_dir, source_dir, "model.onnx")
         if not os.path.exists(component_onnx):
             print(
                 f"  [WARN] {component_onnx} not found, skipping {component} quantization"
@@ -182,7 +165,7 @@ def quantize_vision_and_embedding(config_dir: str, models_dir: str):
         print(f"  [Olive] Quantizing {component} from {config_path}...")
         run(config)
 
-        _strip_unused_initializers(component_onnx)
+        _strip_unused_initializers(os.path.join(models_dir, component, "model.onnx"))
 
 
 def _strip_unused_initializers(onnx_path: str):
@@ -237,23 +220,30 @@ def _strip_unused_initializers(onnx_path: str):
 def export_models(
     config_dir: str, model_path: str, dtype: str = "f16", models_dir: str | None = None
 ):
-    """Export all 3 sub-models: text (Olive), vision + embedding (mobius).
+    """Export all 3 sub-models: text (Olive/ModelBuilder), vision + embedding (Olive/MobiusBuilder).
 
-    All outputs go directly to models_dir. No post-export copy needed.
-    For both targets, also applies INT8 quantization to vision.
+    All outputs go directly to models_dir:
+        decoder/           — INT4 k_quant text decoder (from text.json / ModelBuilder)
+        vision_encoder/    — FP16 vision encoder (from MobiusBuilder, input for INT8 quant)
+        embedding/         — FP16 embedding (from MobiusBuilder, not quantized)
+        vision/            — INT8 quantized vision (from vision.json)
+
+    Note: precision for vision/embedding export is set in vision_embedding_export.json
+    (default fp16). The --dtype CLI arg is accepted for backward compatibility but
+    does not affect the Olive-managed export.
     """
     if models_dir is None:
         models_dir = str(Path(config_dir) / MODELS_DIR)
 
     print("=== Exporting models ===")
 
-    # Text decoder via Olive/ModelBuilder
+    # Text decoder via Olive/ModelBuilder (GQA + INT4 k_quant)
     export_text_decoder(config_dir, models_dir)
 
-    # Vision + embedding via mobius (FP16)
-    export_vision_and_embedding(models_dir, model_path, dtype)
+    # Vision encoder + embedding via Olive/MobiusBuilder (FP16)
+    export_vision_and_embedding(config_dir, models_dir, model_path)
 
-    # Quantization of vision (and embedding if config exists)
+    # INT8 quantization of vision encoder (embedding stays FP16)
     quantize_vision_and_embedding(config_dir, models_dir)
 
     print()
