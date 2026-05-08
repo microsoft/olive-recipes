@@ -1,0 +1,12 @@
+git+https://github.com/microsoft/Olive.git@main
+torch>=2.10.0
+transformers==4.57.0
+accelerate
+safetensors
+huggingface_hub
+Pillow
+einops
+timm
+onnx
+onnxruntime
+onnxruntime-genai
