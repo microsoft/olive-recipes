@@ -4,10 +4,9 @@ import urllib.request
 from pathlib import Path
 from typing import Dict, List, Optional
 
-import yaml
 from model_lab import RuntimeEnum
 from sanitize.constants import ArchitectureEnum, EPNames, IconEnum, ModelStatusEnum
-from sanitize.copy_config import CopyConfig
+from sanitize.copy_config import Copy, CopyConfig
 from sanitize.generator_amd import generator_amd
 from sanitize.generator_dml import generator_dml
 from sanitize.generator_intel import generator_intel
@@ -15,7 +14,14 @@ from sanitize.generator_qnn import generator_qnn
 from sanitize.generator_trtrtx import generator_trtrtx
 from sanitize.model_info import ModelInfo, ModelList
 from sanitize.project_config import ModelInfoProject, ModelProjectConfig, WorkflowItem
-from sanitize.utils import GlobalVars, isLLM_by_id, open_ex
+from sanitize.utils import (
+    GlobalVars,
+    WINML_COPY_EXEMPT_IDS,
+    isLLM_by_id,
+    iter_aitk_info_yml,
+    open_ex,
+    winml_copy_src_for,
+)
 
 def fetch_pipeline_tags(model_link: str) -> Optional[List[str]]:
     """Fetch pipeline_tag from HuggingFace API for a given model link.
@@ -209,22 +215,9 @@ def project_processor():
 
     all_ids = set()
     all_summary = AllModelSummary()
-    for yml_file in root_dir.rglob("info.yml"):
+    for yml_file, yaml_object in iter_aitk_info_yml(root_dir):
         # if "DEBUG_ID" in str(yml_file):
         #    pass
-        # read yml file as yaml object
-        with yml_file.open("r", encoding="utf-8") as file:
-            try:
-                yaml_content = file.read()
-                yaml_object = yaml.safe_load(yaml_content)
-            except yaml.YAMLError as e:
-                print(f"Error reading {yml_file}: {e}")
-                continue
-            aitk = yaml_object.get("aitk", [])
-            if not aitk:
-                if yml_file.parent.name == "aitk":
-                    raise KeyError(f"aitk not found in {yml_file}")
-                continue
         print(f"Process aitk for {yml_file}")
         # model info
         modelInfo = convert_yaml_to_model_info(root_dir, yml_file, yaml_object)
@@ -236,10 +229,24 @@ def project_processor():
             raise KeyError(f"same id found in {yml_file}")
         all_ids.add(modelInfo.id.lower())
         modelList.models.append(modelInfo)
-        # copy pre
+        # copy pre — auto-ensure winml.py copy entry (unless exempt), then run pre-phase copies
         copyConfigFile = yml_file.parent / "_copy.json.config"
-        if copyConfigFile.exists():
-            copyConfig = CopyConfig.Read(copyConfigFile.as_posix())
+        copyConfig: CopyConfig | None = (
+            CopyConfig.Read(copyConfigFile.as_posix()) if copyConfigFile.exists() else None
+        )
+        if modelInfo.id not in WINML_COPY_EXEMPT_IDS:
+            desired_src = winml_copy_src_for(modelInfo.id)
+            if copyConfig is None:
+                copyConfig = CopyConfig()
+                copyConfig._file = str(copyConfigFile)
+                copyConfig._fileContent = None
+            existing = next((c for c in copyConfig.copies if c.dst == "winml.py"), None)
+            if existing is None:
+                copyConfig.copies.append(Copy(src=desired_src, dst="winml.py"))
+            elif existing.src != desired_src:
+                existing.src = desired_src
+            GlobalVars.winmlCopyCheck += 1
+        if copyConfig is not None:
             copyConfig.process(yml_file.parent.as_posix(), pre=True)
             copyConfig.writeIfChanged()
         # model summary
