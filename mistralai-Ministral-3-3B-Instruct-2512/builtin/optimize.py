@@ -1,17 +1,18 @@
 """End-to-end optimization pipeline for Ministral-3-3B ONNX models.
 
-Uses mobius for vision and embedding export (reliable dynamo-free ONNX
-construction), and Olive/ModelBuilder for text decoder export (GQA + INT4).
+Uses Olive MobiusBuilder pass for vision and embedding export (reliable
+dynamo-free ONNX construction), and Olive/ModelBuilder for text decoder
+export (GQA + INT4).
 
 Pipeline:
     1. Text decoder: Olive/ModelBuilder (k_quant_mixed INT4)
-    2. Vision + embedding: mobius (FP16)
+    2. Vision + embedding: Olive/MobiusBuilder (FP16, via vision_embedding_export.json)
     3. Vision quantization: Olive (INT8 RTN, per vision.json)
 
 Architecture difference from Qwen VLM recipes:
     Qwen uses Olive passes for all 3 sub-models (export + optimization).
-    Ministral uses mobius for vision/embedding because Pixtral's dynamic
-    image dimensions cause torch.onnx.export/dynamo failures.  Mobius
+    Ministral uses MobiusBuilder for vision/embedding because Pixtral's dynamic
+    image dimensions cause torch.onnx.export/dynamo failures.  MobiusBuilder
     produces already-optimized graphs (fused MHA, SkipLayerNorm, FP16).
 
 Usage:
@@ -442,9 +443,9 @@ def main():
         "--dtype",
         default="f16",
         choices=["f16", "f32", "bf16"],
-        help="Dtype for mobius vision/embedding export. FP16 is recommended: it serves "
-        "as the intermediate format for Olive INT8 quantization, and as "
-        "the final format on CUDA. (default: f16)",
+        help="Quantization precision for the text decoder (INT4 via Olive/ModelBuilder). "
+        "Does not affect vision/embedding export — those are always FP16 as set in "
+        "vision_embedding_export.json. (default: f16)",
     )
     args = parser.parse_args()
 
