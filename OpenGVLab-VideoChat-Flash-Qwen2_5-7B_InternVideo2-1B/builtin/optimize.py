@@ -65,8 +65,7 @@ def check_prerequisites():
 # 1.  Clean + Olive Export
 # ======================================================================
 
-def clean_output_dirs(config_dir: str, models_dir: Path,
-                      staging_dir: Path | None = None):
+def clean_output_dirs(models_dir: Path, staging_dir: Path | None = None):
     """Remove stale model files before a fresh export.
 
     Without this, leftover files from a previous run can collide with
@@ -79,9 +78,8 @@ def clean_output_dirs(config_dir: str, models_dir: Path,
             print(f"  Cleaned staging dir: {staging_dir}")
         staging_dir.mkdir(parents=True, exist_ok=True)
     else:
-        config_path = Path(config_dir)
         for name in ("embedding.onnx", "text.onnx", "vision.onnx"):
-            target = config_path / "models" / name
+            target = models_dir / name
             # Remove subdirectory created by Olive
             if target.is_dir():
                 shutil.rmtree(target)
@@ -94,16 +92,20 @@ def clean_output_dirs(config_dir: str, models_dir: Path,
     print()
 
 
-def export_models(config_dir: str, mode: str = "image",
+def export_models(config_dir: str, models_dir: Path, mode: str = "image",
                   staging_dir: Path | None = None):
     """Run Olive pipelines for all three sub-models.
 
     Each config runs in a separate subprocess so that memory is fully
     released between exports (the full HF model is ~15 GB on its own).
 
-    When staging_dir is provided, Olive output_dir fields are overridden
-    to write to the staging location instead of the paths in the JSON
-    configs.
+    The JSON configs' output_dir is always overridden via a per-run
+    temp config so that Olive writes where the rest of the pipeline
+    (normalize, assemble, config-update) expects:
+      - When staging_dir is provided, Olive writes per-component
+        subdirectories under staging_dir.
+      - Otherwise Olive writes flat to models_dir/{component}.onnx,
+        matching the layout the JSONs assume by default.
     """
     import subprocess
     import sys
@@ -119,21 +121,24 @@ def export_models(config_dir: str, mode: str = "image",
     print(f"=== Running Olive pipelines (configs from {config_path}, mode={mode}) ===")
     if staging_dir:
         print(f"    Staging directory: {staging_dir}")
+    else:
+        print(f"    Models directory: {models_dir}")
 
     for component, config_file in configs:
         cfg_file = config_path / config_file
 
+        with open(cfg_file) as f:
+            cfg = json.load(f)
         if staging_dir:
-            with open(cfg_file) as f:
-                cfg = json.load(f)
             cfg["output_dir"] = str(staging_dir / component)
-            fd, tmp_path = tempfile.mkstemp(suffix=".json", prefix=f"{component}_")
-            tmp = Path(tmp_path)
-            with os.fdopen(fd, "w") as f:
-                json.dump(cfg, f, indent=4)
-            run_config = str(tmp)
         else:
-            run_config = str(cfg_file)
+            cfg["output_dir"] = str(models_dir / f"{component}.onnx")
+
+        fd, tmp_path = tempfile.mkstemp(suffix=".json", prefix=f"{component}_")
+        tmp = Path(tmp_path)
+        with os.fdopen(fd, "w") as f:
+            json.dump(cfg, f, indent=4)
+        run_config = str(tmp)
 
         print(f"\n--- {config_file} ---", flush=True)
         result = subprocess.run(
@@ -141,8 +146,7 @@ def export_models(config_dir: str, mode: str = "image",
             cwd=str(Path(__file__).parent),
         )
 
-        if staging_dir:
-            Path(tmp).unlink(missing_ok=True)
+        tmp.unlink(missing_ok=True)
 
         if result.returncode != 0:
             raise RuntimeError(
@@ -438,17 +442,21 @@ def main():
         "--skip-export", action="store_true",
         help="Skip Olive export (models already exist)",
     )
+    parser.add_argument(
+        "--models-dir", default=None,
+        help="Models output directory (default: <config-dir>/models)",
+    )
     args = parser.parse_args()
 
-    models_dir = Path(args.config_dir) / MODELS_DIR
+    models_dir = Path(args.models_dir) if args.models_dir else Path(args.config_dir) / MODELS_DIR
     staging_dir = Path(args.staging_dir) if args.staging_dir else None
 
     check_prerequisites()
 
     if not args.skip_export:
         print("=== Preparing output directories ===")
-        clean_output_dirs(args.config_dir, models_dir, staging_dir=staging_dir)
-        export_models(args.config_dir, mode=args.mode, staging_dir=staging_dir)
+        clean_output_dirs(models_dir, staging_dir=staging_dir)
+        export_models(args.config_dir, models_dir, mode=args.mode, staging_dir=staging_dir)
 
     normalize_all_models(models_dir, staging_dir=staging_dir)
 
