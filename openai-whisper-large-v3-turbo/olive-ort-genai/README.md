@@ -45,3 +45,17 @@ Transcription: the cut on his chest still dripping blood the ache of his overstr
 - **Optimized KV Cache**: Encoder outputs cross-attention KV caches that are reused across decoder steps
 - **Dynamic Shapes**: Support for variable batch sizes and sequence lengths
 - **Post-processing**: Automatic fixing of dimension parameters and missing inputs
+
+## Evaluation (WER & RTFx)
+
+After exporting the model, you can evaluate transcription accuracy using Olive's built-in WER and RTFx metrics:
+
+```bash
+python -m olive run --config whisper_eval_wer.json
+```
+
+This uses the GenAI inference path (auto-detected via `genai_config.json`) with automatic 30-second audio chunking for long audio clips. It evaluates on LibriSpeech test.clean (64 samples by default).
+
+To change dataset or sample count, edit `whisper_eval_wer.json`:
+- `max_samples`: Number of samples to evaluate (set to `0` for all)
+- `subset`/`split`: Dataset subset and split (e.g., `"voxpopuli"` / `"test"`)
