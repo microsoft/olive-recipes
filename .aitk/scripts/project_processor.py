@@ -246,6 +246,9 @@ def project_processor():
             elif existing.src != desired_src:
                 existing.src = desired_src
             GlobalVars.winmlCopyCheck += 1
+        else:
+            if copyConfig is not None:
+                copyConfig.copies = [c for c in copyConfig.copies if c.dst != "winml.py"]
         if copyConfig is not None:
             copyConfig.process(yml_file.parent.as_posix(), pre=True)
             copyConfig.writeIfChanged()

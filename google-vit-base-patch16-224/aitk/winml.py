@@ -1,3 +1,6 @@
+import json
+
+
 def register_execution_providers():
     import os
     import ctypes
@@ -13,7 +16,6 @@ def register_execution_providers():
     ctypes.WinDLL(ort_dll_path)
 
     import subprocess
-    import json
     import sys
     import onnxruntime as ort
 
@@ -44,7 +46,7 @@ def _get_ep_paths() -> dict[str, str]:
             # DO NOT call provider.try_register in python. That will register to the native env.
     return eps
 
+
 if __name__ == "__main__":
-    import json
     eps = _get_ep_paths()
     print(json.dumps(eps))
