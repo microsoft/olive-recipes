@@ -1,4 +1,4 @@
 accelerate
 datasets
 onnxruntime-genai
-transformers==4.52.4
+transformers==5.0.0rc3
