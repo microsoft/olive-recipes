@@ -34,6 +34,7 @@ class GlobalVars:
     copyCheck = 0
     licenseCheck = 0
     venvRequirementsCheck = set()
+    executeRuntimeCheck = 0
 
     oliveCheck = 0
     RuntimeToEPName = {
