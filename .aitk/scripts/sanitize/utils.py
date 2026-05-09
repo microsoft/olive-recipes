@@ -34,6 +34,7 @@ class GlobalVars:
     copyCheck = 0
     licenseCheck = 0
     venvRequirementsCheck = set()
+    executeRuntimeCheck = 0
 
     oliveCheck = 0
     RuntimeToEPName = {
@@ -215,16 +216,12 @@ def get_execute_runtime(runtime: RuntimeEnum) -> RuntimeEnum:
         return RuntimeEnum.IntelNPU
     if runtime == RuntimeEnum.NvidiaGPU:
         return RuntimeEnum.NvidiaGPU
-    if runtime == RuntimeEnum.NvidiaTRTRTX:
-        return RuntimeEnum.WCR_CUDA
     return RuntimeEnum.WCR
 
 
 def get_eval_runtime(runtime: RuntimeEnum, isLLM: bool) -> RuntimeEnum:
     if runtime == RuntimeEnum.QNN and isLLM:
         return RuntimeEnum.QNN_LLLM
-    if runtime == RuntimeEnum.NvidiaTRTRTX:
-        return RuntimeEnum.WCR_CUDA
     return RuntimeEnum.WCR
 
 
