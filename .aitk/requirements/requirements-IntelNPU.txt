@@ -56,8 +56,8 @@ nncf==2.16.0
 numpy==1.26.4
 # olive-ai==0.10.1
 olive-ai==0.10.1
-# onnx==1.17.0
-onnx==1.17.0
+# onnx==1.21.0
+onnx==1.21.0
 onnx-ir==0.1.10
 # onnxruntime==1.21.0
 onnxruntime==1.21.0
@@ -114,7 +114,7 @@ torchmetrics==1.7.0
 # torchvision==0.21.0
 torchvision==0.21.0
 tqdm==4.67.1
-transformers==4.51.3
+transformers==5.0.0rc3
 typing-extensions==4.15.0
 typing-inspection==0.4.1
 tzdata==2025.2
