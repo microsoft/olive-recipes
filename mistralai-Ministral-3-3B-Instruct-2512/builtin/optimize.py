@@ -157,7 +157,7 @@ def quantize_vision_and_embedding(config_dir: str, models_dir: str):
     Vision encoder is sourced from vision_encoder/ (MobiusBuilder output)
     and quantized output is written to vision/ (the name ort-genai expects).
 
-    Embedding stays FP16 (no quantization needed, no embedding.json).
+    Embedding stays FP16 (cuda/webgpu) or FP32 (cpu_and_mobile) — no quantization needed, no embedding.json.
     """
     try:
         from olive import run
@@ -262,8 +262,8 @@ def export_models(
 
     All outputs go directly to models_dir:
         decoder/           — INT4 k_quant text decoder (from text.json / ModelBuilder)
-        vision_encoder/    — FP16 vision encoder (from MobiusBuilder, input for INT8 quant)
-        embedding/         — FP16 embedding (from MobiusBuilder, not quantized)
+        vision_encoder/    — FP16/FP32 vision encoder (from MobiusBuilder, input for INT8 quant)
+        embedding/         — FP16/FP32 embedding (from MobiusBuilder, not quantized)
         vision/            — INT8 quantized vision (from vision.json)
 
     Note: precision for vision/embedding export is set in vision_embedding_export.json
@@ -278,10 +278,10 @@ def export_models(
     # Text decoder via Olive/ModelBuilder (GQA + INT4 k_quant)
     export_text_decoder(config_dir, models_dir)
 
-    # Vision encoder + embedding via Olive/MobiusBuilder (FP16)
+    # Vision encoder + embedding via Olive/MobiusBuilder (FP16 for cuda/webgpu, FP32 for cpu_and_mobile)
     export_vision_and_embedding(config_dir, models_dir, model_path)
 
-    # INT8 quantization of vision encoder (embedding stays FP16)
+    # INT8 quantization of vision encoder (embedding stays FP16/FP32)
     quantize_vision_and_embedding(config_dir, models_dir)
 
     print()
@@ -481,8 +481,8 @@ def main():
         default="f16",
         choices=["f16", "f32", "bf16"],
         help="Quantization precision for the text decoder (INT4 via Olive/ModelBuilder). "
-        "Does not affect vision/embedding export — those are always FP16 as set in "
-        "vision_embedding_export.json. (default: f16)",
+        "Does not affect vision/embedding export — precision is set in "
+        "vision_embedding_export.json (FP16 for cuda/webgpu, FP32 for cpu_and_mobile). (default: f16)",
     )
     args = parser.parse_args()
 
