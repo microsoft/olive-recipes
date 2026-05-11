@@ -267,9 +267,19 @@ def export_models(
         vision/            — INT8 quantized vision (from vision.json)
 
     Note: precision for vision/embedding export is set in vision_embedding_export.json
-    (fp16 for cuda/webgpu, fp32 for cpu_and_mobile). The --dtype CLI arg is accepted for backward compatibility but
-    does not affect the Olive-managed export.
+    (fp16 for cuda/webgpu, fp32 for cpu_and_mobile). The --dtype CLI arg is accepted for
+    backward compatibility but does not control export precision — precision is set in the
+    JSON config files.
     """
+    if dtype != "f16":
+        import warnings
+
+        warnings.warn(
+            "--dtype is deprecated and has no effect. Export precision is controlled by "
+            "vision_embedding_export.json in the config directory.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
     if models_dir is None:
         models_dir = str(Path(config_dir) / MODELS_DIR)
 

@@ -53,7 +53,7 @@ Install ONNX Runtime GenAI:
 **CPU (k_quant_mixed INT4 text + INT8 vision + FP32 embedding):**
 
 ```bash
-python optimize.py --config-dir cpu_and_mobile --device cpu --dtype f32
+python optimize.py --config-dir cpu_and_mobile --device cpu
 ```
 
 **CUDA (k_quant_mixed INT4 text + INT8 vision + FP16 embedding):**
@@ -211,7 +211,7 @@ The text decoder export (`text.json`) and INT8 quantization (`vision.json`) ARE 
 
 - **Multi-image supported.** The runtime supports variable-count multi-image inputs via PixtralImageSizes metadata. Requires onnxruntime-extensions ≥ PR #1050 and models exported with PixtralImageSizes in `processor_config.json`.
 
-- **CPU pipeline**: Mobius exports FP16 as an intermediate format. Olive then quantizes vision to INT8. For CPU deployment, use `--dtype f32` so embedding outputs float32 natively (CPU EP promotes FP16 to FP32, which causes genai dtype mismatches).
+- **CPU pipeline**: Mobius exports FP16 as an intermediate format. Olive then quantizes vision to INT8. For CPU deployment, the cpu_and_mobile JSON configs set `precision: fp32` so embedding outputs float32 natively (CPU EP promotes FP16 to FP32, which causes genai dtype mismatches). The `--dtype` flag is accepted for backward compatibility but does not control export precision — precision is set in the JSON config files.
 - **CUDA pipeline**: Mobius exports FP16 directly for vision/embedding. Olive quantizes vision to INT8. Text decoder uses k_quant_mixed INT4 via ModelBuilder.
 - The HuggingFace checkpoint uses FP8 quantized weights. The export pipeline dequantizes these automatically (`weight * weight_scale_inv`).
 - The tokenizer uses `TokenizersBackend` class which genai doesn't support. The optimize script fixes this to `LlamaTokenizer`.

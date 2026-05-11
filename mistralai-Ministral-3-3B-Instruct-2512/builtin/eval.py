@@ -406,7 +406,7 @@ def evaluate(dataset, runner_fn, label: str) -> dict:
         if (i + 1) % 10 == 0 or i == 0:
             print(
                 f"  [{i + 1:4d}/{total}] gt={gt} pred={pred} raw={raw.strip()!r:20}  "
-                f"{'✓' if hit else '✗'}  running_acc={correct / (i + 1 - skipped + 1e-9):.3f}"
+                f"{'✓' if hit else '✗'}  running_acc={(correct + (1 if hit else 0)) / (i + 1 - skipped + 1e-9):.3f}"
             )
 
         if hit:
