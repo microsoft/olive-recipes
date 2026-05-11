@@ -201,6 +201,7 @@ def _gpu_memory_mb():
             peak = torch.cuda.max_memory_allocated() / (1024 ** 3)
             return cur, peak
     except Exception:
+        # Best-effort metric: torch/CUDA may be unavailable or fail in some runtimes.
         pass
     return 0.0, 0.0
 
