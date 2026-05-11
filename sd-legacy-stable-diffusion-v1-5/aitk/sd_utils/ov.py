@@ -196,24 +196,12 @@ def add_ep_for_device(session_options, ep_name, device_type, ep_options=None):
             session_options.add_provider_for_devices([ep_device], {} if ep_options is None else ep_options)
             break
 
-def register_execution_providers():
-    import json
-    import subprocess
-    import sys
-
-    worker_script = os.path.abspath('winml.py')
-    result = subprocess.check_output([sys.executable, worker_script], text=True)
-    paths = json.loads(result)
-    for item in paths.items():
-        try:
-            ort.register_execution_provider_library(item[0], item[1])
-        except Exception as e:
-            print(f"Failed to register execution provider {item[0]}: {e}")
 
 def get_ov_pipeline(common_args, ov_args, optimized_model_dir):
     if common_args.test_unoptimized:
         return StableDiffusionPipeline.from_pretrained(common_args.model_id)
 
+    from winml import register_execution_providers
     register_execution_providers()
 
     print("Loading models into ORT session...")
