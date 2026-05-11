@@ -118,14 +118,35 @@ def export_vision_and_embedding(config_dir: str, models_dir: str, model_path: st
     with open(config_path) as f:
         config = json.load(f)
 
-    # Write component sub-dirs (vision_encoder/, embedding/) directly into models_dir
-    # so they land alongside decoder/ in the same parent directory.
+    # Olive writes output model to output_dir. Override to models_dir so it lands
+    # alongside decoder/ in the same parent directory.
     config["output_dir"] = models_dir
     if model_path != MODEL_NAME:
         config["input_model"]["model_path"] = model_path
 
     print(f"  [Olive] Exporting vision encoder and embedding from {config_path}...")
     run(config)
+
+    # Olive's CompositeModelHandler writes flat ONNX files to output_dir:
+    #   models_dir/vision_encoder.onnx  + models_dir/vision_encoder.onnx.data
+    #   models_dir/embedding.onnx       + models_dir/embedding.onnx.data
+    #
+    # Reorganize into the subdirectory layout expected by quantize_vision_and_embedding:
+    #   models_dir/vision_encoder/model.onnx  + {component}.onnx.data
+    #   models_dir/embedding/model.onnx       + {component}.onnx.data
+    #
+    # The data file keeps its original name (e.g. vision_encoder.onnx.data) so that
+    # the relative external_data reference baked into model.onnx remains valid.
+    for component in ("vision_encoder", "embedding"):
+        src_onnx = Path(models_dir) / f"{component}.onnx"
+        if src_onnx.exists():
+            dst_dir = Path(models_dir) / component
+            dst_dir.mkdir(exist_ok=True)
+            shutil.move(str(src_onnx), str(dst_dir / "model.onnx"))
+            src_data = Path(models_dir) / f"{component}.onnx.data"
+            if src_data.exists():
+                # Keep original filename — model.onnx references it by this relative path
+                shutil.move(str(src_data), str(dst_dir / f"{component}.onnx.data"))
 
 
 def quantize_vision_and_embedding(config_dir: str, models_dir: str):
@@ -166,14 +187,20 @@ def quantize_vision_and_embedding(config_dir: str, models_dir: str):
         print(f"  [Olive] Quantizing {component} from {config_path}...")
         run(config)
 
-        _strip_unused_initializers(os.path.join(models_dir, component, "model.onnx"))
+        # Olive catches pass failures internally and returns without raising.
+        # Guard _strip_unused_initializers so a silent quantization failure
+        # doesn't propagate as a confusing FileNotFoundError.
+        output_onnx = os.path.join(models_dir, component, "model.onnx")
+        if not os.path.exists(output_onnx):
+            print(f"  [WARN] Olive produced no output for {component} — quantization failed")
+            continue
+        _strip_unused_initializers(output_onnx)
 
-    # Clean up intermediate vision_encoder/ after all quantization succeeds.
-    # This directory (~3.3 GB FP16) is no longer needed once vision/ (INT8) exists.
-    # Cleanup is intentionally placed after the loop so it only runs on success —
-    # any exception from run() or _strip_unused_initializers will propagate before this point.
+    # Clean up intermediate vision_encoder/ only if vision quantization succeeded.
+    # If quantization failed, preserve the intermediate for debugging.
+    vision_dir = os.path.join(models_dir, "vision")
     vision_encoder_dir = os.path.join(models_dir, "vision_encoder")
-    if os.path.exists(vision_encoder_dir):
+    if os.path.exists(os.path.join(vision_dir, "model.onnx")) and os.path.exists(vision_encoder_dir):
         print("  Cleaning up intermediate vision_encoder export...")
         shutil.rmtree(vision_encoder_dir, ignore_errors=True)
 
