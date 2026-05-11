@@ -218,6 +218,7 @@ def evaluate(dataset, runner_fn, label: str) -> dict:
         if torch.cuda.is_available():
             torch.cuda.reset_peak_memory_stats()
     except Exception:
+        # Optional GPU telemetry setup: ignore if torch/CUDA is unavailable or misconfigured.
         pass
 
     print(f"\n{'=' * 60}")
