@@ -17,12 +17,17 @@ config = Qwen3_5Config.from_pretrained(model_name)
 def _load_base_model(model_path):
     """Load weights from safetensors into custom Qwen3_5Model."""
     from safetensors.torch import load_file
-    from huggingface_hub import hf_hub_download
+    from huggingface_hub import snapshot_download
     import glob
 
-    config_path = hf_hub_download(model_path, "config.json")
-    model_dir = os.path.dirname(config_path)
+    model_path = model_path or model_name
+    model_dir = snapshot_download(model_path)
     st_files = sorted(glob.glob(os.path.join(model_dir, "*.safetensors")))
+    if not st_files:
+        raise RuntimeError(
+            f"No *.safetensors files found in {model_dir}. "
+            "Ensure the model has been fully downloaded."
+        )
 
     state_dict = {}
     for sf in st_files:
@@ -37,8 +42,14 @@ def _load_base_model(model_path):
 
     custom_model = Qwen3_5Model(config)
     result = custom_model.load_state_dict(state_dict, strict=False)
+    if result.unexpected_keys:
+        print(f"Warning: {len(result.unexpected_keys)} unexpected keys (ignored)")
     if result.missing_keys:
-        print(f"Warning: {len(result.missing_keys)} missing keys")
+        raise RuntimeError(
+            f"{len(result.missing_keys)} missing keys in state_dict. "
+            f"First 10: {result.missing_keys[:10]}. "
+            "The downloaded weights may be incomplete or mismatched."
+        )
     custom_model = custom_model.to(torch.bfloat16)
     custom_model.eval()
 

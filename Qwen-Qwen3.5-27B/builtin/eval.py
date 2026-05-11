@@ -142,10 +142,12 @@ def build_pytorch_runner(model_id: str):
     print(f"  Device: {device}, dtype: {dtype}")
 
     pt_model = AutoModelForImageTextToText.from_pretrained(
-        model_id, torch_dtype=dtype
-    ).to(device)
+        model_id, torch_dtype=dtype, device_map="auto"
+    )
     pt_proc = AutoProcessor.from_pretrained(model_id)
     print(f"  PyTorch model loaded ({type(pt_model).__name__}).")
+    # device_map="auto" distributes across GPUs; use the first device for inputs
+    device = str(pt_model.device) if hasattr(pt_model, "device") else device
     return pt_model, pt_proc, device
 
 
@@ -190,11 +192,32 @@ def run_pytorch(
     return pt_proc.decode(out_ids, skip_special_tokens=True)
 
 
+def _gpu_memory_mb():
+    """Return (current, peak) GPU memory in MB, or (0, 0) if unavailable."""
+    try:
+        import torch
+        if torch.cuda.is_available():
+            cur = torch.cuda.memory_allocated() / (1024 ** 3)
+            peak = torch.cuda.max_memory_allocated() / (1024 ** 3)
+            return cur, peak
+    except Exception:
+        pass
+    return 0.0, 0.0
+
+
 def evaluate(dataset, runner_fn, label: str) -> dict:
     correct = 0
     skipped = 0
     total = len(dataset)
     latencies = []
+    memory_samples = []
+
+    try:
+        import torch
+        if torch.cuda.is_available():
+            torch.cuda.reset_peak_memory_stats()
+    except Exception:
+        pass
 
     print(f"\n{'=' * 60}")
     print(f"  Evaluating: {label}  ({total} samples)")
@@ -222,6 +245,9 @@ def evaluate(dataset, runner_fn, label: str) -> dict:
             raw = runner_fn(pil_image, question, options)
             elapsed = time.perf_counter() - t0
             latencies.append(elapsed)
+            cur_mem, _ = _gpu_memory_mb()
+            if cur_mem > 0:
+                memory_samples.append(cur_mem)
         except Exception as e:
             print(f"  [WARN] sample {i}: {e}")
             skipped += 1
@@ -243,8 +269,13 @@ def evaluate(dataset, runner_fn, label: str) -> dict:
     accuracy = correct / evaluated if evaluated > 0 else 0.0
     avg_lat = sum(latencies) / len(latencies) if latencies else 0.0
 
+    _, peak_mem = _gpu_memory_mb()
+    avg_mem = sum(memory_samples) / len(memory_samples) if memory_samples else 0.0
+
     print(f"\n  {label}: {correct}/{evaluated} correct  |  accuracy = {accuracy:.4f} ({accuracy * 100:.2f}%)")
     print(f"  avg latency per sample: {avg_lat:.2f}s  |  skipped: {skipped}")
+    if peak_mem > 0:
+        print(f"  GPU memory: avg = {avg_mem:.1f} GB  |  peak = {peak_mem:.1f} GB")
     return {
         "label": label,
         "accuracy": accuracy,
@@ -252,6 +283,8 @@ def evaluate(dataset, runner_fn, label: str) -> dict:
         "evaluated": evaluated,
         "avg_latency_s": avg_lat,
         "skipped": skipped,
+        "avg_gpu_mem_gb": avg_mem,
+        "peak_gpu_mem_gb": peak_mem,
     }
 
 
@@ -325,6 +358,8 @@ def main():
         print(f"  {r['label']}")
         print(f"    Accuracy : {r['accuracy'] * 100:.2f}%  ({r['correct']}/{r['evaluated']})")
         print(f"    Avg lat  : {r['avg_latency_s']:.2f}s/sample")
+        if r.get('peak_gpu_mem_gb', 0) > 0:
+            print(f"    GPU mem  : avg = {r['avg_gpu_mem_gb']:.1f} GB  |  peak = {r['peak_gpu_mem_gb']:.1f} GB")
         print()
 
     if len(results) == 2:
