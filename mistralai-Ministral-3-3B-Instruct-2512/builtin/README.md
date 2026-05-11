@@ -3,7 +3,7 @@
 This example demonstrates how to convert [Ministral-3-3B-Instruct-2512](https://huggingface.co/mistralai/Ministral-3-3B-Instruct-2512) vision-language model to ONNX format using Olive and run inference with ONNX Runtime GenAI.
 
 Ministral-3-3B is a multimodal (VLM) model combining a Pixtral vision encoder with a Mistral text decoder using YaRN RoPE for extended context. The pipeline exports three sub-models:
-- **Vision encoder** and **embedding** via [mobius](https://github.com/onnxruntime/mobius) (declarative ONNX graph construction); vision INT8-quantized via Olive
+- **Vision encoder** and **embedding** via Olive/MobiusBuilder pass (`vision_embedding_export.json`); vision INT8-quantized via Olive
 - **Text decoder** via Olive/ModelBuilder (GQA + k_quant_mixed INT4 quantization)
 
 ## Exported Configurations
@@ -25,10 +25,10 @@ Evaluated on [AI2D](https://allenai.org/data/diagrams) (science diagram multiple
 |---------------|----------|---------|------------|---------------------|
 | PyTorch FP16 (CUDA) | 76.40% | 500 | ~7G | 0.14 |
 | PyTorch FP32 (CPU) | 78.00% | 100 | ~7G | 22.84 |
-| ONNX CUDA (k_quant_mixed + INT8 vision) | 74.00% | 500 | 3.83G | 0.14 |
+| ONNX CUDA (k_quant_mixed + INT8 vision) | 74.00% | 500 | 3.6G | 0.14 |
 | ONNX CPU (k_quant_mixed + INT8 vision) | 77.00% | 100 | 4.92G | 5.85 |
 
-ONNX CUDA is within 2.4pp of PyTorch FP16 at **half the model size** (3.83G vs ~7G).
+ONNX CUDA is within 2.4pp of PyTorch FP16 at **half the model size** (3.6G vs ~7G).
 ONNX CPU achieves near-parity with PyTorch CPU at **70% smaller** (4.92G vs ~7G) and **3.9× faster**.
 
 > **Latency Measurement:** Per-sample end-to-end inference time (image in → text out). Includes image preprocessing, tokenization, vision encoding, text generation, and decoding. Answers are short (typically 1-2 tokens for multiple-choice). Excludes model loading (one-time cost). Measured with `time.perf_counter()` averaged over all samples. No warmup run.
@@ -70,23 +70,23 @@ python optimize.py --config-dir cpu_and_mobile --device cpu --model-path /path/t
 
 This runs:
 - **Olive/ModelBuilder** for text decoder (GQA attention, YaRN RoPE, k_quant_mixed INT4)
-- **Mobius** for vision encoder (Pixtral, dynamic H×W, 2D RoPE) and embedding (token + image fusion)
-- **Olive INT8 quantization** on vision encoder (both CUDA and CPU)
+- **Olive/MobiusBuilder** (`vision_embedding_export.json`) for vision encoder (Pixtral, dynamic H×W, 2D RoPE) and embedding (token + image fusion)
+- **Olive INT8 quantization** (`vision.json`) on vision encoder (both CUDA and CPU)
 
 Then generates `genai_config.json` and `processor_config.json` for the ORT GenAI runtime.
 
 ### 2. Output Structure
 
 ```
-cpu_and_mobile/models/          # or cuda/models/
+cpu_and_mobile/models/          # or cuda/ or webgpu/models/
 ├── decoder/
 │   ├── model.onnx              # Text decoder (Mistral + YaRN)
 │   └── model.onnx.data
 ├── vision/
-│   ├── model.onnx              # Pixtral vision encoder (FP16)
+│   ├── model.onnx              # Pixtral vision encoder (INT8)
 │   └── model.onnx.data
 ├── embedding/
-│   ├── model.onnx              # Embedding fusion model (FP16)
+│   ├── model.onnx              # Embedding fusion model (FP16/FP32)
 │   └── model.onnx.data
 ├── genai_config.json           # Runtime configuration
 ├── processor_config.json       # Pixtral image preprocessing
@@ -142,12 +142,18 @@ python eval.py --model_path cuda/models --pytorch_model mistralai/Ministral-3-3B
 ```
 mistralai-Ministral-3-3B-Instruct-2512/builtin/
 ├── cpu_and_mobile/
-│   ├── text.json               # k_quant_mixed INT4 text decoder config (Olive/ModelBuilder)
-│   └── vision.json             # INT8 vision quantization (Olive, post-mobius)
+│   ├── text.json                       # k_quant_mixed INT4 text decoder config (Olive/ModelBuilder)
+│   ├── vision_embedding_export.json    # Vision+embedding export (Olive/MobiusBuilder, FP32)
+│   └── vision.json                     # INT8 vision quantization (Olive)
 ├── cuda/
-│   ├── text.json               # k_quant_mixed INT4 text decoder config (Olive/ModelBuilder)
-│   └── vision.json             # INT8 vision quantization (Olive, post-mobius)
-├── optimize.py                 # Export orchestrator (Olive + Mobius)
+│   ├── text.json                       # k_quant_mixed INT4 text decoder config (Olive/ModelBuilder)
+│   ├── vision_embedding_export.json    # Vision+embedding export (Olive/MobiusBuilder, FP16)
+│   └── vision.json                     # INT8 vision quantization (Olive)
+├── webgpu/
+│   ├── text.json                       # k_quant_mixed INT4 text decoder config (Olive/ModelBuilder)
+│   ├── vision_embedding_export.json    # Vision+embedding export (Olive/MobiusBuilder, FP16)
+│   └── vision.json                     # INT8 vision quantization (Olive)
+├── optimize.py                 # Export orchestrator (all-Olive pipeline)
 ├── inference.py                # ORT GenAI inference (text + VLM)
 ├── eval.py                     # AI2D benchmark evaluation
 ├── requirements.txt
@@ -155,9 +161,10 @@ mistralai-Ministral-3-3B-Instruct-2512/builtin/
 └── README.md
 ```
 
-> **Note:** Unlike Qwen VLM recipes (which use Olive for all 3 sub-models end-to-end),
-> Ministral uses **mobius** for vision and embedding ONNX export, then **Olive** for
-> INT8 quantization of vision. Embedding stays FP16 (or FP32 for CPU).
+> **Note:** Unlike Qwen VLM recipes (which use Olive for all 3 sub-models end-to-end via PyTorch export),
+> Ministral uses the **Olive MobiusBuilder pass** (`vision_embedding_export.json`) for vision and embedding
+> ONNX export, then **Olive INT8 quantization** (`vision.json`) for vision.
+> Embedding stays FP16 (gpu/webgpu) or FP32 (cpu_and_mobile).
 
 ## Differences from Qwen VLM Recipes
 
@@ -170,35 +177,36 @@ This recipe takes a different approach for **vision and embedding**:
 | Component | Qwen | Ministral | Why |
 |-----------|------|-----------|-----|
 | Text decoder | Olive/ModelBuilder (`text.json`) | Olive/ModelBuilder (`text.json`) | Same — ModelBuilder handles GQA + quantization |
-| Vision encoder | Olive: PyTorch export + 5-6 passes | **Mobius** export + Olive INT8 (`vision.json`) | Pixtral's dynamic image dims break `torch.onnx.export` |
-| Embedding | Olive: PyTorch export + 5 passes | **Mobius** export (FP16/FP32, no quantization) | Olive's GatherBlockQuantized has data format bugs |
+| Vision encoder | Olive: PyTorch export + 5-6 passes | **Olive/MobiusBuilder** (`vision_embedding_export.json`) + Olive INT8 (`vision.json`) | Pixtral's dynamic image dims break `torch.onnx.export` |
+| Embedding | Olive: PyTorch export + 5 passes | **Olive/MobiusBuilder** export (FP16/FP32, no quantization) | Olive's GatherBlockQuantized has data format bugs |
 
-**Why does Ministral use mobius instead of Olive for export?** Mobius constructs
-the ONNX graph declaratively rather than tracing through PyTorch. The resulting
-models already contain the graph optimizations that Qwen's Olive passes spend
-5-6 steps creating:
+**Why does Ministral use MobiusBuilder instead of standard Olive export?** The Olive
+`MobiusBuilder` pass constructs the ONNX graph declaratively (via the
+[mobius](https://github.com/onnxruntime/mobius) library internally) rather than
+tracing through PyTorch. The resulting models already contain the graph optimizations
+that Qwen's Olive passes spend 5-6 steps creating:
 
 - **Fused operators:** `MultiHeadAttention`, `SkipSimplifiedLayerNormalization`,
-  `RotaryEmbedding` — already present in mobius output (Qwen achieves these via
+  `RotaryEmbedding` — already present in MobiusBuilder output (Qwen achieves these via
   `OrtTransformersOptimization`)
 - **FP16 weights:** all 840M vision params exported as FP16 directly (Qwen
   converts from FP32 via `OnnxFloatToFloat16`)
 - **Clean graph:** 0 Gemm nodes, 0 redundant Cast chains (Qwen cleans these
   via `GemmToMatMulAdd` and `OnnxPeepholeOptimizer`)
 - **No PyTorch export artifacts:** no `PackedAttentionToLoopMHA` surgery needed
-  since mobius doesn't go through dynamo
+  since MobiusBuilder doesn't go through dynamo
 
 **What Olive still handles:** `vision.json` applies
-`OnnxBlockWiseRtnQuantization` (INT8) to the mobius-exported FP16 vision model
-for both CUDA and CPU targets.
+`OnnxBlockWiseRtnQuantization` (INT8) to the MobiusBuilder-exported FP16 vision model
+for all targets (cuda, webgpu, cpu_and_mobile).
 
 **Why optimize.py has more lines (~400) than Qwen (~170):**
 
 | Code section | Lines | Why it can't be JSON-driven |
 |---|---|---|
-| `export_vision_and_embedding()` | ~55 | Olive has no mobius integration; Pixtral's dynamic dims cause dynamo failures |
+| `export_vision_and_embedding()` | ~55 | Runs Olive/MobiusBuilder then reorganizes flat output into subdirectory layout expected by quantization pass |
 | `update_genai_config()` | ~150 | Olive generates decoder config only; VLM 3-model config + transforms-based processor_config has no Olive pass |
-| `quantize_vision_and_embedding()` | ~25 | Post-export INT8 on pre-built ONNX (Olive JSON-driven, but needs orchestration) |
+| `quantize_vision_and_embedding()` | ~25 | Post-export INT8 on pre-built ONNX (Olive JSON-driven, but needs orchestration + cleanup) |
 | `fix_tokenizer()` | ~15 | No Olive tokenizer patching pass |
 
 The text decoder export (`text.json`) and INT8 quantization (`vision.json`) ARE Olive JSON-driven — identical to Qwen.
@@ -211,8 +219,8 @@ The text decoder export (`text.json`) and INT8 quantization (`vision.json`) ARE 
 
 - **Multi-image supported.** The runtime supports variable-count multi-image inputs via PixtralImageSizes metadata. Requires onnxruntime-extensions ≥ PR #1050 and models exported with PixtralImageSizes in `processor_config.json`.
 
-- **CPU pipeline**: Mobius exports FP16 as an intermediate format. Olive then quantizes vision to INT8. For CPU deployment, the cpu_and_mobile JSON configs set `precision: fp32` so embedding outputs float32 natively (CPU EP promotes FP16 to FP32, which causes genai dtype mismatches). The `--dtype` flag is accepted for backward compatibility but does not control export precision — precision is set in the JSON config files.
-- **CUDA pipeline**: Mobius exports FP16 directly for vision/embedding. Olive quantizes vision to INT8. Text decoder uses k_quant_mixed INT4 via ModelBuilder.
+- **CPU pipeline**: MobiusBuilder exports FP16 as an intermediate format. Olive then quantizes vision to INT8. For CPU deployment, the cpu_and_mobile JSON configs set `precision: fp32` so embedding outputs float32 natively (CPU EP promotes FP16 to FP32, which causes genai dtype mismatches). The `--dtype` flag is accepted for backward compatibility but does not control export precision — precision is set in the JSON config files.
+- **CUDA/WebGPU pipeline**: MobiusBuilder exports FP16 directly for vision/embedding. Olive quantizes vision to INT8. Text decoder uses k_quant_mixed INT4 via ModelBuilder.
 - The HuggingFace checkpoint uses FP8 quantized weights. The export pipeline dequantizes these automatically (`weight * weight_scale_inv`).
 - The tokenizer uses `TokenizersBackend` class which genai doesn't support. The optimize script fixes this to `LlamaTokenizer`.
 - Pixtral vision supports dynamic image sizes (multiples of 28, up to 1540×1540).
