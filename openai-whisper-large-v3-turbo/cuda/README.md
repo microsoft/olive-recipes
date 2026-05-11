@@ -31,7 +31,7 @@ After exporting the model, you can evaluate transcription accuracy using Olive's
 python -m olive run --config whisper_eval_wer.json
 ```
 
-This uses the GenAI inference path (auto-detected via `genai_config.json`) with automatic 30-second audio chunking for long audio clips. It evaluates on LibriSpeech test.clean (64 samples by default).
+This evaluates the exported model on LibriSpeech test.clean (64 samples by default).
 
 To change dataset or sample count, edit `whisper_eval_wer.json`:
 - `max_samples`: Number of samples to evaluate (set to `0` for all)
