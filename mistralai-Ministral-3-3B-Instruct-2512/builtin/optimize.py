@@ -6,7 +6,7 @@ export (GQA + INT4).
 
 Pipeline:
     1. Text decoder: Olive/ModelBuilder (k_quant_mixed INT4)
-    2. Vision + embedding: Olive/MobiusBuilder (FP16, via vision_embedding_export.json)
+    2. Vision + embedding: Olive/MobiusBuilder (FP16 for cuda/webgpu, FP32 for cpu_and_mobile, via vision_embedding_export.json)
     3. Vision quantization: Olive (INT8 RTN, per vision.json)
 
 Architecture difference from Qwen VLM recipes:
@@ -96,15 +96,16 @@ def export_text_decoder(config_dir: str, models_dir: str):
 def export_vision_and_embedding(config_dir: str, models_dir: str, model_path: str = MODEL_NAME):
     """Export vision encoder and embedding using Olive MobiusBuilder pass.
 
-    Runs cuda/vision_embedding_export.json which calls MobiusBuilder with
+    Runs <config_dir>/vision_embedding_export.json which calls MobiusBuilder with
     components_to_export=["vision_encoder", "embedding"], writing two
     sub-directories under models_dir:
-        vision_encoder/model.onnx  — FP16, fed into INT8 quantization step
-        embedding/model.onnx       — FP16 final (not quantized)
+        vision_encoder/model.onnx  — exported vision encoder, fed into INT8 quantization step
+        embedding/model.onnx       — exported embedding (FP16/FP32, not quantized)
 
     Mobius constructs the ONNX graph declaratively and applies pretrained
     weights, avoiding torch.onnx.export dynamo issues with Pixtral's
-    dynamic image dimensions.
+    dynamic image dimensions. Precision is controlled by the
+    vision_embedding_export.json config (fp16 for cuda/webgpu, fp32 for cpu_and_mobile).
     """
     try:
         from olive import run
@@ -266,7 +267,7 @@ def export_models(
         vision/            — INT8 quantized vision (from vision.json)
 
     Note: precision for vision/embedding export is set in vision_embedding_export.json
-    (default fp16). The --dtype CLI arg is accepted for backward compatibility but
+    (fp16 for cuda/webgpu, fp32 for cpu_and_mobile). The --dtype CLI arg is accepted for backward compatibility but
     does not affect the Olive-managed export.
     """
     if models_dir is None:

@@ -1,7 +1,7 @@
 {
     "input_model": {
         "type": "ONNXModel",
-        "model_path": "cpu_and_mobile/models/vision/model.onnx"
+        "model_path": "cpu_and_mobile/models/vision_encoder/model.onnx"
     },
     "passes": {
         "int8": {
