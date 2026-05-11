@@ -12,10 +12,30 @@ import json
 import shutil
 from pathlib import Path
 import sd_utils.config
+import os
 
 import onnxruntime as ort
 from diffusers import OnnxRuntimeModel, OnnxStableDiffusionPipeline
 from transformers import CLIPTokenizer
+
+def set_dd_plugins_root() -> None:
+    """Point DD_PLUGINS_ROOT to ryzenai_dynamic_dispatch/bin/ if not already set.
+
+    """
+    if os.environ.get("DD_PLUGINS_ROOT"):
+        return
+    try:
+        import importlib.util
+
+        spec = importlib.util.find_spec("ryzenai_dynamic_dispatch")
+        if spec and spec.origin:
+            bin_dir = os.path.join(os.path.dirname(spec.origin), "bin")
+            if os.path.isdir(bin_dir):
+                os.environ["DD_PLUGINS_ROOT"] = bin_dir
+    except Exception:
+        print("Could not set DD_PLUGINS_ROOT: %s", e)
+        pass
+
 
 # ruff: noqa: TID252, T201
 def update_vai_config(config: dict, provider: str, submodel_name: str):
@@ -148,6 +168,7 @@ def _load_npu_model(model_dir, submodel_name):
 
 def get_vai_pipeline(model_dir, common_args):
     """Build pipeline for VitisAI: unet/vae_decoder from dd/replaced.onnx; text_encoder/vae_encoder on CPU."""
+    set_dd_plugins_root()
     ort.set_default_logger_severity(3)
     model_dir = Path(model_dir)
     provider = common_args.provider
