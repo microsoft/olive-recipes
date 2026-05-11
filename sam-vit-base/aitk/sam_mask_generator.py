@@ -68,8 +68,9 @@ def main():
     args = parser.parse_args()
 
     # Loading models into ORT session
-    from winml import register_execution_providers
-    register_execution_providers()
+    if args.execution_provider != "CPUExecutionProvider":
+        from winml import register_execution_providers
+        register_execution_providers()
     sess_options = ort.SessionOptions()
 
     device_map = {

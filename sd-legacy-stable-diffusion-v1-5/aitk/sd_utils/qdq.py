@@ -264,8 +264,9 @@ def add_ep_for_device(session_options, ep_name, device_type, ep_options=None):
 
 
 def get_qdq_pipeline(model_dir, common_args, qdq_args, script_dir):
-    from winml import register_execution_providers
-    register_execution_providers()
+    if common_args.provider != "cpu":
+        from winml import register_execution_providers
+        register_execution_providers()
     ort.set_default_logger_severity(3)
 
     print("Loading models into ORT session...")
