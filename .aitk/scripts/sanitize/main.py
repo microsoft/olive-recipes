@@ -63,7 +63,7 @@ def main():
             version = model.version
             modelVerDir = modelDir if model.relativePath else os.path.join(modelDir, str(version))
 
-            # process copy
+            # process copy (post phase — .json.config copies; winml.py is auto-ensured earlier in project_processor)
             copyConfigFile = os.path.join(modelVerDir, "_copy.json.config")
             if os.path.exists(copyConfigFile):
                 copyConfig = CopyConfig.Read(copyConfigFile)
