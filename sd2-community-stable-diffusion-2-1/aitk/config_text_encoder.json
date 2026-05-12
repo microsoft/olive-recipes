@@ -60,7 +60,9 @@
                     77
                 ]
             ],
-            "input_names": [ "input_ids" ],
+            "input_names": [
+                "input_ids"
+            ],
             "reuse_cache": false
         },
         "ov_encapsulation": {
