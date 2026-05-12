@@ -840,7 +840,8 @@
             "runtimes": [
                 "QNN",
                 "IntelCPU",
-                "IntelGPU"
+                "IntelGPU",
+                "IntelNPU"
             ],
             "architecture": "Transformer",
             "status": "Hide",
@@ -858,7 +859,8 @@
             "runtimes": [
                 "QNN",
                 "IntelCPU",
-                "IntelGPU"
+                "IntelGPU",
+                "IntelNPU"
             ],
             "architecture": "Transformer",
             "status": "Ready",

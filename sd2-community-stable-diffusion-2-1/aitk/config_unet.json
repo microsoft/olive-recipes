@@ -68,7 +68,23 @@
         },
         "ov_io_update": {
             "type": "OpenVINOIoUpdate",
-            "static": false,
+            "static": true,
+            "input_shapes": [
+                [
+                    1,
+                    4,
+                    96,
+                    96
+                ],
+                [
+                    1
+                ],
+                [
+                    1,
+                    77,
+                    1024
+                ]
+            ],
             "input_names": [
                 "sample", "timestep", "encoder_hidden_states"
             ],
