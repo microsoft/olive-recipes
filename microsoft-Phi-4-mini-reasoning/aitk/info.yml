@@ -25,4 +25,4 @@ recipes:
 aitk:
     modelInfo:
         id: "huggingface/microsoft/Phi-4-mini-reasoning"
-        version: 3
+        version: 4
