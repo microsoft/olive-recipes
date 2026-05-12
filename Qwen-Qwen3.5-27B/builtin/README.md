@@ -4,6 +4,16 @@ This example demonstrates how to convert [Qwen3.5-27B](https://huggingface.co/Qw
 
 Qwen3.5 is a hybrid architecture combining GatedDeltaNet linear attention layers with standard full attention layers. The pipeline exports three sub-models (vision encoder, text embedding, text decoder) and applies graph optimizations. The vision encoder and embedding use FP16 while the text decoder uses INT4.
 
+## Hardware Requirements
+
+| | Min GPU Memory | Recommended |
+|---|---|---|
+| Export & optimize | ~52 GB | NVIDIA A100 80GB |
+| ONNX inference (INT4) | ~5 GB | Any CUDA GPU with ≥8 GB |
+| PyTorch inference (fp16) | ~52 GB | NVIDIA A100 80GB |
+
+> **Note:** The model was exported and tested on an NVIDIA A100-SXM4-80GB. Export requires loading the full fp16 weights (~54 GB) into GPU memory.
+
 ## Prerequisites
 
 ```bash
@@ -76,3 +86,14 @@ python eval.py --num_samples 500 --pytorch_model Qwen/Qwen3.5-27B
 ```
 
 The eval script reports per-sample accuracy, average latency, and an ONNX-vs-PyTorch comparison summary.
+
+### Benchmark Results (AI2D, 200 samples)
+
+| | PyTorch (fp16) | ONNX (INT4) |
+|---|---|---|
+| Accuracy | 90.00% (180/200) | 86.00% (172/200) |
+| Avg latency | 89.22s/sample | 26.99s/sample |
+| GPU memory (avg) | 51.0 GB | 3.2 GB |
+| GPU memory (peak) | 51.8 GB | 4.1 GB |
+
+*Evaluated on NVIDIA A100-SXM4-80GB with system prompt `/no_think`.*
