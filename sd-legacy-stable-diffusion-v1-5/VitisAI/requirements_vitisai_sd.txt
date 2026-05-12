@@ -10,18 +10,18 @@ evaluate
 # opentelemetry-api requires importlib-metadata<8.8.0
 importlib-metadata>=6.0,<8.8.0
 
-#model-generate==1.7.1
+model-generate==1.7.1
 nltk
 numpy==1.26.4
 onnx==1.20.1
-#onnxruntime-vitisai==1.24.3
+onnxruntime-vitisai==1.24.3
 optimum
 pandas==2.2.2
 psutil==6.0.0
-#ryzenai-dynamic-dispatch==1.7.1
-#ryzenai-onnx-utils==1.7.1
+ryzenai-dynamic-dispatch==1.7.1
+ryzenai-onnx-utils==1.7.1
 sentencepiece
 tabulate
 torch==2.6.0
 transformers==4.56.2
-#voe==1.7.1
+voe==1.7.1
