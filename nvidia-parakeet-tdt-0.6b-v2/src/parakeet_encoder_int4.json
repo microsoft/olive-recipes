@@ -12,7 +12,11 @@
                 "length": {"0": "batch"},
                 "outputs": {"0": "batch", "2": "time_out"},
                 "encoded_lengths": {"0": "batch"}
-            }
+            },
+            "dynamic_shapes": [
+                {"0": "batch", "2": "time"},
+                {"0": "batch"}
+            ]
         },
         "dummy_inputs_func": "encoder_dummy_inputs"
     },
@@ -30,24 +34,19 @@
     "passes": {
         "convert": {
             "type": "OnnxConversion",
-            "target_opset": 17
+            "target_opset": 21,
+            "dynamic": true,
+            "use_dynamo_exporter": true
         },
         "fusion": {
             "type": "OrtTransformersOptimization",
-            "model_type": "bert",
+            "model_type": "conformer",
             "num_heads": 8,
             "hidden_size": 1024,
-            "opt_level": 2,
+            "opt_level": 0,
             "only_onnxruntime": false,
             "optimization_options": {
-                "enable_gelu": true,
-                "enable_layer_norm": true,
-                "enable_attention": true,
-                "enable_skip_layer_norm": true,
-                "enable_bias_skip_layer_norm": true,
-                "enable_bias_gelu": true,
-                "enable_qordered_matmul": true,
-                "enable_shape_inference": true
+                "use_multi_head_attention": false
             }
         },
         "quantization": {

@@ -35,8 +35,8 @@ def _resolve(path: str) -> Path:
     return p if p.is_absolute() else _SCRIPT_DIR / p
 
 
-def _run_olive_pipeline(config_name: str, output_dir: str, output_subdir: str):
-    """Run an Olive pipeline from a JSON config, overriding output_dir."""
+def _run_olive_pipeline(config_name: str, output_dir: str, output_subdir: str, model_name: str):
+    """Run an Olive pipeline from a JSON config, overriding output_dir and model_path."""
     from olive import run as olive_run
 
     config_path = _SCRIPT_DIR / config_name
@@ -44,6 +44,7 @@ def _run_olive_pipeline(config_name: str, output_dir: str, output_subdir: str):
         config = json.load(f)
 
     config["output_dir"] = str(_resolve(output_dir) / output_subdir)
+    config["input_model"]["model_path"] = model_name
 
     with tempfile.NamedTemporaryFile(
         mode="w", suffix=".json", dir=str(_SCRIPT_DIR), delete=False
@@ -57,17 +58,17 @@ def _run_olive_pipeline(config_name: str, output_dir: str, output_subdir: str):
         Path(tmp_path).unlink(missing_ok=True)
 
 
-def run_olive_pipelines(output_dir: str):
+def run_olive_pipelines(output_dir: str, model_name: str):
     print("=== Stage 1: Olive Encoder (Convert -> Fusion -> INT4 k-quant) ===")
-    _run_olive_pipeline("parakeet_encoder_int4.json", output_dir, "encoder.onnx")
+    _run_olive_pipeline("parakeet_encoder_int4.json", output_dir, "encoder.onnx", model_name)
     print()
 
     print("=== Stage 2: Olive Decoder (OnnxConversion, FP32) ===")
-    _run_olive_pipeline("parakeet_decoder_fp32.json", output_dir, "decoder.onnx")
+    _run_olive_pipeline("parakeet_decoder_fp32.json", output_dir, "decoder.onnx", model_name)
     print()
 
     print("=== Stage 3: Olive Joint (OnnxConversion, FP32) ===")
-    _run_olive_pipeline("parakeet_joint_fp32.json", output_dir, "joint.onnx")
+    _run_olive_pipeline("parakeet_joint_fp32.json", output_dir, "joint.onnx", model_name)
     print()
 
 
@@ -355,8 +356,8 @@ def main():
     )
     parser.add_argument(
         "--output-dir",
-        required=True,
-        help="Output directory",
+        default="build/parakeet-tdt-0.6b-v2-onnx-int4",
+        help="Output directory (default: build/parakeet-tdt-0.6b-v2-onnx-int4)",
     )
     parser.add_argument(
         "--skip-configs",
@@ -368,7 +369,7 @@ def main():
         choices=["cpu", "cuda"],
         default="cpu",
         help="Target execution provider for the generated genai_config.json. "
-             "Only affects the encoder session_options; the ONNX graphs themselves "
+             "Only affects session_options on the encoder/decoder/joiner; the ONNX graphs themselves "
              "are identical for both targets (default: cpu).",
     )
     args = parser.parse_args()
@@ -379,7 +380,7 @@ def main():
             f"Got: '{args.model_name}'"
         )
 
-    run_olive_pipelines(output_dir=args.output_dir)
+    run_olive_pipelines(output_dir=args.output_dir, model_name=args.model_name)
 
     if not args.skip_configs:
         run_config_generation(
@@ -388,7 +389,7 @@ def main():
             device=args.device,
         )
 
-    output_path = Path(args.output_dir)
+    output_path = _resolve(args.output_dir)
     files = sorted(f for f in output_path.rglob("*") if f.is_file())
     total_mb = sum(f.stat().st_size for f in files) / (1024 * 1024)
     print(f"=== Done! ONNX models -> {output_path} ===")
