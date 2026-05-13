@@ -620,7 +620,7 @@
             "architecture": "Transformer",
             "status": "Ready",
             "relativePath": "openai-whisper-large-v3-turbo/aitk",
-            "version": 2,
+            "version": 3,
             "pipeline_tags": [
                 "automatic-speech-recognition"
             ]
