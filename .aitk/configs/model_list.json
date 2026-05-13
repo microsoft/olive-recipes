@@ -612,7 +612,10 @@
             "modelLink": "https://huggingface.co/openai/whisper-large-v3-turbo",
             "id": "huggingface/openai/whisper-large-v3-turbo",
             "runtimes": [
-                "QNN"
+                "QNN",
+                "IntelCPU",
+                "IntelGPU",
+                "IntelNPU"
             ],
             "architecture": "Transformer",
             "status": "Ready",

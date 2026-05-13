@@ -5,6 +5,12 @@ recipes:
   - file: "qnn_workflow.json"
     device: npu
     ep: QNNExecutionProvider
+  - file: "ov_workflow.json"
+    devices:
+    - npu
+    - cpu
+    - gpu
+    ep: OpenVINOExecutionProvider
 aitk:
   modelInfo:
     id: "huggingface/openai/whisper-large-v3-turbo"

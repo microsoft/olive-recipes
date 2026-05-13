@@ -4,7 +4,6 @@ import os
 import numpy as np
 
 from qnn_app import HfWhisperAppWithSave, get_device_type
-from transformers import WhisperProcessor
 import logging
 
 logger = logging.getLogger(os.path.basename(__file__))
