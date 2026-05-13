@@ -8,11 +8,6 @@ Used by Olive's OnnxConversion pass via the ``model_script`` /
 ``model_loader`` mechanism. Each component (encoder, decoder, joint) has
 its own loader and dummy inputs function, referenced from separate Olive
 JSON configs.
-
-Unlike Nemotron Speech Streaming, Parakeet v2 is an **offline** (non
-cache-aware) FastConformer + TDT model. The encoder takes variable-length
-audio with no cache tensors. Long-form audio is handled at the runtime
-layer (onnxruntime-genai parakeet runner) by feeding overlapping windows.
 """
 
 import torch

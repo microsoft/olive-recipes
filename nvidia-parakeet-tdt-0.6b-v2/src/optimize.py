@@ -20,18 +20,9 @@ Usage:
 
 import argparse
 import json
-import os
 import sys
 import tempfile
 from pathlib import Path
-
-# Drop LD_LIBRARY_PATH before torch / olive imports so PyTorch's bundled cuDNN
-# is used instead of a (possibly mismatched) system cuDNN. We re-exec the
-# process because removing it from os.environ after the dynamic linker has
-# already resolved libraries has no effect.
-if "LD_LIBRARY_PATH" in os.environ:
-    env = {k: v for k, v in os.environ.items() if k != "LD_LIBRARY_PATH"}
-    os.execvpe(sys.executable, [sys.executable, *sys.argv], env)
 
 _SCRIPT_DIR = Path(__file__).resolve().parent
 _RECIPE_ROOT = _SCRIPT_DIR.parent
