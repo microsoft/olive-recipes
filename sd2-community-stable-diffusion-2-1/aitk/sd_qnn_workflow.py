@@ -73,6 +73,7 @@ def main():
                         "--model_id", "sd2-community/stable-diffusion-2-1",
                         "--guidance_scale", guidance_scale,
                         "--num_inference_steps", num_inference_steps,
+                        "--image_size", "512",
                         "--execution_provider", execution_provider,
                         "--device_str", device_str,
                         "--output_file", output_file],
@@ -109,6 +110,7 @@ def main():
                     "--provider", "cpu",
                     "--format", "qdq",
                     "--optimize",
+                    "--image_size", "512",
                     "--only_conversion"],
                    check=True)
 
@@ -126,7 +128,8 @@ def main():
                     "--num_data", str(num_data),
                     # generate data for quantization calibration, so use all data as training data to match num_data
                     "--train_ratio", "1",
-                    "--guidance_scale", guidance_scale],
+                    "--guidance_scale", guidance_scale,
+                    "--image_size", "512"],
                    check=True)
 
     # run stable_diffusion.py to generate onnx quantized model
@@ -136,7 +139,8 @@ def main():
                     "--provider", "cpu",
                     "--format", "qdq",
                     "--data_dir", data_dir + "/data",
-                    "--optimize"],
+                    "--optimize",
+                    "--image_size", "512"],
                    check=True)
 
 if __name__ == "__main__":
