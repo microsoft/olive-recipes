@@ -73,8 +73,8 @@
                 [
                     1,
                     4,
-                    96,
-                    96
+                    64,
+                    64
                 ],
                 [
                     1
@@ -146,7 +146,7 @@
                 "unet_hidden_batch",
                 "unet_hidden_sequence"
             ],
-            "dim_value": [ 1, 4, 96, 96, 1, 1, 77 ],
+            "dim_value": [ 1, 4, 64, 64, 1, 1, 77 ],
             "save_as_external_data": true
         },
         "optimize_qdq": {

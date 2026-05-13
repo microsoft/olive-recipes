@@ -219,9 +219,11 @@ def optimize(
     config.vae_sample_size = pipeline.vae.config.sample_size
     config.cross_attention_dim = pipeline.unet.config.cross_attention_dim
     config.unet_sample_size = pipeline.unet.config.sample_size
-    if model_format == "qdq":
+
+    # For OpenVINO and QDQ models in NPU we optimize with smaller input sizes to reduce memory usage and speed up optimization.
+    if model_format == "qdq" or (provider == "openvino" and static_shape):
         config.vae_sample_size = common_args.image_size
-        # config.unet_sample_size = common_args.image_size // 8
+        config.unet_sample_size = common_args.image_size // 8
 
     model_info = {}
 
