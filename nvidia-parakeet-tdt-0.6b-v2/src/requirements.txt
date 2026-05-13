@@ -1,0 +1,8 @@
+huggingface_hub>=0.23.0
+nemo_toolkit[asr]>=2.7.1
+numpy>=2.0.0
+olive-ai[speech] @ git+https://github.com/microsoft/Olive.git@main
+onnx>=1.17.0
+onnxruntime>=1.20.0
+sentencepiece>=0.2.1
+torch>=2.4.0
