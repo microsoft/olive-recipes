@@ -37,8 +37,6 @@ recipes:
       aitk:
         oliveFile: "QNN/config_gpu.json"
         isGPURequired: true
-        runtimeOverwrite:
-          executeEp: NvTensorRTRTXExecutionProvider
         requirements: General/CUDA_py3.12.9
     - file: "qwen2_5_webgpu.json"
       device: gpu
