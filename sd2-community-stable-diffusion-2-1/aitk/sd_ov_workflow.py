@@ -46,7 +46,8 @@ def main():
     with open(args.config, 'r', encoding='utf-8') as file:
         oliveJson = json.load(file)
 
-    # For static quantization, the QDQ data should match the target scenario.
+    # For static quantization, data should match the target scenario.
+    static_shape = oliveJson["passes"]["aitkpython"]["static_shape"]
     guidance_scale=str(7.5)
     num_inference_steps=str(25)
 
@@ -63,6 +64,7 @@ def main():
                         "--model_id", "sd2-community/stable-diffusion-2-1",
                         "--guidance_scale", guidance_scale,
                         "--num_inference_steps", num_inference_steps,
+                        "--image_size", "512" if static_shape else "768",
                         "--execution_provider", execution_provider,
                         "--device_str", device_str,
                         "--output_file", output_file],
@@ -85,13 +87,21 @@ def main():
         config_name = f"config_{submodel_name}.json"
         copy_olive_config(history_folder, config_name, cache_dir, output_dir)
 
+    cmd = [
+        sys.executable, "stable_diffusion.py",
+        "--script_dir", history_folder,
+        "--model_id", "sd2-community/stable-diffusion-2-1",
+        "--provider", "openvino",
+        "--optimize"
+    ]
+    if static_shape:
+        cmd.extend([
+            "--static_shape",
+            "--image_size", "512",
+        ])
+
     # run stable_diffusion.py to generate onnx model
-    subprocess.run([sys.executable, "stable_diffusion.py",
-                    "--script_dir", history_folder,
-                    "--model_id", "sd2-community/stable-diffusion-2-1",
-                    "--provider", "openvino",
-                    "--optimize"],
-                   check=True)
+    subprocess.run(cmd, check=True)
 
 if __name__ == "__main__":
     main()
