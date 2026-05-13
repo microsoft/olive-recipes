@@ -72,19 +72,6 @@ def add_ep_for_device(session_options, ep_name, device_type, ep_options=None):
             session_options.add_provider_for_devices([ep_device], {} if ep_options is None else ep_options)
             break
 
-def register_execution_providers():
-    import subprocess
-    import sys
-
-    worker_script = os.path.abspath('winml.py')
-    result = subprocess.check_output([sys.executable, worker_script], text=True)
-    paths = json.loads(result)
-    for item in paths.items():
-        try:
-            ort.register_execution_provider_library(item[0], item[1])
-        except Exception as e:
-            print(f"Failed to register execution provider {item[0]}: {e}")
-
 
 def main(raw_args=None):
     args = parse_args(raw_args)
@@ -92,6 +79,7 @@ def main(raw_args=None):
     prompts = ["A baby is laying down with a teddy bear"]
     model_dir = Path(args.script_dir) / "model" / args.model_dir / args.model_id
 
+    from winml import register_execution_providers
     register_execution_providers()
 
     sess_options = ort.SessionOptions()

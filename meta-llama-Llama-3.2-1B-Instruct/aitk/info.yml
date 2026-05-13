@@ -39,6 +39,7 @@ recipes:
         isGPURequired: true
         runtimeOverwrite:
           executeEp: NvTensorRTRTXExecutionProvider
+        requirements: General/CUDA_py3.12.9
     - file: "llama3_2_webgpu.json"
       device: gpu
       ep: WebGpuExecutionProvider
@@ -48,5 +49,5 @@ recipes:
 aitk:
     modelInfo:
         id: "huggingface/meta-llama/Llama-3.2-1B-Instruct"
-        version: 6
+        version: 7
         p0: true

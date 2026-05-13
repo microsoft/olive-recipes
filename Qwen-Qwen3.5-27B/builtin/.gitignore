@@ -1,0 +1,9 @@
+# Generated model artifacts
+models/
+
+# Python bytecode
+__pycache__/
+*.pyc
+
+# Olive cache
+.olive-cache/

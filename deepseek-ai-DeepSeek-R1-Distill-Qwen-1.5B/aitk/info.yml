@@ -37,6 +37,7 @@ recipes:
       aitk:
         oliveFile: "QNN/config_gpu.json"
         isGPURequired: true
+        requirements: General/CUDA_py3.12.9
         runtimeOverwrite:
           executeEp: NvTensorRTRTXExecutionProvider
     - file: "deepseek_webgpu.json"
@@ -48,7 +49,7 @@ recipes:
 aitk:
     modelInfo:
         id: "huggingface/deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B"
-        version: 6
+        version: 7
         groupId: "huggingface/deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B"
         groupItemName: "1.5B"
         p0: true

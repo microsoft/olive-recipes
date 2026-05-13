@@ -60,7 +60,15 @@
         },
         "ov_io_update": {
             "type": "OpenVINOIoUpdate",
-            "static": false,
+            "static": true,
+            "input_shapes": [
+                [
+                    1,
+                    4,
+                    64,
+                    64
+                ]
+            ],
             "input_names": [
                 "latent_sample"
             ],
@@ -114,7 +122,7 @@
         "dynamic_shape_to_fixed": {
             "type": "DynamicToFixedShape",
             "dim_param": [ "decoder_batch", "decoder_channels", "decoder_height", "decoder_width" ],
-            "dim_value": [ 1, 4, 96, 96 ]
+            "dim_value": [ 1, 4, 64, 64 ]
         },
         "quantization": {
             "type": "OnnxStaticQuantization",

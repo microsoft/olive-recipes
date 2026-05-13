@@ -172,7 +172,7 @@ def run_inference_gui(
     window.mainloop()
 
 
-def update_config_with_provider(config: dict, provider: str, model_format: str, submodel_name: str):
+def update_config_with_provider(config: dict, provider: str, model_format: str, submodel_name: str, static_shape: bool):
     if provider == "cuda" and not model_format:
         from sd_utils.ort import update_cuda_config
 
@@ -180,7 +180,7 @@ def update_config_with_provider(config: dict, provider: str, model_format: str, 
     elif provider == "openvino":
         from sd_utils.ov import update_ov_config
 
-        return update_ov_config(config)
+        return update_ov_config(config, static_shape)
     elif provider in ("cpu", "cuda", "qnn") and model_format == "qdq":
         from sd_utils.qdq import update_qdq_config
 
@@ -197,6 +197,7 @@ def optimize(
     model_id = common_args.model_id
     provider = common_args.provider
     model_format = common_args.format
+    static_shape = common_args.static_shape
 
     script_dir = Path(common_args.script_dir)
 
@@ -218,9 +219,6 @@ def optimize(
     config.vae_sample_size = pipeline.vae.config.sample_size
     config.cross_attention_dim = pipeline.unet.config.cross_attention_dim
     config.unet_sample_size = pipeline.unet.config.sample_size
-    if model_format == "qdq":
-        config.vae_sample_size = common_args.image_size
-        # config.unet_sample_size = common_args.image_size // 8
 
     model_info = {}
 
@@ -241,7 +239,7 @@ def optimize(
         olive_config = None
         with (script_dir / f"config_{submodel_name}.json").open() as fin:
             olive_config = json.load(fin)
-        olive_config = update_config_with_provider(olive_config, provider, model_format, submodel_name)
+        olive_config = update_config_with_provider(olive_config, provider, model_format, submodel_name, static_shape)
 
         if submodel_name in ("unet", "text_encoder"):
             olive_config["input_model"]["model_path"] = model_id
@@ -336,6 +334,7 @@ def parse_common_args(raw_args):
     parser.add_argument(
         "--format", default=None, type=str, help="Currently only support qdq with provider cpu, cuda or qnn"
     )
+    parser.add_argument("--static_shape", action="store_true", help="Use static input shapes during optimization")
 
     return parser.parse_known_args(raw_args)
 
