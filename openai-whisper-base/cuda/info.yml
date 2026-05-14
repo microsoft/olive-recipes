@@ -1,0 +1,7 @@
+keywords:
+  - whisper
+recipes:
+  - name: openai-whisper-base-cuda-int8
+    file: whisper-base_cuda_int8.json
+    devices: gpu
+    eps: CUDAExecutionProvider
