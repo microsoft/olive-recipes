@@ -1,0 +1,22 @@
+{
+    "input_model": {
+        "type": "HFModel",
+        "model_path": "microsoft/Phi-4-reasoning"
+    },
+    "passes": {
+        "qp": {
+            "type": "QairtPipelinePass",
+            "recipe": "phi4_reasoning_sc8380xp.yaml",
+            "cache_dir": "cache"
+        },
+        "qe": {
+            "type": "QairtEncapsulation",
+            "log_level": "ERROR",
+            "run_checker": "true"
+        }
+    },
+    "log_severity_level": 1,
+    "output_dir": "models/phi4_reasoning-qairt-htp-sc8380xp",
+    "cache_dir": "cache",
+    "no_artifacts": true
+}
