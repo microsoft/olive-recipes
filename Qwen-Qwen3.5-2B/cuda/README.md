@@ -18,9 +18,11 @@ This folder contains Olive recipes for optimizing Qwen-Qwen3.5-2B targeting the 
    - olive run --config Qwen-Qwen3.5-2B_cuda_int4.json
 
 Additional notes:
-- Pipeline: `SelectiveMixedPrecision` (kld_gradient) → `GPTQ` → `RTN` (8-bit lm_head/embeddings) → `ModelBuilder` → `TieWordEmbeddings`
-- GPTQ group size: 128
-- Uses text-only mode (exclude_embeds=false, prune_lm_head=true) for standalone LLM inference without multimodal pipeline.
+- Pipeline: `ModelBuilder` (INT4 via Neural Compressor) → `QuantizeEmbeddingInt8` (post-hoc INT8 embedding) → `ShareEmbeddingLmHead` (share INT8 weight between embedding and lm_head)
+- Model size: ~1.4 GB (down from 4.3 GB FP16)
+- MMLU accuracy: 57.11% (vs 59.27% FP16 baseline)
+- Uses text-only mode (exclude_embeds=false) for standalone LLM inference without multimodal pipeline.
+- CUDA graph enabled for optimized decode throughput.
 - Requires NVIDIA GPU with CUDA support.
 - Ensure CUDA toolkit and cuDNN are properly installed.
 
