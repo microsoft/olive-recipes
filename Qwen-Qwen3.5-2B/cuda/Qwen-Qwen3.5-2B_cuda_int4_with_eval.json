@@ -46,6 +46,5 @@
     "log_severity_level": 0,
     "output_dir": "model",
     "cache_dir": "cache",
-    "no_artifacts": true,
-    "evaluate_input_model": false
+    "no_artifacts": true
 }
