@@ -22,12 +22,7 @@
     "passes": {
         "s": {
             "type": "SelectiveMixedPrecision",
-            "algorithm": "kld_gradient",
-            "bits": 4,
-            "high_bits": 8,
-            "ratio": 0.65,
-            "sym": false,
-            "group_size": 32
+            "algorithm": "k_quant_mixed"
         },
         "g": {
             "type": "gptq",
