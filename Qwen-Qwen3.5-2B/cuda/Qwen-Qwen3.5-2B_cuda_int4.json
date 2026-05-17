@@ -31,10 +31,7 @@
             "surgeries": [
                 {"surgeon": "QuantizeEmbeddingInt8"},
                 {"surgeon": "ShareEmbeddingLmHead"}
-            ],
-            "save_as_external_data": true,
-            "all_tensors_to_one_file": true,
-            "external_data_name": "model.onnx.data"
+            ]
         }
     },
     "target": "local_system",

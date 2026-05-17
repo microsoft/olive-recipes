@@ -21,6 +21,7 @@
         "m": {
             "type": "ModelBuilder",
             "precision": "int4",
+            "int4_block_size": 32,
             "extra_options": {
                 "exclude_embeds": false
             }
