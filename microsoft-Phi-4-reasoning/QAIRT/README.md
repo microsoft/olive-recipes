@@ -12,22 +12,25 @@ Finally, a prepared QAIRT DLC is encapsulated in an ONNX protobuf and exported t
 
 ## Requirements
 
-This workflow has been tested using the following host configuration:
-* Python 3.10
+**Validated host configuration:**
+* Ubuntu 22.04
+* Python 3.10.12
 * qairt-dev 0.5.0
 * QAIRT 2.45.40
 
-Further, this workflow has been tested on the following target configurations:
+**Validated target configuration:**
 * HTP backend on SC8480XP
+
+Other configurations may work but have not been validated.
 
 ## Preparation Instructions
 
-1. Install olive[qairt]
+1. Install olive-ai[qairt]
 
 ```bash
-pip install olive[qairt]
+pip install olive-ai[qairt]
 pip list | grep qairt-dev  # Ensure the proper qairt-dev version  was installed
-pip install qairt-dev[onnx]==<version>  # Install the proper qairt-dev version, if not installed
+pip install qairt-dev[onnx]==0.5.0  # Install the proper qairt-dev version, if not installed
 ```
 
 2. (Optional) Use qairt-vm to install a non-default version of QAIRT and set QAIRT_SDK_ROOT
@@ -67,3 +70,9 @@ pip install onnxruntime-qnn>=2.1.0
 ```
 
 Please see the following script in the onnxruntime-genai repository for [an example of how to run this model directory](https://github.com/microsoft/onnxruntime-genai/blob/main/examples/python/model-qa.py).
+
+## Known Issues
+
+### `AttributeError: module 'pydantic._internal._typing_extra' has no attribute 'add_module_globals'`
+
+This error can occasionally occur on the first invocation of the recipe. If encountered, re-running the recipe is sufficient as a workaround.
