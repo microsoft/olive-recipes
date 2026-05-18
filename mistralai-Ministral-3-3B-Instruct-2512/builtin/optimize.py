@@ -34,7 +34,7 @@ logging.getLogger("onnxscript").setLevel(logging.WARNING)
 logging.getLogger("onnx_ir").setLevel(logging.WARNING)
 
 MODELS_DIR = "models"
-MODEL_NAME = "mistralai/Ministral-3-3B-Instruct-2512"
+MODEL_NAME = "mistralai/Ministral-3-3B-Instruct-2512-BF16"
 
 # Lazy-loaded HuggingFace config (avoids import-time network access)
 _HF_CONFIG = None
@@ -43,7 +43,7 @@ _HF_CONFIG = None
 def _get_hf_config():
     """Load and cache the HuggingFace model config.
 
-    Always loads from MODEL_NAME (the canonical HF model ID) rather than
+    Always loads from MODEL_NAME rather than
     --model-path, because the config values (image_token_id, patch_size, etc.)
     are architecture constants that don't change between checkpoints.
     """
@@ -55,7 +55,33 @@ def _get_hf_config():
     return _HF_CONFIG
 
 
-def export_text_decoder(config_dir: str, models_dir: str):
+def _break_hardlink(path: Path):
+    """Replace a hard-linked artifact with an independent copy."""
+    if not path.exists() or path.stat().st_nlink <= 1:
+        return
+
+    tmp_path = path.with_name(f".{path.name}.copying")
+    if tmp_path.exists():
+        tmp_path.unlink()
+    shutil.copy2(path, tmp_path)
+    os.replace(tmp_path, path)
+    print(f"  [Cleanup] Broke hard link for {path}")
+
+
+def _break_external_data_hardlinks(models_dir: str):
+    for data_path in Path(models_dir).rglob("*.onnx.data"):
+        _break_hardlink(data_path)
+
+
+def _remove_unused_root_artifacts(models_dir: str):
+    for filename in ("decoder.onnx", "decoder.onnx.data", "model_config.json"):
+        path = Path(models_dir) / filename
+        if path.exists():
+            path.unlink()
+            print(f"  [Cleanup] Removed unused root artifact {path}")
+
+
+def export_text_decoder(config_dir: str, models_dir: str, model_path: str = MODEL_NAME):
     """Export text decoder using Olive/ModelBuilder (GQA + quantization).
 
     Loads text.json as a dict and overrides output_dir to write directly
@@ -75,6 +101,8 @@ def export_text_decoder(config_dir: str, models_dir: str):
     # Load config as dict and override output_dir to write directly to models_dir
     with open(config_path) as f:
         config = json.load(f)
+    if model_path != MODEL_NAME:
+        config["input_model"]["model_path"] = model_path
     config["output_dir"] = os.path.join(models_dir, "decoder")
 
     print(f"  [Olive] Exporting text decoder from {config_path}...")
@@ -82,6 +110,10 @@ def export_text_decoder(config_dir: str, models_dir: str):
 
     # Move shared configs from decoder/ to models root for VLM pipeline
     decoder_dir = Path(models_dir) / "decoder"
+    decoder_model = decoder_dir / "model.onnx"
+    if not decoder_model.exists():
+        raise RuntimeError(f"Text decoder export did not produce expected model: {decoder_model}")
+
     for filename in (
         "genai_config.json",
         "tokenizer.json",
@@ -91,6 +123,7 @@ def export_text_decoder(config_dir: str, models_dir: str):
         src = decoder_dir / filename
         if src.exists():
             shutil.move(str(src), str(Path(models_dir) / filename))
+    _break_external_data_hardlinks(models_dir)
 
 
 def export_vision_and_embedding(config_dir: str, models_dir: str, model_path: str = MODEL_NAME):
@@ -148,6 +181,8 @@ def export_vision_and_embedding(config_dir: str, models_dir: str, model_path: st
             if src_data.exists():
                 # Keep original filename — model.onnx references it by this relative path
                 shutil.move(str(src_data), str(dst_dir / f"{component}.onnx.data"))
+    _remove_unused_root_artifacts(models_dir)
+    _break_external_data_hardlinks(models_dir)
 
 
 def quantize_vision_and_embedding(config_dir: str, models_dir: str):
@@ -286,7 +321,7 @@ def export_models(
     print("=== Exporting models ===")
 
     # Text decoder via Olive/ModelBuilder (GQA + INT4 k_quant)
-    export_text_decoder(config_dir, models_dir)
+    export_text_decoder(config_dir, models_dir, model_path)
 
     # Vision encoder + embedding via Olive/MobiusBuilder (FP16 for cuda/webgpu, FP32 for cpu_and_mobile)
     export_vision_and_embedding(config_dir, models_dir, model_path)
@@ -456,6 +491,7 @@ def update_genai_config(output_dir: str = MODELS_DIR, device: str = "cpu"):
     with open(processor_path, "w") as f:
         json.dump(processor_config, f, indent=2)
     print(f"  Created {processor_path}")
+    _remove_unused_root_artifacts(output_dir)
 
 
 def fix_tokenizer(output_dir: str = MODELS_DIR):

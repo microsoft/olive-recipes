@@ -6,6 +6,7 @@ recipes:
     eps:
       - CPUExecutionProvider
       - CUDAExecutionProvider
+      - WebGpuExecutionProvider
     devices:
       - cpu
       - gpu

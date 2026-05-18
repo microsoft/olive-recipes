@@ -17,11 +17,13 @@ Usage:
     python eval.py --device cuda --model_path cuda/models
 
     # Compare ONNX vs PyTorch reference
-    python eval.py --pytorch_model mistralai/Ministral-3-3B-Instruct-2512
+    python eval.py --pytorch_model mistralai/Ministral-3-3B-Instruct-2512-BF16
 
     # Larger sample
     python eval.py --num_samples 200
 """
+
+from __future__ import annotations
 
 import argparse
 import io
@@ -30,10 +32,6 @@ import os
 import re
 import tempfile
 import time
-
-import onnxruntime_genai as og
-from datasets import load_dataset
-from PIL import Image
 
 NUMBERS = ["1", "2", "3", "4"]
 
@@ -50,6 +48,44 @@ DEFAULT_SYSTEM_PROMPT = (
     "When given a question with numbered options, respond with ONLY a single digit (1, 2, 3, or 4). "
     "Do not include any explanation, reasoning, or other text — just the digit."
 )
+
+
+def _load_ort_genai():
+    import onnxruntime_genai as og
+
+    return og
+
+
+def _patch_ministral3_text_config_mapping():
+    """Register the Ministral text config alias for Transformers releases that need it."""
+    try:
+        from transformers import AutoConfig
+
+        try:
+            from transformers.models.ministral3.configuration_ministral3 import Ministral3Config
+
+            config_cls = Ministral3Config
+        except ImportError:
+            from transformers.models.mistral.configuration_mistral import MistralConfig
+
+            config_cls = MistralConfig
+
+        try:
+            AutoConfig.register("ministral3", config_cls)
+        except ValueError as e:
+            if "already" not in str(e).lower():
+                raise
+    except Exception as e:
+        print(f"  [WARN] could not register ministral3 config alias: {e}")
+
+
+def _set_missing_sliding_window(config) -> None:
+    if config is None:
+        return
+    if getattr(config, "sliding_window", None) is None:
+        max_position_embeddings = getattr(config, "max_position_embeddings", None)
+        if max_position_embeddings is not None:
+            config.sliding_window = max_position_embeddings
 
 
 # ---------------------------------------------------------------------------
@@ -115,13 +151,25 @@ def detect_onnx_precision(model_path: str) -> str:
     """Infer ONNX model precision from the model directory or genai_config.
 
     Heuristics (in order):
-    1. If genai_config.json exists and contains model builder metadata → use it
-    2. If path contains 'int4' → 'int4'
-    3. If path contains 'cpu_and_mobile' → 'int4' (default for CPU target)
-    4. If path contains 'cuda' or 'fp16' → 'fp16'
-    5. Fallback → 'fp16'
+    1. If decoder/model.onnx contains MatMulNBits → 'int4'
+    2. If genai_config.json exists and contains model builder metadata → use it
+    3. If path contains 'int4' → 'int4'
+    4. If path contains 'cpu_and_mobile' → 'int4' (default for CPU target)
+    5. If path contains 'cuda' or 'fp16' → 'fp16'
+    6. Fallback → 'fp16'
     """
     path_lower = model_path.lower()
+
+    decoder_path = os.path.join(model_path, "decoder", "model.onnx")
+    if os.path.exists(decoder_path):
+        try:
+            import onnx
+
+            model = onnx.load(decoder_path, load_external_data=False)
+            if any(node.op_type == "MatMulNBits" for node in model.graph.node):
+                return "int4"
+        except Exception:
+            pass  # graph unavailable — fall through to metadata/path heuristics
 
     # Check genai_config for precision hints
     config_path = os.path.join(model_path, "genai_config.json")
@@ -152,6 +200,8 @@ def detect_onnx_precision(model_path: str) -> str:
 
 def pil_from_sample(sample: dict) -> Image.Image | None:
     """Return PIL image from a dataset sample regardless of field format."""
+    from PIL import Image
+
     img = sample.get("image")
     if img is None:
         return None
@@ -166,6 +216,8 @@ def pil_from_sample(sample: dict) -> Image.Image | None:
 
 def load_ai2d(num_samples: int):
     """Load a deterministic subset of AI2D test samples."""
+    from datasets import load_dataset
+
     print(f"Loading AI2D dataset ({num_samples} samples)…")
     ds = load_dataset("lmms-lab/ai2d", split="test")
     ds = ds.select(range(min(num_samples, len(ds))))
@@ -180,6 +232,7 @@ def load_ai2d(num_samples: int):
 
 def build_onnx_runner(model_path: str):
     """Load ONNX model with ORT GenAI."""
+    og = _load_ort_genai()
     print(f"\nLoading ONNX model from: {model_path}")
     model = og.Model(model_path)
     processor = model.create_multimodal_processor()
@@ -196,6 +249,7 @@ def run_onnx(
     Returns (decoded_text, ttft) where ttft is the time in seconds for
     the first generate_next_token() call (time to first token).
     """
+    og = _load_ort_genai()
     with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as f:
         pil_image.save(f, format="PNG")
         tmp_path = f.name
@@ -244,6 +298,8 @@ def build_pytorch_runner(model_id: str, device: str = "auto"):
     import torch
     from transformers import AutoProcessor, Mistral3ForConditionalGeneration
 
+    _patch_ministral3_text_config_mapping()
+
     if device == "auto":
         device = "cuda" if torch.cuda.is_available() else "cpu"
     dtype = torch.float16 if device == "cuda" else torch.float32
@@ -271,6 +327,11 @@ def build_pytorch_runner(model_id: str, device: str = "auto"):
                 fp8_count += 1
     if fp8_count > 0:
         print(f"  Dequantized {fp8_count} FP8 linear layers to bfloat16")
+
+    _set_missing_sliding_window(getattr(pt_model.config, "text_config", None))
+    _set_missing_sliding_window(getattr(pt_model.config, "vision_config", None))
+    language_model = getattr(getattr(pt_model, "model", None), "language_model", None)
+    _set_missing_sliding_window(getattr(language_model, "config", None))
 
     # Cast entire model to target dtype and move to device
     pt_model = pt_model.to(dtype=dtype, device=device)
@@ -319,6 +380,11 @@ def run_pytorch(
     inputs = pt_proc(
         text=[text], images=[pil_image], padding=True, return_tensors="pt"
     ).to(device)
+    inputs.pop("token_type_ids", None)
+
+    model_dtype = next(pt_model.parameters()).dtype
+    if "pixel_values" in inputs:
+        inputs["pixel_values"] = inputs["pixel_values"].to(dtype=model_dtype)
 
     with torch.no_grad():
         out = pt_model.generate(**inputs, max_new_tokens=8, do_sample=False)
@@ -487,13 +553,18 @@ def main():
     else:
         print("\nSystem prompt: (none)")
 
-    # Detect ONNX precision from model path
-    onnx_precision = detect_onnx_precision(args.model_path)
+    onnx_precision = None
+    model_size_str = "N/A"
+    if not args.skip_onnx:
+        # Detect ONNX precision from model path
+        onnx_precision = detect_onnx_precision(args.model_path)
 
-    # Calculate model size
-    model_size_bytes = calculate_model_size(args.model_path)
-    model_size_str = format_model_size(model_size_bytes)
-    print(f"\nModel size: {model_size_str}")
+        # Calculate model size
+        model_size_bytes = calculate_model_size(args.model_path)
+        model_size_str = format_model_size(model_size_bytes)
+        print(f"\nModel size: {model_size_str}")
+    else:
+        print("\nONNX evaluation: skipped")
 
     # ---- ONNX ----
     if not args.skip_onnx:
@@ -528,8 +599,10 @@ def main():
     print("  Model       : Ministral-3-3B-Instruct-2512 (VLM)")
     print("  Dataset     : AI2D (science diagram QA, multiple choice)")
     print(f"  Samples     : {args.num_samples}")
-    print(f"  Model size  : {model_size_str}")
-    print(f"  ONNX prec   : {onnx_precision.upper()}")
+    if not args.skip_onnx:
+        print(f"  Model size  : {model_size_str}")
+    if onnx_precision:
+        print(f"  ONNX prec   : {onnx_precision.upper()}")
     if pt_precision:
         print(f"  PyTorch prec: {pt_precision.upper()}")
     print(
@@ -557,7 +630,7 @@ def main():
         )
 
         # Precision gap assessment
-        expected_gap = EXPECTED_GAP_PP.get(onnx_precision, 5.0)
+        expected_gap = EXPECTED_GAP_PP.get(onnx_precision or "int4", 5.0)
         print()
         print(f"  Expected gap for {onnx_precision.upper()}: <{expected_gap:.0f} pp")
         if abs_delta <= expected_gap:

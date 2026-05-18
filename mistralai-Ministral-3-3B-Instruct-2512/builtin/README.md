@@ -1,6 +1,6 @@
 # Ministral-3-3B ONNX Runtime GenAI Example
 
-This example demonstrates how to convert [Ministral-3-3B-Instruct-2512](https://huggingface.co/mistralai/Ministral-3-3B-Instruct-2512) vision-language model to ONNX format using Olive and run inference with ONNX Runtime GenAI.
+This example demonstrates how to convert [Ministral-3-3B-Instruct-2512-BF16](https://huggingface.co/mistralai/Ministral-3-3B-Instruct-2512-BF16) vision-language model to ONNX format using Olive and run inference with ONNX Runtime GenAI.
 
 Ministral-3-3B is a multimodal (VLM) model combining a Pixtral vision encoder with a Mistral text decoder using YaRN RoPE for extended context. The pipeline exports three sub-models:
 - **Vision encoder** and **embedding** via Olive/MobiusBuilder pass (`vision_embedding_export.json`); vision INT8-quantized via Olive
@@ -8,14 +8,15 @@ Ministral-3-3B is a multimodal (VLM) model combining a Pixtral vision encoder wi
 
 ## Exported Configurations
 
-| Component | CUDA | CPU |
-|-----------|------|-----|
-| Text decoder | k_quant_mixed INT4 (`MatMulNBits`) | k_quant_mixed INT4 (`MatMulNBits`) |
-| Vision encoder | INT8 RTN (`MatMul8Bits`) | INT8 RTN (`MatMul8Bits`) |
-| Embedding | FP16 | FP32 |
+| Component | CUDA | CPU | WebGPU |
+|-----------|------|-----|--------|
+| Text decoder | k_quant_mixed INT4 (`MatMulNBits`) | k_quant_mixed INT4 (`MatMulNBits`) | k_quant_mixed INT4 (`MatMulNBits`) |
+| Vision encoder | INT8 RTN, asymmetric block 32 (`MatMulNBits`) | INT8 RTN, symmetric block 128 (`MatMulNBits`) | INT8 RTN, asymmetric block 32 (`MatMulNBits`) |
+| Embedding | FP16 | FP32 | FP16 |
 
-- **CUDA**: k_quant_mixed INT4 text decoder + INT8 vision + FP16 embedding. Optimized for throughput on NVIDIA GPUs.
+- **CUDA**: k_quant_mixed INT4 text decoder + asymmetric block-32 INT8 vision + FP16 embedding. Optimized for throughput on NVIDIA GPUs.
 - **CPU**: k_quant_mixed INT4 text decoder + INT8 vision + FP32 embedding. Uses FP32 for embedding (CPU EP promotes FP16 to FP32).
+- **WebGPU**: k_quant_mixed INT4 text decoder + asymmetric block-32 INT8 vision + FP16 embedding. Uses WebGPU provider options in `genai_config.json`.
 
 ## Benchmark Results
 
@@ -23,13 +24,19 @@ Evaluated on [AI2D](https://allenai.org/data/diagrams) (science diagram multiple
 
 | Configuration | Accuracy | Samples | Model Size | Latency (s/sample) |
 |---------------|----------|---------|------------|---------------------|
-| PyTorch FP16 (CUDA) | 76.40% | 500 | ~7G | 0.14 |
-| PyTorch FP32 (CPU) | 78.00% | 100 | ~7G | 22.84 |
-| ONNX CUDA (k_quant_mixed + INT8 vision) | 74.00% | 500 | 3.6G | 0.14 |
-| ONNX CPU (k_quant_mixed + INT8 vision) | 77.00% | 100 | 4.92G | 5.85 |
+| PyTorch FP16 (CUDA, BF16 checkpoint) | 74.20% (371/500) | 500 | N/A | 0.17 |
+| ONNX CUDA INT4 text + INT8 vision (asym block 32, BF16 checkpoint) | 73.00% (365/500) | 500 | 3.86 GB | 0.11 |
+| ONNX CPU INT4 text + INT8 vision (sym block 128, BF16 checkpoint) | 72.80% (364/500) | 500 | 4.92 GB | 8.05 |
 
-ONNX CUDA is within 2.4pp of PyTorch FP16 at **half the model size** (3.6G vs ~7G).
-ONNX CPU achieves near-parity with PyTorch CPU at **70% smaller** (4.92G vs ~7G) and **3.9× faster**.
+The current CUDA ONNX export is faster than PyTorch on this benchmark and is **1.20pp lower** in accuracy. A vision-quantization sweep found that asymmetric block-32 INT8 vision preserves the Mobius FP16 vision features best: on the feature probe it matched FP16 vision cosine similarity (`0.864774` vs `0.864780`), and on 500 AI2D samples it reached 365/500 versus 367/500 for the same package with unquantized FP16 vision.
+
+Export validation status:
+
+| Target | Package Size | Validation |
+|--------|--------------|------------|
+| CPU | 4.92 GB | Exported and evaluated; decoder, embedding, and vision ONNX graphs load; no hard-linked external data files |
+| CUDA | 3.86 GB | Exported and evaluated; decoder and vision ONNX graphs contain `MatMulNBits`; no hard-linked external data files |
+| WebGPU | 3.86 GB | Exported; decoder, embedding, and vision ONNX graphs load; no hard-linked external data files |
 
 > **Latency Measurement:** Per-sample end-to-end inference time (image in → text out). Includes image preprocessing, tokenization, vision encoding, text generation, and decoding. Answers are short (typically 1-2 tokens for multiple-choice). Excludes model loading (one-time cost). Measured with `time.perf_counter()` averaged over all samples. No warmup run.
 
@@ -62,7 +69,13 @@ python optimize.py --config-dir cpu_and_mobile --device cpu
 python optimize.py --config-dir cuda --device gpu
 ```
 
-**With local dequantized checkpoint (skips FP8 dequant):**
+**WebGPU (k_quant_mixed INT4 text + INT8 vision + FP16 embedding):**
+
+```bash
+python optimize.py --config-dir webgpu --device webgpu
+```
+
+**With a local or alternate checkpoint:**
 
 ```bash
 python optimize.py --config-dir cpu_and_mobile --device cpu --model-path /path/to/Ministral-3-3B-dequantized
@@ -71,7 +84,7 @@ python optimize.py --config-dir cpu_and_mobile --device cpu --model-path /path/t
 This runs:
 - **Olive/ModelBuilder** for text decoder (GQA attention, YaRN RoPE, k_quant_mixed INT4)
 - **Olive/MobiusBuilder** (`vision_embedding_export.json`) for vision encoder (Pixtral, dynamic H×W, 2D RoPE) and embedding (token + image fusion)
-- **Olive INT8 quantization** (`vision.json`) on vision encoder (both CUDA and CPU)
+- **Olive INT8 quantization** (`vision.json`) on vision encoder (CPU, CUDA, and WebGPU)
 
 Then generates `genai_config.json` and `processor_config.json` for the ORT GenAI runtime.
 
@@ -134,8 +147,8 @@ python eval.py --skip_onnx --pytorch_model mistralai/Ministral-3-3B-Instruct-251
 python eval.py --model_path cuda/models --pytorch_model mistralai/Ministral-3-3B-Instruct-2512-BF16 --num_samples 100
 ```
 
-> **Note:** The default HuggingFace checkpoint (`Ministral-3-3B-Instruct-2512`) uses FP8 weights,
-> which require a specific CUDA kernel build. Use the `-BF16` variant for PyTorch baselines.
+> **Note:** This recipe uses the BF16 Hugging Face checkpoint by default. The FP8 checkpoint
+> (`Ministral-3-3B-Instruct-2512`) can require CUDA kernels that are not available on all machines.
 
 ## Directory Structure
 
@@ -214,14 +227,16 @@ The text decoder export (`text.json`) and INT8 quantization (`vision.json`) ARE 
 ## Known Limitations
 
 - **CPU vision: language drift on some images.** The quantized vision encoder occasionally produces embeddings that cause the text decoder to respond in the wrong language (e.g., Chinese instead of English). This has been observed on specific test images and is a known artifact of vision quantization. INT8 significantly reduces this compared to INT4.
-- **FP8 checkpoint requires special kernels.** The default HuggingFace checkpoint uses FP8 weights. Use the `-BF16` variant for PyTorch evaluation on machines without FP8 kernel support.
+- **CUDA vision quantization is parameter-sensitive.** Symmetric block-128 INT8 vision caused a large quality drop (56.40% on 500 AI2D samples). The CUDA recipe uses asymmetric block-32 INT8 vision, which recovered the result to 73.00% and closely tracks the unquantized Mobius FP16 vision package.
+- **FP8 checkpoint requires special kernels.** This recipe defaults to the `-BF16` checkpoint. The FP8 checkpoint can require CUDA kernels that are not available on all machines.
+
 ## Notes
 
 - **Multi-image supported.** The runtime supports variable-count multi-image inputs via PixtralImageSizes metadata. Requires onnxruntime-extensions ≥ PR #1050 and models exported with PixtralImageSizes in `processor_config.json`.
 
 - **CPU pipeline**: MobiusBuilder exports FP16 as an intermediate format. Olive then quantizes vision to INT8. For CPU deployment, the cpu_and_mobile JSON configs set `precision: fp32` so embedding outputs float32 natively (CPU EP promotes FP16 to FP32, which causes genai dtype mismatches). The `--dtype` flag is accepted for backward compatibility but does not control export precision — precision is set in the JSON config files.
-- **CUDA/WebGPU pipeline**: MobiusBuilder exports FP16 directly for vision/embedding. Olive quantizes vision to INT8. Text decoder uses k_quant_mixed INT4 via ModelBuilder.
-- The HuggingFace checkpoint uses FP8 quantized weights. The export pipeline dequantizes these automatically (`weight * weight_scale_inv`).
+- **CUDA/WebGPU pipeline**: MobiusBuilder exports FP16 directly for vision/embedding. Olive quantizes vision to asymmetric block-32 INT8. Text decoder uses k_quant_mixed INT4 via ModelBuilder.
+- The FP8 Hugging Face checkpoint uses quantized weights. Use the default `-BF16` checkpoint unless you specifically need to test FP8 export behavior.
 - The tokenizer uses `TokenizersBackend` class which genai doesn't support. The optimize script fixes this to `LlamaTokenizer`.
 - Pixtral vision supports dynamic image sizes (multiples of 28, up to 1540×1540).
 - The text decoder includes `llama_4_attn_scale` for long-context attention (>16K tokens).

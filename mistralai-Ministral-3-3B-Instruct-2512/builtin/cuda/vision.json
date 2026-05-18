@@ -7,9 +7,8 @@
         "int8": {
             "type": "OnnxBlockWiseRtnQuantization",
             "bits": 8,
-            "block_size": 128,
-            "is_symmetric": true,
-            "accuracy_level": 4,
+            "block_size": 32,
+            "is_symmetric": false,
             "save_as_external_data": true,
             "external_data_name": "model.onnx.data"
         }
