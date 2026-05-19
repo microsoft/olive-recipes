@@ -24,6 +24,12 @@ logging.getLogger("onnx_ir").setLevel(logging.WARNING)
 MODELS_DIR = "models"
 
 
+def _read_model_name(config_dir: str) -> str:
+    """Read the HuggingFace model name from the Olive text config."""
+    text_cfg = json.loads((Path(config_dir) / "text.json").read_text())
+    return text_cfg["input_model"]["model_path"]
+
+
 def export_models(config_dir: str):
     """Run Olive for all 3 sub-models (text, embedding, vision)."""
     from olive import run
@@ -36,10 +42,20 @@ def export_models(config_dir: str):
     print()
 
 
-def update_genai_config(output_dir: str = MODELS_DIR, device: str = "cpu"):
-    """Patch genai_config.json with embedding/vision sections and processor_config."""
-    config_path = Path(output_dir) / "genai_config.json"
+def update_genai_config(output_dir: str, model_name: str, device: str = "cpu", context_length: int = 4096):
+    """Patch genai_config.json with embedding/vision sections and processor_config.
 
+    Reads token IDs, vision parameters, and preprocessor settings from the
+    HuggingFace model config rather than hardcoding them.
+    """
+    from transformers import AutoConfig, GenerationConfig
+    from huggingface_hub import hf_hub_download
+
+    hf_config = AutoConfig.from_pretrained(model_name)
+    gen_config = GenerationConfig.from_pretrained(model_name)
+    vc = hf_config.vision_config
+
+    config_path = Path(output_dir) / "genai_config.json"
     with open(config_path) as f:
         config = json.load(f)
 
@@ -54,8 +70,9 @@ def update_genai_config(output_dir: str = MODELS_DIR, device: str = "cpu"):
         provider_options = []
         vision_provider_options = []
 
-    session_options = {"log_id": "onnxruntime-genai", "provider_options": provider_options}
     vision_session_options = {"log_id": "onnxruntime-genai", "provider_options": vision_provider_options}
+
+    config["model"]["decoder"]["filename"] = "text.onnx"
 
     config["model"]["embedding"] = {
         "filename": "embedding.onnx",
@@ -67,32 +84,36 @@ def update_genai_config(output_dir: str = MODELS_DIR, device: str = "cpu"):
     config["model"]["vision"] = {
         "filename": "vision.onnx",
         "config_filename": "processor_config.json",
-        "spatial_merge_size": 2,
+        "spatial_merge_size": vc.spatial_merge_size,
         "tokens_per_second": 2.0,
-        "patch_size": 16,
+        "patch_size": vc.patch_size,
         "inputs": {"pixel_values": "pixel_values", "image_grid_thw": "image_grid_thw"},
         "outputs": {"image_features": "image_features"},
         "session_options": vision_session_options,
     }
 
-    config["model"]["type"] = "qwen3_5_moe"
+    config["model"]["bos_token_id"] = gen_config.bos_token_id
+    config["model"]["context_length"] = context_length
+    config["model"]["eos_token_id"] = gen_config.eos_token_id
+    config["model"]["pad_token_id"] = gen_config.pad_token_id
+    config["model"]["image_token_id"] = hf_config.image_token_id
+    config["model"]["video_token_id"] = hf_config.video_token_id
+    config["model"]["vision_start_token_id"] = hf_config.vision_start_token_id
 
-    config["model"]["bos_token_id"] = 248044
-    config["model"]["context_length"] = 4096
-    config["model"]["eos_token_id"] = [248046, 248044]
-    config["model"]["pad_token_id"] = 248044
-    config["model"]["image_token_id"] = 248056
-    config["model"]["video_token_id"] = 248057
-    config["model"]["vision_start_token_id"] = 248053
-
-    config["search"]["max_length"] = 4096
-    config["search"]["top_k"] = 20
-    if config["search"].get("top_p") is None:
-        config["search"]["top_p"] = 0.95
+    config["search"]["max_length"] = context_length
+    if gen_config.top_k is not None:
+        config["search"]["top_k"] = gen_config.top_k
+    if gen_config.top_p is not None and config["search"].get("top_p") is None:
+        config["search"]["top_p"] = gen_config.top_p
 
     with open(config_path, "w") as f:
         json.dump(config, f, indent=4)
     print(f"  Updated {config_path}")
+
+    pp_path = hf_hub_download(model_name, "preprocessor_config.json")
+    with open(pp_path) as f:
+        pp = json.load(f)
+    pp_size = pp.get("size", {})
 
     processor_config = {
         "processor": {
@@ -102,16 +123,23 @@ def update_genai_config(output_dir: str = MODELS_DIR, device: str = "cpu"):
                 {"operation": {"name": "convert_to_rgb", "type": "ConvertRGB"}},
                 {"operation": {"name": "resize", "type": "Resize", "attrs": {
                     "width": 960, "height": 672, "smart_resize": 1,
-                    "min_pixels": 65536, "max_pixels": 16777216, "patch_size": 16, "merge_size": 2,
+                    "min_pixels": pp_size.get("shortest_edge", 65536),
+                    "max_pixels": pp_size.get("longest_edge", 16777216),
+                    "patch_size": vc.patch_size,
+                    "merge_size": vc.spatial_merge_size,
                 }}},
                 {"operation": {"name": "rescale", "type": "Rescale", "attrs": {
-                    "rescale_factor": 0.00392156862745098,
+                    "rescale_factor": 1.0 / 255,
                 }}},
                 {"operation": {"name": "normalize", "type": "Normalize", "attrs": {
-                    "mean": [0.5, 0.5, 0.5], "std": [0.5, 0.5, 0.5], "qwen2_5_vl": 1,
+                    "mean": pp.get("image_mean", [0.5, 0.5, 0.5]),
+                    "std": pp.get("image_std", [0.5, 0.5, 0.5]),
+                    "qwen2_5_vl": 1,
                 }}},
                 {"operation": {"name": "patch_image", "type": "PatchImage", "attrs": {
-                    "patch_size": 16, "temporal_patch_size": 2, "merge_size": 2,
+                    "patch_size": vc.patch_size,
+                    "temporal_patch_size": vc.temporal_patch_size,
+                    "merge_size": vc.spatial_merge_size,
                 }}},
             ],
         }
@@ -150,15 +178,22 @@ def main():
     parser.add_argument("--config-dir", default="cpu_and_mobile")
     parser.add_argument("--skip-export", action="store_true")
     parser.add_argument("--models-dir", default=None)
+    parser.add_argument("--context-length", type=int, default=4096)
     args = parser.parse_args()
 
     models_dir = args.models_dir or str(Path(args.config_dir) / MODELS_DIR)
+    model_name = _read_model_name(args.config_dir)
 
     if not args.skip_export:
         export_models(args.config_dir)
 
     print("=== Generating configs ===")
-    update_genai_config(output_dir=models_dir, device=args.device)
+    update_genai_config(
+        output_dir=models_dir,
+        model_name=model_name,
+        device=args.device,
+        context_length=args.context_length,
+    )
     fix_tokenizer(output_dir=models_dir)
     print()
     print("Done.")

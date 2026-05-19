@@ -19,9 +19,16 @@ model_name = "Qwen/Qwen3.5-35B-A3B"
 config = AutoConfig.from_pretrained(model_name)
 
 
+_NEEDED_PREFIXES = ("model.visual.", "model.language_model.embed_tokens.")
+
+
 def _load_model(model_path):
-    """Load weights into the ONNX-export-friendly Qwen3_5MoeModel."""
-    from safetensors.torch import load_file
+    """Load weights into the ONNX-export-friendly Qwen3_5MoeModel.
+
+    Only loads vision encoder and embedding weights (~4 GB) rather than the
+    full 35B MoE checkpoint (~67 GB) to avoid unnecessary memory usage.
+    """
+    from safetensors import safe_open
     from huggingface_hub import hf_hub_download
     import glob
 
@@ -31,20 +38,17 @@ def _load_model(model_path):
 
     state_dict = {}
     for sf in st_files:
-        tensors = load_file(sf)
-        for k, v in tensors.items():
-            if k.startswith("model."):
-                stripped = k[6:]
-                state_dict[stripped] = v
+        with safe_open(sf, framework="pt") as f:
+            for k in f.keys():
+                if not any(k.startswith(p) for p in _NEEDED_PREFIXES):
+                    continue
+                stripped = k[len("model."):]
+                state_dict[stripped] = f.get_tensor(k)
                 if stripped.startswith("language_model.embed_tokens."):
-                    state_dict[stripped[len("language_model."):]] = v
+                    state_dict[stripped[len("language_model."):]] = state_dict[stripped]
 
     custom_model = Qwen3_5MoeModel(config)
-    result = custom_model.load_state_dict(state_dict, strict=False)
-    if result.missing_keys:
-        print(f"Info: {len(result.missing_keys)} missing keys (expected -- MoE text layers not in this model)")
-    if result.unexpected_keys:
-        print(f"Info: {len(result.unexpected_keys)} unexpected keys (expected -- MoE expert/attention weights)")
+    custom_model.load_state_dict(state_dict, strict=False)
     custom_model = custom_model.to(torch.bfloat16).eval()
     del state_dict
     return custom_model
