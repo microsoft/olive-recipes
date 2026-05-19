@@ -1,7 +1,5 @@
 from pathlib import Path
-import numpy as np
 import argparse
-import librosa
 import subprocess
 import json
 import sys
@@ -36,42 +34,23 @@ def register_execution_providers():
 
 
 def test_transcript(model_path, audio_path, num_beams=0, execution_provider="OpenVINO", device_type="NPU"):
-    print("Loading audio...")
-    if not Path(audio_path).exists():
-        raise FileNotFoundError(f"Audio file not found: {audio_path}")
-    
-    raw_speech, samplerate = librosa.load(audio_path, sr=16000)
-    input_speech = raw_speech.tolist()
-
     print("Loading model...")
     print(f"Model path: {model_path}")
-
     config = og.Config(model_path)
     config.set_provider_option(execution_provider, "device_type", device_type)
     model = og.Model(config)
-    processor = model.create_multimodal_processor()    
+    processor = model.create_multimodal_processor()
+
+    print("Loading audio...")
+    if not Path(audio_path).exists():
+        raise FileNotFoundError(f"Audio file not found: {audio_path}")
+    audios = og.Audios.open(audio_path)
+    
 
     print(f"Processing audio: {audio_path}")
     batch_size = 1
     decoder_prompt_tokens = ["<|startoftranscript|>", "<|en|>", "<|transcribe|>", "<|notimestamps|>"]
     prompts = ["".join(decoder_prompt_tokens)]
-
-    # librosa usually returns a 1-D array of np.float32 values by default on load() with normalized values [-1.0,1.0]
-    # input_speech is a list[float] now
-    samples = np.array(input_speech, dtype=np.float32)
-    # convert to 16-bit un-normalized PCM [-32768,32767]
-    samples = (samples * np.iinfo(np.int16).max).astype(np.int16)
-    import io
-    import wave
-    buffer = io.BytesIO()
-    with wave.open(buffer, 'wb') as wf:
-        wf.setnchannels(1) # 1 = mono, change to 2 for stereo
-        wf.setsampwidth(2) # 2 bytes per sample for int16
-        wf.setframerate(16000) # sample rate at which we loaded using librosa
-        wf.writeframes(samples.tobytes()) # write to buffer
-    buff_val = buffer.getvalue()
-    audios = og.Audios.open_bytes(buff_val)
-
     inputs = processor(prompts, audios=audios)
 
     print(f"Processing:")
@@ -99,7 +78,7 @@ def test_transcript(model_path, audio_path, num_beams=0, execution_provider="Ope
 
 def main():
     parser = argparse.ArgumentParser(description="Test Whisper ONNX GenAI models.")
-    parser.add_argument("--execution_provider", type=str, default="CPUExecutionProvider", help="OG Execution provider")
+    parser.add_argument("--execution_provider", type=str, default="CPUExecutionProvider", help="ORT Execution provider")
     parser.add_argument("--device_str", type=str, default="cpu")
     parser.add_argument("--output_file", type=str, required=True)
     parser.add_argument("--model_path", required=True, help="Path to Whisper ONNX GenAI model")
@@ -117,7 +96,7 @@ def main():
     register_execution_providers()
 
     num_beams = 1
-    latencies = test_transcript(model_path, test_audio_name, num_beams, args.execution_provider, args.device_str.upper())
+    latencies = test_transcript(model_path, test_audio_name, num_beams, "OpenVINO", args.device_str.upper())
 
     latency_avg = round(sum(latencies) / len(latencies) * 1000, 5)
     throughput_avg = round(1 / latency_avg * 1000, 5)
