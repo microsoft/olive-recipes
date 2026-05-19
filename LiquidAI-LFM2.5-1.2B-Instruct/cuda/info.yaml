@@ -8,5 +8,3 @@ recipes:
     file: LiquidAI-LFM2.5-1.2B-Instruct_cuda_int8.json
     devices: gpu
     eps: CUDAExecutionProvider
-    devices: gpu
-    eps: CUDAExecutionProvider
