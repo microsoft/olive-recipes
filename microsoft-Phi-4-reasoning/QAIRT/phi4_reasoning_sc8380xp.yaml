@@ -36,6 +36,7 @@ stages:
   genai_builder:
     native_kv: true
     weight_sharing: true
+    prepare_embedding_lut: false
     transform_options:
       arn: [32, 128]
       context_length: [512, 1024, 2048, 3072, 4096]

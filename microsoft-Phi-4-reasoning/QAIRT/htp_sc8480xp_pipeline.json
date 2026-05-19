@@ -7,7 +7,7 @@
         "qp": {
             "type": "QairtPipelinePass",
             "recipe": "phi4_reasoning_sc8480xp.yaml",
-            "cache_dir": "cache"
+            "cache_dir": "cache/qairt"
         },
         "qe": {
             "type": "QairtEncapsulation",
