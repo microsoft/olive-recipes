@@ -26,6 +26,10 @@ def main():
     output_dir: str = oliveJson["output_dir"]
     cache_dir: str = oliveJson["cache_dir"]
     config_pass = oliveJson["passes"]["aitkpython"]
+    weight_format = config_pass["weight_format"]
+    enable_npu_ws = config_pass["enable_npu_ws"]
+    
+    cache_dir += "_ov_npu" if enable_npu_ws else "_ov"
 
     # When we have model_config, we are in evaluation
     if args.model_config:
@@ -48,8 +52,8 @@ def main():
                     "--output_dir", output_dir,
                     "--cache_dir", cache_dir,
                     "--model", "openai/whisper-large-v3-turbo",
-                    "--weight-format", config_pass["weight_format"],
-                    "--enable_npu_ws", str(config_pass["enable_npu_ws"])],
+                    "--weight-format", weight_format,
+                    "--enable_npu_ws", str(enable_npu_ws)],
                    check=True)
 
 
