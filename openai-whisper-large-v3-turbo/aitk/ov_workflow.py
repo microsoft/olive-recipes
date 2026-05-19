@@ -35,16 +35,16 @@ def main():
     if args.model_config:
         model_path: str = os.path.dirname(args.model_config)
         execution_provider: str = oliveJson["systems"]["target_system"]["accelerators"][0]["execution_providers"][0]
+        device_str: str = oliveJson["systems"]["target_system"]["accelerators"][0]["device"]
+        output_file = os.path.join(os.path.dirname(args.config), "metrics.json")
 
         # Run evaluator
-        metrics = {
-            "latency-avg": 5.26205
-        }
-        output_file = os.path.join(os.path.dirname(args.config), "metrics.json")
-        resultStr = json.dumps(metrics, indent=4)
-        with open(output_file, 'w') as file:
-            file.write(resultStr)
-        logger.info("Model lab succeeded for evaluation.\n%s", resultStr)
+        subprocess.run([sys.executable, "ov_evaluate.py",
+                        "--execution_provider", execution_provider,
+                        "--device_str", device_str,
+                        "--output_file", output_file,
+                        "--model_path", model_path],
+                       check=True)
         return
 
     # Generate model

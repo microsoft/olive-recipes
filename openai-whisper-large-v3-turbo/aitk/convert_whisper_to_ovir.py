@@ -531,9 +531,7 @@ def main():
     # override the model ID
     default_json["input_model"]["model_path"] = hf_model_id
 
-    # get just the model name without the org
-    model_name = hf_model_id.split("/")[-1]
-    model_path = os.path.join(output_dir, model_name)
+    model_path = output_dir
 
     # override the input model path
     default_encapsulation_json["input_model"]["model_path"] = model_path
