@@ -27,9 +27,6 @@ def main():
     cache_dir: str = oliveJson["cache_dir"]
     config_pass = oliveJson["passes"]["aitkpython"]
 
-    # The cwd is model project folder
-    history_folder = os.path.dirname(args.config)
-
     # When we have model_config, we are in evaluation
     if args.model_config:
         model_path: str = os.path.dirname(args.model_config)
@@ -48,7 +45,11 @@ def main():
 
     # Generate model
     subprocess.run([sys.executable, "convert_whisper_to_ovir.py",
-                    "--enable_npu_ws", "True"],
+                    "--output_dir", output_dir,
+                    "--cache_dir", cache_dir,
+                    "--model", "openai/whisper-large-v3-turbo",
+                    "--weight-format", config_pass["weight_format"],
+                    "--enable_npu_ws", str(config_pass["enable_npu_ws"])],
                    check=True)
 
 

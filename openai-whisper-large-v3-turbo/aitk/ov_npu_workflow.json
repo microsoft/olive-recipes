@@ -7,9 +7,9 @@
             "type": "LocalSystem",
             "accelerators": [
                 {
-                    "device": "cpu",
+                    "device": "npu",
                     "execution_providers": [
-                        "CPUExecutionProvider"
+                        "OpenVINOExecutionProvider"
                     ]
                 }
             ]
@@ -22,8 +22,8 @@
     "passes": {
         "aitkpython": {
             "type": "AitkPython",
-            "weight_format": "fp16",
-            "enable_npu_ws": false,
+            "model_precision": "fp16",
+            "enable_npu_ws": true,
             "user_script": "ov_workflow.py"
         }
     },
@@ -31,6 +31,6 @@
     "evaluate_input_model": false,
     "target": "target_system",
     "clean_cache": false,
-    "output_dir": "model/whisper_ov",
+    "output_dir": "model/whisper_ov_npu",
     "cache_dir": "cache"
 }
