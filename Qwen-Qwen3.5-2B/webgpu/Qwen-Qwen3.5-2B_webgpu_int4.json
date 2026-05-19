@@ -23,16 +23,9 @@
             "precision": "int4",
             "int4_block_size": 32,
             "extra_options": {
-                "exclude_embeds": false
+                "exclude_embeds": false,
+                "shared_embeddings": true
             }
-        },
-        "q": {
-            "type": "GraphSurgeries",
-            "surgeries": [
-                {"surgeon": "QuantizeEmbeddingInt8"},
-                {"surgeon": "ShareEmbeddingLmHead"}
-            ],
-            "save_as_external_data": true
         }
     },
     "target": "local_system",
