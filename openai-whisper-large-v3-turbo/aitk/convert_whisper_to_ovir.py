@@ -557,7 +557,7 @@ def main():
 
     # run the encapsulation workflow
     print("\n[2/2] Running Whisper encapsulation workflow...")
-    run_encapsulation(default_encapsulation_json, model_path, w_config, enable_npu_ws, reshape)
+    run_encapsulation(default_encapsulation_json, model_path, w_config, enable_npu_ws, reshape, cache_dir)
 
     # JSON dump the audio preprocessor config into the output directory
     audio_processor_config_json = json.dumps(audio_processor_config_json, indent=4)
