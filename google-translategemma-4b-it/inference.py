@@ -10,7 +10,6 @@ import sys
 import io
 from pathlib import Path
 
-import numpy as np
 import onnxruntime_genai as og
 from transformers import AutoTokenizer
 

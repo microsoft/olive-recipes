@@ -114,7 +114,7 @@ def lp_to_lang_code(lp: str, hf_tok=None) -> str:
     return full_code
 
 
-def translate_batch(model, processor, stream, hf_tok, sources: list[str], target_lang: str, max_length: int) -> list[str]:
+def translate_batch(model, processor, hf_tok, sources: list[str], target_lang: str, max_length: int) -> list[str]:
     """Translate a list of source texts one at a time."""
     translations = []
     for src in sources:
@@ -170,8 +170,8 @@ def main():
     parser = argparse.ArgumentParser(description="WMT24++ benchmark for TranslateGemma ONNX model")
     parser.add_argument("--model-dir", default=str(SCRIPT_DIR / "builtin" / "cpu_and_mobile" / "models"),
                         help="Path to the ONNX model directory")
-    parser.add_argument("--hf-model-dir", default=str(SCRIPT_DIR / "model"),
-                        help="HF model path for tokenizer/chat template")
+    parser.add_argument("--hf-model-dir", default="google/translategemma-4b-it",
+                        help="HF model name or local path for tokenizer/chat template")
     parser.add_argument("--lang-pairs", nargs="+", default=DEFAULT_LANG_PAIRS,
                         help="Language pairs to evaluate (e.g. en-de_DE en-fr_FR), or 'all' for all 55")
     parser.add_argument("--max-segments", type=int, default=100,
@@ -209,7 +209,6 @@ def main():
     print("Loading ONNX model...")
     model = og.Model(args.model_dir)
     processor = model.create_multimodal_processor()
-    stream = processor.create_stream()
     hf_tok = AutoTokenizer.from_pretrained(args.hf_model_dir, trust_remote_code=True)
     print("Model loaded.\n")
 
@@ -252,7 +251,7 @@ def main():
 
         print(f"  Translating {len(sources)} segments...", flush=True)
         t0 = time.time()
-        hypotheses = translate_batch(model, processor, stream, hf_tok, sources, target_lang, args.max_length)
+        hypotheses = translate_batch(model, processor, hf_tok, sources, target_lang, args.max_length)
         elapsed = time.time() - t0
         seg_per_sec = len(sources) / elapsed if elapsed > 0 else 0
 
@@ -275,7 +274,6 @@ def main():
         all_hypotheses.extend(hypotheses)
         all_references.extend(references)
 
-    new_pairs = len(all_sources) // (args.max_segments or 1) if all_sources else 0
     total_pairs_done = len(results_per_lp)
     print(f"\nNew translations: {len(all_sources)} segments across {total_pairs_done - len(completed_lps)} new pairs")
     print(f"Total pairs:      {total_pairs_done} (including {len(completed_lps)} resumed)\n")

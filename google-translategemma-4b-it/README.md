@@ -30,9 +30,6 @@ cd builtin
 # INT4 RTN text decoder + FP32 vision/embedding (recommended, ~6.7 GB total)
 python optimize.py --config-dir cpu_and_mobile
 
-# AWQ INT4 text decoder + FP32 vision/embedding (~6.4 GB total)
-python optimize.py --config-dir cpu_and_mobile_awq
-
 # Full FP32 baseline (~19.2 GB total)
 python optimize.py --config-dir cpu_and_mobile_fp32
 ```
@@ -46,21 +43,17 @@ python inference.py --source-lang en --target-lang es --text "Hello, how are you
 # Image translation
 python inference.py --source-lang en --target-lang fr --image <image-path>
 
-# Use AWQ model
-python inference.py --model-dir builtin/cpu_and_mobile_awq/models --source-lang en --target-lang de --text "Good morning"
-
 # Use FP32 model
 python inference.py --model-dir builtin/cpu_and_mobile_fp32/models --source-lang en --target-lang ja --text "Good morning"
 ```
 
 ## Export Configurations
 
-Three export configurations are provided, all producing the same three-ONNX-model VLM layout:
+Two export configurations are provided, both producing the same three-ONNX-model VLM layout:
 
 | Config | Text Decoder | Embedding | Vision | Total Size |
 |---|---|---|---|---|
 | `cpu_and_mobile` | INT4 RTN (block 128) | FP32 | FP32 | ~6.7 GB |
-| `cpu_and_mobile_awq` | AWQ INT4 (block 128) | FP32 | FP32 | ~6.4 GB |
 | `cpu_and_mobile_fp32` | FP32 | FP32 | FP32 | ~19.2 GB |
 
 Each produces a `models/` directory containing:
@@ -121,8 +114,8 @@ python benchmark_wmt24pp.py --lang-pairs en-de_DE en-es_MX en-fr_FR --max-segmen
 # Full benchmark: all 55 pairs, stratified 150 segments each (~6h CPU)
 python benchmark_wmt24pp.py --lang-pairs all --max-segments 150 --seed 42
 
-# Compare AWQ vs RTN
-python benchmark_wmt24pp.py --model-dir builtin/cpu_and_mobile_awq/models --output awq_results.json
+# Compare FP32 vs INT4
+python benchmark_wmt24pp.py --model-dir builtin/cpu_and_mobile_fp32/models --output fp32_results.json
 ```
 
 Model card reported scores (4B, WMT24++ 55 langs):
@@ -132,17 +125,16 @@ Model card reported scores (4B, WMT24++ 55 langs):
 ## File Structure
 
 ```
-translategemma-4b-it/
-  data/                           # Test images
+google-translategemma-4b-it/
   builtin/
     optimize.py                   # Export orchestration (3 Olive pipelines + config assembly)
     user_script.py                # Vision/embedding wrapper modules for Olive export
-    cpu_and_mobile/               # INT4 RTN configs (text: google/translategemma-4b-it)
-    cpu_and_mobile_awq/           # AWQ configs (text: amd/TranslateGemma-4b-it-awq-quant-uint4-wo-128)
-    cpu_and_mobile_fp32/          # FP32 configs (text: google/translategemma-4b-it)
+    cpu_and_mobile/               # INT4 RTN configs
+    cpu_and_mobile_fp32/          # FP32 configs
   inference.py                    # Text and image translation inference
   benchmark_wmt24pp.py            # WMT24++ COMET evaluation
   README.md
+  LICENSE
 ```
 
 Models are downloaded automatically from Hugging Face during export. Ensure you have accepted the [Gemma license](https://huggingface.co/google/translategemma-4b-it) and are logged in via `huggingface-cli login`.
