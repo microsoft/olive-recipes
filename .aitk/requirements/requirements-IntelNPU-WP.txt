@@ -1,3 +1,4 @@
+nncf==3.0.0
 olive-ai @ git+https://github.com/microsoft/olive.git@6c1a86971c6b5a9df513410979dc67984c992397
 onnx==1.21.0
 onnx-ir==0.2.0

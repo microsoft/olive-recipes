@@ -47,6 +47,10 @@ def handle_arguments() -> argparse.Namespace:
     # setup argparse
     desc_txt = "Whisper model conversion to ONNX OpenVINO IR encapsulated model using Olive"
     parser = argparse.ArgumentParser(description=desc_txt)
+
+    parser.add_argument("--output_dir", required=True, type=str)
+    parser.add_argument("--cache_dir", required=True, type=str)
+
     parser.add_argument(
         '-m',
         "--model",
@@ -352,6 +356,12 @@ def run_encapsulation(encapsulation_config_json, output_directory: str, w_config
 
     if os.path.exists(cache_models_dir):
         for run_hash in os.listdir(cache_models_dir):
+            run_json_path = os.path.join(cache_models_dir, run_hash, "run.json")
+            if os.path.exists(run_json_path):
+                with open(run_json_path, 'r') as f:
+                    run_info = json.load(f)
+                if not run_info.get("pass_name", "").startswith("openvino"):
+                    continue
             models_subdir = os.path.join(cache_models_dir, run_hash, "models")
             if os.path.exists(models_subdir):
                 for item in os.listdir(models_subdir):
@@ -502,6 +512,9 @@ def main():
     # parse arguments
     args = handle_arguments()
 
+    output_dir = args.output_dir
+    cache_dir = args.cache_dir
+
     # capture all args locally
     hf_model_id = args.model
     weight_format = args.weight_format
@@ -520,14 +533,16 @@ def main():
 
     # get just the model name without the org
     model_name = hf_model_id.split("/")[-1]
-    model_path = f"model/{model_name}-{weight_format}-ov"
+    model_path = os.path.join(output_dir, model_name)
 
     # override the input model path
     default_encapsulation_json["input_model"]["model_path"] = model_path
 
-    # override the output dir
+    # override the output dir and cache dir
     default_json["output_dir"] = model_path
     default_encapsulation_json["output_dir"] = model_path
+    default_json["cache_dir"] = cache_dir
+    default_encapsulation_json["cache_dir"] = cache_dir
 
     # override the weight format in optimum convert pass ov_quant_config
     default_json["passes"]["optimum_convert"]["ov_quant_config"]["weight_format"] = weight_format
