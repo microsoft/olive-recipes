@@ -2,7 +2,7 @@
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$id": "config_schema.json",
     "title": "ModelParameter",
-    "description": "Model parameter configuration schema for olive-recipes AI Toolkit",
+    "description": "Model parameter configuration schema for Foundry Toolkit recipes",
     "type": "object",
     "required": ["name"],
     "additionalProperties": false,
@@ -16,8 +16,18 @@
             "description": "Name of the model parameter configuration"
         },
         "oliveFile": {
-            "type": "string",
-            "description": "Path to the olive json file. Relative to aitk folder, or prefixed with 'o:' for olive examples directory"
+            "description": "Path(s) to olive json file(s). A string is a single path (relative to aitk folder, or 'o:' prefix for olive examples). An object maps names to paths for multi-file workflows.",
+            "oneOf": [
+                {
+                    "type": "string"
+                },
+                {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
+                }
+            ]
         },
         "isLLM": {
             "type": "boolean",
@@ -113,6 +123,10 @@
                 "type": "string",
                 "description": "Minimum version string for this execution provider"
             }
+        },
+        "disableConversionGeneration": {
+            "type": "boolean",
+            "description": "When true, suppresses automatic generation of the Conversion section by sanitize.py"
         },
         "runtime": {
             "$ref": "#/$defs/Parameter",

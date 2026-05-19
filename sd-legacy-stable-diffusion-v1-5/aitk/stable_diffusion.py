@@ -5,7 +5,6 @@
 import argparse
 import json
 import shutil
-import sys
 import warnings
 from pathlib import Path
 
@@ -64,8 +63,7 @@ def run_inference_loop(
     while images_saved < num_images:
         print(f"\nInference Batch Start (batch size = {batch_size}).")
 
-        kwargs = {"strength": strength} if provider == "openvino" else {}
-
+        kwargs = {}
         result = pipeline(
             [prompt] * batch_size,
             num_inference_steps=num_inference_steps,
@@ -174,7 +172,7 @@ def run_inference_gui(
     window.mainloop()
 
 
-def update_config_with_provider(config: dict, provider: str, model_format: str, submodel_name: str):
+def update_config_with_provider(config: dict, provider: str, model_format: str, submodel_name: str, static_shape: bool):
     if provider == "cuda" and not model_format:
         from sd_utils.ort import update_cuda_config
 
@@ -182,7 +180,7 @@ def update_config_with_provider(config: dict, provider: str, model_format: str, 
     elif provider == "openvino":
         from sd_utils.ov import update_ov_config
 
-        return update_ov_config(config)
+        return update_ov_config(config, static_shape)
     elif provider in ("cpu", "cuda", "qnn") and model_format == "qdq":
         from sd_utils.qdq import update_qdq_config
 
@@ -199,6 +197,7 @@ def optimize(
     model_id = common_args.model_id
     provider = common_args.provider
     model_format = common_args.format
+    static_shape = common_args.static_shape
 
     script_dir = Path(common_args.script_dir)
 
@@ -220,9 +219,6 @@ def optimize(
     config.vae_sample_size = pipeline.vae.config.sample_size
     config.cross_attention_dim = pipeline.unet.config.cross_attention_dim
     config.unet_sample_size = pipeline.unet.config.sample_size
-    if model_format == "qdq":
-        config.vae_sample_size = common_args.image_size
-        # config.unet_sample_size = common_args.image_size // 8
 
     model_info = {}
 
@@ -243,7 +239,7 @@ def optimize(
         olive_config = None
         with (script_dir / f"config_{submodel_name}.json").open() as fin:
             olive_config = json.load(fin)
-        olive_config = update_config_with_provider(olive_config, provider, model_format, submodel_name)
+        olive_config = update_config_with_provider(olive_config, provider, model_format, submodel_name, static_shape)
 
         if submodel_name in ("unet", "text_encoder"):
             olive_config["input_model"]["model_path"] = model_id
@@ -272,7 +268,7 @@ def optimize(
     if provider == "openvino":
         from sd_utils.ov import save_ov_model_info
 
-        save_ov_model_info(model_info, optimized_model_dir)
+        save_ov_model_info(model_info, optimized_model_dir, pipeline)
     else:
         from sd_utils.ort import save_onnx_pipeline
 
@@ -338,6 +334,7 @@ def parse_common_args(raw_args):
     parser.add_argument(
         "--format", default=None, type=str, help="Currently only support qdq with provider cpu, cuda or qnn"
     )
+    parser.add_argument("--static_shape", action="store_true", help="Use static input shapes during optimization")
 
     return parser.parse_known_args(raw_args)
 
@@ -385,7 +382,7 @@ def main(raw_args=None):
     unoptimized_model_dir = script_dir / "model" / "unoptimized" / model_id
     optimized_model_dir = script_dir / "model" / "optimized" / model_id
 
-    if common_args.clean_cache:
+    if common_args.clean_cache and common_args.cache_dir:
         shutil.rmtree(common_args.cache_dir, ignore_errors=True)
 
     guidance_scale = common_args.guidance_scale

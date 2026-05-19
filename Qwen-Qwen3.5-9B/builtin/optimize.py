@@ -46,12 +46,17 @@ def update_genai_config(output_dir: str = MODELS_DIR, device: str = "cpu"):
         vision_provider_options = [
             {"cuda": {"enable_cuda_graph": "0", "enable_skip_layer_norm_strict_mode": "1"}}
         ]
+    elif device == "webgpu":
+        provider_options = [{"webgpu": {}}]
+        vision_provider_options = [{"webgpu": {}}]
     else:
         provider_options = []
         vision_provider_options = []
 
     session_options = {"log_id": "onnxruntime-genai", "provider_options": provider_options}
     vision_session_options = {"log_id": "onnxruntime-genai", "provider_options": vision_provider_options}
+
+    config["model"]["decoder"]["session_options"] = session_options
 
     config["model"]["embedding"] = {
         "filename": "embedding.onnx",
@@ -72,14 +77,12 @@ def update_genai_config(output_dir: str = MODELS_DIR, device: str = "cpu"):
     }
 
     config["model"]["bos_token_id"] = 248044
-    config["model"]["context_length"] = 4096
     config["model"]["eos_token_id"] = [248044]
     config["model"]["pad_token_id"] = 248044
     config["model"]["image_token_id"] = 248056
     config["model"]["video_token_id"] = 248057
     config["model"]["vision_start_token_id"] = 248053
 
-    config["search"]["max_length"] = 4096
     config["search"]["top_k"] = 1
     if config["search"].get("top_p") is None:
         config["search"]["top_p"] = 1.0
@@ -145,7 +148,7 @@ def fix_tokenizer(output_dir: str = MODELS_DIR):
 
 def main():
     parser = argparse.ArgumentParser(description="Optimize Qwen3.5 ONNX models")
-    parser.add_argument("--device", choices=["gpu", "cpu"], default="cpu")
+    parser.add_argument("--device", choices=["gpu", "cpu", "webgpu"], default="cpu")
     parser.add_argument("--config-dir", default="cpu_and_mobile")
     parser.add_argument("--skip-export", action="store_true")
     parser.add_argument("--models-dir", default=None)

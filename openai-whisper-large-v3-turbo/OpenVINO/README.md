@@ -14,6 +14,10 @@ This example demonstrates how to export and optimize OpenAI's Whisper Large V3 T
 Install the required packages:
 
 ```bash
+# For recent pip versions (supports direct URL syntax)
+python -m pip install "olive-ai[openvino] @ git+https://github.com/microsoft/olive.git@main"
+
+# For older pip versions (fallback format)
 python -m pip install "git+https://github.com/microsoft/olive.git@main#egg=olive-ai[openvino]"
 ```
 

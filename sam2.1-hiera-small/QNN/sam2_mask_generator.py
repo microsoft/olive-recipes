@@ -91,7 +91,7 @@ def main():
         "--box_x", type=int, default=40, help="Top-Left X coordinate of input box"
     )
     parser.add_argument(
-        "--box_y", type=int, default=235, help="To-Left Y coordinate of input box"
+        "--box_y", type=int, default=235, help="Top-Left Y coordinate of input box"
     )
     parser.add_argument("--box_w", type=int, default=940, help="Width of input box")
     parser.add_argument("--box_h", type=int, default=490, help="Height of input box")

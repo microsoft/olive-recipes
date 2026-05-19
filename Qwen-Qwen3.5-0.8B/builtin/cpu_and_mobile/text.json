@@ -9,8 +9,14 @@
             "precision": "int4",
             "int4_accuracy_level": 4,
             "extra_options": {
-                "filename": "text.onnx"
+                "filename": "text.onnx",
+                "quant_mode": "default",
+                "prune_lm_head": true
             }
+        },
+        "t": {
+            "type": "GraphSurgeries",
+            "surgeries": [{"surgeon": "TieWordEmbeddings"}]
         }
     },
     "no_artifacts": true,

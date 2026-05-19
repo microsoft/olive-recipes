@@ -47,6 +47,13 @@ if __name__ == "__main__":
     if "-v" in sys.argv or "--verbose" in sys.argv:
         GlobalVars.verbose = True
 
+    # When set, project_processor will fetch pipeline_tags from HuggingFace API
+    # and populate the pipeline_tags field for each model in model_list.json.
+    # Without this flag, existing pipeline_tags values are preserved from the
+    # current model_list.json.
+    if "--fill_pipeline_tags" in sys.argv:
+        GlobalVars.fillPipelineTags = True
+
     # Auto-format scripts before running sanitize
     if "--format_scripts" in sys.argv:
         auto_format_scripts()

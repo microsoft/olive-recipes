@@ -5,7 +5,16 @@ recipes:
   - file: "sd_qnn_workflow.json"
     device: npu
     ep: QNNExecutionProvider
+  - file: "sd_ov_workflow.json"
+    devices:
+      - gpu
+      - cpu
+    ep: OpenVINOExecutionProvider
+  - file: "sd_ov_npu_workflow.json"
+    devices:
+      - npu
+    ep: OpenVINOExecutionProvider
 aitk:
   modelInfo:
     id: "huggingface/stable-diffusion-v1-5/stable-diffusion-v1-5"
-    version: 1
+    version: 3

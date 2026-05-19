@@ -3,7 +3,7 @@
 When your project needs update, it means that
 
 - We have updated the olive json or inference sample that is not compatible with previous version
-- The config file version inside AITK is different from your project.
+- The config file version inside Foundry Toolkit is different from your project.
 
 ## What should you do
 
@@ -11,7 +11,7 @@ Basically you have 3 options
 
 - Replace your project with latest project automatically
 - Create a new project and migrate your changes into that project
-- Downgrade AITK to continue use previous version
+- Downgrade Foundry Toolkit to continue use previous version
 
 ### Replace your project with latest project automatically
 
@@ -23,7 +23,7 @@ This is recommended when you have changes. You could either migrate your changes
 
 The reverse direction is more complex but you may be still able to use olive cache.
 
-### Downgrade AITK to continue use previous version
+### Downgrade Foundry Toolkit to continue use previous version
 
 It is a workaround, but it will not allow you to use new recipes or new features.
 
@@ -35,6 +35,6 @@ The UX for showing the parameters may not working and in this case, you could ch
 
 ## About version
 
-When you see the version, you may notice that they are not continuous. This is caused by AITK release and recipe update are two different processes.
+When you see the version, you may notice that they are not continuous. This is caused by Foundry Toolkit release and recipe update are two different processes.
 
-The recipes could be updated multiple times between two AITK releases.
+The recipes could be updated multiple times between two Foundry Toolkit releases.

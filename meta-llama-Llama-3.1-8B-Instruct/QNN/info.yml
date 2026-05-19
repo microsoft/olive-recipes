@@ -1,8 +1,12 @@
 keywords:
     foundry-local
     qnn
-ep:
-    QNNExecutionProvider
-device:
-    npu
-name: llama3.1-8b-instruct
+recipes:
+    - name: llama3.1-8b-instruct-x-elite
+      file: x_elite_config.json
+      ep: QNNExecutionProvider
+      device: npu
+    - name: llama3.1-8b-instruct-x2-elite
+      file: x2_elite_config.json
+      ep: QNNExecutionProvider
+      device: npu

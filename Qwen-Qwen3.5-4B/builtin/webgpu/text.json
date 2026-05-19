@@ -1,0 +1,22 @@
+{
+    "input_model": {
+        "type": "HfModel",
+        "model_path": "Qwen/Qwen3.5-4B"
+    },
+    "passes": {
+        "m": {
+            "type": "ModelBuilder",
+            "precision": "int4",
+            "int4_accuracy_level": 4,
+            "int4_block_size": 32,
+            "int4_algo_config": "rtn",
+            "extra_options": {
+                "filename": "text.onnx",
+                "prune_lm_head": true,
+                "quant_mode": "int4"
+            }
+        }
+    },
+    "no_artifacts": true,
+    "output_dir": "webgpu/models/text.onnx"
+}

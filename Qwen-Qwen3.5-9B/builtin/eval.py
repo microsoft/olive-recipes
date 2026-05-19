@@ -175,14 +175,15 @@ def run_pytorch(
         }
     )
     text = pt_proc.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
-    image_inputs, video_inputs = process_vision_info(messages)
+    image_patch_size = int(getattr(pt_proc.image_processor, "patch_size", 16))
+    image_inputs, video_inputs = process_vision_info(messages, image_patch_size=image_patch_size)
     inputs = pt_proc(
         text=[text], images=image_inputs, videos=video_inputs,
         padding=True, return_tensors="pt",
     ).to(device)
 
     with torch.no_grad():
-        out = pt_model.generate(**inputs, max_new_tokens=8, do_sample=False)
+        out = pt_model.generate(**inputs, max_new_tokens=512, do_sample=False)
 
     out_ids = out[0][inputs["input_ids"].shape[-1]:]
     return pt_proc.decode(out_ids, skip_special_tokens=True)

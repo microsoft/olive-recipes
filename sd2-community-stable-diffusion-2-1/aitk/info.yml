@@ -1,0 +1,21 @@
+keywords:
+  aitk
+arch: sd
+recipes:
+  - file: "sd_qnn_workflow.json"
+    device: npu
+    ep: QNNExecutionProvider
+  - file: "sd_ov_workflow.json"
+    devices:
+      - gpu
+      - cpu
+    ep: OpenVINOExecutionProvider
+  - file: "sd_ov_npu_workflow.json"
+    devices:
+      - npu
+    ep: OpenVINOExecutionProvider
+aitk:
+  modelInfo:
+    id: "huggingface/sd2-community/stable-diffusion-2-1"
+    version: 2
+    status: Hide
