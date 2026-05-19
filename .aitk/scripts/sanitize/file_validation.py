@@ -163,6 +163,8 @@ def readCheckIpynb(ipynbFile: str, modelItems: dict[str, ModelParameter]):
 
         with open_ex(ipynbFile, "r") as file:
             ipynbContent: str = file.read()
+        if "winml.py" in ipynbContent:
+            printError(f"{ipynbFile} should not reference 'winml.py'. It is old code")
         allRuntimes: set[str] = set()
         for name, modelParameter in modelItems.items():
             if modelParameter.runtime == None:
