@@ -32,6 +32,8 @@ stages:
 
   quantization:
     recipe_name: lpbq_seqmse
+    lpbq:
+      exceptions_json: config/mixed_precision_config/exceptions.json
 
   genai_builder:
     native_kv: true
