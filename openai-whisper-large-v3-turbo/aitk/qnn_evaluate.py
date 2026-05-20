@@ -1,14 +1,13 @@
+import numpy as np
 import argparse
 import json
 import os
-import numpy as np
+import logging
 
 from qnn_app import HfWhisperAppWithSave, get_device_type
-import logging
 
 logger = logging.getLogger(os.path.basename(__file__))
 logging.basicConfig(level=logging.INFO)
-
 
 def main():
     parser = argparse.ArgumentParser(description="Evaluate Whisper")
@@ -85,7 +84,7 @@ def main():
     resultStr = json.dumps(metrics, indent=4)
     with open(args.output_file, 'w') as file:
         file.write(resultStr)
-    logger.info("Model lab succeeded for evaluation.\n", resultStr)
+    logger.info("Model lab succeeded for evaluation.\n%s", resultStr)
 
 
 if __name__ == "__main__":

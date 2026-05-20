@@ -5,12 +5,12 @@
 
 import argparse
 import os
-from qnn_app import HfWhisperAppWithSave, infer_audio, get_audio_name, get_device_type
 import logging
+
+from qnn_app import HfWhisperAppWithSave, infer_audio, get_audio_name, get_device_type
 
 logger = logging.getLogger(os.path.basename(__file__))
 logging.basicConfig(level=logging.INFO)
-
 
 def main():
     parser = argparse.ArgumentParser(description="Demo")

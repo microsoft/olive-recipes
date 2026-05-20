@@ -3,16 +3,20 @@
 # Licensed under the MIT License.
 # --------------------------------------------------------------------------
 
+import numpy as np
 import argparse
 import json
 import os
 import time
-from urllib import request
+import logging
 
-import numpy as np
+from urllib import request
 import onnxruntime as ort
 from PIL import Image
 from torchvision import transforms
+
+logger = logging.getLogger(os.path.basename(__file__))
+logging.basicConfig(level=logging.INFO)
 
 # Load processor
 sam2_transform = transforms.Compose(
@@ -133,7 +137,7 @@ def main():
     resultStr = json.dumps(metrics, indent=4)
     with open(args.output_file, 'w') as file:
         file.write(resultStr)
-    print("Model lab succeeded for evaluation.\n", resultStr)
+    logger.info("Model lab succeeded for evaluation.\n%s", resultStr)
 
 
 if __name__ == "__main__":
