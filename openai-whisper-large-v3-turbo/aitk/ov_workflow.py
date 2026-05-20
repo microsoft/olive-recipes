@@ -53,7 +53,8 @@ def main():
                     "--cache_dir", cache_dir,
                     "--model", "openai/whisper-large-v3-turbo",
                     "--weight-format", weight_format,
-                    "--enable_npu_ws", str(enable_npu_ws)],
+                    "--enable_npu_ws", str(enable_npu_ws),
+                    "--device", oliveJson["systems"]["target_system"]["accelerators"][0]["device"]],
                    check=True)
 
 

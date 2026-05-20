@@ -84,6 +84,11 @@ def handle_arguments() -> argparse.Namespace:
              "provider options to genai_config.json. "
              "Can be used as a flag (--reshape) or with a value (--reshape True). Default: False"
     )
+    parser.add_argument(
+        "--device",
+        type=str,
+        default="npu",
+    )
 
     # parse args
     args = parser.parse_args()
@@ -143,7 +148,7 @@ def reshape_and_save_to_tmp(input_ov_path: str, reshape_dict: dict, tmp_ov_path:
         ov.serialize(ov_model, tmp_ov_path)
 
 
-def update_genai_overrides(encapsulate_json, w_config: WhisperConfig, enable_npu_ws: bool, reshape: bool, output_directory: str):
+def update_genai_overrides(encapsulate_json, w_config: WhisperConfig, enable_npu_ws: bool, reshape: bool, output_directory: str, device: str = "npu"):
     """
     Update genai_config overrides based on NPU_WS and reshape flags.
 
@@ -165,39 +170,42 @@ def update_genai_overrides(encapsulate_json, w_config: WhisperConfig, enable_npu
     # Whisper models.
     max_length = w_config.max_target_positions
 
-    if enable_npu_ws:
-        print("  [OK] Enabling NPU Weight Sharing between prefill & generate models")
-        decoder_load_config = {
-            "NPU": {
-                "MAX_PROMPT_LEN": max_prompt_len,
-                "MIN_RESPONSE_LEN": max_length - max_prompt_len,
-                "NPUW_FUNCALL_FOR_ALL": "YES",
-                "NPUW_FOLD": "YES",
-                "NPUW_WHISPER": "YES",
-                "NPUW_WEIGHTS_BANK": "whisper-shared",
-                "NPUW_LLM_PREFILL_HINT": "STATIC",
-                "NPUW_ONLINE_PIPELINE": "NONE"
+    if device == "npu":
+        if enable_npu_ws:
+            print("  [OK] Enabling NPU Weight Sharing between prefill & generate models")
+            decoder_load_config = {
+                "NPU": {
+                    "MAX_PROMPT_LEN": max_prompt_len,
+                    "MIN_RESPONSE_LEN": max_length - max_prompt_len,
+                    "NPUW_FUNCALL_FOR_ALL": "YES",
+                    "NPUW_FOLD": "YES",
+                    "NPUW_WHISPER": "YES",
+                    "NPUW_WEIGHTS_BANK": "whisper-shared",
+                    "NPUW_LLM_PREFILL_HINT": "STATIC",
+                    "NPUW_ONLINE_PIPELINE": "NONE"
+                }
             }
-        }
+        else:
+            decoder_load_config = {
+                "NPU": {
+                    "MAX_PROMPT_LEN": max_prompt_len,
+                    "MIN_RESPONSE_LEN": max_length - max_prompt_len,
+                    "NPUW_FUNCALL_FOR_ALL": "NO",
+                    "NPUW_FOLD": "NO",
+                    "NPUW_WHISPER": "YES",
+                    "NPUW_LLM_PREFILL_HINT": "STATIC",
+                    "NPUW_ONLINE_PIPELINE": "NONE"
+                }
+            }
     else:
-        decoder_load_config = {
-            "NPU": {
-                "MAX_PROMPT_LEN": max_prompt_len,
-                "MIN_RESPONSE_LEN": max_length - max_prompt_len,
-                "NPUW_FUNCALL_FOR_ALL": "NO",
-                "NPUW_FOLD": "NO",
-                "NPUW_WHISPER": "YES",
-                "NPUW_LLM_PREFILL_HINT": "STATIC",
-                "NPUW_ONLINE_PIPELINE": "NONE"
-            }
-        }
+        decoder_load_config = {}
 
     # Only stringify the load_config value, not the whole provider_options
     decoder_load_config_str = json.dumps(decoder_load_config, separators=(',', ':'))
 
     provider_options_encoder = {
         "OpenVINO": {
-            "device_type": "NPU"
+            "device_type": device.upper()
         }
     }
 
@@ -238,7 +246,7 @@ def update_genai_overrides(encapsulate_json, w_config: WhisperConfig, enable_npu
     # Build decoder provider_options as proper JSON object (only load_config is a string)
     provider_options_decoder = {
         "OpenVINO": {
-            "device_type": "NPU",
+            "device_type": device.upper(),
             "enable_causallm": "True",
             "load_config": decoder_load_config_str
         }
@@ -338,7 +346,7 @@ def post_process_genai_config(genai_config_path: str, provider_options_encoder: 
         json.dump(genai_config, f, indent=4)
 
 
-def run_encapsulation(encapsulation_config_json, output_directory: str, w_config: WhisperConfig, enable_npu_ws: bool, reshape: bool, cache_dir: str = "cache"):
+def run_encapsulation(encapsulation_config_json, output_directory: str, w_config: WhisperConfig, enable_npu_ws: bool, reshape: bool, cache_dir: str = "cache", device: str = "npu"):
     """
     Run Olive encapsulation workflow for Whisper models.
 
@@ -424,7 +432,7 @@ def run_encapsulation(encapsulation_config_json, output_directory: str, w_config
             raise FileNotFoundError(f"Could not find {model_name}.xml in output directory")
 
     # Update genai overrides based on NPU_WS and reshape flags
-    provider_options_encoder = update_genai_overrides(encapsulation_config_json, w_config, enable_npu_ws, reshape, ".")
+    provider_options_encoder = update_genai_overrides(encapsulation_config_json, w_config, enable_npu_ws, reshape, ".", device=device)
 
     # Store absolute path to output directory for genai_config post-processing
     output_dir_abs = os.path.abspath(".")
@@ -556,7 +564,7 @@ def main():
 
     # run the encapsulation workflow
     print("\n[2/2] Running Whisper encapsulation workflow...")
-    run_encapsulation(default_encapsulation_json, model_path, w_config, enable_npu_ws, reshape, cache_dir)
+    run_encapsulation(default_encapsulation_json, model_path, w_config, enable_npu_ws, reshape, cache_dir, device=args.device)
 
     # JSON dump the audio preprocessor config into the output directory
     audio_processor_config_json = json.dumps(audio_processor_config_json, indent=4)
