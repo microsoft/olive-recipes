@@ -32,12 +32,14 @@ stages:
 
   quantization:
     recipe_name: lpbq_seqmse
-    lpbq:
-      exceptions_json: config/mixed_precision_config/exceptions.json
+    technique_kwargs:
+      lpbq:
+        exceptions_json: /home/jovyan/olive-recipes/olive-recipes/microsoft-Phi-4-reasoning/QAIRT/config/mixed_precision_config/exceptions.json
 
   genai_builder:
     native_kv: true
     weight_sharing: true
+    multi_graph: false
     prepare_embedding_lut: false
     transform_options:
       arn: [32, 128]
