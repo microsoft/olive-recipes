@@ -1,7 +1,7 @@
-import json
+# https://learn.microsoft.com/en-us/windows/ai/new-windows-ml/initialize-execution-providers?tabs=python#production-app-example
 
 
-def register_execution_providers():
+def _get_ep_paths() -> dict[str, str]:
     import ctypes
     import importlib.util
     from pathlib import Path
@@ -16,23 +16,15 @@ def register_execution_providers():
     # Load the onnxruntime DLL because "C:\Windows\System32\onnxruntime.dll" may be exist and loaded first
     ctypes.WinDLL(str(ort_dll_path))
 
-    import subprocess
-    import sys
+    # remove the msvcp140.dll from the winrt-runtime package.
+    # So it does not cause issues with other libraries.
+    from importlib import metadata
 
-    import onnxruntime_genai as og
+    site_packages_path = Path(str(metadata.distribution("winrt-runtime").locate_file("")))
+    dll_path = site_packages_path / "winrt" / "msvcp140.dll"
+    if dll_path.exists():
+        dll_path.unlink()
 
-    worker_script = __file__
-    result = subprocess.check_output([sys.executable, worker_script], text=True)
-    paths = json.loads(result)
-    for item in paths.items():
-        try:
-            og.register_execution_provider_library(item[0], item[1])  # pyright: ignore[reportAttributeAccessIssue]
-            print(f"Successfully registered execution provider {item[0]} from {item[1]}")
-        except Exception as e:
-            print(f"Failed to register execution provider {item[0]} from {item[1]}: {e}")
-
-
-def _get_ep_paths() -> dict[str, str]:
     import winui3.microsoft.windows.ai.machinelearning as winml
     from winui3.microsoft.windows.applicationmodel.dynamicdependency.bootstrap import InitializeOptions, initialize
 
@@ -44,9 +36,21 @@ def _get_ep_paths() -> dict[str, str]:
             result = provider.ensure_ready_async().get()
             if result.status == winml.ExecutionProviderReadyResultState.SUCCESS:
                 eps[provider.name] = provider.library_path
+            else:
+                print(
+                    f"Execution provider '{provider.name}' is unavailable. Status: {result.status}; reason: {result.diagnostic_text}; error code: {result.extended_error.value}"
+                )
     return eps
 
 
-if __name__ == "__main__":
-    eps = _get_ep_paths()
-    print(json.dumps(eps))
+def register_execution_providers():
+    paths = _get_ep_paths()
+
+    import onnxruntime_genai as og
+
+    for item in paths.items():
+        try:
+            og.register_execution_provider_library(item[0], item[1])  # pyright: ignore[reportAttributeAccessIssue]
+            print(f"Successfully registered execution provider {item[0]} from {item[1]}")
+        except Exception as e:
+            print(f"Failed to register execution provider {item[0]} from {item[1]}: {e}")
