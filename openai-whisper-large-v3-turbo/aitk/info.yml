@@ -7,8 +7,8 @@ recipes:
     ep: QNNExecutionProvider
   - file: "ov_workflow.json"
     devices:
-    - gpu
-    - cpu
+      - gpu
+      - cpu
     ep: OpenVINOExecutionProvider
   - file: "ov_npu_workflow.json"
     devices:

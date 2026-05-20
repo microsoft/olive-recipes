@@ -91,7 +91,8 @@ def main():
 
     import requests
     r = requests.get(test_audio_url)
-    open(test_audio_name, "wb").write(r.content)
+    with open(test_audio_name, "wb") as audio_file:
+         audio_file.write(r.content)
 
     register_execution_providers()
 

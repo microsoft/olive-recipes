@@ -3,7 +3,6 @@
 # Licensed under the MIT License.
 # --------------------------------------------------------------------------
 import os
-import sys
 import shutil
 import argparse
 import json
