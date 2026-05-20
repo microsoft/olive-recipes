@@ -2,8 +2,8 @@ nncf==3.0.0
 olive-ai==0.12.1
 onnx==1.21.0
 onnx-ir==0.2.0
-onnxruntime-genai==0.12.2
 onnxruntime==1.24.1
+onnxruntime-genai==0.12.2
 onnxscript==0.6.2
 opentelemetry-api==1.42.0
 opentelemetry-sdk==1.42.0
