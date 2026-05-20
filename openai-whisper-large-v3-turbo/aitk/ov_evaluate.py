@@ -11,24 +11,19 @@ logger = logging.getLogger(os.path.basename(__file__))
 logging.basicConfig(level=logging.INFO)
 
 def test_transcript(model_path, audio_path, num_beams=0, execution_provider="OpenVINO", device_type="NPU"):
-    print("Loading model...")
-    print(f"Model path: {model_path}")
     config = og.Config(model_path)
     config.set_provider_option(execution_provider, "device_type", device_type)
     model = og.Model(config)
     processor = model.create_multimodal_processor()
 
-    print("Loading audio...")
     if not Path(audio_path).exists():
         raise FileNotFoundError(f"Audio file not found: {audio_path}")
     audios = og.Audios.open(audio_path)
 
-    print(f"Processing audio: {audio_path}")
     batch_size = 1
     decoder_prompt_tokens = ["<|startoftranscript|>", "<|en|>", "<|transcribe|>", "<|notimestamps|>"]
     prompts = ["".join(decoder_prompt_tokens)]
 
-    print(f"Processing:")
     params = og.GeneratorParams(model)
     params.set_search_options(
         do_sample=False,
