@@ -1,5 +1,5 @@
 # AMD model generation
---extra-index-url=https://pypi.amd.com/simple
+--extra-index-url=https://pypi.amd.com/ryzenai_llm/1.7.1/windows/simple
 
 accelerate
 datasets

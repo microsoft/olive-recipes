@@ -17,7 +17,7 @@ This folder contains sample Olive configurations to optimize **Stable Diffusion 
 #### Create a conda environment and install Olive
 
 ```bash
-conda create -n olive python=3.12
+conda create -n olive python=3.12,pip
 conda activate olive
 ```
 
