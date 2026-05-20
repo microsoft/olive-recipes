@@ -77,8 +77,8 @@ def main():
     decoder_path = args.decoder
 
     if args.execution_provider != "CPUExecutionProvider":
-        from winml import register_execution_providers
-        register_execution_providers()
+        from winml import register_execution_providers_to_onnxruntime
+        register_execution_providers_to_onnxruntime()
     app = HfWhisperAppWithSave(encoder_path, decoder_path, args.model_id, args.execution_provider, get_device_type(args.device_str))
 
     if not os.path.exists(args.audio_path) or os.path.isdir(args.audio_path):

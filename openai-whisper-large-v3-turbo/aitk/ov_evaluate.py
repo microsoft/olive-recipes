@@ -1,36 +1,8 @@
 from pathlib import Path
 import argparse
-import subprocess
 import json
-import sys
-import os
 import time
 import onnxruntime_genai as og
-
-def register_execution_providers():
-    import ctypes
-    import importlib.util
-    from pathlib import Path
-
-    # Locate onnxruntime package path without importing it first
-    ort_spec = importlib.util.find_spec("onnxruntime")
-    assert ort_spec is not None and ort_spec.origin is not None
-    ort_package_path = Path(ort_spec.origin).parent
-    ort_capi_dir = ort_package_path / "capi"
-    ort_dll_path = ort_capi_dir / "onnxruntime.dll"
-
-    # Load the onnxruntime DLL because "C:\Windows\System32\onnxruntime.dll" may be exist and loaded first
-    ctypes.WinDLL(str(ort_dll_path))
-
-    worker_script = os.path.abspath('winml.py')
-    result = subprocess.check_output([sys.executable, worker_script], text=True)
-    paths = json.loads(result)
-    for item in paths.items():
-        try:
-            og.register_execution_provider_library(item[0], item[1])  # pyright: ignore[reportAttributeAccessIssue]
-            print(f"Successfully registered execution provider {item[0]} from {item[1]}")
-        except Exception as e:
-            print(f"Failed to register execution provider {item[0]} from {item[1]}: {e}")
 
 
 def test_transcript(model_path, audio_path, num_beams=0, execution_provider="OpenVINO", device_type="NPU"):
@@ -94,7 +66,8 @@ def main():
     with open(test_audio_name, "wb") as audio_file:
          audio_file.write(r.content)
 
-    register_execution_providers()
+    from winml import register_execution_providers_to_onnxruntime_genai
+    register_execution_providers_to_onnxruntime_genai()
 
     num_beams = 1
     latencies = test_transcript(model_path, test_audio_name, num_beams, "OpenVINO", args.device_str.upper())
