@@ -85,7 +85,7 @@ def main():
     resultStr = json.dumps(metrics, indent=4)
     with open(args.output_file, 'w') as file:
         file.write(resultStr)
-    logger.info("Model lab succeeded for evaluation.\n%s", resultStr)
+    logger.info("Model lab succeeded for evaluation.\n", resultStr)
 
 
 if __name__ == "__main__":
