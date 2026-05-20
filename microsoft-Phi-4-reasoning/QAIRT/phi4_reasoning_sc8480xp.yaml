@@ -34,7 +34,7 @@ stages:
     recipe_name: lpbq_seqmse
     technique_kwargs:
       lpbq:
-        exceptions_json: /home/jovyan/olive-recipes/olive-recipes/microsoft-Phi-4-reasoning/QAIRT/config/mixed_precision_config/exceptions.json
+        exceptions_json: config/mixed_precision_config/exceptions.json
 
   genai_builder:
     native_kv: true
