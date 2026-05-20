@@ -28,7 +28,7 @@ def main():
     config_pass = oliveJson["passes"]["aitkpython"]
     weight_format = config_pass["weight_format"]
     enable_npu_ws = config_pass["enable_npu_ws"]
-    
+
     cache_dir += "_ov_npu" if enable_npu_ws else "_ov"
 
     # When we have model_config, we are in evaluation

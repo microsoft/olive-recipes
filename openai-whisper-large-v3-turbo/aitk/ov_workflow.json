@@ -7,9 +7,9 @@
             "type": "LocalSystem",
             "accelerators": [
                 {
-                    "device": "cpu",
+                    "device": "gpu",
                     "execution_providers": [
-                        "CPUExecutionProvider"
+                        "OpenVINOExecutionProvider"
                     ]
                 }
             ]

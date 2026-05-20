@@ -44,7 +44,7 @@ def test_transcript(model_path, audio_path, num_beams=0, execution_provider="Ope
     print("Loading audio...")
     if not Path(audio_path).exists():
         raise FileNotFoundError(f"Audio file not found: {audio_path}")
-    
+
     print(f"Processing audio: {audio_path}")
     batch_size = 1
     decoder_prompt_tokens = ["<|startoftranscript|>", "<|en|>", "<|transcribe|>", "<|notimestamps|>"]
