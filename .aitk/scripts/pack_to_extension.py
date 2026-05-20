@@ -8,8 +8,8 @@ import sys
 import zipfile
 from pathlib import Path
 
-templateFile = "resources/template.zip"
-templateFileOrigin = "resources/template_origin.zip"
+templateFile = "ai-mlstudio/resources/template.zip"
+templateFileOrigin = "ai-mlstudio/resources/template_origin.zip"
 
 
 def zipTemplate(input_folder, output):

@@ -42,10 +42,13 @@ def requirements_check():
     req_is_subset(Profiling_lines, WCR_lines)
     # Add onnx lib etc. for op-level profiling
     req_is_subset(WCR_INIT_lines, Profiling_lines)
-    WCR_CUDA_lines = get_lines_from_file(requirements_folder / "requirements-WCR_CUDA.txt")
+    # Others
+    # TODO may be removed in future
+    General_CPU_lines = get_lines_from_file(requirements_folder / "General" / "CPU_py3.12.9.txt")
+    General_CUDA_lines = get_lines_from_file(requirements_folder / "General" / "CUDA_py3.12.9.txt")
     req_is_subset(
-        WCR_CUDA_lines,
-        WCR_lines,
+        General_CUDA_lines,
+        General_CPU_lines,
         additional={
             "--extra-index-url https://download.pytorch.org/whl/cu128",
             "# torch==2.7.0+cu128",
@@ -54,11 +57,10 @@ def requirements_check():
             "torchvision==0.22.0+cu128",
         },
     )
-    # Others
     nvidia_autogptq = get_lines_from_file(requirements_folder / "requirements-NvidiaGPU-AutoGptq.txt")
-    wcr_cuda_autogptq = get_lines_from_file(requirements_folder / "requirements-WCR_CUDA-AutoGptq.txt")
-    req_is_subset(nvidia_autogptq, wcr_cuda_autogptq)
-    req_is_subset(wcr_cuda_autogptq, nvidia_autogptq)
+    general_cuda_autogptq = get_lines_from_file(requirements_folder / "General" / "CUDA_py3.12.9-AutoGptq.txt")
+    req_is_subset(nvidia_autogptq, general_cuda_autogptq)
+    req_is_subset(general_cuda_autogptq, nvidia_autogptq)
 
 if __name__ == "__main__":
     requirements_check()

@@ -1,8 +1,7 @@
 keywords:
     QNN
-ep:
-    QNNExecutionProvider
-device:
-    npu
 name: adetailer
-recipes: face_yolo_qnn.json
+recipes:
+    - name: face_yolo_qnn.json
+      ep: QNNExecutionProvider
+      device: npu
