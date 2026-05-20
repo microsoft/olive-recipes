@@ -23,9 +23,17 @@
             "precision": "int4",
             "int4_block_size": 32,
             "extra_options": {
-                "exclude_embeds": false,
-                "shared_embeddings": true
+                "exclude_embeds": false
             }
+        },
+        "q": {
+            "type": "GraphSurgeries",
+            "surgeries": [
+                {"surgeon": "QuantizeEmbeddingInt8"},
+                {"surgeon": "ShareEmbeddingLmHead"}
+            ],
+            "save_as_external_data": true,
+            "all_tensors_to_one_file": true
         }
     },
     "evaluators": {
