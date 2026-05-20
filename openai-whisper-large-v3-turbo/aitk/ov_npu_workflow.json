@@ -22,7 +22,7 @@
     "passes": {
         "aitkpython": {
             "type": "AitkPython",
-            "model_precision": "fp16",
+            "weight_format": "fp16",
             "enable_npu_ws": true,
             "user_script": "ov_workflow.py"
         }

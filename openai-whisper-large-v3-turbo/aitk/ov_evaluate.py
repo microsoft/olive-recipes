@@ -44,14 +44,11 @@ def test_transcript(model_path, audio_path, num_beams=0, execution_provider="Ope
     print("Loading audio...")
     if not Path(audio_path).exists():
         raise FileNotFoundError(f"Audio file not found: {audio_path}")
-    audios = og.Audios.open(audio_path)
     
-
     print(f"Processing audio: {audio_path}")
     batch_size = 1
     decoder_prompt_tokens = ["<|startoftranscript|>", "<|en|>", "<|transcribe|>", "<|notimestamps|>"]
     prompts = ["".join(decoder_prompt_tokens)]
-    inputs = processor(prompts, audios=audios)
 
     print(f"Processing:")
     params = og.GeneratorParams(model)
@@ -66,6 +63,9 @@ def test_transcript(model_path, audio_path, num_beams=0, execution_provider="Ope
     latencies = []
 
     for _ in range(20):
+        audios = og.Audios.open(audio_path)
+        inputs = processor(prompts, audios=audios)
+
         generator = og.Generator(model, params)
         generator.set_inputs(inputs)
 
