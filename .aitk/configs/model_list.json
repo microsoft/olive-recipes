@@ -612,12 +612,15 @@
             "modelLink": "https://huggingface.co/openai/whisper-large-v3-turbo",
             "id": "huggingface/openai/whisper-large-v3-turbo",
             "runtimes": [
-                "QNN"
+                "QNN",
+                "IntelCPU",
+                "IntelGPU",
+                "IntelNPU"
             ],
             "architecture": "Transformer",
             "status": "Ready",
             "relativePath": "openai-whisper-large-v3-turbo/aitk",
-            "version": 2,
+            "version": 3,
             "pipeline_tags": [
                 "automatic-speech-recognition"
             ]

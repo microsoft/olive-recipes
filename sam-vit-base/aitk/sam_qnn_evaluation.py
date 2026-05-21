@@ -8,10 +8,15 @@ import argparse
 import json
 import os
 import time
+import logging
+
 from urllib import request
 from PIL import Image
 import onnxruntime as ort
 from transformers import SamProcessor
+
+logger = logging.getLogger(os.path.basename(__file__))
+logging.basicConfig(level=logging.INFO)
 
 # Load processor
 processor = SamProcessor.from_pretrained("facebook/sam-vit-base")
@@ -110,7 +115,7 @@ def main():
     resultStr = json.dumps(metrics, indent=4)
     with open(args.output_file, 'w') as file:
         file.write(resultStr)
-    print("Model lab succeeded for evaluation.\n%s", resultStr)
+    logger.info("Model lab succeeded for evaluation.\n%s", resultStr)
 
 
 if __name__ == "__main__":
