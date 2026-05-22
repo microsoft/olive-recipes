@@ -1,8 +1,7 @@
 {
-    "input_model": { "type": "HfModel", "model_path": "google/gemma-4-E2B-it", "task": "text-generation" },
+    "input_model": { "type": "HfModel", "model_path": "google/gemma-4-E2B-it" },
     "passes": {
         "mobius_build": { "type": "MobiusBuilder", "precision": "fp32" }
     },
-    "output_dir": "cpu/models",
-    "log_severity_level": 1
+    "output_dir": "cpu/fp32/models"
 }

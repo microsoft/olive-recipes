@@ -1,5 +1,5 @@
 {
-    "input_model": { "type": "HfModel", "model_path": "google/gemma-4-E2B-it", "task": "text-generation" },
+    "input_model": { "type": "HfModel", "model_path": "google/gemma-4-E2B-it" },
     "passes": {
         "mobius_build": { "type": "MobiusBuilder", "precision": "fp16" },
         "int4_quantize": {
@@ -13,6 +13,5 @@
         "type": "LocalSystem",
         "accelerators": [{ "device": "gpu", "execution_providers": ["CUDAExecutionProvider"] }]
     },
-    "output_dir": "cuda/int4/models",
-    "log_severity_level": 1
+    "output_dir": "cuda/int4/models"
 }
