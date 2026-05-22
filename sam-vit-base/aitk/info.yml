@@ -9,4 +9,3 @@ aitk:
   modelInfo:
     id: "huggingface/facebook/sam-vit-base"
     version: 2
-    status: Hide
