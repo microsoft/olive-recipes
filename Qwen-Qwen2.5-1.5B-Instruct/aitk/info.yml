@@ -12,7 +12,7 @@ recipes:
       ep: VitisAIExecutionProvider
       aitk:
         oliveFile: "VitisAI/Qwen2.5-1.5B-Instruct_quark_vitisai_llm.json"
-        requirements: AMD/Quark_py3.10.17
+        requirements: AMD/Quark_py3.12.13
         evalRuntime: AMDNPU
     - file: "qwen2_5_ov_gpu_config.json"
       devices:
@@ -41,7 +41,7 @@ recipes:
 aitk:
     modelInfo:
         id: "huggingface/Qwen/Qwen2.5-1.5B-Instruct"
-        version: 7
+        version: 8
         groupId: "huggingface/Qwen/Qwen2.5-1.5B-Instruct"
         groupItemName: "1.5B"
         p0: true
