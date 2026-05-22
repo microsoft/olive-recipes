@@ -8,10 +8,15 @@ import argparse
 import json
 import os
 import time
+import logging
+
 from urllib import request
 from PIL import Image
 import onnxruntime as ort
 from transformers import SamProcessor
+
+logger = logging.getLogger(os.path.basename(__file__))
+logging.basicConfig(level=logging.INFO)
 
 # Load processor
 processor = SamProcessor.from_pretrained("facebook/sam-vit-base")
@@ -24,18 +29,6 @@ def add_ep_for_device(session_options, ep_name, device_type, ep_options=None):
             session_options.add_provider_for_devices([ep_device], {} if ep_options is None else ep_options)
             break
 
-def register_execution_providers():
-    import subprocess
-    import sys
-
-    worker_script = os.path.abspath('winml.py')
-    result = subprocess.check_output([sys.executable, worker_script], text=True)
-    paths = json.loads(result)
-    for item in paths.items():
-        try:
-            ort.register_execution_provider_library(item[0], item[1])
-        except Exception as e:
-            print(f"Failed to register execution provider {item[0]}: {e}")
 
 def test_mask_ort(sess_ve, sess_md, image, ve_dtype, md_dtype, sess_ve_inputs, sess_md_inputs):
     w, h = image.size
@@ -75,6 +68,7 @@ def main():
     args = parser.parse_args()
 
     # Loading models into ORT session
+    from winml import register_execution_providers
     register_execution_providers()
     sess_options = ort.SessionOptions()
 
@@ -121,7 +115,7 @@ def main():
     resultStr = json.dumps(metrics, indent=4)
     with open(args.output_file, 'w') as file:
         file.write(resultStr)
-    print("Model lab succeeded for evaluation.\n%s", resultStr)
+    logger.info("Model lab succeeded for evaluation.\n%s", resultStr)
 
 
 if __name__ == "__main__":

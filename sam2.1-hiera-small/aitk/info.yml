@@ -8,5 +8,5 @@ recipes:
 aitk:
   modelInfo:
     id: "huggingface/facebook/sam2.1-hiera-small"
-    version: 1
+    version: 2
     status: Hide
