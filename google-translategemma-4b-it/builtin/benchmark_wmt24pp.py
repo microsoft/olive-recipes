@@ -168,7 +168,7 @@ def score_comet(sources, hypotheses, references, comet_model_name):
 
 def main():
     parser = argparse.ArgumentParser(description="WMT24++ benchmark for TranslateGemma ONNX model")
-    parser.add_argument("--model-dir", default=str(SCRIPT_DIR / "builtin" / "cpu_and_mobile" / "models"),
+    parser.add_argument("--model-dir", default=str(SCRIPT_DIR / "cpu_and_mobile" / "models"),
                         help="Path to the ONNX model directory")
     parser.add_argument("--hf-model-dir", default="google/translategemma-4b-it",
                         help="HF model name or local path for tokenizer/chat template")

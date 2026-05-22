@@ -18,7 +18,7 @@ sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="repla
 SCRIPT_DIR = Path(__file__).resolve().parent
 
 parser = argparse.ArgumentParser(description="Run TranslateGemma-4B-IT inference (text or image translation)")
-parser.add_argument("--model-dir", default=str(SCRIPT_DIR / "builtin" / "cpu_and_mobile" / "models"),
+parser.add_argument("--model-dir", default=str(SCRIPT_DIR / "cpu_and_mobile" / "models"),
                     help="Path to the ONNX model directory containing genai_config.json")
 parser.add_argument("--hf-model-dir", default="google/translategemma-4b-it",
                     help="HF model name or local path for tokenizer/chat template")

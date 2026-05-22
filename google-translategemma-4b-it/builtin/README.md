@@ -22,11 +22,7 @@ huggingface-cli login
 
 ### 2. Export to ONNX
 
-From the `builtin/` directory:
-
 ```bash
-cd builtin
-
 # INT4 RTN text decoder + FP32 vision/embedding (recommended, ~6.7 GB total)
 python optimize.py --config-dir cpu_and_mobile
 
@@ -44,7 +40,7 @@ python inference.py --source-lang en --target-lang es --text "Hello, how are you
 python inference.py --source-lang en --target-lang fr --image <image-path>
 
 # Use FP32 model
-python inference.py --model-dir builtin/cpu_and_mobile_fp32/models --source-lang en --target-lang ja --text "Good morning"
+python inference.py --model-dir cpu_and_mobile_fp32/models --source-lang en --target-lang ja --text "Good morning"
 ```
 
 ## Export Configurations
@@ -115,7 +111,7 @@ python benchmark_wmt24pp.py --lang-pairs en-de_DE en-es_MX en-fr_FR --max-segmen
 python benchmark_wmt24pp.py --lang-pairs all --max-segments 150 --seed 42
 
 # Compare FP32 vs INT4
-python benchmark_wmt24pp.py --model-dir builtin/cpu_and_mobile_fp32/models --output fp32_results.json
+python benchmark_wmt24pp.py --model-dir cpu_and_mobile_fp32/models --output fp32_results.json
 ```
 
 Model card reported scores (4B, WMT24++ 55 langs):
@@ -126,15 +122,16 @@ Model card reported scores (4B, WMT24++ 55 langs):
 
 ```
 google-translategemma-4b-it/
+  LICENSE
   builtin/
     optimize.py                   # Export orchestration (3 Olive pipelines + config assembly)
     user_script.py                # Vision/embedding wrapper modules for Olive export
+    inference.py                  # Text and image translation inference
+    benchmark_wmt24pp.py          # WMT24++ COMET evaluation
+    info.yml                      # Recipe metadata
+    README.md
     cpu_and_mobile/               # INT4 RTN configs
     cpu_and_mobile_fp32/          # FP32 configs
-  inference.py                    # Text and image translation inference
-  benchmark_wmt24pp.py            # WMT24++ COMET evaluation
-  README.md
-  LICENSE
 ```
 
 Models are downloaded automatically from Hugging Face during export. Ensure you have accepted the [Gemma license](https://huggingface.co/google/translategemma-4b-it) and are logged in via `huggingface-cli login`.
