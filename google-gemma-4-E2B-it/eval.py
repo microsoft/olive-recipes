@@ -42,9 +42,9 @@ def main():
     )
     parser.add_argument(
         "--variant",
-        choices=["fp16", "int4"],
+        choices=["fp32", "fp16", "int4"],
         default=None,
-        help="Model variant for GPU (default: int4)",
+        help="Model variant (cpu defaults to fp32, gpu defaults to int4)",
     )
     parser.add_argument(
         "--model-path",

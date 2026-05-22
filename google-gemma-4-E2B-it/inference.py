@@ -108,7 +108,7 @@ def interactive_mode(model: og.Model, tokenizer: og.Tokenizer, max_length: int):
 def main():
     parser = argparse.ArgumentParser(description="Gemma 4 ORT GenAI Inference")
     parser.add_argument("--device", choices=["cpu", "gpu"], default="cpu")
-    parser.add_argument("--variant", choices=["fp16", "int4"], default=None)
+    parser.add_argument("--variant", choices=["fp32", "fp16", "int4"], default=None)
     parser.add_argument("--model-path", default=None, help="Override model directory")
     parser.add_argument("--prompt", type=str, default=None, help="Text prompt")
     parser.add_argument("--system-prompt", type=str, default=None, help="System prompt")
@@ -121,7 +121,7 @@ def main():
 
     if not Path(model_path).exists():
         print(f"ERROR: Model directory not found: {model_path}")
-        print("Run optimize.py first to generate the models.")
+        print("Run `olive run --config <cpu|cuda>/<variant>/config.json` first to generate the models.")
         sys.exit(1)
 
     print(f"Loading model from {model_path}...")
