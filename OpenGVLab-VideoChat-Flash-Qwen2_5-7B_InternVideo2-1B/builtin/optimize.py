@@ -2,7 +2,7 @@
 # Copyright (C) 2026 Advanced Micro Devices, Inc. All rights reserved.
 # Portions of this file consist of AI generated content.
 # --------------------------------------------------------------------------
-# SPDX-License-Identifier: MIT
+# SPDX-License-Identifier: Apache-2.0
 # --------------------------------------------------------------------------
 
 """End-to-end optimization pipeline for VideoChat-Flash ONNX models.
@@ -344,7 +344,7 @@ def update_genai_config(output_dir: str = MODELS_DIR, device: str = "cpu"):
         "provider_options": provider_options,
     }
 
-    config["model"]["type"] = "qwen3_vl"
+    config["model"]["type"] = "videochat_flash_qwen"
 
     from transformers import AutoTokenizer
     tokenizer = AutoTokenizer.from_pretrained(MODEL_ID, trust_remote_code=True)
@@ -404,6 +404,8 @@ def update_genai_config(output_dir: str = MODELS_DIR, device: str = "cpu"):
                 {"operation": {"name": "normalize", "type": "Normalize",
                                "attrs": {"mean": [0.485, 0.456, 0.406],
                                          "std": [0.229, 0.224, 0.225]}}},
+                {"operation": {"name": "to_channel_first", "type": "Permute3D",
+                               "attrs": {"dims": [2, 0, 1]}}},
             ],
         }
     }
