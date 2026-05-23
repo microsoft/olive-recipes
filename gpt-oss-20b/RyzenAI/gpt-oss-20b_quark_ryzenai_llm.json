@@ -6,7 +6,7 @@
     },
     "passes": {
         "mg": {
-            "type": "VitisGenerateModelLLM",
+            "type": "RyzenGenerateModelLLM",
             "recipe": "eager",
             "extra_options": {
                 "model_type": "gpt-oss"
@@ -14,7 +14,7 @@
         }
     },
     "log_severity_level": 1,
-    "output_dir": "models/gpt-oss-20b-vai",
+    "output_dir": "models/gpt-oss-20b-rai",
     "cache_dir": "olive_cache",
     "no_artifacts": true
 }

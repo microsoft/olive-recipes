@@ -1,18 +1,17 @@
 # Model Optimization and Quantization for AMD NPU
 
-This folder contains sample Olive configuration to optimize Phi-4 models for AMD NPU.
+This folder contains sample Olive configuration to optimize LLaMA 3 models for AMD NPU.
 
 ## ✅ Supported Models and Configs
-
-| Model Name (Hugging Face)                          | Config File Name                  |
-|:---------------------------------------------------|:----------------------------------|
-| `microsoft/gpt-oss-20b`                            | `gpt-oss-20b_quark_vitisai_llm.json`  |
+| Model Name (Hugging Face)                         | Config File Name                  |
+|:--------------------------------------------------|:----------------------------------|
+| `meta-llama/Llama-3.1-8B`                | `Llama-3.1-8B_quark_ryzenai_llm.json`  |
 
 ## **Run the Quantization Config**
 
 ### **Quark quantization**
 
-For LLMs - follow the below commands to generate the optimized model for VitisAI Execution Provider.
+For LLMs - follow the below commands to generate the optimized model for RyzenAI Execution Provider.
 
 **Platform Support:**
 - ✅ **Windows with CUDA** - Supported
@@ -43,12 +42,14 @@ pip install -e .
 pip install -r requirements.txt
 ```
 
-#### **Install VitisAI LLM dependencies**
+#### **Install RyzenAI LLM dependencies**
 
 ```bash
-cd olive-recipes/gpt-oss-20b/VitisAI
-pip install --force-reinstall -r requirements_vitisai_llm.txt
+cd olive-recipes/meta-llama-Llama-3.1-8B/RyzenAI
+pip install --force-reinstall -r requirements_ryzenai_llm.txt
 ```
+
+
 
 #### **Install PyTorch**
 
@@ -74,21 +75,14 @@ pip install torch==2.7.0 torchvision torchaudio --index-url https://download.pyt
 python -c "import torch; print(torch.__version__)"  # Should print 2.7.0+cpu
 ```
 
-#### **Generate optimized LLM model for VitisAI NPU**
-GPT-OSS models are pre-quantized ONNX models that only need NPU optimization (no Quark quantization step).
+#### **Generate optimized LLM model for RyzenAI NPU**
+Follow the above setup instructions, then run the below command to generate the optimized LLM model for RyzenAI EP
 
-Follow the above setup instructions, then run the below command to generate the optimized LLM model for VitisAI EP.
-
-1. Download the pre-quantized model:
 ```bash
-hf download onnxruntime/gpt-oss-20b-onnx --include "cpu_and_mobile/cpu-int4-rtn-block-32-acc-level-4/*" --local-dir ./models/gpt-oss-20b-onnx
+# Meta-Llama-3.1-8B
+olive run --config Meta-Llama-3.1-8B_quark_ryzenai_llm.json
 ```
 
-2. Run the Olive recipe:
-```bash
-# Phi-4-mini-instruct
-olive run --config gpt-oss-20b_quark_vitisai_llm.json
-```
+✅ Optimized model saved in: `models/Meta-Llama-3.1-8B-rai/`
 
-✅ Optimized model saved in: `models/gpt-oss-20b-vai/`
 > **Note:** Output model is saved in `output_dir` mentioned in the json files.
