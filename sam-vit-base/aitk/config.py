@@ -3,6 +3,7 @@
 # Licensed under the MIT License.
 # --------------------------------------------------------------------------
 
+
 class ModelConfig:
     model_name = "facebook/sam-vit-base"
     data_dir = "quantization_dataset"

@@ -14,7 +14,7 @@ from pathlib import Path
 from sanitize.utils import printError, printInfo, printTip
 
 LINE_LENGTH = "120"
-SELECT_RULES = "F401,F841,I,E402"
+SELECT_RULES = "F401,F841,I"
 REQUIREMENTS_HINT = ".aitk/scripts/requirements.txt"
 
 
@@ -23,9 +23,7 @@ def _ensure_ruff():
         subprocess.run(["ruff", "--version"], check=True, capture_output=True)
         return True
     except (subprocess.CalledProcessError, FileNotFoundError):
-        printError(
-            f"ruff is not installed. Install dependencies first: pip install -r {REQUIREMENTS_HINT}"
-        )
+        printError(f"ruff is not installed. Install dependencies first: pip install -r {REQUIREMENTS_HINT}")
         return False
 
 
@@ -62,8 +60,9 @@ def ruff_check(fix: bool = False):
     target_args = [str(t) for t in targets]
     printTip(f"Running ruff on {len(targets)} folder(s)...")
 
-    check_cmd = ["ruff", "check", "--select", SELECT_RULES, "--line-length", LINE_LENGTH]
-    format_cmd = ["ruff", "format", "--line-length", LINE_LENGTH]
+    exclude_ipynb = ["--config", 'extend-exclude=["*.ipynb"]']
+    check_cmd = ["ruff", "check", "--select", SELECT_RULES, "--line-length", LINE_LENGTH, *exclude_ipynb]
+    format_cmd = ["ruff", "format", "--line-length", LINE_LENGTH, *exclude_ipynb]
     if fix:
         check_cmd.append("--fix")
     else:

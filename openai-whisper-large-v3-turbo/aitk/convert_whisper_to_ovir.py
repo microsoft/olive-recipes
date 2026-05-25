@@ -2,10 +2,10 @@
 # Copyright (c) Intel® Corporation. All rights reserved.
 # Licensed under the MIT License.
 # --------------------------------------------------------------------------
-import os
-import shutil
 import argparse
 import json
+import os
+import shutil
 
 from transformers import WhisperConfig
 
@@ -17,6 +17,7 @@ def run_olive_workflow(config_json: dict):
     @param config_json: JSON dictionary representing Olive workflow configuration.
     """
     from olive.workflows import run
+
     run(config_json)
 
 
@@ -30,12 +31,13 @@ def str2bool(v: str) -> bool:
     """
     if isinstance(v, bool):
         return v
-    if v.lower() in ("yes", "true", 't', 'y', '1'):
+    if v.lower() in ("yes", "true", "t", "y", "1"):
         return True
-    elif v.lower() in ("no", "false", 'f', 'n', '0'):
+    elif v.lower() in ("no", "false", "f", "n", "0"):
         return False
     else:
-        raise argparse.ArgumentTypeError('Boolean value expected.')
+        raise argparse.ArgumentTypeError("Boolean value expected.")
+
 
 def handle_arguments() -> argparse.Namespace:
     """
@@ -51,38 +53,38 @@ def handle_arguments() -> argparse.Namespace:
     parser.add_argument("--cache_dir", required=True, type=str)
 
     parser.add_argument(
-        '-m',
+        "-m",
         "--model",
         type=str,
         default="openai/whisper-large-v3-turbo",
-        help="Huggingface ID for whisper model to convert. Default: openai/whisper-large-v3-turbo"
+        help="Huggingface ID for whisper model to convert. Default: openai/whisper-large-v3-turbo",
     )
     parser.add_argument(
-        '-w',
+        "-w",
         "--weight-format",
         type=str,
         default="fp16",
         choices=["fp16", "int8", "int4"],
-        help="The weight format used to compress the model. Default: fp16. Other options: int8, int4"
+        help="The weight format used to compress the model. Default: fp16. Other options: int8, int4",
     )
     parser.add_argument(
         "--enable_npu_ws",
         type=str2bool,
-        nargs='?',
+        nargs="?",
         const=True,
         default=False,
         help="Enable use of NPUW weight sharing between prefill & generate compiled models. "
-             "Can be used as a flag (--enable_npu_ws) or with a value (--enable_npu_ws True). Default: False"
+        "Can be used as a flag (--enable_npu_ws) or with a value (--enable_npu_ws True). Default: False",
     )
     parser.add_argument(
         "--reshape",
         type=str2bool,
-        nargs='?',
+        nargs="?",
         const=True,
         default=False,
         help="Reshape encoder & decoder models at conversion time, instead of adding reshape_input "
-             "provider options to genai_config.json. "
-             "Can be used as a flag (--reshape) or with a value (--reshape True). Default: False"
+        "provider options to genai_config.json. "
+        "Can be used as a flag (--reshape) or with a value (--reshape True). Default: False",
     )
     parser.add_argument(
         "--device",
@@ -109,17 +111,17 @@ def load_templates() -> list[dict]:
 
     # load default config json
     default_config_path = os.path.join(script_dir, "whisper_large_v3_turbo_default_ov_npu.json")
-    with open(default_config_path, 'r') as f:
+    with open(default_config_path, "r") as f:
         default_json = json.load(f)
 
     # load the default encapsulation json
     default_encapsulation_path = os.path.join(script_dir, "whisper_large_v3_turbo_encapsulate.json")
-    with open(default_encapsulation_path, 'r') as f:
+    with open(default_encapsulation_path, "r") as f:
         default_encapsulation_json = json.load(f)
 
     # load the default audio preprocessor config json
     audio_processor_config_path = os.path.join(script_dir, "audio_processor_config_default.json")
-    with open(audio_processor_config_path, 'r') as f:
+    with open(audio_processor_config_path, "r") as f:
         audio_processor_config_json = json.load(f)
 
     return [default_json, default_encapsulation_json, audio_processor_config_json]
@@ -135,6 +137,7 @@ def reshape_and_save_to_tmp(input_ov_path: str, reshape_dict: dict, tmp_ov_path:
     """
     try:
         from openvino.runtime import Core, serialize
+
         core = Core()
         ov_model = core.read_model(input_ov_path)
         ov_model.reshape(reshape_dict)
@@ -142,13 +145,21 @@ def reshape_and_save_to_tmp(input_ov_path: str, reshape_dict: dict, tmp_ov_path:
     except (ImportError, AttributeError):
         # fallback to the newer 2025+ version of openvino that doesn't have openvino.runtime
         import openvino as ov
+
         core = ov.Core()
         ov_model = core.read_model(input_ov_path)
         ov_model.reshape(reshape_dict)
         ov.serialize(ov_model, tmp_ov_path)
 
 
-def update_genai_overrides(encapsulate_json, w_config: WhisperConfig, enable_npu_ws: bool, reshape: bool, output_directory: str, device: str = "npu"):
+def update_genai_overrides(
+    encapsulate_json,
+    w_config: WhisperConfig,
+    enable_npu_ws: bool,
+    reshape: bool,
+    output_directory: str,
+    device: str = "npu",
+):
     """
     Update genai_config overrides based on NPU_WS and reshape flags.
 
@@ -182,7 +193,7 @@ def update_genai_overrides(encapsulate_json, w_config: WhisperConfig, enable_npu
                     "NPUW_WHISPER": "YES",
                     "NPUW_WEIGHTS_BANK": "whisper-shared",
                     "NPUW_LLM_PREFILL_HINT": "STATIC",
-                    "NPUW_ONLINE_PIPELINE": "NONE"
+                    "NPUW_ONLINE_PIPELINE": "NONE",
                 }
             }
         else:
@@ -194,20 +205,16 @@ def update_genai_overrides(encapsulate_json, w_config: WhisperConfig, enable_npu
                     "NPUW_FOLD": "NO",
                     "NPUW_WHISPER": "YES",
                     "NPUW_LLM_PREFILL_HINT": "STATIC",
-                    "NPUW_ONLINE_PIPELINE": "NONE"
+                    "NPUW_ONLINE_PIPELINE": "NONE",
                 }
             }
     else:
         decoder_load_config = {}
 
     # Only stringify the load_config value, not the whole provider_options
-    decoder_load_config_str = json.dumps(decoder_load_config, separators=(',', ':'))
+    decoder_load_config_str = json.dumps(decoder_load_config, separators=(",", ":"))
 
-    provider_options_encoder = {
-        "OpenVINO": {
-            "device_type": device.upper()
-        }
-    }
+    provider_options_encoder = {"OpenVINO": {"device_type": device.upper()}}
 
     # This 3000 magic number is common across all official whisper models.
     # It could potentially be calculated by loading preprocessor_config.json and performing the calculation. But just fix it at 3000 for now.
@@ -226,15 +233,21 @@ def update_genai_overrides(encapsulate_json, w_config: WhisperConfig, enable_npu
 
     if reshape:
         print("  [OK] Reshaping decoder model now...")
-        reshape_and_save_to_tmp(os.path.join(output_directory, "openvino_decoder_model.xml"),
-                                {"encoder_hidden_states": encoder_hidden_states_shape}, "reshaped_tmp.xml")
+        reshape_and_save_to_tmp(
+            os.path.join(output_directory, "openvino_decoder_model.xml"),
+            {"encoder_hidden_states": encoder_hidden_states_shape},
+            "reshaped_tmp.xml",
+        )
 
         os.replace("reshaped_tmp.xml", os.path.join(output_directory, "openvino_decoder_model.xml"))
         os.replace("reshaped_tmp.bin", os.path.join(output_directory, "openvino_decoder_model.bin"))
 
         print("  [OK] Reshaping encoder model now...")
-        reshape_and_save_to_tmp(os.path.join(output_directory, "openvino_encoder_model.xml"),
-                            {"input_features": input_features_shape}, "reshaped_tmp.xml")
+        reshape_and_save_to_tmp(
+            os.path.join(output_directory, "openvino_encoder_model.xml"),
+            {"input_features": input_features_shape},
+            "reshaped_tmp.xml",
+        )
 
         os.replace("reshaped_tmp.xml", os.path.join(output_directory, "openvino_encoder_model.xml"))
         os.replace("reshaped_tmp.bin", os.path.join(output_directory, "openvino_encoder_model.bin"))
@@ -245,11 +258,7 @@ def update_genai_overrides(encapsulate_json, w_config: WhisperConfig, enable_npu
 
     # Build decoder provider_options as proper JSON object (only load_config is a string)
     provider_options_decoder = {
-        "OpenVINO": {
-            "device_type": device.upper(),
-            "enable_causallm": "True",
-            "load_config": decoder_load_config_str
-        }
+        "OpenVINO": {"device_type": device.upper(), "enable_causallm": "True", "load_config": decoder_load_config_str}
     }
 
     if encoder_hidden_states_shape_str:
@@ -278,30 +287,22 @@ def post_process_genai_config(genai_config_path: str, provider_options_encoder: 
     @param provider_options_encoder: Encoder provider options dict
     @param w_config: Whisper configuration object
     """
-    with open(genai_config_path, 'r') as f:
+    with open(genai_config_path, "r") as f:
         genai_config = json.load(f)
-
 
     max_length = w_config.max_target_positions
 
     # Add encoder section with all required fields
     genai_config["model"]["encoder"] = {
-        "session_options": {
-            "log_id": "onnxruntime-genai",
-            "provider_options": [provider_options_encoder]
-        },
+        "session_options": {"log_id": "onnxruntime-genai", "provider_options": [provider_options_encoder]},
         "filename": "openvino_encoder_model.onnx",
         "head_size": w_config.d_model // w_config.encoder_attention_heads,
         "hidden_size": w_config.d_model,
-        "inputs": {
-            "audio_features": "input_features"
-        },
-        "outputs": {
-            "encoder_hidden_states": "last_hidden_state"
-        },
+        "inputs": {"audio_features": "input_features"},
+        "outputs": {"encoder_hidden_states": "last_hidden_state"},
         "num_attention_heads": w_config.encoder_attention_heads,
         "num_hidden_layers": w_config.encoder_layers,
-        "num_key_value_heads": w_config.encoder_attention_heads
+        "num_key_value_heads": w_config.encoder_attention_heads,
     }
 
     # Fix decoder section - the genai_config may have been generated from encoder encapsulation
@@ -320,15 +321,10 @@ def post_process_genai_config(genai_config_path: str, provider_options_encoder: 
         decoder["num_key_value_heads"] = w_config.decoder_attention_heads
 
         # Fix inputs (decoder takes input_ids and encoder_hidden_states)
-        decoder["inputs"] = {
-            "input_ids": "input_ids",
-            "encoder_hidden_states": "encoder_hidden_states"
-        }
+        decoder["inputs"] = {"input_ids": "input_ids", "encoder_hidden_states": "encoder_hidden_states"}
 
         # Fix outputs (decoder outputs logits)
-        decoder["outputs"] = {
-            "logits": "logits"
-        }
+        decoder["outputs"] = {"logits": "logits"}
 
         # Remove graph_optimization_level if present (not needed)
         if "session_options" in decoder and "graph_optimization_level" in decoder["session_options"]:
@@ -342,11 +338,19 @@ def post_process_genai_config(genai_config_path: str, provider_options_encoder: 
     genai_config["model"]["context_length"] = max_length
     genai_config["search"]["max_length"] = max_length
 
-    with open(genai_config_path, 'w') as f:
+    with open(genai_config_path, "w") as f:
         json.dump(genai_config, f, indent=4)
 
 
-def run_encapsulation(encapsulation_config_json, output_directory: str, w_config: WhisperConfig, enable_npu_ws: bool, reshape: bool, cache_dir: str = "cache", device: str = "npu"):
+def run_encapsulation(
+    encapsulation_config_json,
+    output_directory: str,
+    w_config: WhisperConfig,
+    enable_npu_ws: bool,
+    reshape: bool,
+    cache_dir: str = "cache",
+    device: str = "npu",
+):
     """
     Run Olive encapsulation workflow for Whisper models.
 
@@ -365,7 +369,7 @@ def run_encapsulation(encapsulation_config_json, output_directory: str, w_config
         for run_hash in os.listdir(cache_models_dir):
             run_json_path = os.path.join(cache_models_dir, run_hash, "run.json")
             if os.path.exists(run_json_path):
-                with open(run_json_path, 'r') as f:
+                with open(run_json_path, "r") as f:
                     run_info = json.load(f)
                 if not run_info.get("pass_name", "").startswith("openvino"):
                     continue
@@ -432,7 +436,9 @@ def run_encapsulation(encapsulation_config_json, output_directory: str, w_config
             raise FileNotFoundError(f"Could not find {model_name}.xml in output directory")
 
     # Update genai overrides based on NPU_WS and reshape flags
-    provider_options_encoder = update_genai_overrides(encapsulation_config_json, w_config, enable_npu_ws, reshape, ".", device=device)
+    provider_options_encoder = update_genai_overrides(
+        encapsulation_config_json, w_config, enable_npu_ws, reshape, ".", device=device
+    )
 
     # Store absolute path to output directory for genai_config post-processing
     output_dir_abs = os.path.abspath(".")
@@ -527,7 +533,9 @@ def main():
     weight_format = args.weight_format
     enable_npu_ws = args.enable_npu_ws
     reshape = args.reshape
-    print(f"Converting model: {hf_model_id} with weight format: {weight_format}, enable_npu_ws: {enable_npu_ws}, reshape: {reshape}")
+    print(
+        f"Converting model: {hf_model_id} with weight format: {weight_format}, enable_npu_ws: {enable_npu_ws}, reshape: {reshape}"
+    )
 
     # load default JSONs
     [default_json, default_encapsulation_json, audio_processor_config_json] = load_templates()
@@ -553,7 +561,9 @@ def main():
     default_json["passes"]["optimum_convert"]["ov_quant_config"]["weight_format"] = weight_format
 
     # override the mel spectrogram config in audio preprocessor config
-    audio_processor_config_json["feature_extraction"]["sequence"][-1]["operation"]["attrs"]["n_mel"] = w_config.num_mel_bins
+    audio_processor_config_json["feature_extraction"]["sequence"][-1]["operation"]["attrs"]["n_mel"] = (
+        w_config.num_mel_bins
+    )
 
     # Get absolute path for the model output directory before running workflows
     model_path_abs = os.path.abspath(model_path)
@@ -564,12 +574,15 @@ def main():
 
     # run the encapsulation workflow
     print("\n[2/2] Running Whisper encapsulation workflow...")
-    run_encapsulation(default_encapsulation_json, model_path, w_config, enable_npu_ws, reshape, cache_dir, device=args.device)
+    run_encapsulation(
+        default_encapsulation_json, model_path, w_config, enable_npu_ws, reshape, cache_dir, device=args.device
+    )
 
     # JSON dump the audio preprocessor config into the output directory
     audio_processor_config_json = json.dumps(audio_processor_config_json, indent=4)
     with open(os.path.join(model_path_abs, "audio_processor_config.json"), "w") as f:
         f.write(audio_processor_config_json)
+
 
 if __name__ == "__main__":
     main()
