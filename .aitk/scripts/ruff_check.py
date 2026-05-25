@@ -72,7 +72,7 @@ def ruff_check(fix: bool = False):
     format_result = subprocess.run(format_cmd + target_args)
 
     if check_result.returncode != 0 or format_result.returncode != 0:
-        printError("Ruff reported issues. Re-run `python sanitize.py --format_scripts` to auto-fix.")
+        printError("Ruff reported issues. Re-run `python .aitk/scripts/ruff_check.py --fix` to auto-fix.")
         raise SystemExit(1)
 
     printInfo("Ruff check passed.")
