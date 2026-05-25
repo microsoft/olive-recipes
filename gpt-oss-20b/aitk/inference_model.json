@@ -1,0 +1,31 @@
+{
+    "Name": "gpt-oss-20b",
+    "PromptTemplate": {
+        "assistant": "{Content}",
+        "prompt": "<|start|>user<|message|>{Content}<|end|><|start|>assistant<|message|>"
+    },
+    "ParameterSchema": {
+        "enabled": [
+            {
+                "name": "max_tokens",
+                "default": 512
+            },
+            {
+                "name": "temperature",
+                "default": 1.0
+            },
+            {
+                "name": "top_p",
+                "default": 1.0
+            },
+            {
+                "name": "top_k",
+                "default": 50
+            },
+            {
+                "name": "random_seed",
+                "default": 5687
+            }
+        ]
+    }
+}

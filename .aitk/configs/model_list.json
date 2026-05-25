@@ -484,7 +484,7 @@
             "relativePath": "sam-vit-base/aitk",
             "version": 2,
             "pipeline_tags": [
-                "fill-mask"
+                "mask-generation"
             ]
         },
         {
@@ -500,7 +500,7 @@
             "relativePath": "sam2.1-hiera-small/aitk",
             "version": 2,
             "pipeline_tags": [
-                "fill-mask"
+                "mask-generation"
             ]
         },
         {
@@ -559,9 +559,7 @@
             "status": "Ready",
             "relativePath": "mistralai-Mistral-7B-Instruct-v0.3/aitk",
             "version": 4,
-            "pipeline_tags": [
-                "text-generation"
-            ]
+            "pipeline_tags": []
         },
         {
             "displayName": "OFA-Sys/chinese-clip-vit-base-patch16",
@@ -604,6 +602,22 @@
             "p0": false,
             "pipeline_tags": [
                 "zero-shot-image-classification"
+            ]
+        },
+        {
+            "displayName": "openai/gpt-oss-20b",
+            "icon": "OpenAI",
+            "modelLink": "https://huggingface.co/openai/gpt-oss-20b",
+            "id": "huggingface/openai/gpt-oss-20b",
+            "runtimes": [
+                "AMDNPU"
+            ],
+            "architecture": "Transformer",
+            "status": "Ready",
+            "relativePath": "gpt-oss-20b/aitk",
+            "version": 1,
+            "pipeline_tags": [
+                "text-generation"
             ]
         },
         {

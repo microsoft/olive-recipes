@@ -1,0 +1,31 @@
+{
+    "input_model": {
+        "model_path": "openai/gpt-oss-20b"
+    },
+    "systems": {
+        "local_system": {
+            "type": "LocalSystem",
+            "accelerators": [
+                {
+                    "device": "cpu",
+                    "execution_providers": [
+                        "CPUExecutionProvider"
+                    ]
+                }
+            ]
+        }
+    },
+    "passes": {
+        "aitkpython": {
+            "type": "AitkPython",
+            "precision": "int4",
+            "user_script": "gpt-oss-20b_vitis_ai_config.py"
+        }
+    },
+    "target": "local_system",
+    "log_severity_level": 1,
+    "output_dir": "model/gpt-oss-20b-vai",
+    "cache_dir": "cache",
+    "no_artifacts": true,
+    "evaluate_input_model": false
+}

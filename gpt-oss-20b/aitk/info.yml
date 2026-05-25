@@ -1,0 +1,17 @@
+keywords:
+    aitk
+arch: gpt-oss
+recipes:
+    - file: "gpt-oss-20b_vitis_ai_config.json"
+      device: npu
+      ep: VitisAIExecutionProvider
+      aitk:
+        auto: false
+        oliveFile:
+          gpt-oss-20b_quark_vitisai_llm.json: "VitisAI/gpt-oss-20b_quark_vitisai_llm.json"
+        requirements: AMD/Quark_py3.12.13
+        evalRuntime: AMDNPU
+aitk:
+    modelInfo:
+        id: "huggingface/openai/gpt-oss-20b"
+        version: 1
