@@ -1,0 +1,42 @@
+{
+  "export": {
+    "opset_version": 17,
+    "batch_size": 1,
+    "export_params": true,
+    "do_constant_folding": true,
+    "verbose": false,
+    "dynamo": false,
+    "enable_hierarchy_tags": true,
+    "clean_onnx": false,
+    "hierarchy_tag_format": "full",
+    "input_tensors": [
+      {
+        "name": "pixel_values",
+        "dtype": "float32",
+        "shape": [
+          1,
+          3,
+          224,
+          224
+        ],
+        "value_range": [
+          0,
+          1
+        ]
+      }
+    ],
+    "output_tensors": [
+      {
+        "name": "logits"
+      }
+    ]
+  },
+  "optim": {},
+  "quant": null,
+  "compile": null,
+  "loader": {
+    "task": "image-classification",
+    "model_class": "AutoModelForImageClassification",
+    "model_type": "convnext"
+  }
+}

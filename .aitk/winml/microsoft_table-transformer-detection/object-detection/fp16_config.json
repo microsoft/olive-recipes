@@ -1,0 +1,58 @@
+{
+  "export": {
+    "opset_version": 17,
+    "batch_size": 1,
+    "export_params": true,
+    "do_constant_folding": true,
+    "verbose": false,
+    "dynamo": false,
+    "enable_hierarchy_tags": true,
+    "clean_onnx": false,
+    "hierarchy_tag_format": "full",
+    "input_tensors": [
+      {
+        "name": "pixel_values",
+        "dtype": "float32",
+        "shape": [
+          1,
+          3,
+          800,
+          800
+        ],
+        "value_range": [
+          0,
+          1
+        ]
+      },
+      {
+        "name": "pixel_mask",
+        "dtype": "int32",
+        "shape": [
+          1,
+          800,
+          800
+        ],
+        "value_range": [
+          1,
+          2
+        ]
+      }
+    ],
+    "output_tensors": [
+      {
+        "name": "logits"
+      },
+      {
+        "name": "pred_boxes"
+      }
+    ]
+  },
+  "optim": {},
+  "quant": null,
+  "compile": null,
+  "loader": {
+    "task": "object-detection",
+    "model_class": "AutoModelForObjectDetection",
+    "model_type": "table-transformer"
+  }
+}

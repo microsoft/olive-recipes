@@ -1,0 +1,86 @@
+{
+  "export": {
+    "opset_version": 17,
+    "batch_size": 1,
+    "export_params": true,
+    "do_constant_folding": true,
+    "verbose": false,
+    "dynamo": false,
+    "enable_hierarchy_tags": true,
+    "clean_onnx": false,
+    "hierarchy_tag_format": "full",
+    "input_tensors": [
+      {
+        "name": "input_ids",
+        "dtype": "int32",
+        "shape": [
+          1,
+          512
+        ],
+        "value_range": [
+          0,
+          30522
+        ]
+      },
+      {
+        "name": "attention_mask",
+        "dtype": "int32",
+        "shape": [
+          1,
+          512
+        ],
+        "value_range": [
+          0,
+          2
+        ]
+      },
+      {
+        "name": "token_type_ids",
+        "dtype": "int32",
+        "shape": [
+          1,
+          512
+        ],
+        "value_range": [
+          0,
+          2
+        ]
+      }
+    ],
+    "output_tensors": [
+      {
+        "name": "start_logits"
+      },
+      {
+        "name": "end_logits"
+      }
+    ]
+  },
+  "optim": {
+    "clamp_constant_values": true
+  },
+  "quant": {
+    "mode": "qdq",
+    "samples": 10,
+    "calibration_method": "minmax",
+    "weight_type": "uint8",
+    "activation_type": "uint16",
+    "per_channel": false,
+    "symmetric": false,
+    "save_calibration": false,
+    "distribution": "uniform",
+    "seed": null,
+    "calibration_load_path": null,
+    "calibration_save_path": null,
+    "op_types_to_quantize": null,
+    "nodes_to_exclude": null,
+    "task": "question-answering",
+    "model_name": "google-bert/bert-large-uncased-whole-word-masking-finetuned-squad"
+  },
+  "compile": null,
+  "loader": {
+    "task": "question-answering",
+    "model_class": "AutoModelForQuestionAnswering",
+    "model_type": "bert"
+  }
+}

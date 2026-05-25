@@ -1,0 +1,77 @@
+{
+  "export": {
+    "opset_version": 17,
+    "batch_size": 1,
+    "export_params": true,
+    "do_constant_folding": true,
+    "verbose": false,
+    "dynamo": false,
+    "enable_hierarchy_tags": true,
+    "clean_onnx": false,
+    "hierarchy_tag_format": "full",
+    "input_tensors": [
+      {
+        "name": "input_ids",
+        "dtype": "int32",
+        "shape": [
+          1,
+          77
+        ],
+        "value_range": [
+          0,
+          49408
+        ]
+      },
+      {
+        "name": "attention_mask",
+        "dtype": "int32",
+        "shape": [
+          1,
+          77
+        ],
+        "value_range": [
+          0,
+          2
+        ]
+      }
+    ],
+    "output_tensors": [
+      {
+        "name": "text_embeds"
+      },
+      {
+        "name": "last_hidden_state"
+      }
+    ]
+  },
+  "optim": {
+    "clamp_constant_values": true,
+    "gelu_fusion": true,
+    "layer_norm_fusion": true,
+    "matmul_add_fusion": true
+  },
+  "quant": {
+    "mode": "qdq",
+    "samples": 10,
+    "calibration_method": "minmax",
+    "weight_type": "uint8",
+    "activation_type": "uint16",
+    "per_channel": false,
+    "symmetric": false,
+    "save_calibration": false,
+    "distribution": "uniform",
+    "seed": null,
+    "calibration_load_path": null,
+    "calibration_save_path": null,
+    "op_types_to_quantize": null,
+    "nodes_to_exclude": null,
+    "task": "feature-extraction",
+    "model_name": "openai/clip-vit-large-patch14-336"
+  },
+  "compile": null,
+  "loader": {
+    "task": "feature-extraction",
+    "model_class": "CLIPTextModelWithProjection",
+    "model_type": "clip_text_model"
+  }
+}

@@ -1,0 +1,50 @@
+{
+  "export": {
+    "opset_version": 17,
+    "batch_size": 1,
+    "export_params": true,
+    "do_constant_folding": true,
+    "verbose": false,
+    "dynamo": false,
+    "enable_hierarchy_tags": true,
+    "clean_onnx": false,
+    "hierarchy_tag_format": "full",
+    "input_tensors": [
+      {
+        "name": "pixel_values",
+        "dtype": "float32",
+        "shape": [
+          1,
+          3,
+          336,
+          336
+        ],
+        "value_range": [
+          0,
+          1
+        ]
+      }
+    ],
+    "output_tensors": [
+      {
+        "name": "image_embeds"
+      },
+      {
+        "name": "last_hidden_state"
+      }
+    ]
+  },
+  "optim": {
+    "clamp_constant_values": true,
+    "gelu_fusion": true,
+    "layer_norm_fusion": true,
+    "matmul_add_fusion": true
+  },
+  "quant": null,
+  "compile": null,
+  "loader": {
+    "task": "image-feature-extraction",
+    "model_class": "CLIPVisionModelWithProjection",
+    "model_type": "clip_vision_model"
+  }
+}

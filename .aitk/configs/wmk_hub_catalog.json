@@ -1,0 +1,344 @@
+[
+  {
+    "model_id": "BAAI/bge-base-en-v1.5",
+    "description": "General-purpose English text embedding model (110M params) for retrieval and ranking.",
+    "model_type": "bert",
+    "task": "feature-extraction"
+  },
+  {
+    "model_id": "BAAI/bge-base-en-v1.5",
+    "description": "General-purpose English embedding model optimized for semantic similarity.",
+    "model_type": "bert",
+    "task": "sentence-similarity"
+  },
+  {
+    "model_id": "BAAI/bge-large-en-v1.5",
+    "description": "High-capacity English text embedding model (335M params) for semantic similarity.",
+    "model_type": "bert",
+    "task": "sentence-similarity"
+  },
+  {
+    "model_id": "BAAI/bge-small-en-v1.5",
+    "description": "Compact English text embedding model (33M params) for retrieval and ranking.",
+    "model_type": "bert",
+    "task": "feature-extraction"
+  },
+  {
+    "model_id": "BAAI/bge-small-en-v1.5",
+    "description": "Compact English embedding model optimized for semantic similarity and matching.",
+    "model_type": "bert",
+    "task": "sentence-similarity"
+  },
+  {
+    "model_id": "Babelscape/wikineural-multilingual-ner",
+    "description": "Multilingual BERT model for named entity recognition across 9 languages.",
+    "model_type": "bert",
+    "task": "token-classification"
+  },
+  {
+    "model_id": "FacebookAI/roberta-base",
+    "description": "RoBERTa base — robustly optimized BERT pretraining for English masked language modeling.",
+    "model_type": "roberta",
+    "task": "fill-mask"
+  },
+  {
+    "model_id": "FacebookAI/roberta-large",
+    "description": "RoBERTa large (24 layers, 355M params) for English masked language modeling.",
+    "model_type": "roberta",
+    "task": "fill-mask"
+  },
+  {
+    "model_id": "FacebookAI/xlm-roberta-base",
+    "description": "Multilingual RoBERTa base trained on 100 languages for masked language modeling.",
+    "model_type": "xlm-roberta",
+    "task": "fill-mask"
+  },
+  {
+    "model_id": "FacebookAI/xlm-roberta-large",
+    "description": "Multilingual RoBERTa large (550M params) for cross-lingual masked language modeling.",
+    "model_type": "xlm-roberta",
+    "task": "fill-mask"
+  },
+  {
+    "model_id": "Intel/bert-base-uncased-mrpc",
+    "description": "BERT-base fine-tuned on MRPC paraphrase corpus for text embedding extraction.",
+    "model_type": "bert",
+    "task": "feature-extraction"
+  },
+  {
+    "model_id": "Intel/bert-base-uncased-mrpc",
+    "description": "BERT-base fine-tuned on MRPC for paraphrase detection and text classification.",
+    "model_type": "bert",
+    "task": "text-classification"
+  },
+  {
+    "model_id": "ProsusAI/finbert",
+    "description": "Financial sentiment analysis model built on BERT, classifying text as positive, negative, or neutral.",
+    "model_type": "bert",
+    "task": "text-classification"
+  },
+  {
+    "model_id": "StanfordAIMI/dinov2-base-xray-224",
+    "description": "DINOv2 base fine-tuned on chest X-rays for medical image feature extraction.",
+    "model_type": "dinov2",
+    "task": "image-feature-extraction"
+  },
+  {
+    "model_id": "cardiffnlp/twitter-roberta-base-sentiment-latest",
+    "description": "RoBERTa model fine-tuned on ~124M tweets for sentiment analysis (positive/negative/neutral).",
+    "model_type": "roberta",
+    "task": "text-classification"
+  },
+  {
+    "model_id": "dbmdz/bert-large-cased-finetuned-conll03-english",
+    "description": "BERT-large model fine-tuned on CoNLL-2003 for English named entity recognition.",
+    "model_type": "bert",
+    "task": "token-classification"
+  },
+  {
+    "model_id": "deepset/bert-large-uncased-whole-word-masking-squad2",
+    "description": "BERT-large with whole word masking, fine-tuned on SQuAD 2.0 for question answering.",
+    "model_type": "bert",
+    "task": "question-answering"
+  },
+  {
+    "model_id": "deepset/roberta-base-squad2",
+    "description": "RoBERTa-base fine-tuned on SQuAD 2.0 for extractive question answering.",
+    "model_type": "roberta",
+    "task": "question-answering"
+  },
+  {
+    "model_id": "deepset/tinyroberta-squad2",
+    "description": "Compact RoBERTa model fine-tuned on SQuAD 2.0 for lightweight question answering.",
+    "model_type": "roberta",
+    "task": "question-answering"
+  },
+  {
+    "model_id": "dslim/bert-base-NER",
+    "description": "BERT model fine-tuned on CoNLL-2003 for named entity recognition (PER, ORG, LOC, MISC).",
+    "model_type": "bert",
+    "task": "token-classification"
+  },
+  {
+    "model_id": "facebook/convnext-tiny-224",
+    "description": "ConvNeXt-Tiny model combining CNN efficiency with Transformer-era design for image classification.",
+    "model_type": "convnext",
+    "task": "image-classification"
+  },
+  {
+    "model_id": "facebook/dino-vitb16",
+    "description": "Vision Transformer base (ViT-B/16) self-supervised with DINO for image feature extraction.",
+    "model_type": "vit",
+    "task": "image-feature-extraction"
+  },
+  {
+    "model_id": "facebook/dino-vits16",
+    "description": "Vision Transformer small (ViT-S/16) self-supervised with DINO for image feature extraction.",
+    "model_type": "vit",
+    "task": "image-feature-extraction"
+  },
+  {
+    "model_id": "facebook/dinov2-base",
+    "description": "DINOv2 base self-supervised vision model for general-purpose image feature extraction.",
+    "model_type": "dinov2",
+    "task": "image-feature-extraction"
+  },
+  {
+    "model_id": "facebook/dinov2-large",
+    "description": "DINOv2 large (300M params) self-supervised vision model for image feature extraction.",
+    "model_type": "dinov2",
+    "task": "image-feature-extraction"
+  },
+  {
+    "model_id": "facebook/dinov2-small",
+    "description": "DINOv2 small self-supervised vision model for efficient image feature extraction.",
+    "model_type": "dinov2",
+    "task": "image-feature-extraction"
+  },
+  {
+    "model_id": "google-bert/bert-base-multilingual-cased",
+    "description": "Multilingual BERT (104 languages) for general-purpose text embeddings.",
+    "model_type": "bert",
+    "task": "feature-extraction"
+  },
+  {
+    "model_id": "google-bert/bert-base-multilingual-uncased",
+    "description": "Multilingual BERT base (uncased) pretrained on 102 languages for masked language modeling.",
+    "model_type": "bert",
+    "task": "fill-mask"
+  },
+  {
+    "model_id": "google-bert/bert-base-uncased",
+    "description": "BERT base uncased pretrained on English text for masked language modeling.",
+    "model_type": "bert",
+    "task": "fill-mask"
+  },
+  {
+    "model_id": "google-bert/bert-large-uncased-whole-word-masking-finetuned-squad",
+    "description": "BERT-large with whole word masking, fine-tuned on SQuAD for question answering.",
+    "model_type": "bert",
+    "task": "question-answering"
+  },
+  {
+    "model_id": "google/vit-base-patch16-224",
+    "description": "Vision Transformer (ViT) pre-trained on ImageNet-21k, fine-tuned on ImageNet-1k at 224x224.",
+    "model_type": "vit",
+    "task": "image-classification"
+  },
+  {
+    "model_id": "google/vit-base-patch16-224-in21k",
+    "description": "Vision Transformer base pretrained on ImageNet-21k for image feature extraction.",
+    "model_type": "vit",
+    "task": "image-feature-extraction"
+  },
+  {
+    "model_id": "laion/CLIP-ViT-B-32-laion2B-s34B-b79K",
+    "description": "LAION CLIP ViT-B/32 trained on 2B image-text pairs for joint image/text feature extraction.",
+    "model_type": "clip",
+    "task": "feature-extraction"
+  },
+  {
+    "model_id": "laion/CLIP-ViT-B-32-laion2B-s34B-b79K",
+    "description": "LAION CLIP ViT-B/32 for zero-shot image classification via image-text similarity.",
+    "model_type": "clip",
+    "task": "zero-shot-image-classification"
+  },
+  {
+    "model_id": "laion/CLIP-ViT-H-14-laion2B-s32B-b79K",
+    "description": "LAION CLIP ViT-H/14 large model for high-accuracy zero-shot image classification.",
+    "model_type": "clip",
+    "task": "zero-shot-image-classification"
+  },
+  {
+    "model_id": "mattmdjaga/segformer_b2_clothes",
+    "description": "SegFormer-B2 fine-tuned for clothing segmentation in fashion images.",
+    "model_type": "segformer",
+    "task": "image-segmentation"
+  },
+  {
+    "model_id": "microsoft/rad-dino",
+    "description": "DINOv2-based vision model fine-tuned on chest X-rays for radiology feature extraction.",
+    "model_type": "dinov2",
+    "task": "image-feature-extraction"
+  },
+  {
+    "model_id": "microsoft/resnet-50",
+    "description": "Classic ResNet-50 model pre-trained on ImageNet-1k for image classification.",
+    "model_type": "resnet",
+    "task": "image-classification"
+  },
+  {
+    "model_id": "microsoft/swin-large-patch4-window7-224",
+    "description": "Swin Transformer large model for image classification at 224x224 resolution.",
+    "model_type": "swin",
+    "task": "image-classification"
+  },
+  {
+    "model_id": "microsoft/table-transformer-detection",
+    "description": "DETR-based model for detecting tables in document images.",
+    "model_type": "table-transformer",
+    "task": "object-detection"
+  },
+  {
+    "model_id": "nvidia/segformer-b1-finetuned-ade-512-512",
+    "description": "SegFormer-B1 fine-tuned on ADE20K for semantic segmentation at 512x512.",
+    "model_type": "segformer",
+    "task": "image-segmentation"
+  },
+  {
+    "model_id": "nvidia/segformer-b2-finetuned-ade-512-512",
+    "description": "SegFormer-B2 fine-tuned on ADE20K for semantic segmentation at 512x512.",
+    "model_type": "segformer",
+    "task": "image-segmentation"
+  },
+  {
+    "model_id": "nvidia/segformer-b5-finetuned-ade-640-640",
+    "description": "SegFormer-B5 (largest variant) fine-tuned on ADE20K for semantic segmentation at 640x640.",
+    "model_type": "segformer",
+    "task": "image-segmentation"
+  },
+  {
+    "model_id": "openai/clip-vit-base-patch16",
+    "description": "CLIP ViT-B/16 model for joint image-text embeddings with 16x16 patch size.",
+    "model_type": "clip",
+    "task": "feature-extraction"
+  },
+  {
+    "model_id": "openai/clip-vit-base-patch16",
+    "description": "OpenAI CLIP ViT-B/16 for zero-shot image classification via image-text similarity.",
+    "model_type": "clip",
+    "task": "zero-shot-image-classification"
+  },
+  {
+    "model_id": "openai/clip-vit-base-patch32",
+    "description": "CLIP ViT-B/32 model for joint image-text embeddings with 32x32 patch size.",
+    "model_type": "clip",
+    "task": "feature-extraction"
+  },
+  {
+    "model_id": "openai/clip-vit-base-patch32",
+    "description": "OpenAI CLIP ViT-B/32 for zero-shot image classification via image-text similarity.",
+    "model_type": "clip",
+    "task": "zero-shot-image-classification"
+  },
+  {
+    "model_id": "openai/clip-vit-large-patch14",
+    "description": "OpenAI CLIP ViT-L/14 for high-accuracy zero-shot image classification.",
+    "model_type": "clip",
+    "task": "zero-shot-image-classification"
+  },
+  {
+    "model_id": "openai/clip-vit-large-patch14-336",
+    "description": "OpenAI CLIP ViT-L/14 at 336px resolution for higher-accuracy zero-shot image classification.",
+    "model_type": "clip",
+    "task": "zero-shot-image-classification"
+  },
+  {
+    "model_id": "patrickjohncyh/fashion-clip",
+    "description": "CLIP fine-tuned on fashion product images for fashion-specific zero-shot classification.",
+    "model_type": "clip",
+    "task": "zero-shot-image-classification"
+  },
+  {
+    "model_id": "rizvandwiki/gender-classification",
+    "description": "ViT model fine-tuned for gender classification from facial images.",
+    "model_type": "vit",
+    "task": "image-classification"
+  },
+  {
+    "model_id": "sentence-transformers/all-MiniLM-L6-v2",
+    "description": "Lightweight sentence embedding model mapping text to 384-dim dense vectors.",
+    "model_type": "bert",
+    "task": "feature-extraction"
+  },
+  {
+    "model_id": "sentence-transformers/all-MiniLM-L6-v2",
+    "description": "Lightweight sentence embedding model optimized for semantic similarity tasks.",
+    "model_type": "bert",
+    "task": "sentence-similarity"
+  },
+  {
+    "model_id": "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2",
+    "description": "Multilingual sentence embedding model supporting 50+ languages, 384-dim output.",
+    "model_type": "bert",
+    "task": "feature-extraction"
+  },
+  {
+    "model_id": "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2",
+    "description": "Multilingual model for cross-lingual semantic similarity across 50+ languages.",
+    "model_type": "bert",
+    "task": "sentence-similarity"
+  },
+  {
+    "model_id": "sentence-transformers/paraphrase-multilingual-mpnet-base-v2",
+    "description": "Multilingual MPNet model for high-quality semantic similarity across 50+ languages.",
+    "model_type": "xlm-roberta",
+    "task": "sentence-similarity"
+  },
+  {
+    "model_id": "w11wo/indonesian-roberta-base-posp-tagger",
+    "description": "RoBERTa model fine-tuned for Indonesian part-of-speech tagging.",
+    "model_type": "roberta",
+    "task": "token-classification"
+  }
+]

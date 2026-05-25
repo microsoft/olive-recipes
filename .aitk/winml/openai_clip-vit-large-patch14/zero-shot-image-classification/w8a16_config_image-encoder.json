@@ -1,0 +1,67 @@
+{
+  "export": {
+    "opset_version": 17,
+    "batch_size": 1,
+    "export_params": true,
+    "do_constant_folding": true,
+    "verbose": false,
+    "dynamo": false,
+    "enable_hierarchy_tags": true,
+    "clean_onnx": false,
+    "hierarchy_tag_format": "full",
+    "input_tensors": [
+      {
+        "name": "pixel_values",
+        "dtype": "float32",
+        "shape": [
+          1,
+          3,
+          224,
+          224
+        ],
+        "value_range": [
+          0,
+          1
+        ]
+      }
+    ],
+    "output_tensors": [
+      {
+        "name": "image_embeds"
+      },
+      {
+        "name": "last_hidden_state"
+      }
+    ]
+  },
+  "optim": {
+    "clamp_constant_values": true,
+    "gelu_fusion": true,
+    "layer_norm_fusion": true,
+    "matmul_add_fusion": true
+  },
+  "quant": {
+    "mode": "qdq",
+    "samples": 10,
+    "calibration_method": "minmax",
+    "weight_type": "uint8",
+    "activation_type": "uint16",
+    "per_channel": false,
+    "symmetric": false,
+    "save_calibration": false,
+    "distribution": "uniform",
+    "seed": null,
+    "calibration_load_path": null,
+    "calibration_save_path": null,
+    "op_types_to_quantize": null,
+    "nodes_to_exclude": null,
+    "task": "image-feature-extraction",
+    "model_name": "openai/clip-vit-large-patch14"
+  },
+  "compile": null,
+  "loader": {
+    "task": "image-feature-extraction",
+    "model_class": "CLIPVisionModelWithProjection",
+    "model_type": "clip_vision_model"
+  }
+}
