@@ -1,15 +1,13 @@
+import numpy as np
 import argparse
 import json
 import os
-import numpy as np
+import logging
 
 from qnn_app import HfWhisperAppWithSave, get_device_type
-from transformers import WhisperProcessor
-import logging
 
 logger = logging.getLogger(os.path.basename(__file__))
 logging.basicConfig(level=logging.INFO)
-
 
 def main():
     parser = argparse.ArgumentParser(description="Evaluate Whisper")
@@ -57,8 +55,8 @@ def main():
     encoder_path = args.encoder
     decoder_path = args.decoder
 
-    from winml import register_execution_providers
-    register_execution_providers()
+    from winml import register_execution_providers_to_onnxruntime
+    register_execution_providers_to_onnxruntime()
     app = HfWhisperAppWithSave(encoder_path, decoder_path, args.model_id, args.execution_provider, get_device_type(args.device_str))
 
     encoder_latencies = []

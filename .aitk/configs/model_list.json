@@ -480,7 +480,7 @@
                 "QNN"
             ],
             "architecture": "Transformer",
-            "status": "Hide",
+            "status": "Ready",
             "relativePath": "sam-vit-base/aitk",
             "version": 2,
             "pipeline_tags": [
@@ -496,7 +496,7 @@
                 "QNN"
             ],
             "architecture": "Transformer",
-            "status": "Hide",
+            "status": "Ready",
             "relativePath": "sam2.1-hiera-small/aitk",
             "version": 2,
             "pipeline_tags": [
@@ -612,12 +612,15 @@
             "modelLink": "https://huggingface.co/openai/whisper-large-v3-turbo",
             "id": "huggingface/openai/whisper-large-v3-turbo",
             "runtimes": [
-                "QNN"
+                "QNN",
+                "IntelCPU",
+                "IntelGPU",
+                "IntelNPU"
             ],
             "architecture": "Transformer",
             "status": "Ready",
             "relativePath": "openai-whisper-large-v3-turbo/aitk",
-            "version": 2,
+            "version": 3,
             "pipeline_tags": [
                 "automatic-speech-recognition"
             ]
@@ -844,7 +847,7 @@
                 "IntelNPU"
             ],
             "architecture": "Transformer",
-            "status": "Hide",
+            "status": "Ready",
             "relativePath": "sd2-community-stable-diffusion-2-1/aitk",
             "version": 2,
             "pipeline_tags": [
