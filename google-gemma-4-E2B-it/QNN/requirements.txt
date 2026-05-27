@@ -1,5 +1,6 @@
 datasets
 mobius-ai
-olive-ai
-onnxruntime-gpu
+olive-ai==0.9.3
+# these are the versions the recipes were last validated with
+onnxruntime-gpu==1.21.1
 transformers>=5.0

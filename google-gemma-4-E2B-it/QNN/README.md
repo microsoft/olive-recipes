@@ -48,8 +48,8 @@ pip install cupy-cuda12x   # accelerates OnnxKQuantQuantization (19–51× speed
 
 ### AOT compilation environment (separate venv, x64 with QNN SDK)
 ```bash
-pip install olive-ai mobius-ai
-pip install --index-url https://aiinfra.pkgs.visualstudio.com/PublicPackages/_packaging/ORT-Nightly/pypi/simple "onnxruntime-qnn" --no-deps
+pip install olive-ai==0.9.3 mobius-ai
+pip install --index-url https://aiinfra.pkgs.visualstudio.com/PublicPackages/_packaging/ORT-Nightly/pypi/simple "onnxruntime-qnn==1.22.2" --no-deps
 ```
 
 Replace `/path/to/qnn/env/bin` in `config.json` with the directory
@@ -61,6 +61,11 @@ pip install onnxruntime-qnn onnxruntime-genai
 ```
 
 ## Build
+
+Run `olive run` from the **quantization environment** (not the QNN AOT
+venv). Olive invokes the QNN AOT venv automatically via the
+`python_environment_path` configured under `systems.qnn_system` for the
+`EPContextBinaryGenerator` pass:
 
 ```bash
 olive run --config config.json

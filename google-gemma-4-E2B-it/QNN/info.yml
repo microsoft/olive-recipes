@@ -10,4 +10,4 @@ recipes:
     devices:
       - npu
     eps: QNNExecutionProvider
-name: gemma4_e2b_qnn
+name: gemma4-e2b-qnn
