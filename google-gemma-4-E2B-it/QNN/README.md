@@ -21,12 +21,22 @@ the multimodal package.
 ```
 HfModel (multimodal Gemma 4)
    ↓ MobiusBuilder (fp32)               4 ONNX components + genai_config + tokenizer + processors
-   ↓ OnnxKQuantQuantization (INT4)      mobius-standard Q4_K_M quant (per component)
+   ↓ OnnxKQuantQuantization (INT4)      mobius-standard Q4_K_M; weights → com.microsoft::MatMulNBits
+   ↓ MatMulNBitsToQDQ                   MatMulNBits → MatMul + DequantizeLinear (QNN-compatible QDQ)
    ↓ OnnxStaticQuantization             activations uint16 / weights uint8 (calibrated)
    ↓ StaticLLM                          static shapes for QNN
    ↓ EPContextBinaryGenerator           HTP EPContext blobs (per component, weight-shared)
    ↓ ComposeOnnxModels                  final package
 ```
+
+Why both `OnnxKQuantQuantization` and `MatMulNBitsToQDQ`?
+`OnnxKQuantQuantization` emits `com.microsoft::MatMulNBits`, which has
+fast CPU / CUDA kernels but is *not* in the QNN EP's supported-op list
+— without `MatMulNBitsToQDQ` the QNN partitioner rejects every
+quantized MatMul and the model silently falls back to CPU.
+`MatMulNBitsToQDQ` rewrites each `MatMulNBits` into a standard
+`MatMul + DequantizeLinear` pair so QNN can claim and compile the
+subgraph onto HTP.
 
 ## Prerequisites
 
