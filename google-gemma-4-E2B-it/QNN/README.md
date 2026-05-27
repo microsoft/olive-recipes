@@ -1,56 +1,51 @@
 # Gemma 4 E2B QNN (Snapdragon Hexagon NPU) recipe
 
-> **Status: WORK IN PROGRESS / EXPLORATORY.** This recipe is a starting
-> point for running [`google/gemma-4-E2B-it`](https://huggingface.co/google/gemma-4-E2B-it)
+> **Status: WORK IN PROGRESS / EXPLORATORY.** Starting-point recipe for
+> running [`google/gemma-4-E2B-it`](https://huggingface.co/google/gemma-4-E2B-it)
 > on the Qualcomm Hexagon NPU via the QNN ONNX Runtime execution
 > provider (Snapdragon X / Copilot+ PC, Snapdragon 8 Gen 3+, etc.).
-> It has *not* yet been end-to-end validated on hardware — see the
-> [Limitations](#limitations) section below before using it in
-> production.
+> Has *not* yet been validated on hardware — see
+> [Limitations](#limitations).
 
-This recipe targets the **text decoder only**. Gemma 4's vision and
-audio encoders run on CPU (`google-gemma-4-E2B-it/cpu/`) or GPU
-(`google-gemma-4-E2B-it/cuda/`); only the LM decoder is compiled into
-an EPContext binary for HTP execution.
+## Approach
 
-## Pipeline overview
+All four Gemma 4 components (decoder, embedding, vision_encoder,
+audio_encoder) are compiled into QNN EPContext binaries together.
+Olive's per-component dispatch on `CompositeModelHandler` runs each
+pass on every component, then `EPContextBinaryGenerator` and
+`ComposeOnnxModels` (both `_accepts_composite_model = True`) finalize
+the multimodal package.
+
+## Pipeline
 
 ```
-HfModel (multimodal Gemma4)
-   ↓ MobiusBuilder fp32       → ORT GenAI multi-component package
-   ↓ OnnxKQuantQuantization   → INT4 weights (decoder only)
-   ↓ MatMulNBitsToQDQ         → QDQ format for static quantization
-   ↓ GraphSurgeries           → QNN-friendly graph (Rope unmerge, mask, L2Norm)
-   ↓ OnnxStaticQuantization   → activations uint16 / weights uint8 (calibrated)
-   ↓ SplitModel + StaticLLM   → static-shape sub-graphs for QNN
-   ↓ EPContextBinaryGenerator → compiled HTP EPContext blob
+HfModel (multimodal Gemma 4)
+   ↓ MobiusBuilder (fp32)               4 ONNX components + genai_config + tokenizer + processors
+   ↓ OnnxKQuantQuantization (INT4)      mobius-standard Q4_K_M quant (per component)
+   ↓ OnnxStaticQuantization             activations uint16 / weights uint8 (calibrated)
+   ↓ StaticLLM                          static shapes for QNN
+   ↓ EPContextBinaryGenerator           HTP EPContext blobs (per component, weight-shared)
+   ↓ ComposeOnnxModels                  final package
 ```
 
 ## Prerequisites
 
-### Quantization environment (x64 with CUDA GPU)
-Quantization (especially `OnnxStaticQuantization`) is resource-intensive
-and accelerated by GPU:
-
+### Quantization environment (x64, GPU recommended)
 ```bash
 pip install -r requirements.txt
+pip install cupy-cuda12x   # accelerates OnnxKQuantQuantization (19–51× speedup)
 ```
 
 ### AOT compilation environment (separate venv, x64 with QNN SDK)
-Compilation into the EPContext binary requires
-`onnxruntime-qnn`:
-
 ```bash
 pip install olive-ai mobius-ai
 pip install --index-url https://aiinfra.pkgs.visualstudio.com/PublicPackages/_packaging/ORT-Nightly/pypi/simple "onnxruntime-qnn" --no-deps
 ```
 
-Set `/path/to/qnn/env/bin` in `config.json` to the directory containing
-your QNN venv's Python executable.
+Replace `/path/to/qnn/env/bin` in `config.json` with the directory
+containing your QNN venv's Python executable.
 
-### Inference environment (Snapdragon device)
-On Copilot+ PC / Snapdragon X / Android (Snapdragon 8 Gen 3+):
-
+### Inference (Snapdragon device)
 ```bash
 pip install onnxruntime-qnn onnxruntime-genai
 ```
@@ -61,52 +56,55 @@ pip install onnxruntime-qnn onnxruntime-genai
 olive run --config config.json
 ```
 
-Output is a self-contained EPContext binary package suitable for QNN HTP
-execution.
+## Why no `GraphSurgeries` here?
+
+Most existing QNN recipes (Phi-3, Qwen) chain surgeries like
+`RemoveRopeMultiCache`, `AttentionMaskToSequenceLengths`,
+`SimplifiedLayerNormToL2Norm`. Those rewrite ModelBuilder-specific
+sub-graphs into shapes HTP can lower:
+
+| Surgery | What it does | Why ModelBuilder needs it |
+|---|---|---|
+| `SimplifiedLayerNormToL2Norm` | `com.microsoft.SimplifiedLayerNorm` → `LpNormalization * gamma` | HTP has no SimplifiedLayerNorm kernel |
+| `RemoveRopeMultiCache` | Drop one of ModelBuilder's two RoPE caches | HTP can't dispatch on cache selector |
+| `AttentionMaskToSequenceLengths` | `GQA(attention_mask=[B,T])` → `GQA(past_seq_len, total_seq_len)` | HTP's GQA kernel wants scalar seq lens |
+
+`MobiusBuilder` emits opset-23 standard ops (`RMSNormalization`,
+`Attention`) instead of the contrib variants, so these surgeries are
+either no-ops or inapplicable. Gemma-4–specific surgeries may still be
+needed (e.g. lowering the final logit soft-cap `cap * tanh(x / cap)`),
+but the existing borrowed-from-Phi-3 set is not it.
 
 ## Limitations
 
 This recipe has **not yet been validated end-to-end**. Known gaps:
 
-1. **Multimodal `google/gemma-4-E2B-it` always produces a 4-component
-   package** (decoder + embedding + vision + audio). MobiusBuilder
-   currently does not expose a `model_type` / `module_class` override
-   to force the text-only `gemma4_text` build, so the pipeline must
-   either: (a) run the QNN passes only on the `decoder` component and
-   leave the others as fp32, or (b) wait for the upstream MobiusBuilder
-   to gain a `module_class` parameter. This recipe assumes (a) but the
-   QNN pass chain currently expects a single ONNX model — the
-   integration is still TODO.
+1. **Logit soft-cap may not lower to HTP.** Gemma 4's
+   `logits = cap * tanh(logits / cap)` is unusual for QNN. If HTP
+   rejects it, options are (a) skip soft-cap during QNN compile and
+   apply it in host post-processing, or (b) add a
+   `RemoveLogitSoftcap` GraphSurgery upstream in Olive.
 
-2. **Gemma 4's exotic ops may break QNN GraphSurgeries.** The recipe
-   borrows surgeries (`RemoveRopeMultiCache`, `AttentionMaskToSequenceLengths`,
-   `SimplifiedLayerNormToL2Norm`) from Phi-3 / Qwen QNN recipes; they
-   have not been verified against Gemma 4's hybrid local/global
-   attention, `tie_word_embeddings`, dual head_dim KV cache, or final
-   logit soft-capping (`logits = cap * tanh(logits / cap)`). The
-   soft-cap subgraph in particular may not lower cleanly to HTP — may
-   need to be folded into the logit lookup or skipped during QNN
-   compilation.
+2. **Hybrid local/global attention with dual head_dim.** Gemma 4 E2B
+   alternates local sliding-window (head_dim=256) and global
+   (head_dim=512) attention layers. Whether HTP can dispatch this
+   correctly per-layer needs testing.
 
-3. **Per-layer-input embeddings.** Gemma 4 E2B emits a second embedding
-   output (`per_layer_inputs`, shape `[B, S, L*D]`) consumed by every
-   decoder block. The split between embedding-on-CPU and decoder-on-HTP
-   needs a custom orchestrator (or both sub-models compiled into QNN
-   together).
+3. **`per_layer_inputs` data flow.** The embedding component emits a
+   second output (`per_layer_inputs`, shape `[B, S, L*D]`) consumed by
+   every decoder block. When all components compile to QNN this should
+   "just work" (the data path stays inside the package), but the
+   `StaticLLM` pass may need a hint to recognise this extra tensor.
 
-4. **Calibration data shape.** `OnnxStaticQuantization` calibration uses
-   `wikitext-2`; for Gemma 4 (which has a 256k tokenizer including
-   image / audio special tokens) the calibration set may under-represent
-   tokens that actually appear at inference time. Consider augmenting
-   with multimodal-formatted prompts.
+4. **256k tokenizer calibration.** `wikitext-2` calibration likely
+   under-represents Gemma 4's image / audio special tokens. Consider
+   augmenting with multimodal-formatted prompts before production.
 
-5. **`StaticLLM context_length=64`.** Mirrors Phi-3 / Qwen QNN recipes
-   but is unlikely to be useful for a real Gemma 4 deployment; tune to
-   target Snapdragon SKU memory budget once HW validation is possible.
+5. **`StaticLLM context_length=64`.** Placeholder mirroring existing QNN
+   recipes; tune to target Snapdragon SKU memory budget.
 
 ## Discussion
 
-If you have a Snapdragon test rig and run into specific failures,
-please add a comment with the trace; this recipe is intended as a
-template that other contributors can iterate on rather than a
-production-ready pipeline.
+If you have a Snapdragon test rig and the pipeline blows up on a
+specific pass, please drop the trace in a comment — this recipe is
+intentionally a template for iteration, not a finished product.

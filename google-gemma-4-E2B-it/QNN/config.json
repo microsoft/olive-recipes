@@ -31,28 +31,13 @@
             "type": "MobiusBuilder",
             "precision": "fp32"
         },
-        "matmul_nbits": {
+        "int4_quantize": {
             "type": "OnnxKQuantQuantization",
             "bits": 4,
             "block_size": 32,
             "save_as_external_data": true
         },
-        "mq": {
-            "type": "MatMulNBitsToQDQ",
-            "use_int4": true,
-            "add_zero_point": true,
-            "save_as_external_data": true
-        },
-        "gs": {
-            "type": "GraphSurgeries",
-            "surgeries": [
-                { "surgeon": "RemoveRopeMultiCache" },
-                { "surgeon": "AttentionMaskToSequenceLengths" },
-                { "surgeon": "SimplifiedLayerNormToL2Norm" }
-            ],
-            "save_as_external_data": true
-        },
-        "sq": {
+        "static_quant": {
             "type": "OnnxStaticQuantization",
             "data_config": "wikitext2_train_act",
             "activation_type": "uint16",
@@ -66,13 +51,12 @@
             ],
             "save_as_external_data": true
         },
-        "sp": { "type": "SplitModel" },
-        "st": {
+        "static_llm": {
             "type": "StaticLLM",
             "batch_size": 1,
             "context_length": 64
         },
-        "cb": {
+        "ep_context": {
             "type": "EPContextBinaryGenerator",
             "provider_options": {
                 "htp_performance_mode": "burst",
@@ -81,7 +65,7 @@
             },
             "weight_sharing": true
         },
-        "cp": { "type": "ComposeOnnxModels" }
+        "compose": { "type": "ComposeOnnxModels" }
     },
     "target": "qnn_system",
     "output_dir": "model/gemma4_e2b_qnn",
