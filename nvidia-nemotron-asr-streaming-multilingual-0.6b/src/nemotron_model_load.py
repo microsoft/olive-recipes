@@ -170,7 +170,6 @@ def encoder_dummy_inputs(model):
     shapes = _get_streaming_shapes()
     static_mel_frames = shapes["static_mel_frames"]
     last_channel_cache_size = shapes["last_channel_cache_size"]
-    chunk_encoded_frames = shapes["chunk_encoded_frames"]
 
     batch = 1
     return (

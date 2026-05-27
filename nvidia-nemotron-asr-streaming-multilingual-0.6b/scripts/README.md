@@ -45,4 +45,3 @@ through Olive's declarative pass system. See `src/README.md` for details.
 | Script | Purpose |
 |--------|---------|
 | `export_tokenizer.py` | Extract vocab from NeMo and create ORT-compatible tokenizer |
-

@@ -74,7 +74,7 @@ def run_olive_pipelines(output_dir: str, model_path: str = None, encoder_precisi
     """Run all Olive pipelines: encoder (INT4 or INT8), decoder (FP32), joint (FP32)."""
     if encoder_precision == "int8":
         encoder_config = "nemotron_encoder_int8_cpu.json"
-        print("=== Stage 1: Olive Encoder (OnnxConversion → INT8 dynamic quant) ===")
+        print("=== Stage 1: Olive Encoder (OnnxConversion → INT8 k-quant) ===")
     else:
         encoder_config = "nemotron_encoder_int4_cpu.json"
         print("=== Stage 1: Olive Encoder (OnnxConversion → INT4 quant) ===")
@@ -112,7 +112,6 @@ def generate_configs(model_name: str, output_dir: str, chunk_size: float):
     the config files needed by onnxruntime-genai for inference.
     """
     print("=== Stage 5: Generating config files ===")
-    import nemo.collections.asr as nemo_asr
     from src.nemotron_model_load import _load_nemo_model, get_att_context_size, D_MODEL, N_LAYERS, DECODER_HIDDEN, DECODER_LSTM_LAYERS
 
     asr_model = _load_nemo_model(model_name)
@@ -286,6 +285,7 @@ def download_silero_vad(output_dir: str):
     cached = hf_hub_download(
         repo_id="onnx-community/silero-vad",
         filename="onnx/model.onnx",
+        revision="e71cae966052b992a7eca6b17738916ce0eca4ec",
     )
     shutil.copy2(cached, str(dst))
     size_mb = dst.stat().st_size / (1024 * 1024)
