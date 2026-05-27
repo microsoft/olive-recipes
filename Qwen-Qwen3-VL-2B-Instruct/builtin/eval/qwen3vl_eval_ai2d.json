@@ -1,0 +1,65 @@
+{
+    "input_model": {
+        "type": "OnnxModel",
+        "model_path": "../cpu_and_mobile/models"
+    },
+    "data_configs": [
+        {
+            "name": "ai2d_test",
+            "type": "HuggingfaceContainer",
+            "task_type": "vision-vqa",
+            "load_dataset_config": {
+                "type": "huggingface_dataset",
+                "params": {
+                    "data_name": "lmms-lab/ai2d",
+                    "split": "test"
+                }
+            },
+            "pre_process_data_config": {
+                "type": "vision_vqa_pre_process",
+                "params": {
+                    "image_col": "image",
+                    "question_col": "question",
+                    "answer_col": "answer",
+                    "limit": 100
+                }
+            }
+        }
+    ],
+    "metrics": [
+        {
+            "name": "vision_accuracy",
+            "type": "accuracy",
+            "data_config": "ai2d_test",
+            "sub_types": [
+                {
+                    "name": "exact_match",
+                    "priority": 1,
+                    "higher_is_better": true
+                }
+            ],
+            "user_config": {
+                "user_script": "eval_user_script.py",
+                "post_processing_func": "post_process_vision_output"
+            }
+        }
+    ],
+    "evaluators": {
+        "common_evaluator": {
+            "metrics": ["vision_accuracy"]
+        }
+    },
+    "systems": {
+        "local_system": {
+            "type": "LocalSystem",
+            "accelerators": [
+                {
+                    "device": "cpu",
+                    "execution_providers": ["CPUExecutionProvider"]
+                }
+            ]
+        }
+    },
+    "host": "local_system",
+    "target": "local_system"
+}
