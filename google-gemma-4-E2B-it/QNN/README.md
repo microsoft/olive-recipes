@@ -113,6 +113,22 @@ This recipe has **not yet been validated end-to-end**. Known gaps:
 5. **`StaticLLM context_length=64`.** Placeholder mirroring existing QNN
    recipes; tune to target Snapdragon SKU memory budget.
 
+6. **Standard `Attention` op, not `GroupQueryAttention`.** mobius only
+   emits `com.microsoft::GroupQueryAttention(seqlens_k, total_seq_len)`
+   when the EP capability advertises `gqa_dtypes`. The QNN EP
+   capability in mobius currently has an empty `gqa_dtypes` list, so
+   `Gemma4TextModel.forward` (`src/mobius/models/gemma4.py:1500-1508`)
+   falls back to the standard opset-23 `Attention` with an
+   `attention_mask` input. QNN's HTP backend should have an attention
+   kernel for the standard op, but if it doesn't lower well there are
+   two options:
+   - extend mobius `ep_capabilities()` to advertise QNN-supported
+     dtypes for `gqa_dtypes`, then mobius will emit `GQA` directly
+     (no GraphSurgery needed); or
+   - port `AttentionMaskToSequenceLengths` to operate on standard
+     `Attention` (it currently checks for `GroupQueryAttention` only
+     and no-ops otherwise).
+
 ## Discussion
 
 If you have a Snapdragon test rig and the pipeline blows up on a
