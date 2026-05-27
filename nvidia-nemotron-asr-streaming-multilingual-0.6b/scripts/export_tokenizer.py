@@ -197,7 +197,7 @@ def main():
     parser.add_argument(
         "--model_name",
         type=str,
-        default="nvidia/nemotron-speech-streaming-en-0.6b",
+        default="nvidia/NVIDIA-Nemotron-3.5-ASR-Streaming-Multilingual-0.6b",
         help="HuggingFace model name or local .nemo path",
     )
     parser.add_argument(

@@ -8,8 +8,8 @@ Used by Olive's OnnxConversion pass via the ``model_script`` / ``model_loader``
 mechanism. Each component (encoder, decoder, joint) has its own loader and
 dummy inputs function, referenced from separate Olive JSON configs.
 
-Streaming defaults (chunk_size=0.56s, left_chunks=10) match the values in
-the Olive JSON configs.
+Streaming defaults (chunk_size=0.56s, left_chunks=10) are defined as constants
+below and are the single source of truth for the export shapes.
 """
 
 import torch
@@ -38,7 +38,7 @@ DECODER_HIDDEN = 640
 DECODER_LSTM_LAYERS = 2
 NUM_PROMPTS = 128  # one-hot language-ID size
 
-# Streaming config — single source of truth (mirrors the EN recipe).
+# Streaming config — single source of truth.
 # chunk_encoded_frames = int(CHUNK_SIZE * 100) // SUBSAMPLING_FACTOR = 7
 # last_channel_cache_size = LEFT_CHUNKS * chunk_encoded_frames = 70
 LEFT_CHUNKS = 10
@@ -49,8 +49,8 @@ MODEL_NAME = "nvidia/NVIDIA-Nemotron-3.5-ASR-Streaming-Multilingual-0.6b"
 def get_att_context_size(chunk_size: float = CHUNK_SIZE, left_chunks: int = LEFT_CHUNKS):
     """Compute attention context size for the streaming encoder.
 
-    Mirrors the EN recipe's formula: left_context = left_chunks * chunk_encoded_frames;
-    right_context indexed by chunk_size.
+    left_context = left_chunks * chunk_encoded_frames;
+    right_context is indexed by chunk_size.
     """
     right_context = {0.08: 0, 0.16: 1, 0.56: 6, 1.12: 13}.get(chunk_size, 13)
     chunk_encoded_frames = int(chunk_size * 100) // SUBSAMPLING_FACTOR
