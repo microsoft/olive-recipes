@@ -1,11 +1,12 @@
 # Model Optimization and Quantization for AMD NPU
-This folder contains sample Olive configuration to optimize Qwen models for AMD NPU.
+
+This folder contains sample Olive configuration to optimize AMD-OLMo model for AMD NPU.
 
 ## ✅ Supported Models and Configs
 
-| Model Name (Hugging Face)          | Config File Name                |
-| :--------------------------------- | :------------------------------ |
-| `Qwen/Qwen2-1.5B`       | `Qwen2-1.5B_quark_vitisai_llm.json` |
+| Model Name                         | Config File Name                  |
+|:----------------------------------|:----------------------------------|
+| `amd/AMD-OLMo-1B-SFT-DPO`         | `AMD-OLMo-1B-SFT-DPO_quark_vitisai_llm.json`  |
 
 ## **Run the Quantization Config**
 
@@ -14,29 +15,21 @@ This folder contains sample Olive configuration to optimize Qwen models for AMD 
 For LLMs - follow the below commands to generate the optimized model for VitisAI Execution Provider.
 
 **Platform Support:**
+- ✅ **Linux with ROCm** - Supported
+- ✅ **Linux with CUDA** - Supported
 - ✅ **Windows with CUDA** - Supported
-- ✅ **Windows with CPU** - Supported
-- ⏳ **Planned for future release:** Linux with ROCm, Linux with CUDA, Windows with ROCm
+- ✅ **Windows with CPU** - Supported (quantization will be slower)
+- ⏳ **Windows with ROCm** - Planned for future release
 
 For more details about quark, see the [Quark Documentation](https://quark.docs.amd.com/latest/)
 
-#### **Create a Python 3.12 conda environment and run the below commands**
+#### **Create a Python 3.10 conda environment and run the below commands**
 ```bash
-conda create -n olive python=3.12
+conda create -n olive python=3.10
 conda activate olive
 ```
 
-#### **Install Olive**
-
-**Option 1: Install from PyPI**
 ```bash
-pip install olive-ai[auto-opt]
-pip install transformers onnxruntime-genai
-```
-
-**Option 2: Install from source**
-```bash
-git clone https://github.com/microsoft/Olive.git
 cd Olive
 pip install -e .
 pip install -r requirements.txt
@@ -45,11 +38,11 @@ pip install -r requirements.txt
 #### **Install VitisAI LLM dependencies**
 
 ```bash
-cd olive-recipes/Qwen-Qwen2-1.5B/VitisAI
+cd olive-recipes\amd-AMD-OLMo-1B-SFT-DPO\VitisAI
 pip install --force-reinstall -r requirements_vitisai_llm.txt
 ```
 
-
+**Note:** The requirements file automatically installs the correct `model-generate` version for your platform (1.5.0 for Linux, 1.5.1 for Windows).
 
 #### **Install PyTorch**
 
@@ -69,20 +62,12 @@ pip install torch==2.7.1 torchvision==0.22.1 torchaudio==2.7.1 --index-url https
 python -c "import torch; print(torch.cuda.is_available())" # Must return `True`
 ```
 
-**For CPU-only (Windows):**
-```bash
-pip install torch==2.7.0 torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
-python -c "import torch; print(torch.__version__)"  # Should print 2.7.0+cpu
-```
-
 #### **Generate optimized LLM model for VitisAI NPU**
 Follow the above setup instructions, then run the below command to generate the optimized LLM model for VitisAI EP
 
 ```bash
-# Qwen2-1.5B
-olive run --config Qwen2-1.5B_quark_vitisai_llm.json
+# AMD-OLMo-1B-SFT-DPO
+olive run --config AMD-OLMo-1B-SFT-DPO_quark_vitisai_llm.json
 ```
 
-✅ Optimized model saved in: `models/Qwen2-1.5B-vai/`
-
-> **Note:** Output model is saved in `output_dir` mentioned in the json files.
+✅ Optimized model saved in: `models/AMD-OLMo-1B-SFT-DPO-vai/`
