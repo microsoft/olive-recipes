@@ -1,0 +1,6 @@
+arch: hunyuandensev1
+recipes:
+  - name: tencent-HY-MT1.5-1.8B_cuda_int4
+    file: tencent-HY-MT1.5-1.8B_cuda_int4.json
+    devices: gpu
+    eps: CUDAExecutionProvider

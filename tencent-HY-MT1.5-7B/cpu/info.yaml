@@ -1,0 +1,6 @@
+arch: hunyuandensev1
+recipes:
+  - name: tencent-HY-MT1.5-7B_cpu_int4
+    file: tencent-HY-MT1.5-7B_cpu_int4.json
+    devices: cpu
+    eps: CPUExecutionProvider

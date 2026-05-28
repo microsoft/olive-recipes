@@ -1,0 +1,28 @@
+# tencent-HY-MT1.5-1.8B — CUDA optimization
+
+This folder contains Olive recipes for optimizing tencent-HY-MT1.5-1.8B targeting the CUDA EP.
+
+## What this folder is for
+
+- Execution Provider: CUDA EP
+- Typical precision: INT4 precision by default
+- Example recipe filename: tencent-HY-MT1.5-1.8B_cuda_int4.json
+
+## Setup
+
+1) Install the main branch of Olive:
+   - pip install git+https://github.com/microsoft/olive.git
+2) Install the appropriate runtime package for this backend:
+   - onnxruntime-genai-cuda (CUDA build)
+3) Run Olive to build/optimize the model
+   - olive run --config tencent-HY-MT1.5-1.8B_cuda_int4.json
+
+Additional notes:
+- Pipeline: `SelectiveMixedPrecision` (kld_gradient) → `GPTQ` → `RTN` (8-bit lm_head/embeddings) → `ModelBuilder` → `TieWordEmbeddings`
+- GPTQ group size: 128
+- Requires NVIDIA GPU with CUDA support.
+- Ensure CUDA toolkit and cuDNN are properly installed.
+
+---
+
+This README was auto-generated for the CUDA EP of tencent-HY-MT1.5-1.8B.
