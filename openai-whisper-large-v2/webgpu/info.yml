@@ -1,0 +1,7 @@
+keywords:
+  - whisper
+recipes:
+  - name: openai-whisper-large-v2-webgpu-int8
+    file: whisper-large-v2_webgpu_int8.json
+    devices: gpu
+    eps: WebGpuExecutionProvider
