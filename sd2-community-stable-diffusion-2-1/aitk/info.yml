@@ -10,8 +10,11 @@ recipes:
       - gpu
       - cpu
     ep: OpenVINOExecutionProvider
+  - file: "sd_ov_npu_workflow.json"
+    devices:
+      - npu
+    ep: OpenVINOExecutionProvider
 aitk:
   modelInfo:
     id: "huggingface/sd2-community/stable-diffusion-2-1"
-    version: 1
-    status: Hide
+    version: 2

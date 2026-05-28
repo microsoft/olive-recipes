@@ -5,26 +5,12 @@
 
 import argparse
 import os
-from qnn_app import HfWhisperAppWithSave, infer_audio, get_audio_name, get_device_type
 import logging
+
+from qnn_app import HfWhisperAppWithSave, infer_audio, get_audio_name, get_device_type
 
 logger = logging.getLogger(os.path.basename(__file__))
 logging.basicConfig(level=logging.INFO)
-
-def register_execution_providers():
-    import json
-    import subprocess
-    import sys
-    import onnxruntime as ort
-
-    worker_script = os.path.abspath('winml.py')
-    result = subprocess.check_output([sys.executable, worker_script], text=True)
-    paths = json.loads(result)
-    for item in paths.items():
-        try:
-            ort.register_execution_provider_library(item[0], item[1])
-        except Exception as e:
-            logger.warning(f"Failed to register execution provider {item[0]}: {e}")
 
 def main():
     parser = argparse.ArgumentParser(description="Demo")
@@ -90,7 +76,9 @@ def main():
     encoder_path = args.encoder
     decoder_path = args.decoder
 
-    register_execution_providers()
+    if args.execution_provider != "CPUExecutionProvider":
+        from winml import register_execution_providers_to_onnxruntime
+        register_execution_providers_to_onnxruntime()
     app = HfWhisperAppWithSave(encoder_path, decoder_path, args.model_id, args.execution_provider, get_device_type(args.device_str))
 
     if not os.path.exists(args.audio_path) or os.path.isdir(args.audio_path):

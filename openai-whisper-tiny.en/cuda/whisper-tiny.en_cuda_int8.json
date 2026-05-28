@@ -1,0 +1,36 @@
+{
+    "input_model": {
+        "type": "HfModel",
+        "model_path": "openai/whisper-tiny.en",
+        "task": "automatic-speech-recognition"
+    },
+    "systems": {
+        "local_system": {
+            "type": "LocalSystem",
+            "accelerators": [
+                {
+                    "device": "gpu",
+                    "execution_providers": [
+                        "CUDAExecutionProvider"
+                    ]
+                }
+            ]
+        }
+    },
+    "engine": {
+        "target": "local_system"
+    },
+    "passes": {
+        "builder": {
+            "type": "ModelBuilder",
+            "precision": "fp16"
+        },
+        "onnx_kquant_quantization": {
+            "type": "OnnxKQuantQuantization",
+            "bits": 8,
+            "block_size": 32,
+            "save_as_external_data": true
+        }
+    },
+    "output_dir": "build/whisper-tiny-en_cuda_int8"
+}
