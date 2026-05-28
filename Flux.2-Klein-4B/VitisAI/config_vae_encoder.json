@@ -1,0 +1,41 @@
+{
+    "input_model": {
+        "type": "PyTorchModel",
+        "model_path": "black-forest-labs/FLUX.2-klein-4B",
+        "model_loader": "vae_encoder_load",
+        "model_script": "user_script.py",
+        "io_config": {
+            "input_names": ["images"],
+            "output_names": ["latents"],
+            "dynamic_axes": {
+                "images":  {"0": "batch_size", "2": "height",   "3": "width"},
+                "latents": {"0": "batch_size", "2": "latent_h", "3": "latent_w"}
+            }
+        },
+        "dummy_inputs_func": "vae_encoder_conversion_inputs"
+    },
+    "systems": {
+        "local_system": {
+            "type": "LocalSystem",
+            "accelerators": [{"device": "gpu", "execution_providers": ["CUDAExecutionProvider"]}]
+        }
+    },
+    "passes": {
+        "convert": {
+            "type": "OnnxConversion",
+            "target_opset": 17,
+            "all_tensors_to_one_file": true
+        },
+        "model_generation": {
+            "type": "VitisGenerateModelSD",
+            "model_type": "sd3-vae-encoder",
+            "resolutions": ["1024x1024"]
+        }
+    },
+    "log_severity_level": 0,
+    "evaluate_input_model": false,
+    "host": "local_system",
+    "target": "local_system",
+    "cache_dir": "cache",
+    "output_dir": "footprints/vae_encoder"
+}
