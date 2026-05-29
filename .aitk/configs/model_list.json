@@ -510,6 +510,7 @@
             "id": "huggingface/meta-llama/Llama-3.1-8B-Instruct",
             "runtimes": [
                 "QNN",
+                "QNNGPU",
                 "AMDNPU",
                 "NvidiaTRTRTX",
                 "IntelCPU",

@@ -32,6 +32,13 @@ recipes:
     - file: "llama3_1_dml_config.json"
       device: gpu
       ep: DmlExecutionProvider
+    - file: "llama3_1_qnn_gpu.json"
+      device: gpu
+      ep: QNNExecutionProvider
+      aitk:
+        oliveFile: "../meta-llama-Llama-3.2-1B-Instruct/QNN/config_gpu.json"
+        isGPURequired: true
+        requirements: General/CUDA_py3.12.9
 aitk:
     modelInfo:
         id: "huggingface/meta-llama/Llama-3.1-8B-Instruct"
