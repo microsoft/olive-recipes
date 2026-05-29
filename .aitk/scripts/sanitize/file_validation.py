@@ -204,7 +204,7 @@ def readCheckIpynb(ipynbFile: str, modelItems: dict[str, ModelParameter]):
                     printError(f"{ipynbFile} has multiple runtimes, but also has {targetStr}")
                 foundTargetEP = True
             elif targetCount > 1:
-                printError(f'{ipynbFile} should have 1 {targetStr} but has {targetCount}')
+                printError(f"{ipynbFile} should have 1 {targetStr} but has {targetCount}")
         if not foundTargetEP:
             printError(f"{ipynbFile} has no runtime for it!")
         return True
