@@ -1,0 +1,19 @@
+# from nvidia-modelopt[onnx]==0.35.1
+# if no no-deps, it will install onnxruntime-directml
+# pip:--no-deps
+cppimport==22.8.2
+cupy-cuda12x==13.6.0
+fastrlock==0.8.3
+markdown-it-py==4.0.0
+mdurl==0.1.2
+ninja==1.13.0
+nvidia-ml-py==13.580.82
+nvidia-modelopt==0.35.1
+onnx==1.18.0
+onnx-graphsurgeon==0.5.8
+onnxconverter-common==1.16.0
+polygraphy==0.49.26
+pulp==3.3.0
+pybind11==3.0.1
+rich==14.2.0
+torchprofile==0.0.4
