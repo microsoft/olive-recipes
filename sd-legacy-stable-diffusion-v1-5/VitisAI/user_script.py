@@ -10,7 +10,6 @@ import torch
 from diffusers import AutoencoderKL, UNet2DConditionModel
 from diffusers.pipelines.stable_diffusion.safety_checker import StableDiffusionSafetyChecker
 from huggingface_hub import model_info
-from model_adaptations import monkey_patch_model
 from olive.data.registry import Registry
 from sd_utils import config
 from transformers.models.clip.modeling_clip import CLIPTextModel
@@ -264,15 +263,6 @@ def unet_load(model_name):
     model = UNet2DConditionModel.from_pretrained(base_model_id, subfolder="unet")
     if is_lora_model(model_name):
         merge_lora_weights(model, model_name, "unet")
-    return model
-
-
-def unet_load_qnn(model_name):
-    base_model_id = get_base_model_name(model_name)
-    model = UNet2DConditionModel.from_pretrained(base_model_id, subfolder="unet")
-    if is_lora_model(model_name):
-        merge_lora_weights(model, model_name, "unet")
-    monkey_patch_model(model)
     return model
 
 
