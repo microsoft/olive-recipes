@@ -16,7 +16,7 @@
         },
         "mg": {
             "type": "RyzenGenerateModelLLM",
-            "recipe": "full_fusion"
+            "recipe": "token_fusion"
         }
     },
     "log_severity_level": 1,
