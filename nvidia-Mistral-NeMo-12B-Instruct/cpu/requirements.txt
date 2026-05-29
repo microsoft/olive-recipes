@@ -1,0 +1,9 @@
+accelerate
+datasets
+lm-eval
+olive-ai
+onnxruntime-genai
+sentencepiece
+tiktoken
+torch
+transformers==4.57.1

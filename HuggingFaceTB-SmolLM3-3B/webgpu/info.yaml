@@ -1,0 +1,18 @@
+arch: smollm3
+recipes:
+  - name: HuggingFaceTB-SmolLM3-3B_webgpu_fp16
+    file: HuggingFaceTB-SmolLM3-3B_webgpu_fp16.json
+    devices: gpu
+    eps: WebGpuExecutionProvider
+  - name: HuggingFaceTB-SmolLM3-3B_webgpu_fp16_with_eval
+    file: HuggingFaceTB-SmolLM3-3B_webgpu_fp16_with_eval.json
+    devices: gpu
+    eps: WebGpuExecutionProvider
+  - name: HuggingFaceTB-SmolLM3-3B_webgpu_int4
+    file: HuggingFaceTB-SmolLM3-3B_webgpu_int4.json
+    devices: gpu
+    eps: WebGpuExecutionProvider
+  - name: HuggingFaceTB-SmolLM3-3B_webgpu_int4_with_eval
+    file: HuggingFaceTB-SmolLM3-3B_webgpu_int4_with_eval.json
+    devices: gpu
+    eps: WebGpuExecutionProvider

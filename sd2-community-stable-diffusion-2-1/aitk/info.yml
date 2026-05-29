@@ -18,4 +18,3 @@ aitk:
   modelInfo:
     id: "huggingface/sd2-community/stable-diffusion-2-1"
     version: 2
-    status: Hide

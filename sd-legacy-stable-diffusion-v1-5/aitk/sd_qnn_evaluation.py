@@ -4,17 +4,17 @@
 # --------------------------------------------------------------------------
 
 import json
-import os
 import logging
+import os
 from pathlib import Path
 
 import numpy as np
 import onnxruntime as ort
-
 from sd_utils.qdq import OnnxStableDiffusionPipelineWithSave
 
 logger = logging.getLogger(os.path.basename(__file__))
 logging.basicConfig(level=logging.INFO)
+
 
 def parse_args(raw_args):
     import argparse
@@ -56,6 +56,7 @@ def parse_args(raw_args):
     )
     return parser.parse_args(raw_args)
 
+
 def get_device_type(device_str):
     if device_str.lower() == "gpu":
         return ort.OrtHardwareDeviceType.GPU
@@ -63,6 +64,7 @@ def get_device_type(device_str):
         return ort.OrtHardwareDeviceType.NPU
     else:
         return ort.OrtHardwareDeviceType.CPU
+
 
 def add_ep_for_device(session_options, ep_name, device_type, ep_options=None):
     ep_devices = ort.get_ep_devices()
@@ -80,6 +82,7 @@ def main(raw_args=None):
     model_dir = Path(args.script_dir) / "model" / args.model_dir / args.model_id
 
     from winml import register_execution_providers
+
     register_execution_providers()
 
     sess_options = ort.SessionOptions()
@@ -122,12 +125,13 @@ def main(raw_args=None):
     metrics = {
         "text-encoder-latency-avg": text_encoder_latency_avg,
         "unet-latency-avg": unet_latency_avg,
-        "vae-decoder-latency-avg": vae_decoder_latency_avg
+        "vae-decoder-latency-avg": vae_decoder_latency_avg,
     }
     resultStr = json.dumps(metrics, indent=4)
-    with open(args.output_file, 'w') as file:
+    with open(args.output_file, "w") as file:
         file.write(resultStr)
     logger.info("Model lab succeeded for evaluation.\n%s", resultStr)
+
 
 if __name__ == "__main__":
     main()
