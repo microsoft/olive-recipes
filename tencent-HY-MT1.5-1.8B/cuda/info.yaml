@@ -1,0 +1,18 @@
+arch: hunyuan_v1_dense
+recipes:
+  - name: tencent-HY-MT1.5-1.8B_cuda_fp16
+    file: tencent-HY-MT1.5-1.8B_cuda_fp16.json
+    devices: gpu
+    eps: CUDAExecutionProvider
+  - name: tencent-HY-MT1.5-1.8B_cuda_fp16_with_eval
+    file: tencent-HY-MT1.5-1.8B_cuda_fp16_with_eval.json
+    devices: gpu
+    eps: CUDAExecutionProvider
+  - name: tencent-HY-MT1.5-1.8B_cuda_int4
+    file: tencent-HY-MT1.5-1.8B_cuda_int4.json
+    devices: gpu
+    eps: CUDAExecutionProvider
+  - name: tencent-HY-MT1.5-1.8B_cuda_int4_with_eval
+    file: tencent-HY-MT1.5-1.8B_cuda_int4_with_eval.json
+    devices: gpu
+    eps: CUDAExecutionProvider
