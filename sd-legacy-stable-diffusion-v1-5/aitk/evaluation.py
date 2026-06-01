@@ -249,7 +249,7 @@ def main(raw_args=None):
     train_data = dataset[args.dataset_split]
     prompts = [sanitize_path(example["captions"][0]) for i, example in enumerate(train_data) if i < args.num_data]
     # TODO unused data for evaluation
-    #real_images = get_real_images(train_data, args.num_data)
+    # real_images = get_real_images(train_data, args.num_data)
 
     train_num = math.floor(len(prompts) * args.train_ratio)
     clip_score_fn = partial(clip_score, model_name_or_path="openai/clip-vit-base-patch16")

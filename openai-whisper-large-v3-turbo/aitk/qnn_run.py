@@ -4,13 +4,14 @@
 # ---------------------------------------------------------------------
 
 import argparse
-import os
 import logging
+import os
 
-from qnn_app import HfWhisperAppWithSave, infer_audio, get_audio_name, get_device_type
+from qnn_app import HfWhisperAppWithSave, get_audio_name, get_device_type, infer_audio
 
 logger = logging.getLogger(os.path.basename(__file__))
 logging.basicConfig(level=logging.INFO)
+
 
 def main():
     parser = argparse.ArgumentParser(description="Demo")
@@ -78,12 +79,15 @@ def main():
 
     if args.execution_provider != "CPUExecutionProvider":
         from winml import register_execution_providers_to_onnxruntime
+
         register_execution_providers_to_onnxruntime()
-    app = HfWhisperAppWithSave(encoder_path, decoder_path, args.model_id, args.execution_provider, get_device_type(args.device_str))
+    app = HfWhisperAppWithSave(
+        encoder_path, decoder_path, args.model_id, args.execution_provider, get_device_type(args.device_str)
+    )
 
     if not os.path.exists(args.audio_path) or os.path.isdir(args.audio_path):
-        from datasets import load_dataset
         import numpy as np
+        from datasets import load_dataset
 
         os.makedirs(args.audio_path, exist_ok=True)
         streamed_dataset = load_dataset(args.dataset_name, "clean", split=args.dataset_split, streaming=True)
@@ -96,7 +100,7 @@ def main():
 
             audio_name = get_audio_name(file_path)
             if args.save_data and os.path.exists(os.path.join(args.save_data, audio_name)):
-                #print(f"Skipping {file_path} as data already exists.")
+                # print(f"Skipping {file_path} as data already exists.")
                 pass
             else:
                 logger.info(f"Processing data {i} in {file_path} ...")

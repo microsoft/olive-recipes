@@ -1,0 +1,18 @@
+arch: mistral
+recipes:
+  - name: nvidia-Mistral-NeMo-12B-Instruct_cuda_fp16
+    file: nvidia-Mistral-NeMo-12B-Instruct_cuda_fp16.json
+    devices: gpu
+    eps: CUDAExecutionProvider
+  - name: nvidia-Mistral-NeMo-12B-Instruct_cuda_fp16_with_eval
+    file: nvidia-Mistral-NeMo-12B-Instruct_cuda_fp16_with_eval.json
+    devices: gpu
+    eps: CUDAExecutionProvider
+  - name: nvidia-Mistral-NeMo-12B-Instruct_cuda_int4
+    file: nvidia-Mistral-NeMo-12B-Instruct_cuda_int4.json
+    devices: gpu
+    eps: CUDAExecutionProvider
+  - name: nvidia-Mistral-NeMo-12B-Instruct_cuda_int4_with_eval
+    file: nvidia-Mistral-NeMo-12B-Instruct_cuda_int4_with_eval.json
+    devices: gpu
+    eps: CUDAExecutionProvider

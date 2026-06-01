@@ -1,0 +1,35 @@
+{
+    "input_model": {
+        "type": "HfModel",
+        "model_path": "mistralai/Mistral-Nemo-Instruct-2407",
+        "load_kwargs": {
+            "torch_dtype": "float16"
+        }
+    },
+    "systems": {
+        "local_system": {
+            "type": "LocalSystem",
+            "accelerators": [
+                {
+                    "device": "gpu"
+                }
+            ]
+        }
+    },
+    "evaluators": {
+        "mmlu": {
+            "type": "LMEvaluator",
+            "tasks": [
+                "mmlu"
+            ],
+            "batch_size": 1,
+            "max_length": 2048,
+            "device": "gpu"
+        }
+    },
+    "evaluator": "mmlu",
+    "target": "local_system",
+    "log_severity_level": 0,
+    "output_dir": "model_pytorch",
+    "cache_dir": "cache_pytorch"
+}
