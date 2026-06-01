@@ -54,12 +54,7 @@
     "systems": {
         "local_system": {
             "type": "LocalSystem",
-            "accelerators": [
-                {
-                    "device": "cpu",
-                    "execution_providers": ["CPUExecutionProvider"]
-                }
-            ]
+            "accelerators": []
         }
     }
 }
