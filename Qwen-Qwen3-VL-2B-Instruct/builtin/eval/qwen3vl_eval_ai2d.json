@@ -1,7 +1,8 @@
 {
     "input_model": {
         "type": "OnnxModel",
-        "model_path": "../cpu_and_mobile/models"
+        "model_path": "../cpu_and_mobile/models",
+        "onnx_file_name": "text.onnx"
     },
     "data_configs": [
         {
