@@ -26,23 +26,22 @@
             }
         }
     ],
-    "metrics": [
-        {
-            "name": "vision_accuracy",
-            "type": "accuracy",
-            "data_config": "ai2d_test",
-            "sub_types": [
-                {
-                    "name": "exact_match",
-                    "priority": 1,
-                    "higher_is_better": true
-                }
-            ]
-        }
-    ],
     "evaluators": {
         "common_evaluator": {
-            "metrics": ["vision_accuracy"]
+            "metrics": [
+                {
+                    "name": "vision_accuracy",
+                    "type": "accuracy",
+                    "data_config": "ai2d_test",
+                    "sub_types": [
+                        {
+                            "name": "exact_match",
+                            "priority": 1,
+                            "higher_is_better": true
+                        }
+                    ]
+                }
+            ]
         }
     },
     "systems": {
