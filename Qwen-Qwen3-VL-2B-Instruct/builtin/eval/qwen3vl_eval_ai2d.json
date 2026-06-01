@@ -44,6 +44,12 @@
             ]
         }
     },
+    "engine": {
+        "evaluate_input_model": true,
+        "evaluator": "common_evaluator",
+        "host": "local_system",
+        "target": "local_system"
+    },
     "systems": {
         "local_system": {
             "type": "LocalSystem",
@@ -54,7 +60,5 @@
                 }
             ]
         }
-    },
-    "host": "local_system",
-    "target": "local_system"
+    }
 }
