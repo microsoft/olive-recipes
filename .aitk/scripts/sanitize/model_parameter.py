@@ -221,18 +221,21 @@ class OptimizationPath(BaseModel):
         return value
 
 
-def _anyRegexMatch(path: str, patterns: Optional[List[str]]) -> bool:
+def _anyRegexMatch(path: str, patterns: Optional[List[str]], localLabel: str) -> bool:
     """True if any regex in patterns matches path (re.search). Empty/None -> False."""
     if not patterns:
         return False
-    for pattern in patterns:
-        try:
-            if re.search(pattern, path):
-                return True
-        except re.error as e:
-            printError(f"Invalid regex pattern {pattern!r} for oliveFile ignore list: {e}")
-            return False
-    return False
+    for pattern in patterns:
+        try:
+            if re.search(pattern, path):
+                return True
+
+        except re.error as e:
+            printError(f"Invalid regex pattern {pattern!r} for oliveFile ignore list ({localLabel}): {e}")
+
+            return False
+
+    return False
 
 
 class OliveFileConfig(BaseModel):
@@ -662,7 +665,7 @@ class ModelParameter(BaseModelClass):
         addeds: list[str] = diff.pop("dictionary_item_added", [])
         newAddeds = []
         for added in addeds:
-            if not added.endswith("['save_as_external_data']") and not _anyRegexMatch(added, ignoreAdded):
+            if not added.endswith("['save_as_external_data']") and not _anyRegexMatch(added, ignoreAdded, localLabel):
                 newAddeds.append(added)
         if newAddeds:
             diff["dictionary_item_added"] = newAddeds
@@ -670,7 +673,7 @@ class ModelParameter(BaseModelClass):
         removeds: list[str] = diff.pop("dictionary_item_removed", [])
         newRemoveds = []
         for removed in removeds:
-            if removed != "root['add_metadata']" and not _anyRegexMatch(removed, ignoreRemoved):
+            if removed != "root['add_metadata']" and not _anyRegexMatch(removed, ignoreRemoved, localLabel):
                 newRemoveds.append(removed)
         if newRemoveds:
             diff["dictionary_item_removed"] = newRemoveds
@@ -682,7 +685,7 @@ class ModelParameter(BaseModelClass):
                 changed.endswith("['data_config']")
                 or changed.endswith("['user_script']")
                 or changed.endswith("['save_as_external_data']")
-            ) and not _anyRegexMatch(changed, ignoreChanged):
+            ) and not _anyRegexMatch(changed, ignoreChanged, localLabel):
                 newChangeds[changed] = changeds[changed]
         if newChangeds:
             diff["values_changed"] = newChangeds
