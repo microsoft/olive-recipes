@@ -38,6 +38,12 @@ recipes:
         oliveFile: "QNN/config_gpu.json"
         isGPURequired: true
         requirements: General/CUDA_py3.12.9
+    - file: "deepseek_webgpu.json"
+      device: gpu
+      ep: WebGpuExecutionProvider
+      aitk:
+        requirements: WebGPU/WebGPU_py3.12.13
+        evalRuntime: WebGPU
 aitk:
     modelInfo:
         id: "huggingface/deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B"
