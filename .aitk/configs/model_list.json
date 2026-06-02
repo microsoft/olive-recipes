@@ -494,7 +494,10 @@
             "modelLink": "https://huggingface.co/facebook/sam2.1-hiera-small",
             "id": "huggingface/facebook/sam2.1-hiera-small",
             "runtimes": [
-                "QNN"
+                "QNN",
+                "IntelCPU",
+                "IntelGPU",
+                "IntelNPU"
             ],
             "architecture": "Transformer",
             "status": "Ready",
