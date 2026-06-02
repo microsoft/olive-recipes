@@ -6,6 +6,7 @@ from .model_info import ModelList
 from .model_parameter import ModelParameter
 from .utils import isLLM_by_id
 
+
 def generator_webgpu(id: str, recipe, folder: Path, modelList: ModelList):
     aitk = recipe.get("aitk", {})
     auto = aitk.get("auto", True)

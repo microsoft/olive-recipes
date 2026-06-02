@@ -526,7 +526,8 @@
                 "IntelCPU",
                 "IntelGPU",
                 "IntelNPU",
-                "DML"
+                "DML",
+                "WebGPU"
             ],
             "architecture": "Transformer",
             "status": "Ready",
