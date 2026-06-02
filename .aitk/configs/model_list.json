@@ -347,7 +347,6 @@
             "runtimes": [
                 "QNN",
                 "AMDNPU",
-                "NvidiaTRTRTX",
                 "IntelCPU",
                 "IntelGPU",
                 "IntelNPU"
