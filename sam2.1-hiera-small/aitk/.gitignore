@@ -4,3 +4,4 @@ __pycache__
 !/history/*/history.config
 !/history/*/olive_config.json
 /quantization_dataset
+truck.jpg
