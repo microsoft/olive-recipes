@@ -14,8 +14,8 @@ Install ONNX Runtime GenAI based on your target device:
 
 | Device | Install Command |
 |--------|-----------------|
-| GPU (CUDA) | `pip install onnxruntime-genai-cuda --index-url https://aiinfra.pkgs.visualstudio.com/PublicPackages/_packaging/ORT-Nightly/pypi/simple` |
-| CPU | `pip install onnxruntime-genai --index-url https://aiinfra.pkgs.visualstudio.com/PublicPackages/_packaging/ORT-Nightly/pypi/simple` |
+| GPU (CUDA) | `pip install onnxruntime-genai-cuda` |
+| CPU | `pip install onnxruntime-genai` |
 
 ## Steps
 
