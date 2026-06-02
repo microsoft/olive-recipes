@@ -8,7 +8,11 @@ recipes:
       ep: OpenVINOExecutionProvider
       aitk:
         disableRuntimeInConversion: true
-        oliveFile: OpenVINO/Phi-4-reasoning_context_ov_dynamic_sym_gs128_bkp_int8_sym.json
+        oliveFile:
+            phi4_ov_config.json:
+                ref: OpenVINO/Phi-4-reasoning_context_ov_dynamic_sym_gs128_bkp_int8_sym.json
+                ignoreAdded:
+                    - "genai_config_override"
 aitk:
     modelInfo:
         id: "huggingface/microsoft/Phi-4-reasoning"
