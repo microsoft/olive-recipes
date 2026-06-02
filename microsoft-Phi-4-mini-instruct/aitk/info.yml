@@ -14,7 +14,11 @@ recipes:
         - npu
       ep: OpenVINOExecutionProvider
       aitk:
-          oliveFile: "OpenVINO/Phi_4_mini_instruct_context_ov_dynamic_sym_gs128_bkp_int8_sym.json"
+          oliveFile:
+              phi4_ov_npu_config.json:
+                  ref: "OpenVINO/Phi_4_mini_instruct_context_ov_dynamic_sym_gs128_bkp_int8_sym.json"
+                  ignoreAdded:
+                      - "root\\['encapsulation'\\]\\['genai_config_override'\\]"
     - file: "phi4_qnn.json"
       device: npu
       ep: QNNExecutionProvider
