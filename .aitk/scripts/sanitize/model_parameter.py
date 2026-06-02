@@ -221,9 +221,38 @@ class OptimizationPath(BaseModel):
         return value
 
 
+def _anyRegexMatch(path: str, patterns: Optional[List[str]], localLabel: str) -> bool:
+    """True if any regex in patterns matches path (re.search). Empty/None -> False."""
+    if not patterns:
+        return False
+    for pattern in patterns:
+        try:
+            if re.search(pattern, path):
+                return True
+
+        except re.error as e:
+            printError(f"Invalid regex pattern {pattern!r} for oliveFile ignore list ({localLabel}): {e}")
+
+            return False
+
+    return False
+
+
+class OliveFileConfig(BaseModel):
+    # reference olive file to diff against, resolved the same way as the string oliveFile form
+    ref: str
+    # regex patterns to suppress expected diffs. A DeepDiff path is ignored if any pattern
+    # matches it (re.search). These are applied on top of the built-in filters in _diffOlivePasses.
+    # ignoreAdded -> dictionary_item_added, ignoreRemoved -> dictionary_item_removed,
+    # ignoreChanged -> values_changed (e.g. "ov_io_update" suppresses root['ov_io_update']).
+    ignoreAdded: Optional[List[str]] = None
+    ignoreRemoved: Optional[List[str]] = None
+    ignoreChanged: Optional[List[str]] = None
+
+
 class ModelParameter(BaseModelClass):
     name: str
-    oliveFile: Optional[Union[str, Dict[str, str]]] = None
+    oliveFile: Optional[Union[str, Dict[str, Union[str, OliveFileConfig]]]] = None
     # SET AUTOMATICALLY TO TRUE BY MODEL ID
     isLLM: Optional[bool] = None
     isIntel: Optional[bool] = None
@@ -619,13 +648,24 @@ class ModelParameter(BaseModelClass):
         ):
             printError(f"{self._file}'s olive json should have two data configs for evaluation")
 
-    def _diffOlivePasses(self, localLabel: str, refPasses: Any, localPasses: Any, refName: str):
+    def _diffOlivePasses(
+        self,
+        localLabel: str,
+        refPasses: Any,
+        localPasses: Any,
+        refName: str,
+        ignoreConfig: Optional[OliveFileConfig] = None,
+    ):
         diff = DeepDiff(refPasses, localPasses)
+
+        ignoreAdded = ignoreConfig.ignoreAdded if ignoreConfig else None
+        ignoreRemoved = ignoreConfig.ignoreRemoved if ignoreConfig else None
+        ignoreChanged = ignoreConfig.ignoreChanged if ignoreConfig else None
 
         addeds: list[str] = diff.pop("dictionary_item_added", [])
         newAddeds = []
         for added in addeds:
-            if not added.endswith("['save_as_external_data']"):
+            if not added.endswith("['save_as_external_data']") and not _anyRegexMatch(added, ignoreAdded, localLabel):
                 newAddeds.append(added)
         if newAddeds:
             diff["dictionary_item_added"] = newAddeds
@@ -633,7 +673,7 @@ class ModelParameter(BaseModelClass):
         removeds: list[str] = diff.pop("dictionary_item_removed", [])
         newRemoveds = []
         for removed in removeds:
-            if removed != "root['add_metadata']":
+            if removed != "root['add_metadata']" and not _anyRegexMatch(removed, ignoreRemoved, localLabel):
                 newRemoveds.append(removed)
         if newRemoveds:
             diff["dictionary_item_removed"] = newRemoveds
@@ -645,13 +685,13 @@ class ModelParameter(BaseModelClass):
                 changed.endswith("['data_config']")
                 or changed.endswith("['user_script']")
                 or changed.endswith("['save_as_external_data']")
-            ):
+            ) and not _anyRegexMatch(changed, ignoreChanged, localLabel):
                 newChangeds[changed] = changeds[changed]
         if newChangeds:
             diff["values_changed"] = newChangeds
 
         if diff:
-            printWarning(f"{localLabel} different from {refName}\r\n{diff}")
+            printWarning(f"{localLabel} different from {refName}\r\n{diff}\r\n")
         GlobalVars.oliveCheck += 1
 
     def _resolveRefFile(self, refFile: str) -> Optional[Path]:
@@ -676,7 +716,15 @@ class ModelParameter(BaseModelClass):
             # value: reference file to diff against, resolved the same way as the string oliveFile
             if not self._file:
                 raise Exception("Internal error: _file is not set")
-            for localFile, refFile in oliveFileRef.items():
+            for localFile, refValue in oliveFileRef.items():
+                # value is either a plain reference path (str) or a config object carrying
+                # the reference path plus per-file regex ignores for expected diffs.
+                if isinstance(refValue, OliveFileConfig):
+                    refFile = refValue.ref
+                    ignoreConfig: Optional[OliveFileConfig] = refValue
+                else:
+                    refFile = refValue
+                    ignoreConfig = None
                 localPath = Path(self._file).parent / localFile
                 if not localPath.exists():
                     printError(f"{self._file}'s oliveFile key {localFile!r} does not exist")
@@ -693,7 +741,11 @@ class ModelParameter(BaseModelClass):
                     refJson = json.load(f)
                 label = "/".join(Path(self._file).parts[-3:-1]) + "/" + localFile
                 self._diffOlivePasses(
-                    label, refJson[OlivePropertyNames.Passes], localJson[OlivePropertyNames.Passes], refFile
+                    label,
+                    refJson[OlivePropertyNames.Passes],
+                    localJson[OlivePropertyNames.Passes],
+                    refFile,
+                    ignoreConfig,
                 )
             return
 

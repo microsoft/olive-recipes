@@ -8,10 +8,10 @@
     "ipynbCheck": 48,
     "licenseCheck": 41,
     "modelProjectCheck": 46,
-    "oliveCheck": 90,
+    "oliveCheck": 80,
     "oliveJsonCheck": 171,
     "pathCheck": 1455,
-    "requirementsCheck": 37,
+    "requirementsCheck": 44,
     "templateCheck": 3,
     "venvRequirementsCheck": 22,
     "winmlCopyCheck": 38
