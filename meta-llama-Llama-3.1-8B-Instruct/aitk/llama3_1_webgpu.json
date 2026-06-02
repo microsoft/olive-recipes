@@ -49,14 +49,6 @@
         "m": {
             "type": "ModelBuilder",
             "precision": "int4"
-        },
-        "t": {
-            "type": "GraphSurgeries",
-            "surgeries": [
-                {
-                    "surgeon": "TieWordEmbeddings"
-                }
-            ]
         }
     },
     "target": "local_system",
