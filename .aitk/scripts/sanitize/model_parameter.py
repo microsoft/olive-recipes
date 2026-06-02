@@ -681,7 +681,7 @@ class ModelParameter(BaseModelClass):
             diff["values_changed"] = newChangeds
 
         if diff:
-            printWarning(f"{localLabel} different from {refName}\r\n{diff}")
+            printWarning(f"{localLabel} different from {refName}\r\n{diff}\r\n")
         GlobalVars.oliveCheck += 1
 
     def _resolveRefFile(self, refFile: str) -> Optional[Path]:
