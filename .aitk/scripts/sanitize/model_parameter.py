@@ -225,7 +225,14 @@ def _anyRegexMatch(path: str, patterns: Optional[List[str]]) -> bool:
     """True if any regex in patterns matches path (re.search). Empty/None -> False."""
     if not patterns:
         return False
-    return any(re.search(pattern, path) for pattern in patterns)
+    for pattern in patterns:
+        try:
+            if re.search(pattern, path):
+                return True
+        except re.error as e:
+            printError(f"Invalid regex pattern {pattern!r} for oliveFile ignore list: {e}")
+            return False
+    return False
 
 
 class OliveFileConfig(BaseModel):
