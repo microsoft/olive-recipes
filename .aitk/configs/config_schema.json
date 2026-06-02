@@ -16,7 +16,7 @@
             "description": "Name of the model parameter configuration"
         },
         "oliveFile": {
-            "description": "Path(s) to olive json file(s). A string is a single path (relative to aitk folder, or 'o:' prefix for olive examples). An object maps names to paths for multi-file workflows.",
+            "description": "Path(s) to olive json file(s). A string is a single path (relative to aitk folder, or 'o:' prefix for olive examples). An object maps local olive files to reference paths for multi-file workflows; a reference can be a plain path string or a config object with per-file regex ignores for expected diffs.",
             "oneOf": [
                 {
                     "type": "string"
@@ -24,7 +24,37 @@
                 {
                     "type": "object",
                     "additionalProperties": {
-                        "type": "string"
+                        "oneOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "object",
+                                "additionalProperties": false,
+                                "required": ["ref"],
+                                "properties": {
+                                    "ref": {
+                                        "type": "string",
+                                        "description": "Reference olive file to diff against, resolved the same way as the string oliveFile form."
+                                    },
+                                    "ignoreAdded": {
+                                        "type": "array",
+                                        "items": { "type": "string" },
+                                        "description": "Regex patterns; a DeepDiff 'dictionary_item_added' path is suppressed if any pattern matches it (re.search), e.g. \"ov_io_update\" suppresses root['ov_io_update']."
+                                    },
+                                    "ignoreRemoved": {
+                                        "type": "array",
+                                        "items": { "type": "string" },
+                                        "description": "Regex patterns; a DeepDiff 'dictionary_item_removed' path is suppressed if any pattern matches it (re.search)."
+                                    },
+                                    "ignoreChanged": {
+                                        "type": "array",
+                                        "items": { "type": "string" },
+                                        "description": "Regex patterns; a DeepDiff 'values_changed' path is suppressed if any pattern matches it (re.search)."
+                                    }
+                                }
+                            }
+                        ]
                     }
                 }
             ]
