@@ -24,7 +24,7 @@
                     "answer_col": "answer",
                     "options_col": "options",
                     "system_prompt": "You are a concise answering assistant. Reply with ONLY the correct option number (e.g. 0, 1, 2, or 3). Do not include any explanation.",
-                    "limit": 5
+                    "limit": 100
                 }
             }
         }
