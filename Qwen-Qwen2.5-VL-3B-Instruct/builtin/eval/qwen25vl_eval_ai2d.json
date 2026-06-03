@@ -59,7 +59,9 @@
             "accelerators": [
                 {
                     "device": "cpu",
-                    "execution_providers": ["CPUExecutionProvider"]
+                    "execution_providers": [
+                        "CPUExecutionProvider"
+                    ]
                 }
             ]
         }
