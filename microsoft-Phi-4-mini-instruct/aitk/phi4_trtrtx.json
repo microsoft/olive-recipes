@@ -19,6 +19,7 @@
             "int4_block_size": 32,
             "tokenizer_dir": "microsoft/Phi-4-mini-instruct",
             "calibration_method": "awq_lite",
+            "calibration_providers": ["NvTensorRtRtx"],
             "enable_mixed_quant": true,
             "calibration_params": {
                 "add_position_ids": false

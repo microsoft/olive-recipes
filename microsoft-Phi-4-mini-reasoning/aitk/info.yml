@@ -11,7 +11,7 @@ recipes:
               phi4_ov_config.json:
                   ref: "OpenVINO/Phi-4-mini-reasoning_context_ov_dynamic_sym_gs128_bkp_int8_sym.json"
                   ignoreAdded:
-                      - "genai_config_override"
+                      - root\['encapsulation'\]\['genai_config_override'\]
     - file: "phi4_ov_gpu_config.json"
       devices:
           - gpu
