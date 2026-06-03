@@ -1,6 +1,6 @@
-# Qwen3-VL-2B-Instruct Vision Evaluation
+# Qwen2.5-VL-3B-Instruct Vision Evaluation
 
-Evaluate quantized ONNX Qwen3-VL-2B-Instruct on vision benchmarks using Olive's built-in `exact_match` metric.
+Evaluate quantized ONNX Qwen2.5-VL-3B-Instruct on vision benchmarks using Olive's built-in `exact_match` metric.
 
 ## Benchmarks
 
