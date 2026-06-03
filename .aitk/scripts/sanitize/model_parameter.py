@@ -290,6 +290,8 @@ class ModelParameter(BaseModelClass):
     optimizationPaths: Optional[List[OptimizationPath]] = None
     optimizationDefault: Optional[str] = None
     aitkPython: Optional[str] = None
+    # Path (relative to the aitk folder) to a py file that drives the execution process.
+    executePatchPy: Optional[str] = None
     sections: List[Section] = []
 
     def writeIfChanged(self):
@@ -479,6 +481,7 @@ class ModelParameter(BaseModelClass):
         self.checkPhase(oliveJson, self.evalNoDataConfig or False)
         self.CheckRuntimeInConversion(oliveJson, modelList, modelInfo)
         self.checkOliveFile(oliveJson, modelInfo)
+        self.checkExecutePatchPy()
         self.checkRequirements(modelList)
         self.checkOptimizationPaths(modelList.OptimizationToDisplayName, oliveJson, modelInfo)
         if self.debugInfo and self.debugInfo.isEmpty():
@@ -778,6 +781,17 @@ class ModelParameter(BaseModelClass):
         self._diffOlivePasses(
             label, oliveFileJson[OlivePropertyNames.Passes], oliveJson[OlivePropertyNames.Passes], oliveFileRef
         )
+
+    def checkExecutePatchPy(self):
+        if not self.executePatchPy:
+            return
+        if not self._file:
+            raise Exception("Internal error: _file is not set")
+        pyFile = Path(self._file).parent / self.executePatchPy
+        if not pyFile.exists():
+            printError(f"{self._file}'s executePatchPy {self.executePatchPy} does not exist")
+            return
+        GlobalVars.executePatchPyCheck += 1
 
     def checkDebugInfo(self, oliveJson: Any):
         self.debugInfo = DebugInfo()

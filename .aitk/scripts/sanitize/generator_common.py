@@ -22,6 +22,7 @@ def create_model_parameter(aitk, name: str, configFile: Path):
     requirements_patches = aitk.get("requirementsPatches")
     evalRuntime = aitk.get("evalRuntime")
     epMinVersions = aitk.get("epMinVersions")
+    executePatchPy = aitk.get("executePatchPy")
 
     parameter = ModelParameter(
         name=name,
@@ -33,6 +34,7 @@ def create_model_parameter(aitk, name: str, configFile: Path):
         isGPURequired=aitk.get("isGPURequired", None),
         isGPUSuggested=aitk.get("isGPUSuggested", None),
         epMinVersions={EPNames(k): v for k, v in epMinVersions.items()} if epMinVersions else None,
+        executePatchPy=executePatchPy,
     )
     parameter._file = str(configFile) + ".config"
     return parameter

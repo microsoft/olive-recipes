@@ -63,6 +63,7 @@ class GlobalVars:
     venvRequirementsCheck = set()
     winmlCopyCheck = 0
     executeRuntimeCheck = 0
+    executePatchPyCheck = 0
 
     oliveCheck = 0
     RuntimeToEPName = {

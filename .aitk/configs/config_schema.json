@@ -181,6 +181,10 @@
             "type": "string",
             "description": "AITK Python pass configuration identifier"
         },
+        "executePatchPy": {
+            "type": "string",
+            "description": "Path (relative to the aitk folder) to a py file that drives the execution process. The file must exist when set."
+        },
         "sections": {
             "type": "array",
             "description": "Ordered list of configuration sections. Valid sequences: [Conversion], [Conversion, Quantization], [Conversion, Evaluation], or [Conversion, Quantization, Evaluation]",
