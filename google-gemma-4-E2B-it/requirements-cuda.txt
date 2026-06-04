@@ -1,6 +1,6 @@
 lm-eval
 mobius-ai
 olive-ai[gpu]
-onnxruntime-gpu==1.26.0
 onnxruntime-genai-cuda==0.14.1
+onnxruntime-gpu==1.26.0
 requests
