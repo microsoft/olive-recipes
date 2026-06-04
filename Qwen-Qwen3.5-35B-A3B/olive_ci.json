@@ -1,0 +1,16 @@
+[
+    {
+        "name": "qwen3.5-35b-a3b-int4-cpu-vision-eval",
+        "os": "ubuntu",
+        "device": "cpu",
+        "requirements_file": "builtin/requirements.txt",
+        "command": "cd builtin && python optimize.py --config-dir cpu_and_mobile --device cpu && python ../../../.github/scripts/run_vision_eval.py --model-path cpu_and_mobile/models --pytorch-model Qwen/Qwen3.5-35B-A3B --benchmarks textvqa --limit 100 --device cpu --perf --max-delta 0.05"
+    },
+    {
+        "name": "qwen3.5-35b-a3b-int4-cuda-vision-eval",
+        "os": "ubuntu",
+        "device": "cuda",
+        "requirements_file": "builtin/requirements.txt",
+        "command": "cd builtin && python optimize.py --config-dir cuda --device gpu && python ../../../.github/scripts/run_vision_eval.py --model-path cuda/models --pytorch-model Qwen/Qwen3.5-35B-A3B --benchmarks textvqa --limit 200 --device gpu --perf --max-delta 0.05"
+    }
+]

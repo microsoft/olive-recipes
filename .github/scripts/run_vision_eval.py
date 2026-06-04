@@ -23,7 +23,6 @@ from __future__ import annotations
 
 import argparse
 import json
-import os
 import sys
 import time
 from pathlib import Path
@@ -204,7 +203,8 @@ def run_perf_benchmark(model_path: str, device: str, num_samples: int = 10) -> d
         if torch.cuda.is_available():
             peak_memory_mb = torch.cuda.max_memory_allocated() / (1024 * 1024)
     except ImportError:
-        pass
+        # torch is optional; keep default when unavailable.
+        peak_memory_mb = 0
 
     # Process memory (RSS) as fallback
     try:
@@ -231,6 +231,9 @@ def run_perf_benchmark(model_path: str, device: str, num_samples: int = 10) -> d
         "peak_rss_mb": rss_mb,
         "num_runs": num_samples,
     }
+
+
+def run_pytorch_vision_eval(model_id: str, benchmark: dict, device: str, limit: int | None) -> float:
     """Run a vision benchmark on a PyTorch/HuggingFace model. Returns accuracy score."""
     import tempfile
 
