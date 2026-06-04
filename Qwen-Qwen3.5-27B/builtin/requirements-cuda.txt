@@ -1,6 +1,9 @@
+datasets
 git+https://github.com/microsoft/Olive.git@main
-onnxruntime==1.26.0
-onnxruntime-genai==0.14.1
+onnxruntime-gpu==1.26.0
+onnxruntime-genai-cuda==0.14.1
+Pillow
+qwen_vl_utils
 requests
 torch>=2.10.0,<2.11.0
 transformers>=4.57.0
