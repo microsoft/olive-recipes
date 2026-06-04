@@ -3,16 +3,16 @@
 # Licensed under the MIT License.
 # --------------------------------------------------------------------------
 
-import numpy as np
 import argparse
 import json
+import logging
 import os
 import time
-import logging
-
 from urllib import request
-from PIL import Image
+
+import numpy as np
 import onnxruntime as ort
+from PIL import Image
 from transformers import SamProcessor
 
 logger = logging.getLogger(os.path.basename(__file__))
@@ -20,6 +20,7 @@ logging.basicConfig(level=logging.INFO)
 
 # Load processor
 processor = SamProcessor.from_pretrained("facebook/sam-vit-base")
+
 
 def add_ep_for_device(session_options, ep_name, device_type, ep_options=None):
     ep_devices = ort.get_ep_devices()
@@ -48,7 +49,7 @@ def test_mask_ort(sess_ve, sess_md, image, ve_dtype, md_dtype, sess_ve_inputs, s
     input_md = {
         sess_md_inputs[0].name: np.array(ort_input_points, dtype=md_dtype),
         sess_md_inputs[1].name: np.array(ort_input_labels, dtype=md_dtype),
-        sess_md_inputs[2].name: np.array(result_ve[0], dtype=md_dtype)
+        sess_md_inputs[2].name: np.array(result_ve[0], dtype=md_dtype),
     }
 
     decoder_start = time.perf_counter()
@@ -69,6 +70,7 @@ def main():
 
     # Loading models into ORT session
     from winml import register_execution_providers
+
     register_execution_providers()
     sess_options = ort.SessionOptions()
 
@@ -101,19 +103,18 @@ def main():
 
     for _ in range(10):
         # Test mask
-        encoder_latency, decoder_latency = test_mask_ort(sess_ve, sess_md, raw_image, ve_dtype, md_dtype, sess_ve_inputs, sess_md_inputs)
+        encoder_latency, decoder_latency = test_mask_ort(
+            sess_ve, sess_md, raw_image, ve_dtype, md_dtype, sess_ve_inputs, sess_md_inputs
+        )
         encoder_latencies.append(encoder_latency)
         decoder_latencies.append(decoder_latency)
 
     encoder_latency_avg = round(sum(encoder_latencies) / len(encoder_latencies) * 1000, 5)
     decoder_latency_avg = round(sum(decoder_latencies) / len(decoder_latencies) * 1000, 5)
 
-    metrics = {
-        "vision-encoder-latency-avg": encoder_latency_avg,
-        "mask-decoder-latency-avg": decoder_latency_avg
-    }
+    metrics = {"vision-encoder-latency-avg": encoder_latency_avg, "mask-decoder-latency-avg": decoder_latency_avg}
     resultStr = json.dumps(metrics, indent=4)
-    with open(args.output_file, 'w') as file:
+    with open(args.output_file, "w") as file:
         file.write(resultStr)
     logger.info("Model lab succeeded for evaluation.\n%s", resultStr)
 

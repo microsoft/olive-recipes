@@ -2,7 +2,7 @@ import json
 from pathlib import Path
 from typing import Optional
 
-from .constants import OlivePassNames, OlivePropertyNames, PhaseTypeEnum, EPNames
+from .constants import EPNames, OlivePassNames, OlivePropertyNames, PhaseTypeEnum
 from .generator_common import create_model_parameter, set_optimization_path
 from .model_info import ModelList
 from .model_parameter import ModelParameter, OptimizationPath, Section
@@ -239,7 +239,7 @@ def generator_amd(id: str, recipe, folder: Path, modelList: ModelList):
         return
 
     amd_runtime_values: list[str] = recipe.get("devices", [recipe.get("device")])
-    name = f"Convert to AMD {"/".join([runtime.upper() for runtime in amd_runtime_values])}"
+    name = f"Convert to AMD {'/'.join([runtime.upper() for runtime in amd_runtime_values])}"
 
     parameter = create_model_parameter(aitk, name, configFile)
     parameter.isLLM = isLLM

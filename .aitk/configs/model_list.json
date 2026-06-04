@@ -347,6 +347,7 @@
             "runtimes": [
                 "QNN",
                 "AMDNPU",
+                "NvidiaTRTRTX",
                 "IntelCPU",
                 "IntelGPU",
                 "IntelNPU"
@@ -480,7 +481,7 @@
                 "QNN"
             ],
             "architecture": "Transformer",
-            "status": "Hide",
+            "status": "Ready",
             "relativePath": "sam-vit-base/aitk",
             "version": 2,
             "pipeline_tags": [
@@ -496,7 +497,7 @@
                 "QNN"
             ],
             "architecture": "Transformer",
-            "status": "Hide",
+            "status": "Ready",
             "relativePath": "sam2.1-hiera-small/aitk",
             "version": 2,
             "pipeline_tags": [
@@ -510,6 +511,7 @@
             "id": "huggingface/meta-llama/Llama-3.1-8B-Instruct",
             "runtimes": [
                 "QNN",
+                "QNNGPU",
                 "AMDNPU",
                 "NvidiaTRTRTX",
                 "IntelCPU",
@@ -847,7 +849,7 @@
                 "IntelNPU"
             ],
             "architecture": "Transformer",
-            "status": "Hide",
+            "status": "Ready",
             "relativePath": "sd2-community-stable-diffusion-2-1/aitk",
             "version": 2,
             "pipeline_tags": [
