@@ -15,9 +15,13 @@ on:
       - main
     paths:
       - '**/olive_ci.json'  # Run this workflow only when Olive CI files are modified
+      - '**/config.json'    # Run when recipe configs change
+      - '.github/scripts/run_vision_eval.py'  # Run when vision eval script changes
   pull_request:
     paths:
       - '**/olive_ci.json'  # Run this workflow only when Olive CI files are modified
+      - '**/config.json'    # Run when recipe configs change
+      - '.github/scripts/run_vision_eval.py'  # Run when vision eval script changes
 
 env:
   PYTHON_VERSION: "3.10"
@@ -36,34 +40,66 @@ jobs:
     steps:
     - name: Checkout Code
       uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
 
     - name: Setup python
       uses: actions/setup-python@v5
       with:
         python-version: ${{ env.PYTHON_VERSION }}
 
+    - name: Get changed files
+      id: changed-files
+      run: |
+        if [ "${{ github.event_name }}" = "pull_request" ]; then
+          git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.sha }} > /tmp/changed_files.txt
+        elif [ "${{ github.event_name }}" = "push" ]; then
+          git diff --name-only ${{ github.event.before }} ${{ github.sha }} > /tmp/changed_files.txt
+        else
+          # workflow_dispatch: run all recipes
+          echo "" > /tmp/changed_files.txt
+        fi
+        echo "Changed files:"
+        cat /tmp/changed_files.txt
+
     - name: Scan & generate matrix (Ubuntu + CPU)
       id: ubuntu-gen-cpu-matrix
       run: |
-        matrix=$(python .github/scripts/generate_matrix.py . ubuntu cpu)
+        CHANGED_ARG=""
+        if [ -s /tmp/changed_files.txt ]; then
+          CHANGED_ARG="--changed-files /tmp/changed_files.txt"
+        fi
+        matrix=$(python .github/scripts/generate_matrix.py . ubuntu cpu $CHANGED_ARG)
         echo "ubuntu_cpu_matrix=$matrix" >> $GITHUB_OUTPUT
 
     - name: Scan & generate matrix (Ubuntu + CUDA)
       id: ubuntu-gen-cuda-matrix
       run: |
-        matrix=$(python .github/scripts/generate_matrix.py . ubuntu cuda)
+        CHANGED_ARG=""
+        if [ -s /tmp/changed_files.txt ]; then
+          CHANGED_ARG="--changed-files /tmp/changed_files.txt"
+        fi
+        matrix=$(python .github/scripts/generate_matrix.py . ubuntu cuda $CHANGED_ARG)
         echo "ubuntu_cuda_matrix=$matrix" >> $GITHUB_OUTPUT
 
     - name: Scan & generate matrix (Windows + CPU)
       id: windows-gen-cpu-matrix
       run: |
-        matrix=$(python .github/scripts/generate_matrix.py . windows cpu)
+        CHANGED_ARG=""
+        if [ -s /tmp/changed_files.txt ]; then
+          CHANGED_ARG="--changed-files /tmp/changed_files.txt"
+        fi
+        matrix=$(python .github/scripts/generate_matrix.py . windows cpu $CHANGED_ARG)
         echo "windows_cpu_matrix=$matrix" >> $GITHUB_OUTPUT
 
     - name: Scan & generate matrix (Windows + CUDA)
       id: windows-gen-cuda-matrix
       run: |
-        matrix=$(python .github/scripts/generate_matrix.py . windows cuda)
+        CHANGED_ARG=""
+        if [ -s /tmp/changed_files.txt ]; then
+          CHANGED_ARG="--changed-files /tmp/changed_files.txt"
+        fi
+        matrix=$(python .github/scripts/generate_matrix.py . windows cuda $CHANGED_ARG)
         echo "windows_cuda_matrix=$matrix" >> $GITHUB_OUTPUT
 
   ubuntu-cpu-recipes:
