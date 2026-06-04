@@ -3,4 +3,6 @@ onnxruntime-genai-cuda==0.14.1
 onnxruntime-gpu==1.26.0
 requests
 torch>=2.10.0,<2.11.0
+torchaudio
+torchvision
 transformers>=4.57.0

@@ -4,3 +4,6 @@ olive-ai[gpu]
 onnxruntime-genai-cuda==0.14.1
 onnxruntime-gpu==1.26.0
 requests
+torch>=2.10.0
+torchaudio
+torchvision

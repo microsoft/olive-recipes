@@ -6,4 +6,6 @@ Pillow
 qwen_vl_utils
 requests
 torch>=2.10.0,<2.11.0
+torchaudio
+torchvision
 transformers>=4.57.0
