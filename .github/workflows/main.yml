@@ -120,7 +120,7 @@ jobs:
       uses: ./.github/actions/cpu-setup
       with:
         shell: bash
-        python_version: ${{ env.PYTHON_VERSION }}
+        python_version: ${{ matrix.python_version || env.PYTHON_VERSION }}
         hf_cache_key: ${{ runner.os }}-${{ matrix.name }}-hf-cache
         requirements_file: ${{ matrix.cwd }}/${{ matrix.requirements_file }}
 
@@ -144,7 +144,7 @@ jobs:
       uses: ./.github/actions/cuda-setup
       with:
         shell: bash
-        python_version: ${{ env.PYTHON_VERSION }}
+        python_version: ${{ matrix.python_version || env.PYTHON_VERSION }}
         hf_cache_key: ${{ runner.os }}-${{ matrix.name }}-hf-cache
         requirements_file: ${{ matrix.cwd }}/${{ matrix.requirements_file }}
 
@@ -168,7 +168,7 @@ jobs:
       uses: ./.github/actions/cpu-setup
       with:
         shell: cmd
-        python_version: ${{ env.PYTHON_VERSION }}
+        python_version: ${{ matrix.python_version || env.PYTHON_VERSION }}
         hf_cache_key: ${{ runner.os }}-${{ matrix.name }}-hf-cache
         requirements_file: ${{ matrix.cwd }}/${{ matrix.requirements_file }}
 
