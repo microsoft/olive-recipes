@@ -55,7 +55,7 @@ def build_model(config_path: str) -> str:
 def run_mmmu_eval(model_path: str, device: str, limit: int | None, subject: str = "Accounting") -> float:
     """Run MMMU evaluation using Olive's vision evaluator and return accuracy."""
     from olive.data.config import DataConfig
-    from olive.evaluator.metric import Metric, MetricType, SubMetric
+    from olive.evaluator.metric import Metric, MetricType
     from olive.evaluator.olive_evaluator import OnnxEvaluator
     from olive.hardware import Device
     from olive.model import ONNXModelHandler
@@ -86,7 +86,6 @@ def run_mmmu_eval(model_path: str, device: str, limit: int | None, subject: str 
             "data_name": "MMMU/MMMU",
             "subset": subject,
             "split": "validation",
-            "trust_remote_code": True,
         },
         pre_process_data_config=pre_process_params,
         dataloader_config={"batch_size": 1},
@@ -97,7 +96,7 @@ def run_mmmu_eval(model_path: str, device: str, limit: int | None, subject: str 
     metric = Metric(
         name="mmmu_accuracy",
         type=MetricType.ACCURACY,
-        sub_types=[SubMetric(name="exact_match", priority=1)],
+        sub_types=[{"name": "exact_match", "priority": 1}],
         data_config=data_config,
     )
 
