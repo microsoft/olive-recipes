@@ -1,3 +1,4 @@
+datasets
 git+https://github.com/microsoft/Olive.git@main
 onnxruntime==1.26.0
 onnxruntime-genai==0.14.1
