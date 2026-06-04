@@ -129,8 +129,7 @@ def run_vision_eval(model_path: str, benchmark: dict, device: str, limit: int | 
         pre_process_data_config=pre_process_params,
         dataloader_config={"batch_size": 1},
     )
-    dataset = container.create_dataset()
-    dataloader = container.create_dataloader(dataset)
+    dataloader = container.create_dataloader()
 
     metric = Metric(
         name="vision_accuracy",
