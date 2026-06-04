@@ -20,7 +20,7 @@ dill==0.3.8
 # amd-quark==0.9
 # uvpip:install amd-quark==0.9;post;{"UV_INSECURE_NO_ZIP_VALIDATION":"1"}
 evaluate==0.4.5
-filelock==3.18.0
+filelock==3.20.1
 flatbuffers==25.2.10
 frozenlist==1.7.0
 fsspec==2024.12.0
@@ -68,13 +68,13 @@ psutil==7.0.0
 pyarrow==21.0.0
 pydantic==2.11.7
 pydantic-core==2.33.2
-pygments==2.19.2
+pygments==2.20.0
 pyreadline3==3.5.4
 python-dateutil==2.9.0.post0
 pytz==2025.2
 pyyaml==6.0.2
 regex==2025.7.34
-requests==2.32.4
+requests==2.33.0
 rich==14.1.0
 ryzenai-dynamic-dispatch==1.5.1
 ryzenai-onnx-utils==1.5.1
