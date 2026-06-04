@@ -60,22 +60,41 @@ BENCHMARKS = {
 
 
 def build_model(config_path: str) -> str:
-    """Build ONNX model via olive run and return model directory path."""
-    from olive import WorkflowOutput, run
+    """Build ONNX model via olive run in a subprocess and return model directory path.
+
+    Runs olive in a separate process to release memory after build completes,
+    avoiding OOM kills on CI runners.
+    """
+    import subprocess
 
     print(f"Building model from {config_path}...")
     start = time.time()
-    workflow_output: WorkflowOutput = run(config_path)
+    result = subprocess.run(
+        [sys.executable, "-m", "olive", "run", "--config", config_path],
+        capture_output=True,
+        text=True,
+    )
     elapsed = time.time() - start
 
-    if not workflow_output.has_output_model():
-        print("ERROR: Model build produced no output", file=sys.stderr)
+    if result.returncode != 0:
+        print(f"ERROR: Model build failed (exit code {result.returncode})", file=sys.stderr)
+        print(result.stderr, file=sys.stderr)
         sys.exit(1)
 
-    best = workflow_output.get_best_candidate()
-    model_dir = str(Path(best.model_path).parent)
-    print(f"Model built in {elapsed:.1f}s: {model_dir}")
-    return model_dir
+    # Find the output model directory by looking for genai_config.json
+    # Parse the output_dir from the config
+    config_data = json.loads(Path(config_path).read_text())
+    output_dir = Path(config_data.get("output_dir", "models/output"))
+
+    # Search for genai_config.json in the output
+    for p in output_dir.rglob("genai_config.json"):
+        model_dir = str(p.parent)
+        print(f"Model built in {elapsed:.1f}s: {model_dir}")
+        return model_dir
+
+    print(f"ERROR: No genai_config.json found in {output_dir}", file=sys.stderr)
+    print(f"Olive stdout: {result.stdout}", file=sys.stderr)
+    sys.exit(1)
 
 
 def run_vision_eval(model_path: str, benchmark: dict, device: str, limit: int | None) -> float:

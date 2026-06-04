@@ -19,14 +19,24 @@ MODELS_DIR = "models"
 
 
 def export_models(config_dir: str):
-    """Run Olive for all 3 sub-models (embedding, text, vision)."""
-    from olive import run
+    """Run Olive for all 3 sub-models in separate subprocesses.
+
+    Running each stage in a new process releases memory between
+    embedding/text/vision exports and avoids CI OOM kills.
+    """
+    import subprocess
+    import sys
 
     config_path = Path(config_dir)
     print(f"=== Running Olive pipelines (configs from {config_path}) ===")
     for config in ("embedding.json", "text.json", "vision.json"):
-        print(f"  Running {config}...")
-        run(str(config_path / config))
+        print(f"  Running {config}...", flush=True)
+        result = subprocess.run(
+            [sys.executable, "-m", "olive", "run", "--config", str(config_path / config)],
+            cwd=str(Path(__file__).parent),
+        )
+        if result.returncode != 0:
+            raise RuntimeError(f"Olive failed for {config} (exit code {result.returncode})")
     print()
 
 
