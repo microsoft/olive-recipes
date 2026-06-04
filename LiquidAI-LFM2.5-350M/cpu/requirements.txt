@@ -1,0 +1,2 @@
+onnxruntime-genai
+transformers>=5.0.0
