@@ -1,5 +1,7 @@
 datasets
 git+https://github.com/microsoft/Olive.git@main
+onnxruntime
+onnxruntime-genai
 Pillow
 qwen_vl_utils
 requests

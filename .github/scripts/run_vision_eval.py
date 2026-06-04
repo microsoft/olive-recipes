@@ -259,7 +259,6 @@ def run_pytorch_vision_eval(model_id: str, benchmark: dict, device: str, limit: 
     image_col = benchmark["image_col"]
     question_col = benchmark["question_col"]
     answer_col = benchmark["answer_col"]
-    sub_type = benchmark["sub_type"]
 
     # Import metric computation
     from olive.evaluator.accuracy import AccuracyBase

@@ -1,3 +1,6 @@
 lm-eval
 mobius-ai
 olive-ai[gpu]
+onnxruntime
+onnxruntime-genai
+requests
