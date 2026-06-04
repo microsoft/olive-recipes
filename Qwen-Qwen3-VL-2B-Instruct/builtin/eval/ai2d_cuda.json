@@ -23,7 +23,7 @@
                     "question_col": "question",
                     "answer_col": "answer",
                     "options_col": "options",
-                    "system_prompt": "You are a concise answering assistant. Reply with ONLY the correct option number (e.g. 0, 1, 2, or 3). Do not include any explanation.",
+                    "system_prompt": "You are a concise multiple-choice answering assistant. When given a question with numbered options, respond with ONLY a single digit (1, 2, 3, or 4). Do not include any explanation, reasoning, or other text \u2014 just the digit.",
                     "limit": 100
                 }
             }
