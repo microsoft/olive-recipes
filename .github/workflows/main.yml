@@ -16,12 +16,14 @@ on:
     paths:
       - '**/olive_ci.json'  # Run this workflow only when Olive CI files are modified
       - '**/config.json'    # Run when recipe configs change
-      - '.github/scripts/run_vision_eval.py'  # Run when vision eval script changes
+      - '.github/scripts/**'  # Run when any CI script changes
+      - '.github/workflows/main.yml'  # Run when this workflow changes
   pull_request:
     paths:
       - '**/olive_ci.json'  # Run this workflow only when Olive CI files are modified
       - '**/config.json'    # Run when recipe configs change
-      - '.github/scripts/run_vision_eval.py'  # Run when vision eval script changes
+      - '.github/scripts/**'  # Run when any CI script changes
+      - '.github/workflows/main.yml'  # Run when this workflow changes
 
 env:
   PYTHON_VERSION: "3.10"
