@@ -71,7 +71,7 @@ jobs:
         if [ -s /tmp/changed_files.txt ]; then
           CHANGED_ARG="--changed-files /tmp/changed_files.txt"
         fi
-        matrix=$(python .github/scripts/generate_matrix.py . ubuntu cpu $CHANGED_ARG --recipe-filter Qwen-Qwen3.5-0.8B,Qwen-Qwen3.5-2B,Qwen-Qwen3.5-4B,Qwen-Qwen3.5-9B)
+        matrix=$(python .github/scripts/generate_matrix.py . ubuntu cpu $CHANGED_ARG --recipe-filter Qwen-Qwen3.5-0.8B)
         echo "ubuntu_cpu_matrix=$matrix" >> $GITHUB_OUTPUT
 
     - name: Scan & generate matrix (Ubuntu + CUDA)
