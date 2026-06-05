@@ -1,5 +1,5 @@
 datasets
-git+https://github.com/microsoft/Olive.git@asonawane/input
+git+https://github.com/microsoft/Olive.git@main
 lm-eval
 mobius-ai
 onnxruntime==1.26.0

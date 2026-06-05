@@ -1,5 +1,5 @@
 datasets
-git+https://github.com/microsoft/Olive.git@asonawane/input
+git+https://github.com/microsoft/Olive.git@main
 lm-eval
 mobius-ai
 onnxruntime-genai-cuda==0.14.1
