@@ -30,6 +30,8 @@ parser.add_argument("os", choices=["ubuntu", "windows"])
 parser.add_argument("device", choices=["cpu", "cuda"])
 parser.add_argument("--changed-files", type=Path, default=None,
                     help="File containing list of changed file paths (one per line)")
+parser.add_argument("--recipe-filter", type=str, default=None,
+                    help="Only include recipes whose directory name contains this substring")
 args = parser.parse_args()
 
 dirpath = args.dirpath
@@ -69,6 +71,10 @@ for filepath in dirpath.rglob("olive_ci.json"):
 
     # Skip recipes that weren't touched in this PR
     if changed_recipe_dirs is not None and recipe_dir not in changed_recipe_dirs:
+        continue
+
+    # Skip recipes that don't match the filter
+    if args.recipe_filter and args.recipe_filter not in recipe_dir:
         continue
 
     with filepath.open() as strm:

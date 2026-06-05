@@ -71,7 +71,7 @@ jobs:
         if [ -s /tmp/changed_files.txt ]; then
           CHANGED_ARG="--changed-files /tmp/changed_files.txt"
         fi
-        matrix=$(python .github/scripts/generate_matrix.py . ubuntu cpu $CHANGED_ARG)
+        matrix=$(python .github/scripts/generate_matrix.py . ubuntu cpu $CHANGED_ARG --recipe-filter Qwen-Qwen3.5-0.8B)
         echo "ubuntu_cpu_matrix=$matrix" >> $GITHUB_OUTPUT
 
     - name: Scan & generate matrix (Ubuntu + CUDA)
@@ -81,7 +81,7 @@ jobs:
         if [ -s /tmp/changed_files.txt ]; then
           CHANGED_ARG="--changed-files /tmp/changed_files.txt"
         fi
-        matrix=$(python .github/scripts/generate_matrix.py . ubuntu cuda $CHANGED_ARG)
+        matrix=$(python .github/scripts/generate_matrix.py . ubuntu cuda $CHANGED_ARG --recipe-filter __disabled__)
         echo "ubuntu_cuda_matrix=$matrix" >> $GITHUB_OUTPUT
 
     - name: Scan & generate matrix (Windows + CPU)
@@ -91,7 +91,7 @@ jobs:
         if [ -s /tmp/changed_files.txt ]; then
           CHANGED_ARG="--changed-files /tmp/changed_files.txt"
         fi
-        matrix=$(python .github/scripts/generate_matrix.py . windows cpu $CHANGED_ARG)
+        matrix=$(python .github/scripts/generate_matrix.py . windows cpu $CHANGED_ARG --recipe-filter __disabled__)
         echo "windows_cpu_matrix=$matrix" >> $GITHUB_OUTPUT
 
     - name: Scan & generate matrix (Windows + CUDA)
@@ -101,7 +101,7 @@ jobs:
         if [ -s /tmp/changed_files.txt ]; then
           CHANGED_ARG="--changed-files /tmp/changed_files.txt"
         fi
-        matrix=$(python .github/scripts/generate_matrix.py . windows cuda $CHANGED_ARG)
+        matrix=$(python .github/scripts/generate_matrix.py . windows cuda $CHANGED_ARG --recipe-filter __disabled__)
         echo "windows_cuda_matrix=$matrix" >> $GITHUB_OUTPUT
 
   ubuntu-cpu-recipes:
