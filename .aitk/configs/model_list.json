@@ -69,7 +69,7 @@
             "architecture": "Transformer",
             "status": "Ready",
             "relativePath": "deepseek-ai-DeepSeek-R1-Distill-Qwen-1.5B/aitk",
-            "version": 8,
+            "version": 7,
             "p0": true,
             "pipeline_tags": [
                 "text-generation"
@@ -269,7 +269,7 @@
             "architecture": "Transformer",
             "status": "Ready",
             "relativePath": "Qwen-Qwen2.5-1.5B-Instruct/aitk",
-            "version": 8,
+            "version": 7,
             "p0": true,
             "pipeline_tags": [
                 "text-generation"
