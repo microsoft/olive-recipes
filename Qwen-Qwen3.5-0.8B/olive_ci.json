@@ -11,6 +11,6 @@
         "os": "ubuntu", "python_version": "3.12",
         "device": "cuda",
         "requirements_file": "builtin/requirements-cuda.txt",
-        "command": "cd builtin && python optimize.py --config-dir cuda --device gpu && python ../../.github/scripts/run_vision_eval.py --model-path cuda/models --limit 200 --device gpu"
+        "command": "cd builtin && python optimize.py --config-dir cuda --device gpu && python ../../.github/scripts/run_vision_eval.py --model-path cuda/models --limit 200 --device gpu --pytorch-model Qwen/Qwen3.5-0.8B"
     }
 ]
