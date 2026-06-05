@@ -2,6 +2,7 @@ datasets
 git+https://github.com/microsoft/Olive.git@asonawane/input
 onnxruntime==1.26.0
 onnxruntime-genai==0.14.1
+qwen_vl_utils
 requests
 torch>=2.10.0,<2.11.0
 torchaudio
