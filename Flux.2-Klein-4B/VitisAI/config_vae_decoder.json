@@ -28,7 +28,7 @@
         },
         "model_generation": {
             "type": "VitisGenerateModelSD",
-            "model_type": "sd3-vae-decoder1",
+            "model_type": "sd3-vae-decoder",
             "resolutions": ["1024x1024"]
         }
     },

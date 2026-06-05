@@ -27,7 +27,7 @@
     "systems": {
         "local_system": {
             "type": "LocalSystem",
-            "accelerators": [{"device": "gpu", "execution_providers": ["CUDAExecutionProvider"]}]
+            "accelerators": [{"device": "cpu", "execution_providers": ["CPUExecutionProvider"]}]
         }
     },
     "passes": {
@@ -37,6 +37,11 @@
             "save_as_external_data": true,
             "all_tensors_to_one_file": true,
             "external_data_name": "model.onnx.data"
+        },
+        "model_generation": {
+            "type": "VitisGenerateModelSD",
+            "model_type": "flux2",
+            "resolutions": ["1024x1024"]
         }
     },
     "log_severity_level": 0,
