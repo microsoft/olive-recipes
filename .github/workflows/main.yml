@@ -148,6 +148,11 @@ jobs:
         hf_cache_key: ${{ runner.os }}-${{ matrix.name }}-hf-cache
         requirements_file: ${{ matrix.cwd }}/${{ matrix.requirements_file }}
 
+    - name: Check CUDA availability
+      run: |
+        nvidia-smi || echo "nvidia-smi not found"
+        python -c "import torch; print(f'CUDA available: {torch.cuda.is_available()}, devices: {torch.cuda.device_count()}')" || true
+
     - name: Run Command
       working-directory: ${{ github.workspace }}/${{ matrix.cwd }}
       env:
