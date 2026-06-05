@@ -73,9 +73,11 @@ for filepath in dirpath.rglob("olive_ci.json"):
     if changed_recipe_dirs is not None and recipe_dir not in changed_recipe_dirs:
         continue
 
-    # Skip recipes that don't match the filter
-    if args.recipe_filter and args.recipe_filter not in recipe_dir:
-        continue
+    # Skip recipes that don't match the filter (comma-separated list)
+    if args.recipe_filter:
+        filters = [f.strip() for f in args.recipe_filter.split(",")]
+        if not any(f in recipe_dir for f in filters):
+            continue
 
     with filepath.open() as strm:
         for config in json.load(strm):
