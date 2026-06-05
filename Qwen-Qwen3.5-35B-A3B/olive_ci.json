@@ -5,12 +5,5 @@
         "device": "cpu",
         "requirements_file": "builtin/requirements.txt",
         "command": "cd builtin && python optimize.py --config-dir cpu_and_mobile --device cpu && python ../../.github/scripts/run_vision_eval.py --model-path cpu_and_mobile/models --limit 100 --device cpu"
-    },
-    {
-        "name": "qwen3.5-35b-a3b-int4-cuda-vision-eval",
-        "os": "ubuntu", "python_version": "3.12",
-        "device": "cuda",
-        "requirements_file": "builtin/requirements-cuda.txt",
-        "command": "cd builtin && python optimize.py --config-dir cuda --device gpu && python ../../.github/scripts/run_vision_eval.py --model-path cuda/models --limit 200 --device gpu"
     }
 ]

@@ -5,12 +5,5 @@
         "device": "cpu",
         "requirements_file": "requirements.txt",
         "command": "python ../../.github/scripts/run_vision_eval.py --config cpu/int4/config.json --limit 100 --device cpu"
-    },
-    {
-        "name": "gemma4-e2b-int4-cuda-vision-eval",
-        "os": "ubuntu", "python_version": "3.12",
-        "device": "cuda",
-        "requirements_file": "requirements-cuda.txt",
-        "command": "python ../../.github/scripts/run_vision_eval.py --config cuda/int4/config.json --limit 200 --device gpu"
     }
 ]

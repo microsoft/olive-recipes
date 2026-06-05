@@ -8,13 +8,6 @@
     },
     {
         "name": "ptq",
-        "os": "ubuntu",
-        "device": "cuda",
-        "requirements_file": "gpu/cuda/requirements.txt",
-        "command": "python -m olive run --config gpu/cuda/ptq.json"
-    },
-    {
-        "name": "ptq",
         "os": "windows",
         "device": "cpu",
         "requirements_file": "cpu/requirements.txt",

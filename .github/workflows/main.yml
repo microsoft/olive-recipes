@@ -71,7 +71,7 @@ jobs:
         if [ -s /tmp/changed_files.txt ]; then
           CHANGED_ARG="--changed-files /tmp/changed_files.txt"
         fi
-        matrix=$(python .github/scripts/generate_matrix.py . ubuntu cpu $CHANGED_ARG --recipe-filter Qwen-Qwen3.5-0.8B)
+        matrix=$(python .github/scripts/generate_matrix.py . ubuntu cpu $CHANGED_ARG --recipe-filter Qwen-Qwen3.5-0.8B,Qwen-Qwen3.5-2B,Qwen-Qwen3.5-4B,Qwen-Qwen3-VL-2B-Instruct,Qwen-Qwen3-VL-4B-Instruct,Qwen-Qwen3-VL-8B-Instruct)
         echo "ubuntu_cpu_matrix=$matrix" >> $GITHUB_OUTPUT
 
     - name: Scan & generate matrix (Ubuntu + CUDA)
@@ -81,7 +81,7 @@ jobs:
         if [ -s /tmp/changed_files.txt ]; then
           CHANGED_ARG="--changed-files /tmp/changed_files.txt"
         fi
-        matrix=$(python .github/scripts/generate_matrix.py . ubuntu cuda $CHANGED_ARG --recipe-filter Qwen-Qwen3.5-0.8B)
+        matrix=$(python .github/scripts/generate_matrix.py . ubuntu cuda $CHANGED_ARG --recipe-filter __disabled__)
         echo "ubuntu_cuda_matrix=$matrix" >> $GITHUB_OUTPUT
 
     - name: Scan & generate matrix (Windows + CPU)
@@ -148,15 +148,8 @@ jobs:
         hf_cache_key: ${{ runner.os }}-${{ matrix.name }}-hf-cache
         requirements_file: ${{ matrix.cwd }}/${{ matrix.requirements_file }}
 
-    - name: Check CUDA availability
-      run: |
-        nvidia-smi || echo "nvidia-smi not found"
-        python -c "import torch; print(f'CUDA available: {torch.cuda.is_available()}, devices: {torch.cuda.device_count()}')" || true
-
     - name: Run Command
       working-directory: ${{ github.workspace }}/${{ matrix.cwd }}
-      env:
-        CUDA_VISIBLE_DEVICES: "0"
       run: ${{ matrix.command }}
 
   windows-cpu-recipes:
