@@ -1,5 +1,5 @@
 datasets
-git+https://github.com/microsoft/Olive.git@main
+git+https://github.com/microsoft/Olive.git@asonawane/input
 onnxruntime==1.26.0
 onnxruntime-genai==0.14.1
 Pillow

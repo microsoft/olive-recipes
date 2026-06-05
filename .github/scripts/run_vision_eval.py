@@ -88,7 +88,10 @@ def run_mmmu_eval(model_path: str, device: str, limit: int | None, subject: str 
             "split": "validation",
         },
         pre_process_data_config=pre_process_params,
-        dataloader_config={"batch_size": 1},
+        dataloader_config={
+            "type": "vision_vqa_dataloader",
+            "batch_size": 1,
+        },
     )
     dc = data_config.to_data_container()
     dataloader = dc.create_dataloader()
@@ -104,11 +107,12 @@ def run_mmmu_eval(model_path: str, device: str, limit: int | None, subject: str 
     evaluator = OnnxEvaluator()
     result = evaluator._evaluate_onnx_accuracy(model, metric, dataloader, device=eval_device)
 
-    for sub_result in result.value:
-        if sub_result.name == "exact_match":
+    # Extract accuracy from result
+    # MetricResult is a dict-based model; find the exact_match key
+    for key, sub_result in result.root.items():
+        if "exact_match" in key:
             return sub_result.value
-
-    raise ValueError("No exact_match result found")
+    raise ValueError(f"No exact_match result found. Keys: {list(result.root.keys())}")
 
 
 def main():

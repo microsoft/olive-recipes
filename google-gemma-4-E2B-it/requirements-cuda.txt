@@ -1,7 +1,7 @@
 datasets
+git+https://github.com/microsoft/Olive.git@asonawane/input
 lm-eval
 mobius-ai
-olive-ai[gpu]
 onnxruntime-genai-cuda==0.14.1
 onnxruntime-gpu==1.26.0
 requests
