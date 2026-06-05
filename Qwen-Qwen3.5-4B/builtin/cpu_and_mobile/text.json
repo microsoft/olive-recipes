@@ -12,7 +12,6 @@
             "int4_algo_config": "rtn",
             "extra_options": {
                 "filename": "text.onnx",
-                "quant_mode": "int4",
                 "prune_lm_head": true
             }
         },
