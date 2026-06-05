@@ -150,6 +150,8 @@ jobs:
 
     - name: Run Command
       working-directory: ${{ github.workspace }}/${{ matrix.cwd }}
+      env:
+        CUDA_VISIBLE_DEVICES: "0"
       run: ${{ matrix.command }}
 
   windows-cpu-recipes:
