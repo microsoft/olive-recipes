@@ -12,10 +12,9 @@ import onnxruntime as ort
 import sd_utils
 import sd_utils.config
 import torch
-
-from diffusers.pipelines.stable_diffusion.pipeline_onnx_stable_diffusion import OnnxStableDiffusionPipeline
 from diffusers.pipelines.onnx_utils import ORT_TO_NP_TYPE
 from diffusers.pipelines.stable_diffusion import StableDiffusionPipelineOutput
+from diffusers.pipelines.stable_diffusion.pipeline_onnx_stable_diffusion import OnnxStableDiffusionPipeline
 
 # ruff: noqa: T201
 
@@ -266,6 +265,7 @@ def add_ep_for_device(session_options, ep_name, device_type, ep_options=None):
 def get_qdq_pipeline(model_dir, common_args, qdq_args, script_dir):
     if common_args.provider != "cpu":
         from winml import register_execution_providers
+
         register_execution_providers()
     ort.set_default_logger_severity(3)
 
