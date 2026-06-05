@@ -203,10 +203,17 @@ def run_mmmu_pytorch_eval(
             question = sample["question"]
             answer = sample["answer"]
             options = sample.get("options", [])
+            if isinstance(options, str):
+                try:
+                    options = json.loads(options)
+                except (json.JSONDecodeError, ValueError):
+                    options = []
 
             if options:
                 letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-                options_text = "\n".join(f"{letters[j]}. {opt}" for j, opt in enumerate(options))
+                options_text = "\n".join(
+                    f"{letters[j] if j < len(letters) else str(j)}. {opt}" for j, opt in enumerate(options)
+                )
                 question = f"{question}\n{options_text}"
 
             messages = [
