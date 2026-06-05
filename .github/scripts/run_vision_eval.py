@@ -75,6 +75,8 @@ def run_mmmu_eval(model_path: str, device: str, limit: int | None, subject: str 
         "image_col": "image_1",
         "question_col": "question",
         "answer_col": "answer",
+        "options_col": "options",
+        "system_prompt": "Answer with only the option letter (A, B, C, D, etc.).",
     }
     if limit:
         pre_process_params["limit"] = limit
