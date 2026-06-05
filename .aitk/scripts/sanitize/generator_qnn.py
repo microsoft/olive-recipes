@@ -1,5 +1,5 @@
-from pathlib import Path
 import json
+from pathlib import Path
 
 from .constants import OlivePassNames, OlivePropertyNames
 from .generator_amd import generate_quantization_config
@@ -40,7 +40,7 @@ def generator_qnn(id: str, recipe, folder: Path, modelList: ModelList):
         return
 
     runtime_values: list[str] = recipe.get("devices", [recipe.get("device")])
-    name = f"Convert to Qualcomm {"/".join([runtime.upper() for runtime in runtime_values])}"
+    name = f"Convert to Qualcomm {'/'.join([runtime.upper() for runtime in runtime_values])}"
 
     parameter = create_model_parameter(aitk, name, configFile)
     if "npu" in runtime_values:

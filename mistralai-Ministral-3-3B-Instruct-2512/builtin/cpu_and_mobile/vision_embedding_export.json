@@ -1,0 +1,16 @@
+{
+    "input_model": {
+        "type": "HfModel",
+        "model_path": "mistralai/Ministral-3-3B-Instruct-2512-BF16"
+    },
+    "passes": {
+        "export": {
+            "type": "MobiusBuilder",
+            "precision": "fp32",
+            "runtime": "none",
+            "components_to_export": ["vision_encoder", "embedding"]
+        }
+    },
+    "no_artifacts": true,
+    "output_dir": "cpu_and_mobile/models"
+}
