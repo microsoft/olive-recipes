@@ -4,19 +4,16 @@
 # Example modified from: https://docs.openvino.ai/2023.3/notebooks/225-stable-diffusion-text-to-image-with-output.html
 # --------------------------------------------------------------------------
 import inspect
-import os
 from pathlib import Path
 from typing import Callable, Optional, Union
 
 import numpy as np
 import onnxruntime as ort
 import torch
-
 from diffusers import StableDiffusionPipeline
-from diffusers.pipelines.stable_diffusion.pipeline_onnx_stable_diffusion import OnnxStableDiffusionPipeline
 from diffusers.pipelines.onnx_utils import ORT_TO_NP_TYPE
 from diffusers.pipelines.stable_diffusion import StableDiffusionPipelineOutput
-
+from diffusers.pipelines.stable_diffusion.pipeline_onnx_stable_diffusion import OnnxStableDiffusionPipeline
 from sd_utils.onnx_patch import PatchedOnnxRuntimeModel
 
 
@@ -161,8 +158,8 @@ def update_ov_config(config: dict, static_shape: bool):
     config["passes"] = {
         "ov_convert": config["passes"]["ov_convert"],
         "ov_io_update": config["passes"]["ov_io_update"],
-        "ov_encapsulation": config["passes"]["ov_encapsulation"]
-        }
+        "ov_encapsulation": config["passes"]["ov_encapsulation"],
+    }
 
     if static_shape == False:
         config["passes"]["ov_io_update"]["static"] = False
@@ -206,6 +203,7 @@ def get_ov_pipeline(common_args, ov_args, optimized_model_dir):
         return StableDiffusionPipeline.from_pretrained(common_args.model_id)
 
     from winml import register_execution_providers
+
     register_execution_providers()
 
     print("Loading models into ORT session...")

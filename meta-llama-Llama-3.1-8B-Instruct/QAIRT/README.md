@@ -12,25 +12,35 @@ Finally, a prepared QAIRT DLC is encapsulated in an ONNX protobuf and exported t
 
 ## Requirements
 
-This workflow has been tested using the following host configuration:
-* Python 3.10
+**Validated host configuration:**
+* Ubuntu 22.04
+* Python 3.10.12
 * qairt-dev 0.5.0
 * QAIRT 2.45.40
 
-Further, this workflow has been tested on the following target configurations:
+**Validated target configuration:**
 * HTP backend on SC8480XP
+
+Other configurations may work but have not been validated.
 
 ## Preparation Instructions
 
-1. Install olive[qairt]
+1. Authenticate with Hugging Face — this recipe uses the gated `meta-llama/Llama-3.1-8B-Instruct` model. Request access on Hugging Face, then authenticate:
 
 ```bash
-pip install olive[qairt]
-pip list | grep qairt-dev  # Ensure the proper qairt-dev version  was installed
-pip install qairt-dev[onnx]==<version>  # Install the proper qairt-dev version, if not installed
+huggingface-cli login  # Recommended: stores credentials securely, avoids shell history
+# Alternative: export HF_TOKEN=<your_hugging_face_token>
 ```
 
-2. (Optional) Use qairt-vm to install a non-default version of QAIRT and set QAIRT_SDK_ROOT
+2. Install olive-ai[qairt]
+
+```bash
+pip install olive-ai[qairt]
+pip list | grep qairt-dev  # Ensure the proper qairt-dev version  was installed
+pip install qairt-dev[onnx]==0.5.0  # Install the proper qairt-dev version, if not installed
+```
+
+3. (Optional) Use qairt-vm to install a non-default version of QAIRT and set QAIRT_SDK_ROOT
 
 ```bash
 # List available QAIRT SDK versions
@@ -45,14 +55,14 @@ qairt-vm fetch -v <version>
 export QAIRT_SDK_ROOT=/path/to/qairt/sdk
 ```
 
-3. Install model-specific requirements
+4. Install model-specific requirements
 
 ```bash
 pip install -r requirements.txt
 pip install torch==2.1.0
 ```
 
-4. Run Olive recipe
+5. Run Olive recipe
 
 ```bash
 olive run --config htp_sc8480xp.json
@@ -68,3 +78,9 @@ pip install onnxruntime-qnn>=2.1.0
 ```
 
 Please see the following script in the onnxruntime-genai repository for [an example of how to run this model directory](https://github.com/microsoft/onnxruntime-genai/blob/main/examples/python/model-qa.py).
+
+## Known Issues
+
+### `AttributeError: module 'pydantic._internal._typing_extra' has no attribute 'add_module_globals'`
+
+This error can occasionally occur on the first invocation of the recipe. If encountered, re-running the recipe is sufficient as a workaround.

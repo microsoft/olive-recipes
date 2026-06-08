@@ -421,7 +421,7 @@ class ModSamMaskdecoder(nn.Module):
         self.model.prompt_encoder = ModSamPromptEncoder(self.model.prompt_encoder)
 
     def forward(self, input_points, input_labels, image_embeddings):
-        return self.model(input_points=input_points, input_labels = input_labels, image_embeddings=image_embeddings)
+        return self.model(input_points=input_points, input_labels=input_labels, image_embeddings=image_embeddings)
 
 
 class ModSamMaskPointDecoder(nn.Module):
