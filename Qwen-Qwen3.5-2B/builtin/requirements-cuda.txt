@@ -1,5 +1,5 @@
 datasets
-git+https://github.com/microsoft/Olive.git@main
+git+https://github.com/microsoft/Olive.git@asonawane/eval
 onnxruntime-genai-cuda==0.14.1
 onnxruntime-gpu==1.26.0
 requests
