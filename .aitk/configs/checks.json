@@ -1,12 +1,12 @@
 {
     "configCheck": 173,
-    "copyCheck": 182,
+    "copyCheck": 183,
     "executePatchPyCheck": 0,
     "executeRuntimeCheck": 106,
     "extensionCheck": 2,
     "gitignoreCheck": 44,
     "inferenceModelCheck": 25,
-    "ipynbCheck": 48,
+    "ipynbCheck": 51,
     "licenseCheck": 41,
     "modelProjectCheck": 46,
     "oliveCheck": 82,
@@ -14,6 +14,6 @@
     "pathCheck": 1463,
     "requirementsCheck": 44,
     "templateCheck": 3,
-    "venvRequirementsCheck": 22,
+    "venvRequirementsCheck": 23,
     "winmlCopyCheck": 38
 }
