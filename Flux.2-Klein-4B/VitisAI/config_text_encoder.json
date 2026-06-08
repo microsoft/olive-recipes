@@ -2,17 +2,19 @@
     "input_model": {
         "type": "PyTorchModel",
         "model_path": "black-forest-labs/FLUX.2-klein-4B",
-        "model_loader": "vae_encoder_load",
+        "model_loader": "text_encoder_load",
         "model_script": "user_script.py",
         "io_config": {
-            "input_names": ["images"],
-            "output_names": ["latents"],
+            "input_names": ["input_ids", "attention_mask", "position_ids"],
+            "output_names": ["prompt_embeds"],
             "dynamic_axes": {
-                "images":  {"0": "batch_size", "2": "height",   "3": "width"},
-                "latents": {"0": "batch_size", "2": "latent_h", "3": "latent_w"}
+                "input_ids":      {"0": "batch", "1": "sequence"},
+                "attention_mask": {"0": "batch", "1": "sequence"},
+                "position_ids":   {"0": "batch", "1": "sequence"},
+                "prompt_embeds":  {"0": "batch", "1": "sequence"}
             }
         },
-        "dummy_inputs_func": "vae_encoder_conversion_inputs"
+        "dummy_inputs_func": "text_encoder_conversion_inputs"
     },
     "systems": {
         "local_system": {
@@ -24,7 +26,9 @@
         "convert": {
             "type": "OnnxConversion",
             "target_opset": 17,
-            "all_tensors_to_one_file": true
+            "save_as_external_data": true,
+            "all_tensors_to_one_file": true,
+            "external_data_name": "model.onnx.data"
         }
     },
     "log_severity_level": 0,
@@ -32,5 +36,5 @@
     "host": "local_system",
     "target": "local_system",
     "cache_dir": "cache",
-    "output_dir": "footprints/vae_encoder"
+    "output_dir": "footprints/text_encoder"
 }

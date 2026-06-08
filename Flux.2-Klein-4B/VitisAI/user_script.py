@@ -1,10 +1,13 @@
-# Copyright (C) 2024 - 2026 Advanced Micro Devices, Inc. All rights reserved.
-#
+# -------------------------------------------------------------------------
+# Copyright (C) 2026 Advanced Micro Devices, Inc. All rights reserved.
+# SPDX-License-Identifier: MIT
+# -------------------------------------------------------------------------
 # Olive user_script for FLUX.2-klein-4B ONNX export.
 
 import torch
 import torch.nn as nn
 from torch.onnx import symbolic_helper
+
 
 try:
     from torch.onnx._type_utils import JitScalarType
@@ -54,9 +57,6 @@ def _rms_norm_symbolic(g, input, normalized_shape, weight, eps):
     return normalized
 
 
-torch.onnx.register_custom_op_symbolic("aten::rms_norm", _rms_norm_symbolic, 17)
-
-
 # ---------------------------------------------------------------------------
 # Wrapper
 # ---------------------------------------------------------------------------
@@ -97,6 +97,10 @@ class FluxTransformerWrapper(nn.Module):
 
 def transformer_load(model_path: str) -> FluxTransformerWrapper:
     from diffusers import Flux2Transformer2DModel
+
+    # Register the RMSNorm custom symbolic here so it only affects the
+    # transformer export, not other components (text encoder, VAE).
+    torch.onnx.register_custom_op_symbolic("aten::rms_norm", _rms_norm_symbolic, 17)
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     transformer = Flux2Transformer2DModel.from_pretrained(
@@ -144,6 +148,126 @@ def transformer_conversion_inputs(model=None):
         "txt_ids": torch.zeros(
             _BATCH, _TXT_SEQ_LEN, _ROPE_DIMS, dtype=torch.int64, device=device
         ),
+    }
+
+
+# =============================================================================
+# Text Encoder (Qwen3)
+# =============================================================================
+
+# ---------------------------------------------------------------------------
+# Wrapper
+# ---------------------------------------------------------------------------
+
+class Qwen3TextEncoderWrapper(nn.Module):
+    """Qwen3 text encoder wrapper for ONNX export.
+
+    Stacks hidden states from the specified layers and reshapes them into
+    prompt_embeds expected by the Flux2-Klein transformer
+    (shape: [batch, seq_len, num_layers * hidden_dim]).
+    """
+
+    def __init__(self, model: nn.Module, hidden_states_layers: tuple[int, ...] = (9, 18, 27)) -> None:
+        super().__init__()
+        self.model = model
+        self.hidden_states_layers = hidden_states_layers
+
+    def forward(
+        self,
+        input_ids: torch.Tensor,
+        attention_mask: torch.Tensor,
+        position_ids: torch.Tensor,
+    ) -> torch.Tensor:
+        seq_len = input_ids.shape[1]
+        cache_position = torch.arange(seq_len, device=input_ids.device)
+
+        # Pre-compute the 4D additive float mask via simple broadcasting so that
+        # Qwen3Model.forward receives a dict and skips create_causal_mask entirely.
+        # This avoids transformers' _vmap_for_bhqkv + TransformGetItemToIndex path
+        # which fails under ONNX JIT tracing (RuntimeError: invalid unordered_map key).
+        kv_arange = torch.arange(seq_len, device=input_ids.device)
+        # lower-triangular causal mask: kv <= q → can attend → True
+        bool_mask = kv_arange.unsqueeze(0) <= cache_position.unsqueeze(1)  # [q, kv]
+        bool_mask = bool_mask.unsqueeze(0).unsqueeze(0)  # [1, 1, q, kv]
+        if attention_mask is not None:
+            pad_4d = attention_mask[:, None, None, :].bool()  # [B, 1, 1, kv]
+            bool_mask = bool_mask & pad_4d
+
+        dtype = next(self.model.parameters()).dtype
+        min_dtype = torch.finfo(dtype).min
+        float_mask = torch.where(bool_mask, torch.zeros(1, dtype=dtype, device=input_ids.device), min_dtype)
+
+        # Qwen3Model bypasses create_causal_mask when attention_mask is a dict.
+        inner_model = getattr(self.model, "model", self.model)
+        causal_mask_mapping = {"full_attention": float_mask}
+        if getattr(inner_model, "has_sliding_layers", False):
+            sw = getattr(inner_model.config, "sliding_window", None)
+            if sw is not None:
+                sw_bool = bool_mask & (kv_arange.unsqueeze(0) > cache_position.unsqueeze(1) - sw)
+                sw_float = torch.where(sw_bool, torch.zeros(1, dtype=dtype, device=input_ids.device), min_dtype)
+                causal_mask_mapping["sliding_attention"] = sw_float
+
+        outputs = self.model(
+            input_ids=input_ids,
+            attention_mask=causal_mask_mapping,
+            position_ids=position_ids,
+            cache_position=cache_position,
+            output_hidden_states=True,
+            use_cache=False,
+            return_dict=True,
+        )
+        stacked = torch.stack([outputs.hidden_states[k] for k in self.hidden_states_layers], dim=1)
+        batch_size, num_channels, seq_len, hidden_dim = stacked.shape
+        return stacked.permute(0, 2, 1, 3).reshape(batch_size, seq_len, num_channels * hidden_dim)
+
+
+# ---------------------------------------------------------------------------
+# Model loader
+# ---------------------------------------------------------------------------
+
+def text_encoder_load(model_path: str) -> Qwen3TextEncoderWrapper:
+    from transformers import AutoConfig, AutoModelForCausalLM
+
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    config = AutoConfig.from_pretrained(model_path, subfolder="text_encoder")
+    config.use_cache = False
+    config._attn_implementation = "eager"
+    model = AutoModelForCausalLM.from_pretrained(
+        model_path,
+        subfolder="text_encoder",
+        config=config,
+        torch_dtype=torch.float32,
+        low_cpu_mem_usage=True,
+        attn_implementation="eager",
+    )
+    model.eval()
+    model.to(device)
+    return Qwen3TextEncoderWrapper(model).eval()
+
+
+# ---------------------------------------------------------------------------
+# Dummy inputs
+#
+# Sequence length matches _TXT_SEQ_LEN used by the transformer.
+# ---------------------------------------------------------------------------
+
+_TEXT_BATCH   = 1
+_TEXT_SEQ_LEN = 256
+
+
+def text_encoder_conversion_inputs(model=None):
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    input_ids = torch.zeros((_TEXT_BATCH, _TEXT_SEQ_LEN), dtype=torch.long, device=device)
+    attention_mask = torch.ones((_TEXT_BATCH, _TEXT_SEQ_LEN), dtype=torch.long, device=device)
+    position_ids = (
+        torch.arange(_TEXT_SEQ_LEN, dtype=torch.long, device=device)
+        .unsqueeze(0)
+        .expand(_TEXT_BATCH, -1)
+    )
+    return {
+        "input_ids": input_ids,
+        "attention_mask": attention_mask,
+        "position_ids": position_ids,
     }
 
 
