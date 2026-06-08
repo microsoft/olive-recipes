@@ -1,7 +1,10 @@
 {
     "input_model": {
-        "type": "QairtPreparedModel",
-        "model_path": "microsoft/phi-4-mini-instruct"
+        "type": "HFModel",
+        "model_path": "microsoft/phi-4-mini-instruct",
+        "load_kwargs": {
+            "trust_remote_code": true
+        }
     },
     "passes": {
         "qp": {
@@ -27,15 +30,6 @@
             "type": "QairtEncapsulation",
             "log_level": "ERROR",
             "run_checker": "true",
-			"engine_config_overrides": {
-                "n_threads": 3,
-                "htp": {
-                    "cpu_mask": "0xe0",
-                    "allow_async_init": false,
-                    "poll": false,
-                    "mmap_budget": 0
-                }
-            },
             "backend_extensions_overrides": {
                 "graphs": null,
                 "devices": [{"pd_session": "unsigned"}],
