@@ -19,10 +19,10 @@
             "type": "ModelBuilder",
             "precision": "int4",
             "int4_accuracy_level": 4,
+            "int4_algo_config": "k_quant_linear",
             "extra_options": {
                 "filename": "text.onnx",
-                "prune_lm_head": true,
-                "quant_mode": "default"
+                "prune_lm_head": true
             }
         }
     },
