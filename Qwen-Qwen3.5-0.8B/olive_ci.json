@@ -1,9 +1,9 @@
 [
     {
-        "name": "qwen3.5-0.8b-int4-cpu-vision-eval",
+        "name": "vlm-int4-cpu-sequential-vision-eval",
         "os": "ubuntu", "python_version": "3.12",
         "device": "cpu",
         "requirements_file": "builtin/requirements.txt",
-        "command": "cd builtin && python optimize.py --config-dir cpu_and_mobile --device cpu && python ../../.github/scripts/run_vision_eval.py --model-path cpu_and_mobile/models --limit 100 --device cpu --pytorch-model Qwen/Qwen3.5-0.8B"
+        "command": "cd .. && bash .github/scripts/run_sequential_vision_eval.sh"
     }
 ]
