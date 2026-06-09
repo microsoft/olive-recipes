@@ -1,7 +1,6 @@
-# FLUX.2-klein-4B — RyzenAI ONNX Export with Olive
+# FLUX.2-klein-4B — Model Optimization for AMD NPU
 
-This folder contains the Olive configurations and export script to convert
-**FLUX.2-klein-4B** sub-models to optimized models for AMD NPU using [Olive](https://github.com/microsoft/Olive).
+This folder contains sample Olive configurations and export script to optimize FLUX.2-klein-4B 2 models for AMD NPU.
 
 The export script (`export_optimized_models.py`) handles the full pipeline in
 one command: download weights → ONNX conversion → NPU compilation →
@@ -37,8 +36,8 @@ cd ..
 
 ```bash
 git clone https://github.com/microsoft/olive-recipes.git
-cd olive-recipes/Flux.2-Klein-4B/VitisAI
-pip install --force-reinstall -r requirements.txt
+cd olive-recipes/Flux.2-Klein-4B/RyzenAI
+pip install --force-reinstall -r requirements_ryzenai_sd.txt
 ```
 
 ## Step 4 — Accept the model license and log in to HuggingFace

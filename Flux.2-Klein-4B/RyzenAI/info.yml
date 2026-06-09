@@ -1,8 +1,8 @@
 keywords:
-  - vitisai
+  - ryzenai
 eps:
   - CPUExecutionProvider
-  - VitisAIExecutionProvider
+  - RyzenAIExecutionProvider
 devices:
   - cpu
   - npu
