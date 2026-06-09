@@ -101,7 +101,7 @@ jobs:
         if [ -s /tmp/changed_files.txt ]; then
           CHANGED_ARG="--changed-files /tmp/changed_files.txt"
         fi
-        matrix=$(python .github/scripts/generate_matrix.py . windows cuda $CHANGED_ARG --recipe-filter __disabled__)
+        matrix=$(python .github/scripts/generate_matrix.py . windows cuda $CHANGED_ARG --recipe-filter Qwen-Qwen3.5-0.8B)
         echo "windows_cuda_matrix=$matrix" >> $GITHUB_OUTPUT
 
   ubuntu-cpu-recipes:
@@ -144,6 +144,30 @@ jobs:
       uses: ./.github/actions/cuda-setup
       with:
         shell: bash
+        python_version: ${{ matrix.python_version || env.PYTHON_VERSION }}
+        hf_cache_key: ${{ runner.os }}-${{ matrix.name }}-hf-cache
+        requirements_file: ${{ matrix.cwd }}/${{ matrix.requirements_file }}
+
+    - name: Run Command
+      working-directory: ${{ github.workspace }}/${{ matrix.cwd }}
+      run: ${{ matrix.command }}
+
+  windows-cuda-recipes:
+    needs: generate-matrix
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.generate-matrix.outputs.windows-cuda-matrix) }}
+    name: ${{ matrix.name }}
+    runs-on: [ self-hosted, 1ES.Pool=FoundryLocal-GPU-4090 ]
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+
+    - name: Setup Environment
+      uses: ./.github/actions/cpu-setup
+      with:
+        shell: cmd
         python_version: ${{ matrix.python_version || env.PYTHON_VERSION }}
         hf_cache_key: ${{ runner.os }}-${{ matrix.name }}-hf-cache
         requirements_file: ${{ matrix.cwd }}/${{ matrix.requirements_file }}

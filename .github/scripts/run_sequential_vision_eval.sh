@@ -7,6 +7,16 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 EVAL_SCRIPT="$SCRIPT_DIR/run_vision_eval.py"
 
+# Determine device from argument (default: cpu)
+DEVICE="${1:-cpu}"
+if [ "$DEVICE" = "gpu" ]; then
+    CONFIG_DIR="cuda"
+    OPTIMIZE_DEVICE="gpu"
+else
+    CONFIG_DIR="cpu_and_mobile"
+    OPTIMIZE_DEVICE="cpu"
+fi
+
 # Define models to run: recipe_dir|pytorch_model|limit
 MODELS=(
     "Qwen-Qwen3.5-0.8B|Qwen/Qwen3.5-0.8B|100"
@@ -35,9 +45,9 @@ for entry in "${MODELS[@]}"; do
     fi
 
     # Optimize
-    if python optimize.py --config-dir cpu_and_mobile --device cpu; then
+    if python optimize.py --config-dir "$CONFIG_DIR" --device "$OPTIMIZE_DEVICE"; then
         # Evaluate
-        if python "$EVAL_SCRIPT" --model-path cpu_and_mobile/models --limit "$limit" --device cpu --pytorch-model "$pytorch_model"; then
+        if python "$EVAL_SCRIPT" --model-path "$CONFIG_DIR/models" --limit "$limit" --device "$DEVICE" --pytorch-model "$pytorch_model"; then
             PASSED+=("$recipe_dir")
         else
             echo "WARN: Evaluation failed for $recipe_dir"
@@ -50,7 +60,7 @@ for entry in "${MODELS[@]}"; do
 
     # Clean up model files to free memory for next model
     echo "Cleaning up $recipe_dir models..."
-    rm -rf cpu_and_mobile/models
+    rm -rf "$CONFIG_DIR/models"
     cd "$REPO_ROOT"
 done
 

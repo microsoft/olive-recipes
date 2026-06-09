@@ -5,5 +5,12 @@
         "device": "cpu",
         "requirements_file": "builtin/requirements.txt",
         "command": "cd .. && bash .github/scripts/run_sequential_vision_eval.sh"
+    },
+    {
+        "name": "vlm-int4-sequential-vision-eval",
+        "os": "windows", "python_version": "3.12",
+        "device": "cuda",
+        "requirements_file": "builtin/requirements.txt",
+        "command": "cd .. && powershell -ExecutionPolicy Bypass -File .github/scripts/run_sequential_vision_eval.ps1"
     }
 ]
