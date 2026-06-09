@@ -315,7 +315,7 @@ def assemble_output_dir(
     # Write the top-level model_index.json so the directory is recognised
     # as a Diffusers pipeline by downstream loaders.
     pipeline.save_config(str(output_dir))
-    print(f"  [SAVE]  model_index.json")
+    print("  [SAVE]  model_index.json")
 
     print(f"\n  Pipeline assembled at: {output_dir}")
 
@@ -422,7 +422,7 @@ def main(raw_args=None) -> None:
         args.models = list(ALL_MODELS)
 
     if args.model_id is not None or args.resolutions is not None:
-        print(f"\n[CONFIG] Syncing config_*.json ...")
+        print("\n[CONFIG] Syncing config_*.json ...")
         update_config_files(args.model_id, args.resolutions)
 
     if args.model_id is None:
