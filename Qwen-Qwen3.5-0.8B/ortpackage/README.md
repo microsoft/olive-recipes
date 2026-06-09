@@ -1,6 +1,6 @@
 # Package Qwen3.5-0.8B into an ONNX Runtime ortpackage
 
-This recipe walks through the end-to-end flow for taking a Hugging Face VLM
+This recipe walks through the end-to-end flow for taking a Hugging Face model
 (`Qwen/Qwen3.5-0.8B`), exporting it to ONNX with Olive's Mobius builder for
 both CPU and GPU, and bundling the two exports into a single
 `.ortpackage` that the ONNX Runtime GenAI runtime can load and switch
