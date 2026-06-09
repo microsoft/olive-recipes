@@ -1,4 +1,4 @@
-# Package Qwen2.5-VL into an ONNX Runtime ortpackage
+# Package Qwen3.5-0.8B into an ONNX Runtime ortpackage
 
 This recipe walks through the end-to-end flow for taking a Hugging Face VLM
 (`Qwen/Qwen3.5-0.8B`), exporting it to ONNX with Olive's Mobius builder for
