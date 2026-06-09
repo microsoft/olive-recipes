@@ -109,7 +109,7 @@ def _read_footprint(footprints_dir: Path, submodel_name: str) -> tuple[Path, Pat
         from_pass = (node.get("from_pass") or "").lower()
         if from_pass == "onnxconversion":
             conversion_node = node
-        elif from_pass in {"vitisgeneratemodelsd", "dynamictofixedshape", "onnxblockwisertnquantization"}:
+        else:
             optimized_node = node
 
     if conversion_node is None:

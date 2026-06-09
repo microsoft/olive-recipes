@@ -165,6 +165,12 @@ class Qwen3TextEncoderWrapper(nn.Module):
     Stacks hidden states from the specified layers and reshapes them into
     prompt_embeds expected by the Flux2-Klein transformer
     (shape: [batch, seq_len, num_layers * hidden_dim]).
+
+    Pre-computes the 4D additive float causal mask and passes it as a dict
+    so that Qwen3Model.forward skips create_causal_mask entirely. This is
+    required because create_causal_mask internally uses _vmap_for_bhqkv +
+    .item(), which fails under ONNX JIT tracing (RuntimeError: invalid
+    unordered_map key). The same issue also affects dynamo tracing.
     """
 
     def __init__(self, model: nn.Module, hidden_states_layers: tuple[int, ...] = (9, 18, 27)) -> None:
@@ -180,36 +186,24 @@ class Qwen3TextEncoderWrapper(nn.Module):
     ) -> torch.Tensor:
         seq_len = input_ids.shape[1]
         cache_position = torch.arange(seq_len, device=input_ids.device)
-
-        # Pre-compute the 4D additive float mask via simple broadcasting so that
-        # Qwen3Model.forward receives a dict and skips create_causal_mask entirely.
-        # This avoids transformers' _vmap_for_bhqkv + TransformGetItemToIndex path
-        # which fails under ONNX JIT tracing (RuntimeError: invalid unordered_map key).
         kv_arange = torch.arange(seq_len, device=input_ids.device)
-        # lower-triangular causal mask: kv <= q → can attend → True
+
+        # Lower-triangular causal mask: kv <= q position → can attend
         bool_mask = kv_arange.unsqueeze(0) <= cache_position.unsqueeze(1)  # [q, kv]
-        bool_mask = bool_mask.unsqueeze(0).unsqueeze(0)  # [1, 1, q, kv]
+        bool_mask = bool_mask.unsqueeze(0).unsqueeze(0)                     # [1, 1, q, kv]
         if attention_mask is not None:
-            pad_4d = attention_mask[:, None, None, :].bool()  # [B, 1, 1, kv]
-            bool_mask = bool_mask & pad_4d
+            bool_mask = bool_mask & attention_mask[:, None, None, :].bool() # apply padding mask
 
         dtype = next(self.model.parameters()).dtype
-        min_dtype = torch.finfo(dtype).min
-        float_mask = torch.where(bool_mask, torch.zeros(1, dtype=dtype, device=input_ids.device), min_dtype)
-
-        # Qwen3Model bypasses create_causal_mask when attention_mask is a dict.
-        inner_model = getattr(self.model, "model", self.model)
-        causal_mask_mapping = {"full_attention": float_mask}
-        if getattr(inner_model, "has_sliding_layers", False):
-            sw = getattr(inner_model.config, "sliding_window", None)
-            if sw is not None:
-                sw_bool = bool_mask & (kv_arange.unsqueeze(0) > cache_position.unsqueeze(1) - sw)
-                sw_float = torch.where(sw_bool, torch.zeros(1, dtype=dtype, device=input_ids.device), min_dtype)
-                causal_mask_mapping["sliding_attention"] = sw_float
+        float_mask = torch.where(
+            bool_mask,
+            torch.zeros(1, dtype=dtype, device=input_ids.device),
+            torch.full((1,), torch.finfo(dtype).min, dtype=dtype, device=input_ids.device),
+        )
 
         outputs = self.model(
             input_ids=input_ids,
-            attention_mask=causal_mask_mapping,
+            attention_mask={"full_attention": float_mask},
             position_ids=position_ids,
             cache_position=cache_position,
             output_hidden_states=True,

@@ -30,6 +30,41 @@
             "all_tensors_to_one_file": true,
             "external_data_name": "model.onnx.data"
         },
+        "optimize": {
+            "type": "OrtTransformersOptimization",
+            "model_type": "gpt2",
+            "num_heads": 32,
+            "hidden_size": 2560,
+            "opt_level": 1,
+            "float16": false,
+            "use_gpu": false,
+            "keep_io_types": true,
+            "optimization_options": {
+                "enable_layer_norm": true,
+                "enable_attention": true,
+                "use_multi_head_attention": true,
+                "enable_skip_layer_norm": false,
+                "enable_embed_layer_norm": false,
+                "enable_gelu": false,
+                "enable_bias_gelu": false,
+                "enable_gelu_approximation": false,
+                "enable_qordered_matmul": false,
+                "enable_shape_inference": true,
+                "enable_gemm_fast_gelu": false,
+                "enable_nhwc_conv": false,
+                "enable_group_norm": false,
+                "enable_bias_splitgelu": false,
+                "enable_packed_qkv": false,
+                "enable_packed_kv": false,
+                "enable_bias_skip_layer_norm": false,
+                "enable_bias_add": false
+            }
+        },
+        "dynamic_shape_to_fixed": {
+            "type": "DynamicToFixedShape",
+            "dim_param": [ "batch", "sequence" ],
+            "dim_value": [ 1, 256 ]
+        },
         "int4": {
             "type": "OnnxBlockWiseRtnQuantization",
             "block_size": 128,
