@@ -31,6 +31,6 @@
     "evaluate_input_model": false,
     "host": "local_system",
     "target": "local_system",
-    "cache_dir": "cache",
+    "cache_dir": "vai_cache",
     "output_dir": "footprints/vae_encoder"
 }
