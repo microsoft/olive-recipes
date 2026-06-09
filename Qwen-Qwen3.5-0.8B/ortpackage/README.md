@@ -17,7 +17,7 @@ olive capture-onnx-graph -m Qwen/Qwen3.5-0.8B --use_mobius_builder -o gpu
 ```
 
 This downloads the HF model, runs the Mobius ONNX builder, and writes a
-multi-component VLM source under `gpu/`:
+multi-component model source under `gpu/`.
 
 
 ## Step 2 — Export the CPU variant (fp32)
