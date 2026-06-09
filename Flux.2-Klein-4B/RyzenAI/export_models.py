@@ -12,8 +12,8 @@
 #
 # Output layout:
 #   output_model/
-#     transformer/dd/replaced.onnx   NPU (VitisAI)
-#     vae_decoder/dd/replaced.onnx   NPU (VitisAI)
+#     transformer/dd/replaced.onnx   NPU (RyzenAI)
+#     vae_decoder/dd/replaced.onnx   NPU (RyzenAI)
 #     text_encoder/model.onnx        CPU ONNX
 #     tokenizer/                     from pipeline
 #     scheduler/                     from pipeline
@@ -96,12 +96,7 @@ def load_olive_config(submodel_name: str) -> dict:
 
 
 def _read_footprint(footprints_dir: Path, submodel_name: str) -> tuple[Path, Path]:
-    """Parse footprint.json and return (conversion_path, optimized_path).
-
-    Mirrors the logic of save_optimized_onnx_submodel in the SD-1.5 reference:
-    iterate footprint entries, pick the OnnxConversion node as the unoptimized
-    path and the last optimization-pass node as the final optimized path.
-    """
+    """Parse footprint.json and return (conversion_path, optimized_path)."""
     from olive.model import ONNXModelHandler
 
     fp_path = footprints_dir / submodel_name / "footprint.json"
@@ -114,7 +109,7 @@ def _read_footprint(footprints_dir: Path, submodel_name: str) -> tuple[Path, Pat
         from_pass = (node.get("from_pass") or "").lower()
         if from_pass == "onnxconversion":
             conversion_node = node
-        elif from_pass in {"vitisgeneratemodelsd", "dynamictofixedshape"}:
+        elif from_pass in {"vitisgeneratemodelsd", "dynamictofixedshape", "onnxblockwisertnquantization"}:
             optimized_node = node
 
     if conversion_node is None:
@@ -136,8 +131,6 @@ def _read_footprint(footprints_dir: Path, submodel_name: str) -> tuple[Path, Pat
     return _model_path(conversion_node), _model_path(optimized_node)
 
 
-# Map pipeline attribute names to the sub-model directory names in output_model.
-# Used to save each component's config.json alongside the ONNX file.
 _PIPELINE_COMPONENT_MAP = {
     "transformer": "transformer",
     "vae":         ["vae_encoder", "vae_decoder"],   # VAE covers both encoder & decoder
@@ -149,7 +142,7 @@ def _save_vae_decoder_bn_stats(pipeline, output_dir: Path) -> None:
     """Extract BN running_mean / running_var from the VAE and save as
     bn.running_x.safetensors next to the vae_decoder ONNX model.
 
-    The VitisAI runtime loads these stats separately at inference time because
+    The RyzenAI runtime loads these stats separately at inference time because
     the ONNX graph does not carry them as initializers.
 
     Strategy: scan the full VAE state_dict for keys ending in
@@ -172,7 +165,6 @@ def _save_vae_decoder_bn_stats(pipeline, output_dir: Path) -> None:
 
     sd = vae.state_dict()
 
-    # Collect all (prefix, running_mean_tensor) pairs.
     bn_candidates: list[tuple[str, torch.Tensor]] = []
     for key, val in sd.items():
         if key.endswith(".running_mean") and val.ndim == 1:
@@ -263,7 +255,6 @@ def assemble_output_dir(
             optimized_path.parent / "dynamic" / "dd",
         ]
 
-        # expand if optimized_path itself is a valid root
         if optimized_path.is_dir():
             if optimized_path.name == "dynamic":
                 candidates.append(optimized_path / "dd")
@@ -297,7 +288,6 @@ def assemble_output_dir(
                     shutil.copy2(companion, dst_dir / companion.name)
             print(f"  [COPY CPU]  {name} → {dst_dir / 'model.onnx'}")
 
-    # Save config.json for each ONNX sub-model directory.
     _save_component_configs(pipeline, output_dir)
 
     for attr in NON_ONNX_COMPONENTS:

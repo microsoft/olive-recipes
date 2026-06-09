@@ -48,6 +48,6 @@
     "evaluate_input_model": false,
     "host": "local_system",
     "target": "local_system",
-    "cache_dir": "vai_cache",
+    "cache_dir": "ryzenai_cache",
     "output_dir": "footprints/transformer"
 }

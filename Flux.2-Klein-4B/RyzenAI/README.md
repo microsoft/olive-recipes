@@ -2,7 +2,7 @@
 
 This folder contains sample Olive configurations and export script to optimize FLUX.2-klein-4B 2 models for AMD NPU.
 
-The export script (`export_optimized_models.py`) handles the full pipeline in
+The export script (`export_models.py`) handles the full pipeline in
 one command: download weights → ONNX conversion → NPU compilation →
 assemble a self-contained output directory (ONNX models + tokenizer + scheduler).
 
@@ -54,7 +54,7 @@ Paste your HuggingFace access token when prompted.
 ## Step 5 — Run the export
 
 ```bash
-python export_optimized_models.py
+python export_models.py
 ```
 
 The script will:
@@ -76,13 +76,13 @@ The script will:
 
 ```bash
 # Export only the transformer
-python export_optimized_models.py --models transformer
+python export_models.py --models transformer
 
 # Use a local model directory
-python export_optimized_models.py --model_id D:/models/FLUX.2-klein-4B
+python export_models.py --model_id D:/models/FLUX.2-klein-4B
 
 # Change output directory
-python export_optimized_models.py --output_dir D:/output/flux2_klein
+python export_models.py --output_dir D:/output/flux2_klein
 ```
 
 ## Output layout
