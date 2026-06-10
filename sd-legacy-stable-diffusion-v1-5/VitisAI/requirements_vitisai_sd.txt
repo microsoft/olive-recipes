@@ -1,8 +1,9 @@
 # AMD model generation
---extra-index-url=https://pypi.amd.com/olive_SD/1.7.1/simple
+--extra-index-url=https://pypi.amd.com/acas/olive_SD/1.7.1/simple
 
 accelerate
 datasets
+olive-ai[auto-opt]
 
 # Pin onnx version
 diffusers==0.35.0
