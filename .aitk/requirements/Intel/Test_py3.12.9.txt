@@ -1,4 +1,4 @@
-aiohttp==3.13.5
+aiohttp==3.14.0
 coloredlogs==15.0.1
 comm==0.2.2
 # datasets==3.5.0
@@ -50,7 +50,7 @@ pandas==2.2.3
 pillow==12.2.0
 protobuf==5.29.6
 psutil==7.0.0
-pyarrow==19.0.1
+pyarrow==23.0.1
 pydantic==2.11.1
 pydot==3.0.4
 pymoo==0.6.1.3
