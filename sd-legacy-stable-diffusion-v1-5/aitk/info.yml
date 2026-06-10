@@ -14,6 +14,9 @@ recipes:
     devices:
       - npu
     ep: OpenVINOExecutionProvider
+  - file: "sd_vitisai_workflow.json"
+    device: npu
+    ep: VitisAIExecutionProvider
 aitk:
   modelInfo:
     id: "huggingface/stable-diffusion-v1-5/stable-diffusion-v1-5"

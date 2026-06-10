@@ -863,6 +863,7 @@
             "id": "huggingface/stable-diffusion-v1-5/stable-diffusion-v1-5",
             "runtimes": [
                 "QNN",
+                "AMDNPU",
                 "IntelCPU",
                 "IntelGPU",
                 "IntelNPU"
