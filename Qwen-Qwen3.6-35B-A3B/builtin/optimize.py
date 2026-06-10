@@ -134,9 +134,11 @@ def update_genai_config(
 
     # Tune the decoder's CUDA arena to reduce GPU memory. ModelBuilder emits the
     # decoder session_options; patch its CUDA provider in place so we keep its
-    # other options while bounding arena growth. kSameAsRequested avoids the
-    # default kNextPowerOfTwo over-allocation spike during prefill (this is the
-    # real memory saver).
+    # other options while bounding arena growth. arena_extend_strategy=1
+    # (kSameAsRequested) avoids the default power-of-two (0) over-allocation
+    # spike during prefill (this is the real memory saver). onnxruntime-genai
+    # consumes the arena strategy as an integer (0=kNextPowerOfTwo,
+    # 1=kSameAsRequested), not the ORT enum-name string.
     #
     # CUDA graph is enabled on the decoder: during token-by-token decode the
     # shapes are static (1 token; the hybrid recurrent/conv states and the small
@@ -147,7 +149,7 @@ def update_genai_config(
     # gpu_mem_limit is a HARD ceiling, not a memory saver: it does not reduce
     # usage and will OOM if the model needs more. Only set it (via
     # gpu_mem_limit_gb) as a safety cap >= the resident weight footprint
-    # (e.g. ~23 GB on a 24 GB card); leave unset to rely on kSameAsRequested.
+    # (e.g. ~23 GB on a 24 GB card); leave unset to rely on the arena strategy.
     #
     # enable_skip_layer_norm_strict_mode is intentionally removed: ORT >= 1.27
     # computes SkipLayerNorm in fp32 internally, so strict mode is unnecessary.
@@ -161,7 +163,7 @@ def update_genai_config(
                 continue
             cuda_opts.pop("enable_skip_layer_norm_strict_mode", None)
             cuda_opts["enable_cuda_graph"] = "0" if disable_cuda_graph else "1"
-            cuda_opts["arena_extend_strategy"] = "kSameAsRequested"
+            cuda_opts["arena_extend_strategy"] = "1"  # 1 = kSameAsRequested
             if gpu_mem_limit_gb is not None:
                 cuda_opts["gpu_mem_limit"] = str(int(gpu_mem_limit_gb * 1024 ** 3))
 
