@@ -14,7 +14,7 @@ assemble a self-contained output directory (ONNX models + tokenizer + scheduler)
 | Windows 10/11 (x64) | Tested environment |
 | Conda | [Miniconda](https://docs.conda.io/en/latest/miniconda.html) or Anaconda |
 | ~40 GB free disk | Weights + ONNX artifacts + Olive cache |
-| HuggingFace account | `FLUX.2-klein-4B` is a gated model — license acceptance required |
+| HuggingFace account | [FLUX.2-klein-4B](https://huggingface.co/black-forest-labs/FLUX.2-klein-4B) is a gated model — license acceptance required |
 
 ## Step 1 — Create the conda environment
 
@@ -23,35 +23,15 @@ conda create -n olive python=3.12 -y
 conda activate olive
 ```
 
-## Step 2 — Install Olive
-
-```bash
-git clone https://github.com/microsoft/Olive.git
-cd Olive
-pip install -e .
-cd ..
-```
-
-## Step 3 — Install model dependencies
+## Step 2 — Install model dependencies
 
 ```bash
 git clone https://github.com/microsoft/olive-recipes.git
 cd olive-recipes/Flux.2-Klein-4B/RyzenAI
-pip install --force-reinstall -r requirements_ryzenai_sd.txt
+pip install -r requirements_ryzenai_sd.txt
 ```
 
-## Step 4 — Accept the model license and log in to HuggingFace
-
-Go to the [model page](https://huggingface.co/black-forest-labs/FLUX.2-klein-4B)
-and click **Agree and access repository**, then authenticate locally:
-
-```bash
-huggingface-cli login
-```
-
-Paste your HuggingFace access token when prompted.
-
-## Step 5 — Run the export
+## Step 3 — Run the export
 
 ```bash
 python export_models.py

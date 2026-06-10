@@ -36,9 +36,9 @@
             "num_heads": 32,
             "hidden_size": 2560,
             "opt_level": 1,
-            "float16": false,
-            "use_gpu": false,
-            "keep_io_types": true,
+            "float16": true,
+            "use_gpu": true,
+            "keep_io_types": false,
             "optimization_options": {
                 "enable_layer_norm": true,
                 "enable_attention": true,
