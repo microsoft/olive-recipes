@@ -256,9 +256,12 @@ def _build_pytorch_runner(model_id: str):
 
 def _run_pytorch(pt_model, pt_proc, device, prompt, image_path, max_length):
     """Run PyTorch generation on one image. Returns (text, token_count, ttft, tps)."""
+    import threading
+
     import torch
     from PIL import Image as PILImage
     from qwen_vl_utils import process_vision_info
+    from transformers import TextIteratorStreamer
 
     messages = [
         {
@@ -278,17 +281,45 @@ def _run_pytorch(pt_model, pt_proc, device, prompt, image_path, max_length):
 
     prompt_len = inputs["input_ids"].shape[-1]
 
+    # Stream tokens so TTFT measures real prefill + first-token latency (matching
+    # the ORT GenAI path), instead of an average per-token approximation.
+    streamer = TextIteratorStreamer(pt_proc.tokenizer, skip_prompt=True, skip_special_tokens=True)
+    result = {}
+    worker_error = {}
+
+    def _generate():
+        try:
+            with torch.no_grad():
+                result["out"] = pt_model.generate(
+                    **inputs, max_new_tokens=max_length, do_sample=False, streamer=streamer,
+                )
+        except Exception as exc:
+            worker_error["exception"] = exc
+            streamer.end()
+
+    thread = threading.Thread(target=_generate)
     t_start = time.perf_counter()
-    with torch.no_grad():
-        out = pt_model.generate(**inputs, max_new_tokens=max_length, do_sample=False)
+    thread.start()
+
+    ttft = None
+    for _ in streamer:
+        if ttft is None:
+            ttft = time.perf_counter() - t_start
+    thread.join()
     t_total = time.perf_counter() - t_start
 
-    out_ids = out[0][prompt_len:]
+    if "exception" in worker_error:
+        raise worker_error["exception"]
+
+    out_ids = result["out"][0][prompt_len:]
     token_count = len(out_ids)
     text = pt_proc.decode(out_ids, skip_special_tokens=True)
 
-    ttft = t_total / max(token_count, 1)
-    tps = max(token_count - 1, 1) / max(t_total - ttft, 1e-9)
+    if ttft is None:
+        ttft = t_total
+    decode_tokens = max(token_count - 1, 1)
+    decode_time = t_total - ttft
+    tps = decode_tokens / decode_time if decode_time > 0 else 0
 
     return text, token_count, ttft, tps
 
