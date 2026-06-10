@@ -26,7 +26,7 @@ import torch.nn.functional as F
 
 from transformers.activations import ACT2FN
 from transformers.modeling_layers import GradientCheckpointingLayer
-from transformers.modeling_utils import ALL_ATTENTION_FUNCTIONS, PreTrainedModel
+from transformers.modeling_utils import PreTrainedModel
 from transformers.utils import auto_docstring, logging
 
 try:
@@ -168,10 +168,6 @@ class VisionAttention(nn.Module):
         q = q.transpose(0, 1).unsqueeze(0)
         k = k.transpose(0, 1).unsqueeze(0)
         v = v.transpose(0, 1).unsqueeze(0)
-
-        attention_interface = eager_attention_forward
-        if self.config._attn_implementation != "eager":
-            attention_interface = ALL_ATTENTION_FUNCTIONS[self.config._attn_implementation]
 
         if getattr(torch.compiler, "is_exporting", lambda: False)():
             attn_output = torch.onnx.ops.symbolic(
@@ -470,8 +466,11 @@ class Qwen3_5MoeModel(Qwen3_5MoePreTrainedModel):
     def get_image_features(self, pixel_values, image_grid_thw=None):
         pixel_values = pixel_values.type(self.visual.dtype)
         image_embeds = self.visual(pixel_values, grid_thw=image_grid_thw)
-        split_sizes = (image_grid_thw.prod(-1) // self.visual.spatial_merge_size ** 2).tolist()
-        return torch.split(image_embeds, split_sizes)
+        # Return a single concatenated tensor [total_merged_patches, out_hidden_size]
+        # so the ONNX export keeps a fixed single output (`image_features`).
+        # Per-image boundaries can be recovered downstream from image_grid_thw
+        # (prod(-1) // spatial_merge_size**2) when needed.
+        return image_embeds
 
     def get_fused_input_embeddings(self, input_ids, image_features=None):
         mask = input_ids == self.config.image_token_id

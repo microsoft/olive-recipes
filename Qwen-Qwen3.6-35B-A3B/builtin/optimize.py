@@ -27,8 +27,55 @@ MODELS_DIR = "models"
 
 def _read_model_name(config_dir: str) -> str:
     """Read the HuggingFace model name from the Olive text config."""
-    text_cfg = json.loads((Path(config_dir) / "text.json").read_text())
+    text_cfg = _read_text_config(config_dir)
     return text_cfg["input_model"]["model_path"]
+
+
+def _read_text_config(config_dir: str) -> dict:
+    """Read the Olive config for the text decoder."""
+    return json.loads((Path(config_dir) / "text.json").read_text())
+
+
+def _needs_cuda_int4_packing(config_dir: str) -> bool:
+    """Return whether the text decoder export needs CUDA INT4 weight pre-packing."""
+    text_cfg = _read_text_config(config_dir)
+    target = text_cfg.get("target")
+    systems = text_cfg.get("systems", {})
+
+    target_systems = [systems[target]] if target in systems else systems.values()
+    uses_cuda = any(
+        accelerator.get("device") == "gpu" or "CUDAExecutionProvider" in accelerator.get("execution_providers", [])
+        for system_cfg in target_systems
+        for accelerator in system_cfg.get("accelerators", [])
+    )
+
+    for pass_cfg in text_cfg.get("passes", {}).values():
+        if pass_cfg.get("precision") != "int4":
+            continue
+        if pass_cfg.get("int4_algo_config") == "rtn_last" or uses_cuda:
+            return True
+    return False
+
+
+def check_int4_cuda_support():
+    """Ensure the environment can pre-pack INT4 weights for the CUDA QMoE kernel.
+
+    INT4 export uses the ONNX Runtime CUDA mixed-GEMM weight pre-packing op, which
+    is only available in onnxruntime-gpu and requires a CUDA-capable GPU. Fail fast
+    with an actionable message instead of crashing deep inside the export.
+    """
+    import torch
+
+    try:
+        from onnxruntime.capi import _pybind_state as _pybind
+    except ImportError:
+        _pybind = None
+
+    if not (_pybind and hasattr(_pybind, "pack_weights_for_cuda_mixed_gemm") and torch.cuda.is_available()):
+        raise RuntimeError(
+            "INT4 export requires CUDA weight pre-packing. Please install onnxruntime-gpu "
+            "(with the 'pack_weights_for_cuda_mixed_gemm' op) and run on a CUDA-capable GPU machine."
+        )
 
 
 def export_models(config_dir: str):
@@ -75,14 +122,10 @@ def update_genai_config(
         config = json.load(f)
 
     if device == "gpu":
-        provider_options = [
-            {"cuda": {"enable_cuda_graph": "1"}}
-        ]
         vision_provider_options = [
             {"cuda": {"enable_cuda_graph": "0"}}
         ]
     else:
-        provider_options = []
         vision_provider_options = []
 
     vision_session_options = {"log_id": "onnxruntime-genai", "provider_options": vision_provider_options}
@@ -252,6 +295,8 @@ def main():
     model_name = _read_model_name(args.config_dir)
 
     if not args.skip_export:
+        if _needs_cuda_int4_packing(args.config_dir):
+            check_int4_cuda_support()
         export_models(args.config_dir)
 
     print("=== Generating configs ===")

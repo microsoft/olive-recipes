@@ -34,6 +34,7 @@ def _load_model(model_path):
 
     cfg_path = hf_hub_download(model_path, "config.json")
     model_dir = os.path.dirname(cfg_path)
+    model_config = AutoConfig.from_pretrained(model_path)
     st_files = sorted(glob.glob(os.path.join(model_dir, "*.safetensors")))
 
     state_dict = {}
@@ -47,7 +48,7 @@ def _load_model(model_path):
                 if stripped.startswith("language_model.embed_tokens."):
                     state_dict[stripped[len("language_model."):]] = state_dict[stripped]
 
-    custom_model = Qwen3_5MoeModel(config)
+    custom_model = Qwen3_5MoeModel(model_config)
     custom_model.load_state_dict(state_dict, strict=False)
     custom_model = custom_model.to(torch.bfloat16).eval()
     del state_dict
@@ -57,13 +58,12 @@ def _load_model(model_path):
 # ── Embedding ────────────────────────────────────────────────────────────
 
 def get_embedding_model(model_path=None):
-    """Load the custom MoE model and swap forward with get_fused_input_embeddings."""
+    """Load the custom MoE model and route forward to get_fused_input_embeddings."""
     model = _load_model(model_path or model_name)
     model = model.to(torch.float32)
-    model.get_fused_input_embeddings, model.forward = (
-        model.forward,
-        model.get_fused_input_embeddings,
-    )
+    # Route forward to the embedding-fusion path for export without clobbering
+    # the original get_fused_input_embeddings method (keeps it callable).
+    model.forward = model.get_fused_input_embeddings
     return model
 
 
@@ -80,21 +80,22 @@ def get_embedding_io_config(model_path=None):
 
 
 def get_embedding_dummy_inputs(model=None):
-    out_hidden_size = config.vision_config.out_hidden_size
+    cfg = getattr(model, "config", None) or config
+    out_hidden_size = cfg.vision_config.out_hidden_size
     batch_size, sequence_length, patches_per_image = 2, 216, 187
     num_logical_patches = batch_size * patches_per_image
 
     inputs = {
-        "input_ids": torch.randint(0, config.image_token_id, (batch_size, sequence_length), dtype=torch.int64),
+        "input_ids": torch.randint(0, cfg.image_token_id, (batch_size, sequence_length), dtype=torch.int64),
         "image_features": torch.randn(num_logical_patches, out_hidden_size, dtype=torch.float32),
     }
 
     img_start_index = 3
     img_end_index = img_start_index + patches_per_image
     for b in range(batch_size):
-        inputs["input_ids"][b][2] = config.vision_start_token_id
-        inputs["input_ids"][b][img_start_index:img_end_index] = config.image_token_id
-        inputs["input_ids"][b][img_end_index] = config.vision_end_token_id
+        inputs["input_ids"][b][2] = cfg.vision_start_token_id
+        inputs["input_ids"][b][img_start_index:img_end_index] = cfg.image_token_id
+        inputs["input_ids"][b][img_end_index] = cfg.vision_end_token_id
 
     return inputs
 
@@ -104,7 +105,9 @@ def get_embedding_dummy_inputs(model=None):
 def get_vision_model(model_path=None):
     model = _load_model(model_path or model_name)
     model = model.to(torch.float32)
-    model.forward, model.get_image_features = model.get_image_features, model.forward
+    # Route forward to the vision-encoder path for export without clobbering
+    # the original get_image_features method (keeps it callable).
+    model.forward = model.get_image_features
     return model
 
 
