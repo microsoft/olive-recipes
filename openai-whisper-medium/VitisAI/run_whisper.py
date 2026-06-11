@@ -75,7 +75,6 @@ def run_whisper(
     vitisai_config: str = "vitisai_config.json",
     model: str = "small",
     download_root: str = None,
-    use_npu: bool = True,
 ) -> dict:
     """
     Run Whisper E2E: load audio, run encoder (ONNX on NPU) + decoder, return transcription and metrics.
@@ -102,18 +101,17 @@ def run_whisper(
     _, probs = model_obj.detect_language(mel)
     detected_language = max(probs, key=probs.get)
 
-    if use_npu:
-        register_execution_providers()
+    register_execution_providers()
 
     cache_key = "encoder_model"
     options = whisper.DecodingOptions(
         enc_use_onnx=bool(enc_onnx),
         enc_onnx_fname=enc_onnx or "",
-        use_winml=use_npu,
-        enc_use_vitis=use_npu,
-        enc_cache_dir=enc_cache_dir if use_npu else "",
+        use_winml=True,
+        enc_use_vitis=True,
+        enc_cache_dir=enc_cache_dir,
         enc_cache_key=cache_key,
-        enc_config_json=vitisai_config if use_npu else "",
+        enc_config_json=vitisai_config,
     )
 
     audio_duration_sec = audio.shape[0] / SAMPLE_RATE
@@ -159,7 +157,6 @@ def main():
         enc_onnx=args.enc_onnx,
         model=args.model,
         download_root=args.download_root,
-        use_npu=True,
     )
     print("\n")
     print("Transcription results:")
