@@ -60,8 +60,7 @@ Use the encoder ONNX from one of the three Hugging Face repos above (medium, sma
 python run_whisper.py \
   --audio ".\audio_sample.wav" \
   --model small \
-  --enc_onnx ".\encoder_model.onnx" \
-  --ep_policy NPU
+  --enc_onnx ".\encoder_model.onnx"
 ```
 ---
 ## Notes
@@ -76,7 +75,6 @@ In this experiment, we are using encoder portion of the model with ORT and decod
 | `--audio` | Yes | — | Path to input audio WAV file |
 | `--model` | No | `small` | Whisper model name: `small`, `medium`, `turbo` (should match encoder ONNX) |
 | `--enc_onnx` | No | `encoder_model.onnx` | Path to encoder ONNX model file |
-| `--ep_policy` | No | `NPU` | Execution provider policy (`NPU`, `CPU`, `GPU`, `DEFAULT`) |
 
 ---
 

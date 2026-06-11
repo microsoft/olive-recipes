@@ -74,11 +74,10 @@ def run_whisper(
     vitisai_config: str = "vitisai_config.json",
     model: str = "small",
     download_root: str = None,
-    ep_policy: str = "NPU",
     use_npu: bool = True,
 ) -> dict:
     """
-    Run Whisper E2E: load audio, run encoder (ONNX on NPU/CPU) + decoder, return transcription and metrics.
+    Run Whisper E2E: load audio, run encoder (ONNX on NPU) + decoder, return transcription and metrics.
 
     Provide either audio_path (path to WAV) or audio (float32 mono 16 kHz array). All other args are optional.
 
@@ -102,21 +101,10 @@ def run_whisper(
     _, probs = model_obj.detect_language(mel)
     detected_language = max(probs, key=probs.get)
 
-    if use_npu and ep_policy == "NPU":
+    if use_npu:
         register_execution_providers()
-        session_options = ort.SessionOptions()
-        policy_map = {
-            "NPU": ort.OrtExecutionProviderDevicePolicy.PREFER_NPU,
-            "CPU": ort.OrtExecutionProviderDevicePolicy.PREFER_CPU,
-            "GPU": ort.OrtExecutionProviderDevicePolicy.PREFER_GPU,
-            "DEFAULT": ort.OrtExecutionProviderDevicePolicy.DEFAULT,
-        }
-        policy = policy_map.get(ep_policy)
-        if policy:
-            session_options.set_provider_selection_policy(policy)
 
     cache_key = "encoder_model"
-    enc_config_path = "vitisai_config.json"
     options = whisper.DecodingOptions(
         enc_use_onnx=bool(enc_onnx),
         enc_onnx_fname=enc_onnx or "",
@@ -124,7 +112,7 @@ def run_whisper(
         enc_use_vitis=use_npu,
         enc_cache_dir=enc_cache_dir if use_npu else "",
         enc_cache_key=cache_key,
-        enc_config_json=enc_config_path if use_npu else "",
+        enc_config_json=vitisai_config if use_npu else "",
     )
 
     audio_duration_sec = audio.shape[0] / SAMPLE_RATE
@@ -151,13 +139,6 @@ def main():
     )
     parser.add_argument("--audio", type=str, required=True, help="Path to input audio WAV file")
     parser.add_argument(
-        "--ep_policy",
-        type=str,
-        default="NPU",
-        choices=["NPU", "CPU", "GPU", "DEFAULT"],
-        help="Execution provider policy (default: NPU)",
-    )
-    parser.add_argument(
         "--download_root",
         type=str,
         default=None,
@@ -177,7 +158,6 @@ def main():
         enc_onnx=args.enc_onnx,
         model=args.model,
         download_root=args.download_root,
-        ep_policy=args.ep_policy,
         use_npu=True,
     )
     print("\n")

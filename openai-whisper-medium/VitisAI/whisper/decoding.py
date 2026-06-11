@@ -707,16 +707,10 @@ class DecodingTask:
                 if self.options.enc_use_onnx and self.options.use_winml and self.options.enc_use_vitis:
                     session_options = ort.SessionOptions()
 
-                    policy_map = {
-                        'NPU': ort.OrtExecutionProviderDevicePolicy.PREFER_NPU,
-                        'CPU': ort.OrtExecutionProviderDevicePolicy.PREFER_CPU,
-                        'GPU': ort.OrtExecutionProviderDevicePolicy.PREFER_GPU,
-                        'DEFAULT': ort.OrtExecutionProviderDevicePolicy.DEFAULT
-                    }
-                    policy = policy_map.get('NPU')
-                    if policy:
-                        session_options.set_provider_selection_policy(policy)
-                        print("Set provider selection policy to: NPU")
+                    session_options.set_provider_selection_policy(
+                        ort.OrtExecutionProviderDevicePolicy.PREFER_NPU
+                    )
+                    print("Set provider selection policy to: NPU")
 
                     provider_options_dict = {"cache_dir": self.options.enc_cache_dir,"cache_key": self.options.enc_cache_key,"config_file": self.options.enc_config_json}
                     print("Creating session (VitisAI for Encoder ONNX, WinML)")
