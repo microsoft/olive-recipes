@@ -22,7 +22,7 @@
     "passes": {
         "aitkpython": {
             "type": "AitkPython",
-            "model_precision": "int8",
+            "model_precision": "fp16",
             "user_script": "sd_vitisai_workflow.py"
         }
     },
