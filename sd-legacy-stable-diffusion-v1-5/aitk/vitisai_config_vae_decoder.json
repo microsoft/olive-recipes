@@ -1,7 +1,7 @@
 {
     "input_model": {
         "type": "PyTorchModel",
-        "model_path": "sd-legacy/stable-diffusion-v1-5",
+        "model_path": "stable-diffusion-v1-5/stable-diffusion-v1-5",
         "model_loader": "vae_decoder_load",
         "script_dir": ".",
         "model_script": "user_script.py",
@@ -29,5 +29,6 @@
     },
     "log_severity_level": 0,
     "cache_dir": "vai_cache",
-    "output_dir": "footprints/vae_decoder"
+    "output_dir": "footprints/vae_decoder",
+    "evaluate_input_model": false
 }

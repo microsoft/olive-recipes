@@ -1,7 +1,7 @@
 {
     "input_model": {
         "type": "PyTorchModel",
-        "model_path": "sd-legacy/stable-diffusion-v1-5",
+        "model_path": "stable-diffusion-v1-5/stable-diffusion-v1-5",
         "model_loader": "text_encoder_load",
         "script_dir": ".",
         "model_script": "user_script.py",
@@ -11,6 +11,12 @@
             "dynamic_axes": { "input_ids": { "0": "batch", "1": "sequence" } }
         },
         "dummy_inputs_func": "text_encoder_conversion_inputs"
+    },
+    "systems": {
+        "local_system": {
+            "type": "LocalSystem",
+            "accelerators": [ { "device": "gpu", "execution_providers": [ "DmlExecutionProvider" ] } ]
+        }
     },
     "passes": {
         "convert": { "type": "OnnxConversion", "target_opset": 14 },
@@ -53,5 +59,8 @@
     },
     "log_severity_level": 0,
     "cache_dir": "vai_cache",
-    "output_dir": "footprints/text_encoder"
+    "output_dir": "footprints/text_encoder",
+    "host": "local_system",
+    "target": "local_system",
+    "evaluate_input_model": false
 }

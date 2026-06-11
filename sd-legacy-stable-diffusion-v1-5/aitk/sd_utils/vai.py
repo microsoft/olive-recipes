@@ -21,22 +21,6 @@ from transformers import CLIPTokenizer
 # ruff: noqa: TID252, T201
 
 
-def set_dd_plugins_root() -> None:
-    """Point DD_PLUGINS_ROOT to ryzenai_dynamic_dispatch/bin/ if not already set."""
-    if os.environ.get("DD_PLUGINS_ROOT"):
-        return
-    try:
-        import importlib.util
-
-        spec = importlib.util.find_spec("ryzenai_dynamic_dispatch")
-        if spec and spec.origin:
-            bin_dir = os.path.join(os.path.dirname(spec.origin), "bin")
-            if os.path.isdir(bin_dir):
-                os.environ["DD_PLUGINS_ROOT"] = bin_dir
-    except Exception as e:
-        print(f"Could not set DD_PLUGINS_ROOT: {e}")
-
-
 def update_vai_config(config: dict, provider: str, submodel_name: str):
     if provider != "vitisai":
         raise ValueError(f"Unsupported provider: {provider}. Only vitisai is supported.")
@@ -54,17 +38,17 @@ def update_vai_config(config: dict, provider: str, submodel_name: str):
     for pass_name in set(config["passes"].keys()):
         if pass_name not in used_passes:
             config["passes"].pop(pass_name, None)
-
-    config["systems"] = {
-        "local_system": {
-            "type": "LocalSystem",
-            "config": {
-                "accelerators": [
-                    {"execution_providers": ["CPUExecutionProvider"], "device": "cpu"},
-                ],
+    if "systems" not in config:
+        config["systems"] = {
+            "local_system": {
+                "type": "LocalSystem",
+                "config": {
+                    "accelerators": [
+                        {"execution_providers": ["CPUExecutionProvider"], "device": "cpu"},
+                    ],
+                },
             },
-        },
-    }
+        }
     return config
 
 
@@ -170,7 +154,6 @@ def _load_npu_model(model_dir, submodel_name):
 
 def get_vai_pipeline(model_dir, common_args):
     """Build pipeline for VitisAI: unet/vae_decoder from dd/replaced.onnx; text_encoder/vae_encoder on CPU."""
-    set_dd_plugins_root()
     ort.set_default_logger_severity(3)
     model_dir = Path(model_dir)
     provider = common_args.provider

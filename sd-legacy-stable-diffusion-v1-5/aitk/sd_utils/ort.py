@@ -80,7 +80,7 @@ def save_optimized_onnx_submodel(script_dir, submodel_name, provider, model_info
         def _footprint_model_config(node):
             # Olive may serialize the FootprintNode model config under "model_config" or the
             # aliased "model_config_data" (e.g. VitisGenerateModelSD); accept both.
-            cfg = node.get("model_config_data") or node.get("model_config")
+            cfg = (provider == "vitisai" and node.get("model_config_data")) or node.get("model_config")
             if not cfg:
                 raise KeyError("Footprint node missing model_config_data / model_config")
             return cfg["config"]
