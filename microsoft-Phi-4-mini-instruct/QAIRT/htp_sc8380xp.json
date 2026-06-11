@@ -1,0 +1,55 @@
+{
+    "input_model": {
+        "type": "HFModel",
+        "model_path": "microsoft/phi-4-mini-instruct",
+        "load_kwargs": {
+            "trust_remote_code": true
+        }
+    },
+    "passes": {
+        "qp": {
+            "type": "QairtPreparation",
+			"script_path": "phi4.py",
+			"script_config": {
+                "PLATFORM_GEN": 2
+            }
+        },
+        "qgab": {
+            "type": "QairtGenAIBuilder",
+            "log_level": "ERROR",
+            "backend": "HTP",
+            "soc_details": "chipset:SC8380XP",
+            "hvx_threads": 8,
+			"vtcm_size_in_mb": 8,
+            "extended_udma": false,
+			"sequence_lengths": [1, 128],
+            "native_kv": false,
+            "multi_graph": true
+        },
+        "qe": {
+            "type": "QairtEncapsulation",
+            "log_level": "ERROR",
+            "run_checker": "true",
+            "backend_extensions_overrides": {
+                "graphs": null,
+                "devices": [{"pd_session": "unsigned"}],
+                "groupContext": {"share_resources": false}
+            },
+			"genie_overrides": {
+				"eos_token": [199999, 200020],
+				"positional_encoding": {
+					"rope_theta": 100000,
+					"rope_scaling": {
+						"rope_type": "longrope",
+						"factor": 32,
+						"original_max_position_embeddings": 4096
+					}
+				}
+			}
+		}
+	},
+    "log_severity_level": 1,
+    "output_dir": "models/phi4-mini-instruct-hamoa",
+    "cache_dir": "cache",
+    "no_artifacts": true
+}
