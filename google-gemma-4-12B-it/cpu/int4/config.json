@@ -6,6 +6,7 @@
             "type": "OnnxKQuantQuantization",
             "bits": 4,
             "block_size": 32,
+            "nodes_to_exclude": ["*/projector/*"],
             "save_as_external_data": true
         }
     },

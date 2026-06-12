@@ -58,6 +58,19 @@ INT4 (K-Quant) is recommended for most deployments; the FP16 decoder alone
 is ~24 GB. K-Quant (Q4_K_M) is significantly faster with GPU acceleration —
 install `cupy-cuda12x` for a 19–51× speedup during quantization.
 
+The INT4 recipes exclude the vision and audio **projectors**
+(`nodes_to_exclude: ["*/projector/*"]`) from quantization. In this
+encoder-free architecture each projector is a single MatMul that forms the
+entire image/audio embedding pathway, so INT4 there causes disproportionate
+error (measured rel-L2 ≈ 3.7% vision / 9.2% audio) while the components are
+tiny (~76 MB / ~1.4 MB) — keeping them FP16 costs almost nothing. The
+decoder (including `lm_head`) stays INT4, where the size savings live and
+INT4 has negligible impact on output tokens (top-1 logit agreement ~100%).
+The glob form of `nodes_to_exclude` requires Olive with
+[microsoft/Olive#2518](https://github.com/microsoft/Olive/pull/2518); with
+older Olive the pattern simply matches nothing and all projectors are
+quantized as before.
+
 ## Build
 
 ```bash
