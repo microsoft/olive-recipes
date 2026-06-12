@@ -125,6 +125,15 @@ def save_vai_pipeline(
     print(f"The optimized NPU pipeline is located here: {optimized_model_dir}")
 
 
+def add_ep_for_device(session_options, ep_name, device_type, ep_options=None):
+    ep_devices = ort.get_ep_devices()
+    for ep_device in ep_devices:
+        if ep_device.ep_name == ep_name and ep_device.device.type == device_type:
+            print(f"Adding {ep_name} for {device_type}")
+            session_options.add_provider_for_devices([ep_device], {} if ep_options is None else ep_options)
+            break
+
+
 def _load_npu_model(model_dir, submodel_name):
     """Load unet or vae_decoder from model_dir/<submodel>/dd/replaced.onnx using VitisAI EP."""
     model_dir = Path(model_dir)
@@ -134,13 +143,11 @@ def _load_npu_model(model_dir, submodel_name):
     sess_opts = ort.SessionOptions()
     cache_dir = (replaced_onnx_path.parent / "cache").as_posix()
     sess_opts.add_session_config_entry("dd_cache", cache_dir)
-    sess_opts.add_provider("VitisAIExecutionProvider", {})
-    provider_options = [{"target": "SD"}]
+    provider_options = {"target": "SD"}
+    add_ep_for_device(sess_opts, "VitisAIExecutionProvider", ort.OrtHardwareDeviceType.NPU, provider_options)
     session = ort.InferenceSession(
         str(replaced_onnx_path),
         sess_options=sess_opts,
-        providers=["VitisAIExecutionProvider"],
-        provider_options=provider_options,
     )
     model = OnnxRuntimeModel(session)
     config_path = model_dir / submodel_name / "config.json"
