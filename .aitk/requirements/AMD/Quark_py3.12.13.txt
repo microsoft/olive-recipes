@@ -52,6 +52,8 @@ olive-ai==0.12.1
 onnx==1.18.0
 onnx-ir==0.2.1
 onnx-tool==1.0.1
+# From SD feature
+# uvpip:uninstall onnxruntime-directml;pre
 onnxruntime==1.26.0
 onnxruntime-genai==0.13.2
 onnxscript==0.7.0
