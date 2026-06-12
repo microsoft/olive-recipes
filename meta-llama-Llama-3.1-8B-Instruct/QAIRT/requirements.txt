@@ -81,7 +81,7 @@ nvidia-nccl-cu12==2.27.5
 nvidia-nvjitlink-cu12==12.8.93
 nvidia-nvshmem-cu12==3.4.5
 nvidia-nvtx-cu12==12.8.90
-onnx>=1.17
+onnx>=1.21.0
 onnx-ir==0.1.15
 onnx_graphsurgeon==0.5.8
 onnxruntime==1.23.2
@@ -131,11 +131,11 @@ tensorboard==2.20.0
 tensorboard-data-server==0.7.2
 threadpoolctl==3.6.0
 tokenizers==0.21.0
-torch<2.9
-tornado==6.5.5
+torch<2.13
+tornado==6.5.6
 tqdm==4.67.2
 traitlets==5.14.3
-transformers==4.50.1
+transformers==5.0.0rc3
 triton==2.1.0
 typing-inspection==0.4.2
 typing_extensions==4.15.0
