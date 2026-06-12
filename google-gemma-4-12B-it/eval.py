@@ -6,14 +6,15 @@ ORT GenAI model package.
 Usage:
     python eval.py                                    # MMLU Pro, CPU, 100 samples
     python eval.py --device gpu                       # MMLU Pro, CUDA
-    python eval.py --device gpu --variant int4        # INT4 quantized model
-    python eval.py --task mmlu_pro --limit 500        # More samples
-    python eval.py --task gpqa_diamond_n_shot          # GPQA Diamond (requires dataset access)
+    python eval.py --device gpu --variant int4               # INT4 quantized model
+    python eval.py --task leaderboard_mmlu_pro --limit 500   # More samples
+    python eval.py --task gpqa_diamond_n_shot                 # GPQA Diamond (requires dataset access)
 """
 
 import argparse
 import json
 import time
+from pathlib import Path
 
 # Register Olive's ORT GenAI evaluator with lm-eval
 import olive.evaluator.lmeval_ort  # noqa: F401
@@ -22,14 +23,18 @@ from lm_eval import simple_evaluate
 from lm_eval.api.registry import get_model
 from lm_eval.tasks import TaskManager
 
+# Resolve model directories relative to this script so the recipe works
+# regardless of the caller's current working directory.
+_RECIPE_DIR = Path(__file__).resolve().parent
+
 
 def resolve_model_path(device: str, variant: str | None) -> str:
     """Resolve the model directory from device + variant args."""
     if device == "cpu":
         variant = variant or "fp32"
-        return f"cpu/{variant}/models"
+        return str(_RECIPE_DIR / "cpu" / variant / "models")
     variant = variant or "int4"
-    return f"cuda/{variant}/models"
+    return str(_RECIPE_DIR / "cuda" / variant / "models")
 
 
 # Published reference scores for google/gemma-4-12B-it (12B Unified)

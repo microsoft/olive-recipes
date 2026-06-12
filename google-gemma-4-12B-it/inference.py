@@ -17,14 +17,18 @@ from pathlib import Path
 
 import onnxruntime_genai as og
 
+# Resolve model directories relative to this script so the recipe works
+# regardless of the caller's current working directory.
+_RECIPE_DIR = Path(__file__).resolve().parent
+
 
 def resolve_model_path(device: str, variant: str | None) -> str:
     """Resolve the model directory from device + variant args."""
     if device == "cpu":
         variant = variant or "fp32"
-        return f"cpu/{variant}/models"
+        return str(_RECIPE_DIR / "cpu" / variant / "models")
     variant = variant or "int4"
-    return f"cuda/{variant}/models"
+    return str(_RECIPE_DIR / "cuda" / variant / "models")
 
 
 def format_chat_prompt(tokenizer, prompt: str, system_prompt: str | None = None) -> str:

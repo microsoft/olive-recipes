@@ -32,9 +32,10 @@ post-processing required.
 ## Prerequisites
 
 ```bash
-pip install olive-ai mobius-ai
 pip install -r requirements.txt
 ```
+
+`requirements.txt` pulls in `olive-ai[gpu]`, `mobius-ai`, and `lm-eval`.
 
 Install ONNX Runtime GenAI:
 
@@ -48,9 +49,9 @@ Install ONNX Runtime GenAI:
 | Recipe | Pipeline | Output dir |
 |---|---|---|
 | `cpu/fp32/config.json` | `MobiusBuilder(fp32)` | `cpu/fp32/models` |
-| `cpu/int4/config.json` | `MobiusBuilder(fp32)` → `OnnxKQuantQuantization(bits=4, block=32)` | `cpu/int4/models` |
+| `cpu/int4/config.json` | `MobiusBuilder(fp32)` → `OnnxKQuantQuantization(bits=4, block_size=32)` | `cpu/int4/models` |
 | `cuda/fp16/config.json` | `MobiusBuilder(fp16)` | `cuda/fp16/models` |
-| `cuda/int4/config.json` | `MobiusBuilder(fp16)` → `OnnxKQuantQuantization(bits=4, block=32)` | `cuda/int4/models` |
+| `cuda/int4/config.json` | `MobiusBuilder(fp16)` → `OnnxKQuantQuantization(bits=4, block_size=32)` | `cuda/int4/models` |
 
 At 12B parameters this model is sized for consumer GPUs and workstations.
 INT4 (K-Quant) is recommended for most deployments; the FP16 decoder alone
