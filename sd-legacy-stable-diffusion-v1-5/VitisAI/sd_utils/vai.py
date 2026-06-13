@@ -29,6 +29,8 @@ def set_dd_plugins_root() -> None:
 
         spec = importlib.util.find_spec("ryzenai_dynamic_dispatch")
         if spec and spec.origin:
+            if os.environ.get("DD_ROOT") is None or not os.path.exists(os.environ["DD_ROOT"]):
+                os.environ["DD_ROOT"] = os.path.dirname(spec.origin).replace("\\", "/")
             bin_dir = os.path.join(os.path.dirname(spec.origin), "bin")
             if os.path.isdir(bin_dir):
                 os.environ["DD_PLUGINS_ROOT"] = bin_dir
