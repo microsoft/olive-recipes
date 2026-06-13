@@ -5,7 +5,7 @@ accelerate
 datasets
 
 # Pin onnx version
-diffusers==0.35.0
+diffusers==0.38.0
 evaluate
 # opentelemetry-api requires importlib-metadata<8.8.0
 importlib-metadata>=6.0,<8.8.0
@@ -13,7 +13,7 @@ importlib-metadata>=6.0,<8.8.0
 model-generate==1.7.1
 nltk
 numpy==1.26.4
-onnx==1.20.1
+onnx==1.21.0
 onnxruntime-vitisai==1.24.3
 optimum
 pandas==2.2.2
@@ -22,6 +22,6 @@ ryzenai-dynamic-dispatch==1.7.1
 ryzenai-onnx-utils==1.7.1
 sentencepiece
 tabulate
-torch==2.6.0
-transformers==4.56.2
+torch==2.12.0
+transformers==5.0.0rc3
 voe==1.7.1
