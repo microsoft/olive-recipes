@@ -1,0 +1,6 @@
+arch: gpt-oss-20b
+recipes:
+  - name: gpt-oss-20b_cuda_int4_int4_qmoe_default
+    file: gpt-oss-20b_cuda_int4_int4_qmoe_default.json
+    devices: gpu
+    eps: CUDAExecutionProvider
