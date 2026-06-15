@@ -4,3 +4,15 @@ recipes:
     file: gpt-oss-20b_cpu_int4_int4_qmoe_default.json
     devices: cpu
     eps: CPUExecutionProvider
+  - name: gpt-oss-20b_cpu_int4_int4_qmoe_k_quant_mixed
+    file: gpt-oss-20b_cpu_int4_int4_qmoe_k_quant_mixed.json
+    devices: cpu
+    eps: CPUExecutionProvider
+  - name: gpt-oss-20b_cpu_int4_int8_qmoe_default
+    file: gpt-oss-20b_cpu_int4_int8_qmoe_default.json
+    devices: cpu
+    eps: CPUExecutionProvider
+  - name: gpt-oss-20b_cpu_int4_int8_qmoe_k_quant_mixed
+    file: gpt-oss-20b_cpu_int4_int8_qmoe_k_quant_mixed.json
+    devices: cpu
+    eps: CPUExecutionProvider
