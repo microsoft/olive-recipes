@@ -37,21 +37,26 @@ ALL_MODELS = ["transformer", "vae_decoder", "text_encoder"]
 NON_ONNX_COMPONENTS = ["tokenizer", "tokenizer_2", "scheduler", "feature_extractor"]
 
 
-def set_dd_env() -> None:
-    if os.environ.get("DD_PLUGINS_ROOT"):
+def config_dd_env() -> None:
+    need_root = not os.environ.get("DD_ROOT") or not os.path.exists(os.environ["DD_ROOT"])
+    need_plugins = not os.environ.get("DD_PLUGINS_ROOT") or not os.path.isdir(os.environ["DD_PLUGINS_ROOT"])
+    if not need_root and not need_plugins:
         return
     try:
         import importlib.util
         spec = importlib.util.find_spec("ryzenai_dynamic_dispatch")
         if spec and spec.origin:
-            dd_root = os.environ.get("DD_ROOT")
-            if not dd_root or not os.path.exists(dd_root):
-                os.environ["DD_ROOT"] = os.path.dirname(spec.origin).replace("\\", "/")
-            bin_dir = os.path.join(os.path.dirname(spec.origin), "bin")
-            if os.path.isdir(bin_dir):
-                os.environ["DD_PLUGINS_ROOT"] = bin_dir
-    except Exception:
-        pass
+            pkg_dir = os.path.dirname(spec.origin)
+            if need_root:
+                os.environ["DD_ROOT"] = pkg_dir.replace("\\", "/")
+                print(f"Set DD_ROOT: {os.environ['DD_ROOT']}")
+            if need_plugins:
+                bin_dir = os.path.join(pkg_dir, "bin")
+                if os.path.isdir(bin_dir):
+                    os.environ["DD_PLUGINS_ROOT"] = bin_dir
+                    print(f"Set DD_PLUGINS_ROOT: {os.environ['DD_PLUGINS_ROOT']}")
+    except Exception as e:
+        raise Exception(f"Could not set DD_ROOT or DD_PLUGINS_ROOT: {e}") from e
 
 
 def _fmt_seconds(seconds: float) -> str:
@@ -311,6 +316,7 @@ def assemble_output_dir(
 
 
 def optimize(args) -> dict[str, bool]:
+    config_dd_env()
     model_id   = args.model_id
     output_dir = Path(args.output_dir).resolve()
 
@@ -403,7 +409,6 @@ def parse_args(raw_args=None) -> argparse.Namespace:
 
 
 def main(raw_args=None) -> None:
-    set_dd_env()
     args = parse_args(raw_args)
 
     if args.models:

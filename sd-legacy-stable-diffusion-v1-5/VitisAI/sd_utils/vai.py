@@ -18,31 +18,34 @@ import onnxruntime as ort
 from diffusers import OnnxRuntimeModel, OnnxStableDiffusionPipeline
 from transformers import CLIPTokenizer
 
-def set_dd_plugins_root() -> None:
-    """Point DD_PLUGINS_ROOT to ryzenai_dynamic_dispatch/bin/ if not already set.
-
-    """
-    if os.environ.get("DD_PLUGINS_ROOT"):
+def config_dd_env() -> None:
+    need_root = not os.environ.get("DD_ROOT") or not os.path.exists(os.environ["DD_ROOT"])
+    need_plugins = not os.environ.get("DD_PLUGINS_ROOT") or not os.path.isdir(os.environ["DD_PLUGINS_ROOT"])
+    if not need_root and not need_plugins:
         return
     try:
         import importlib.util
-
         spec = importlib.util.find_spec("ryzenai_dynamic_dispatch")
         if spec and spec.origin:
-            if os.environ.get("DD_ROOT") is None or not os.path.exists(os.environ["DD_ROOT"]):
-                os.environ["DD_ROOT"] = os.path.dirname(spec.origin).replace("\\", "/")
-            bin_dir = os.path.join(os.path.dirname(spec.origin), "bin")
-            if os.path.isdir(bin_dir):
-                os.environ["DD_PLUGINS_ROOT"] = bin_dir
-    except Exception:
-        print("Could not set DD_PLUGINS_ROOT: %s", e)
-        pass
+            pkg_dir = os.path.dirname(spec.origin)
+            if need_root:
+                os.environ["DD_ROOT"] = pkg_dir.replace("\\", "/")
+                print(f"Set DD_ROOT: {os.environ['DD_ROOT']}")
+            if need_plugins:
+                bin_dir = os.path.join(pkg_dir, "bin")
+                if os.path.isdir(bin_dir):
+                    os.environ["DD_PLUGINS_ROOT"] = bin_dir
+                    print(f"Set DD_PLUGINS_ROOT: {os.environ['DD_PLUGINS_ROOT']}")
+    except Exception as e:
+        raise Exception(f"Could not set DD_ROOT or DD_PLUGINS_ROOT: {e}") from e
 
 
 # ruff: noqa: TID252, T201
 def update_vai_config(config: dict, provider: str, submodel_name: str):
     if provider != "vitisai":
         raise ValueError(f"Unsupported provider: {provider}. Only vitisai is supported.")
+
+    config_dd_env()
 
     used_passes = {}
     if sd_utils.config.only_conversion:
@@ -170,7 +173,6 @@ def _load_npu_model(model_dir, submodel_name):
 
 def get_vai_pipeline(model_dir, common_args):
     """Build pipeline for VitisAI: unet/vae_decoder from dd/replaced.onnx; text_encoder/vae_encoder on CPU."""
-    set_dd_plugins_root()
     ort.set_default_logger_severity(3)
     model_dir = Path(model_dir)
     provider = common_args.provider
