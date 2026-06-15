@@ -274,7 +274,10 @@ def assemble_output_dir(
             dd_src = None
 
         if dd_src is not None:
-            dst_path = dst_dir / ("dd" if dd_src.name == "dd" else "dynamic" / "dd")
+            if dd_src.parent.name == "dynamic":
+                dst_path = dst_dir / "dynamic" / "dd"
+            else:
+                dst_path = dst_dir / "dd"
             shutil.rmtree(dst_dir, ignore_errors=True)
             shutil.copytree(dd_src, dst_path)
             print(f"  [COPY NPU] {name} → {dst_path}")
