@@ -23,7 +23,8 @@
             "precision": "int4",
             "int4_algo_config": "k_quant_mixed",
             "extra_options": {
-                "use_8bits_moe": true
+                "use_8bits_moe": true,
+                "qmoe_block_size": 32
             }
         }
     },

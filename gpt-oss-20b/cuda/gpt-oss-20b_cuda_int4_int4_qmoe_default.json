@@ -25,6 +25,10 @@
                 "MatMul",
                 "Gather"
             ]
+            ,
+            "extra_options": {
+                "qmoe_block_size": 32
+            }
         }
     },
     "target": "local_system",
