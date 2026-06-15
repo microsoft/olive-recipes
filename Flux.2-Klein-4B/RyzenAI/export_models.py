@@ -267,7 +267,7 @@ def assemble_output_dir(
                 break
         else:
             dd_src = None
-        
+
         if dd_src is not None:
             dst_path = dst_dir / ("dd" if dd_src.name == "dd" else "dynamic" / "dd")
             shutil.rmtree(dst_dir, ignore_errors=True)

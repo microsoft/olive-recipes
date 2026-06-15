@@ -3,7 +3,6 @@
 
 accelerate
 datasets
-olive-ai[auto-opt]
 
 # Pin onnx version
 diffusers==0.38.0
@@ -14,6 +13,7 @@ importlib-metadata>=6.0,<8.8.0
 #model-generate
 nltk
 numpy==1.26.4
+olive-ai[auto-opt]
 onnx==1.20.1
 #onnxruntime-vitisai
 optimum
