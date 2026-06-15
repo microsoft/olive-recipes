@@ -10,7 +10,6 @@ from typing import Callable, Optional, Union
 import numpy as np
 import onnxruntime as ort
 import torch
-
 from diffusers import StableDiffusionPipeline
 from diffusers.pipelines.onnx_utils import ORT_TO_NP_TYPE
 from diffusers.pipelines.stable_diffusion import StableDiffusionPipelineOutput
