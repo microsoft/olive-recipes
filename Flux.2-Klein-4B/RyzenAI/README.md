@@ -19,7 +19,7 @@ assemble a self-contained output directory (ONNX models + tokenizer + scheduler)
 ## Step 1 — Create the conda environment
 
 ```bash
-conda create -n olive python=3.12 -y
+conda create -n olive python=3.12,pip -y
 conda activate olive
 ```
 
