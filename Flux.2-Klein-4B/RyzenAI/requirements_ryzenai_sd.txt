@@ -1,15 +1,12 @@
 # AMD model generation
 #--extra-index-url=https://pypi.amd.com/acas/olive_SD/1.8/simple
-
 accelerate
 datasets
-
 # Pin onnx version
 diffusers==0.38.0
 evaluate
 # opentelemetry-api requires importlib-metadata<8.8.0
 importlib-metadata>=6.0,<8.8.0
-
 model-generate
 nltk
 numpy==1.26.4
