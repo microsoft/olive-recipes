@@ -1,0 +1,13 @@
+keywords:
+  aitk
+arch: qwen3_5
+recipes:
+  - file: "qwen_trtrtx_workflow.json"
+    device: gpu
+    ep: NvTensorRTRTXExecutionProvider
+    aitk:
+      auto: false
+aitk:
+  modelInfo:
+    id: "huggingface/Qwen/Qwen3.5-2B"
+    version: 1

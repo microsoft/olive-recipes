@@ -485,7 +485,7 @@
             "relativePath": "sam-vit-base/aitk",
             "version": 2,
             "pipeline_tags": [
-                "fill-mask"
+                "mask-generation"
             ]
         },
         {
@@ -501,7 +501,7 @@
             "relativePath": "sam2.1-hiera-small/aitk",
             "version": 2,
             "pipeline_tags": [
-                "fill-mask"
+                "mask-generation"
             ]
         },
         {
@@ -835,6 +835,22 @@
             "version": 4,
             "pipeline_tags": [
                 "text-generation"
+            ]
+        },
+        {
+            "displayName": "Qwen/Qwen3.5-2B",
+            "icon": "qwen",
+            "modelLink": "https://huggingface.co/Qwen/Qwen3.5-2B",
+            "id": "huggingface/Qwen/Qwen3.5-2B",
+            "runtimes": [
+                "NvidiaTRTRTX"
+            ],
+            "architecture": "Transformer",
+            "status": "Ready",
+            "relativePath": "Qwen-Qwen3.5-2B/aitk",
+            "version": 1,
+            "pipeline_tags": [
+                "image-text-to-text"
             ]
         },
         {

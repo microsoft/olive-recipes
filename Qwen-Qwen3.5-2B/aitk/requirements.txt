@@ -1,0 +1,5 @@
+# This file will be installed together with Foundry Toolkit runtime requirements
+# For the full requirements, see Foundry Toolkit
+git+https://github.com/microsoft/Olive.git@main
+torch>=2.10.0,<2.11.0
+transformers>=4.57.0
