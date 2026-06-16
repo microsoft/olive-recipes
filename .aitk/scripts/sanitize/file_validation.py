@@ -216,8 +216,8 @@ def readCheckRequirements(requirementsFile: str):
     Check requirements.txt file
     """
     if not os.path.exists(requirementsFile):
-        printWarning(f"{requirementsFile} not exists.")
-        return
+        printWarning(f"{requirementsFile} not exists. Creating an empty one")
+        Path(requirementsFile).touch()
 
     GlobalVars.requirementsCheck.append(requirementsFile)
     with open_ex(requirementsFile, "r") as file:
