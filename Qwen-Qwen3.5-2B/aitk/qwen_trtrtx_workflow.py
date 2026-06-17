@@ -35,22 +35,38 @@ def parse_arguments():
     return parser.parse_args()
 
 
-def export_models(models_dir: str, cache_dir: str):
+def load_update_config(config_path: str, cache_dir: str, output_dir: str) -> dict:
+    """Load an inner Olive config and rewire its cache/output dirs and model_script."""
+    with open(config_path, "r", encoding="utf-8") as f:
+        oliveJson = json.load(f)
+
+    oliveJson["cache_dir"] = cache_dir
+    # all sub-models land in the single genai model folder
+    oliveJson["output_dir"] = output_dir
+    # resolve the model_script relative to this script's folder
+    model_script = oliveJson.get("input_model", {}).get("model_script")
+    if model_script:
+        oliveJson["input_model"]["model_script"] = os.path.join(SCRIPT_DIR, model_script)
+
+    return oliveJson
+
+
+def copy_olive_config(history_folder: str, config_name: str, cache_dir: str, output_dir: str) -> dict:
+    """Save the resolved inner config into the history folder for record, and return it."""
+    logger.info(f"Copying {config_name} to {history_folder}...")
+    oliveJson = load_update_config(os.path.join(SCRIPT_DIR, config_name), cache_dir, output_dir)
+    os.makedirs(history_folder, exist_ok=True)
+    with open(os.path.join(history_folder, config_name), "w", encoding="utf-8") as f:
+        json.dump(oliveJson, f, indent=4)
+    return oliveJson
+
+
+def export_models(history_folder: str, models_dir: str, cache_dir: str):
     """Run Olive for all 3 sub-models (embedding, text, vision) into models_dir."""
     for config_name in INNER_CONFIGS:
+        oliveJson = copy_olive_config(history_folder, config_name, cache_dir, models_dir)
         logger.info(f"Running {config_name}...")
-        with open(os.path.join(SCRIPT_DIR, config_name), "r", encoding="utf-8") as f:
-            inner = json.load(f)
-
-        # all sub-models land in the single genai model folder
-        inner["output_dir"] = models_dir
-        inner["cache_dir"] = cache_dir
-        # resolve the model_script relative to this script's folder
-        model_script = inner.get("input_model", {}).get("model_script")
-        if model_script:
-            inner["input_model"]["model_script"] = os.path.join(SCRIPT_DIR, model_script)
-
-        output = olive.workflows.run(inner)
+        output = olive.workflows.run(oliveJson)
         if output is None or (hasattr(output, "has_output_model") and not output.has_output_model()):
             raise Exception(f"Model file is not generated for {config_name}")
 
@@ -211,11 +227,12 @@ def main():
     if args.model_config:
         return
 
+    history_folder = os.path.dirname(args.config)
     models_dir = olive_json["output_dir"]
     cache_dir = olive_json["cache_dir"]
     os.makedirs(models_dir, exist_ok=True)
 
-    export_models(models_dir, cache_dir)
+    export_models(history_folder, models_dir, cache_dir)
 
     logger.info("=== Generating genai configs ===")
     update_genai_config(models_dir, device="gpu")
