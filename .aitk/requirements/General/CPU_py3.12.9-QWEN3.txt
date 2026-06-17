@@ -1,1 +1,5 @@
+olive-ai==0.13.0
+onnx-ir==0.2.1
 onnxscript==0.7.0
+transformers==5.2.0
+onnxruntime-genai-winml==0.14.1
