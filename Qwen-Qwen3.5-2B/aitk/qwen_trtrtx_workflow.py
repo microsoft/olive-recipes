@@ -24,7 +24,7 @@ logging.getLogger("onnxscript").setLevel(logging.WARNING)
 logging.getLogger("onnx_ir").setLevel(logging.WARNING)
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-INNER_CONFIGS = ("embedding.json", "text.json", "vision.json")
+INNER_CONFIGS = ("trtrtx_embedding.json", "trtrtx_text.json", "trtrtx_vision.json")
 
 
 def parse_arguments():
