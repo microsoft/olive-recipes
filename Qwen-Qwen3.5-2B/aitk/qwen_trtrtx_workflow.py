@@ -36,17 +36,13 @@ def parse_arguments():
 
 
 def load_update_config(config_path: str, cache_dir: str, output_dir: str) -> dict:
-    """Load an inner Olive config and rewire its cache/output dirs and model_script."""
+    """Load an inner Olive config and rewire its cache/output dirs."""
     with open(config_path, "r", encoding="utf-8") as f:
         oliveJson = json.load(f)
 
     oliveJson["cache_dir"] = cache_dir
     # all sub-models land in the single genai model folder
     oliveJson["output_dir"] = output_dir
-    # resolve the model_script relative to this script's folder
-    model_script = oliveJson.get("input_model", {}).get("model_script")
-    if model_script:
-        oliveJson["input_model"]["model_script"] = os.path.join(SCRIPT_DIR, model_script)
 
     return oliveJson
 
