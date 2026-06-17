@@ -30,6 +30,7 @@
 | [Qwen2.5 Coder 14B Instruct](https://huggingface.co/Qwen/Qwen2.5-Coder-14B-Instruct) | [NVIDIA TensorRT for RTX](../../../Qwen-Qwen2.5-Coder-14B-Instruct/aitk/qwen2_5_trtrtx.json), [Intel CPU](../../../Qwen-Qwen2.5-Coder-14B-Instruct/aitk/qwen2_5_ov_config.json), [Intel GPU](../../../Qwen-Qwen2.5-Coder-14B-Instruct/aitk/qwen2_5_ov_config.json), [Intel NPU](../../../Qwen-Qwen2.5-Coder-14B-Instruct/aitk/qwen2_5_ov_npu_config.json) |
 | [Qwen2.5 Coder 3B Instruct](https://huggingface.co/Qwen/Qwen2.5-Coder-3B-Instruct) | [Intel CPU](../../../Qwen-Qwen2.5-Coder-3B-Instruct/aitk/qwen2_5_ov_config.json), [Intel GPU](../../../Qwen-Qwen2.5-Coder-3B-Instruct/aitk/qwen2_5_ov_config.json), [Intel NPU](../../../Qwen-Qwen2.5-Coder-3B-Instruct/aitk/qwen2_5_ov_npu_config.json) |
 | [Qwen2.5 Coder 7B Instruct](https://huggingface.co/Qwen/Qwen2.5-Coder-7B-Instruct) | [AMD NPU](../../../Qwen-Qwen2.5-Coder-7B-Instruct/aitk/qwen2_5_vitis_ai_config.json), [NVIDIA TensorRT for RTX](../../../Qwen-Qwen2.5-Coder-7B-Instruct/aitk/qwen2_5_trtrtx.json), [Intel CPU](../../../Qwen-Qwen2.5-Coder-7B-Instruct/aitk/qwen2_5_ov_config.json), [Intel GPU](../../../Qwen-Qwen2.5-Coder-7B-Instruct/aitk/qwen2_5_ov_config.json), [Intel NPU](../../../Qwen-Qwen2.5-Coder-7B-Instruct/aitk/qwen2_5_ov_npu_config.json) |
+| [Qwen3.5 2B](https://huggingface.co/Qwen/Qwen3.5-2B) | [NVIDIA TensorRT for RTX](../../../Qwen-Qwen3.5-2B/aitk/qwen_trtrtx_workflow.json) |
 ## Non-LLM Models
 
 | Model Name | Supported Runtimes |
