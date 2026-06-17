@@ -1,5 +1,5 @@
 aiohappyeyeballs==2.6.2
-aiohttp==3.14.0
+aiohttp==3.14.1
 aiosignal==1.4.0
 annotated-doc==0.0.4
 annotated-types==0.7.0
@@ -44,7 +44,7 @@ multidict==6.7.1
 multiprocess==0.70.19
 networkx==3.6.1
 numpy==2.2.6
-onnx==1.18.0
+onnx==1.21.0
 onnx-ir==0.2.1
 onnxruntime-windowsml==1.24.5.202604171637
 onnxscript==0.7.0
@@ -69,7 +69,7 @@ pygments==2.20.0
 pyjwt==2.13.0
 python-dateutil==2.9.0.post0
 python-dotenv==1.2.2
-python-multipart==0.0.29
+python-multipart==0.0.31
 pywin32==311
 pyyaml==6.0.3
 rapidfuzz==3.14.5
@@ -97,7 +97,7 @@ torchinfo==1.8.0
 torchmetrics==1.9.0
 torchvision==0.27.0
 tqdm==4.67.3
-transformers==4.57.6
+transformers==5.0.0rc3
 typing-extensions==4.15.0
 typing-inspection==0.4.2
 tzdata==2026.2
