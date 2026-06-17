@@ -1,5 +1,5 @@
 # AMD model generation
-#--extra-index-url=https://pypi.amd.com/acas/olive_SD/1.8/simple
+--extra-index-url=https://pypi.amd.com/acas/olive_SD/1.8/simple
 accelerate
 datasets
 # Pin onnx version
