@@ -3,7 +3,7 @@
         "model_path": "facebook/sam2.1-hiera-small"
     },
     "systems": {
-        "local_system": {
+        "target_system": {
             "type": "LocalSystem",
             "accelerators": [
                 {
@@ -18,11 +18,13 @@
     "passes": {
         "aitkpython": {
             "type": "AitkPython",
-            "user_script": "sam2_ov_workflow.py"
+            "user_script": "sam2_ov_workflow.py",
+            "activation_type": "int8",
+            "precision": "int8"
         }
     },
     "search_strategy": false,
-    "target": "local_system",
+    "target": "target_system",
     "evaluate_input_model": false,
     "output_dir": "model/sam2_ov",
     "cache_dir": "cache"
