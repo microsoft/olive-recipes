@@ -12,5 +12,5 @@ opencv-python
 Pillow
 safetensors
 timm
-torch>=2.10.0
-transformers==4.57.0
+torch>=2.12.0
+transformers==5.0.0rc3
