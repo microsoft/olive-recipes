@@ -18,5 +18,5 @@
         "accelerators": [{ "device": "gpu", "execution_providers": ["CUDAExecutionProvider"] }]
     },
     "no_artifacts": true,
-    "output_dir": "cuda/mixed/models/vision"
+    "output_dir": "cuda/mixed/models/vision_encoder"
 }

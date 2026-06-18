@@ -15,5 +15,5 @@
         }
     },
     "no_artifacts": true,
-    "output_dir": "cpu/mixed/models/vision"
+    "output_dir": "cpu/mixed/models/vision_encoder"
 }
