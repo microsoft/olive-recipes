@@ -6,9 +6,7 @@
     "passes": {
         "export": {
             "type": "MobiusBuilder",
-            "precision": "fp32",
-            "runtime": "none",
-            "components_to_export": ["vision_encoder", "audio_encoder", "embedding"]
+            "precision": "fp32"
         }
     },
     "no_artifacts": true,

@@ -1,14 +1,9 @@
 {
     "input_model": {
-        "type": "HfModel",
-        "model_path": "google/gemma-4-E2B-it"
+        "type": "ONNXModel",
+        "model_path": "cuda/mixed/models/decoder/model.onnx"
     },
     "passes": {
-        "export": {
-            "type": "MobiusBuilder",
-            "precision": "fp16",
-            "components_to_export": ["model"]
-        },
         "int4_quantize": {
             "type": "OnnxKQuantQuantization",
             "bits": 4,
