@@ -26,41 +26,31 @@
             }
         }
     ],
-    "metrics": [
-        {
-            "name": "speech_accuracy",
-            "type": "accuracy",
-            "data_config": "librispeech_clean",
-            "sub_types": [
-                {
-                    "name": "wer",
-                    "priority": 1,
-                    "higher_is_better": false
-                },
-                {
-                    "name": "rtfx",
-                    "priority": 2,
-                    "higher_is_better": true
-                }
-            ]
-        }
-    ],
     "evaluators": {
         "common_evaluator": {
-            "metrics": ["speech_accuracy"]
-        }
-    },
-    "systems": {
-        "local_system": {
-            "type": "LocalSystem",
-            "accelerators": [
+            "metrics": [
                 {
-                    "device": "cpu",
-                    "execution_providers": ["CPUExecutionProvider"]
+                    "name": "speech_accuracy",
+                    "type": "accuracy",
+                    "data_config": "librispeech_clean",
+                    "sub_types": [
+                        {
+                            "name": "wer",
+                            "priority": 1,
+                            "higher_is_better": false
+                        },
+                        {
+                            "name": "rtfx",
+                            "priority": 2,
+                            "higher_is_better": true
+                        }
+                    ]
                 }
             ]
         }
     },
-    "host": "local_system",
-    "target": "local_system"
+    "engine": {
+        "evaluate_input_model": true,
+        "evaluator": "common_evaluator"
+    }
 }
