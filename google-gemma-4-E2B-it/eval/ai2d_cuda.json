@@ -36,6 +36,8 @@
                     "name": "vision_accuracy",
                     "type": "accuracy",
                     "data_config": "ai2d_test",
+                    "sample_log_num": 100,
+                    "sample_log_dir": "sample_logs",
                     "sub_types": [
                         {
                             "name": "exact_match",

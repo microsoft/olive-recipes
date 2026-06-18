@@ -117,8 +117,11 @@ python inference.py --variant int4 --prompt "Hello"
 # CUDA INT4
 python inference.py --device gpu --variant int4 --prompt "Explain quantum computing"
 
+# CUDA mixed (int4 decoder + int8 vision/audio)
+python inference.py --device gpu --variant mixed --prompt "Explain quantum computing"
+
 # Interactive mode
-python inference.py --device gpu --variant int4 --interactive
+python inference.py --device gpu --variant mixed --interactive
 ```
 
 ## Evaluation
@@ -131,30 +134,22 @@ python eval.py
 
 # CUDA INT4
 python eval.py --device gpu --variant int4
+
+# CUDA mixed
+python eval.py --device gpu --variant mixed
 ```
 
 ### Vision — AI2D (exact_match)
 
-Evaluate on the AI2D science diagram QA benchmark (`lmms-lab/ai2d`):
-
-```bash
-# CPU (requires mixed model built)
-olive run --config eval/ai2d_cpu.json
-
-# CUDA
-olive run --config eval/ai2d_cuda.json
-```
+> **Note**: The `olive run` eval configs require Olive to support nested model
+> layouts in the evaluator's genai_config.json discovery. Until then, use
+> a custom evaluation script.
 
 ### Audio — LibriSpeech WER
 
-Evaluate speech transcription accuracy on LibriSpeech test.clean:
-
-```bash
-# CPU (requires mixed model built)
-olive run --config eval/audio_wer_cpu.json
-
-# CUDA
-olive run --config eval/audio_wer_cuda.json
+> **Note**: The `olive run` audio eval configs require Olive to add gemma4
+> as a supported model type in the speech evaluator. Until then, use a custom
+> evaluation script.
 ```
 
 ## References
