@@ -26,7 +26,7 @@ recipes:
     eps: CPUExecutionProvider
   - name: gemma4-e2b-mixed-cpu
     file:
-      - cpu/mixed/vision_embedding_export.json
+      - cpu/mixed/export.json
       - cpu/mixed/text.json
       - cpu/mixed/vision.json
       - cpu/mixed/audio.json
@@ -45,7 +45,7 @@ recipes:
     eps: CUDAExecutionProvider
   - name: gemma4-e2b-mixed-cuda
     file:
-      - cuda/mixed/vision_embedding_export.json
+      - cuda/mixed/export.json
       - cuda/mixed/text.json
       - cuda/mixed/vision.json
       - cuda/mixed/audio.json
