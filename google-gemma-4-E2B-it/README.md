@@ -46,12 +46,12 @@ encoders — for better accuracy vs. latency trade-offs.
 |---|---|---|
 | `cpu/mixed/export.json` | `MobiusBuilder(fp32)` — export all components | `cpu/mixed/models` |
 | `cpu/mixed/text.json` | `OnnxKQuantQuantization(int4, block=32)` — quantize decoder | `cpu/mixed/models/decoder` |
-| `cpu/mixed/vision.json` | `OnnxBlockWiseRtnQuantization(int8, block=128)` — vision encoder | `cpu/mixed/models/vision` |
-| `cpu/mixed/audio.json` | `OnnxBlockWiseRtnQuantization(int8, block=128)` — audio encoder | `cpu/mixed/models/audio` |
+| `cpu/mixed/vision.json` | `OnnxBlockWiseRtnQuantization(int8, block=128)` — quantize vision encoder | `cpu/mixed/models/vision_encoder` |
+| `cpu/mixed/audio.json` | `OnnxBlockWiseRtnQuantization(int8, block=128)` — quantize audio encoder | `cpu/mixed/models/audio_encoder` |
 | `cuda/mixed/export.json` | `MobiusBuilder(fp16)` — export all components | `cuda/mixed/models` |
 | `cuda/mixed/text.json` | `OnnxKQuantQuantization(int4, block=32)` — quantize decoder | `cuda/mixed/models/decoder` |
-| `cuda/mixed/vision.json` | `OnnxBlockWiseRtnQuantization(int8, block=32)` — vision encoder | `cuda/mixed/models/vision` |
-| `cuda/mixed/audio.json` | `OnnxBlockWiseRtnQuantization(int8, block=32)` — audio encoder | `cuda/mixed/models/audio` |
+| `cuda/mixed/vision.json` | `OnnxBlockWiseRtnQuantization(int8, block=32)` — quantize vision encoder | `cuda/mixed/models/vision_encoder` |
+| `cuda/mixed/audio.json` | `OnnxBlockWiseRtnQuantization(int8, block=32)` — quantize audio encoder | `cuda/mixed/models/audio_encoder` |
 
 **Run order**: export first, then text, vision, and audio (the latter three
 can run in parallel):

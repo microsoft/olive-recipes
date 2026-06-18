@@ -15,5 +15,5 @@
         }
     },
     "no_artifacts": true,
-    "output_dir": "cpu/mixed/models/audio"
+    "output_dir": "cpu/mixed/models/audio_encoder"
 }
