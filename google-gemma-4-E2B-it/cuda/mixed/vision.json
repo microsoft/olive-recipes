@@ -1,0 +1,22 @@
+{
+    "input_model": {
+        "type": "ONNXModel",
+        "model_path": "cuda/mixed/models/vision_encoder/model.onnx"
+    },
+    "passes": {
+        "int8": {
+            "type": "OnnxBlockWiseRtnQuantization",
+            "bits": 8,
+            "block_size": 32,
+            "is_symmetric": false,
+            "save_as_external_data": true,
+            "external_data_name": "model.onnx.data"
+        }
+    },
+    "target": {
+        "type": "LocalSystem",
+        "accelerators": [{ "device": "gpu", "execution_providers": ["CUDAExecutionProvider"] }]
+    },
+    "no_artifacts": true,
+    "output_dir": "cuda/mixed/models/vision"
+}

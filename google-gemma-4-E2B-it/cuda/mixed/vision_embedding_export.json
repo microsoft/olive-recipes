@@ -1,0 +1,20 @@
+{
+    "input_model": {
+        "type": "HfModel",
+        "model_path": "google/gemma-4-E2B-it"
+    },
+    "passes": {
+        "export": {
+            "type": "MobiusBuilder",
+            "precision": "fp16",
+            "runtime": "none",
+            "components_to_export": ["vision_encoder", "audio_encoder", "embedding"]
+        }
+    },
+    "target": {
+        "type": "LocalSystem",
+        "accelerators": [{ "device": "gpu", "execution_providers": ["CUDAExecutionProvider"] }]
+    },
+    "no_artifacts": true,
+    "output_dir": "cuda/mixed/models"
+}

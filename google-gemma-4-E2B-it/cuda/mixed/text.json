@@ -1,0 +1,22 @@
+{
+    "input_model": {
+        "type": "HfModel",
+        "model_path": "google/gemma-4-E2B-it"
+    },
+    "passes": {
+        "convert": {
+            "type": "ModelBuilder",
+            "precision": "int4",
+            "int4_algo_config": "k_quant_mixed",
+            "extra_options": {
+                "filename": "model.onnx"
+            }
+        }
+    },
+    "target": {
+        "type": "LocalSystem",
+        "accelerators": [{ "device": "gpu", "execution_providers": ["CUDAExecutionProvider"] }]
+    },
+    "no_artifacts": true,
+    "output_dir": "cuda/mixed/models/decoder"
+}

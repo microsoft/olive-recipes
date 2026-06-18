@@ -24,6 +24,15 @@ recipes:
     devices:
       - cpu
     eps: CPUExecutionProvider
+  - name: gemma4-e2b-mixed-cpu
+    file:
+      - cpu/mixed/vision_embedding_export.json
+      - cpu/mixed/text.json
+      - cpu/mixed/vision.json
+      - cpu/mixed/audio.json
+    devices:
+      - cpu
+    eps: CPUExecutionProvider
   - name: gemma4-e2b-fp16-cuda
     file: cuda/fp16/config.json
     devices:
@@ -31,6 +40,15 @@ recipes:
     eps: CUDAExecutionProvider
   - name: gemma4-e2b-int4-kquant-cuda
     file: cuda/int4/config.json
+    devices:
+      - gpu
+    eps: CUDAExecutionProvider
+  - name: gemma4-e2b-mixed-cuda
+    file:
+      - cuda/mixed/vision_embedding_export.json
+      - cuda/mixed/text.json
+      - cuda/mixed/vision.json
+      - cuda/mixed/audio.json
     devices:
       - gpu
     eps: CUDAExecutionProvider
