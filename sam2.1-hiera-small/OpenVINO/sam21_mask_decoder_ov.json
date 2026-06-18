@@ -24,7 +24,7 @@
             "user_script": "ov_decoder_quant.py",
             "load_dataset_config": {
                 "type": "coco128_decoder_dataset",
-                "decoder_inputs_dir": "coco128/decoder_inputs"
+                "decoder_inputs_dir": "quantization_dataset/decoder_inputs"
             },
             "dataloader_config": {
                 "batch_size": 1

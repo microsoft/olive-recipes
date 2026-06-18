@@ -24,7 +24,7 @@
             "user_script": "ov_encoder_quant.py",
             "load_dataset_config": {
                 "type": "coco128_encoder_dataset",
-                "images_path": "coco128/images/train2017"
+                "images_path": "quantization_dataset/coco128/images/train2017"
             },
             "dataloader_config": {
                 "batch_size": 1

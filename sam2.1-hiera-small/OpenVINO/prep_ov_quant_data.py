@@ -11,9 +11,9 @@ from ov_encoder_quant import COCOLoader
 
 
 COCO_URL = "https://ultralytics.com/assets/coco128.zip"
-COCO_ZIP = Path("coco128.zip")
-COCO_ROOT = Path("coco128")
-COCO_DIR = COCO_ROOT / "images" / "train2017"
+COCO_ROOT = Path("quantization_dataset")
+COCO_ZIP = COCO_ROOT / "coco128.zip"
+COCO_DIR = COCO_ROOT / "coco128" / "images" / "train2017"
 COCO_DECODER_INPUTS_DIR = Path(COCO_ROOT / "decoder_inputs")
 
 
@@ -32,6 +32,7 @@ def download_and_extract_coco128():
         return
 
     if not COCO_ZIP.exists():
+        COCO_ROOT.mkdir(parents=True, exist_ok=True)
         with tqdm(unit="B", unit_scale=True, unit_divisor=1024,
                   desc=f"Downloading {COCO_URL.rsplit('/', 1)[-1]}",
                   colour="cyan") as bar:
@@ -48,7 +49,7 @@ def download_and_extract_coco128():
         members = zf.infolist()
         for m in tqdm(members, desc=f"Extracting {COCO_ZIP.name}", unit="file",
                       colour="yellow"):
-            _safe_extract(zf, m, ".")
+            _safe_extract(zf, m, COCO_ROOT)
 
 
 def generate_decoder_inputs():
