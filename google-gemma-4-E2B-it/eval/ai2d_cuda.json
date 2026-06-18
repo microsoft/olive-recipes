@@ -2,7 +2,7 @@
     "input_model": {
         "type": "OnnxModel",
         "model_path": "../cuda/mixed/models",
-        "onnx_file_name": "text.onnx"
+        "onnx_file_name": "decoder/model.onnx"
     },
     "data_configs": [
         {
