@@ -141,7 +141,7 @@ python -m pip install notebook
 After following the virtual environment creation, activation and package installation steps in [Inference Sample Environment Setup](#inference-sample-environment-setup), run the notebook in the created virtual environment with:
 
 ```bash
-jupyter notebook inference_sample.ipynb
+jupyter notebook sam2_ov_workflow_inference_sample.ipynb
 ```
 
-This will start the Jupyter Notebook server and open a browser window at `http://localhost:8888`. Run the [SAM2.1 Hiera Small Inference Sample Notebook](inference_sample.ipynb) with the Olive generated ONNX OpenVINO IR Encapsulated models.
+This will start the Jupyter Notebook server and open a browser window at `http://localhost:8888`. Run the [SAM2.1 Hiera Small Inference Sample Notebook](sam2_ov_workflow_inference_sample.ipynb) with the Olive generated ONNX OpenVINO IR Encapsulated models.
