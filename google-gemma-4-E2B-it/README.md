@@ -36,6 +36,40 @@ Install ONNX Runtime GenAI:
 | `cuda/fp16/config.json` | `MobiusBuilder(fp16)` | `cuda/fp16/models` |
 | `cuda/int4/config.json` | `MobiusBuilder(fp16)` → `OnnxKQuantQuantization(bits=4, block=32)` | `cuda/int4/models` |
 
+### Mixed quantization (separate text / vision / audio)
+
+These recipes split the model into components with per-component
+quantization — int4 for the text decoder, int8 for vision and audio
+encoders — for better accuracy vs. latency trade-offs.
+
+| Recipe | Pipeline | Output dir |
+|---|---|---|
+| `cpu/mixed/vision_embedding_export.json` | `MobiusBuilder(fp32)` — export vision_encoder, audio_encoder, embedding | `cpu/mixed/models` |
+| `cpu/mixed/text.json` | `ModelBuilder(int4, k_quant_mixed)` — text decoder | `cpu/mixed/models/decoder` |
+| `cpu/mixed/vision.json` | `OnnxBlockWiseRtnQuantization(int8, block=128)` — vision encoder | `cpu/mixed/models/vision` |
+| `cpu/mixed/audio.json` | `OnnxBlockWiseRtnQuantization(int8, block=128)` — audio encoder | `cpu/mixed/models/audio` |
+| `cuda/mixed/vision_embedding_export.json` | `MobiusBuilder(fp16)` — export vision_encoder, audio_encoder, embedding | `cuda/mixed/models` |
+| `cuda/mixed/text.json` | `ModelBuilder(int4, k_quant_mixed)` — text decoder | `cuda/mixed/models/decoder` |
+| `cuda/mixed/vision.json` | `OnnxBlockWiseRtnQuantization(int8, block=32)` — vision encoder | `cuda/mixed/models/vision` |
+| `cuda/mixed/audio.json` | `OnnxBlockWiseRtnQuantization(int8, block=32)` — audio encoder | `cuda/mixed/models/audio` |
+
+**Run order**: export first, then text, vision, and audio (the latter three
+can run in parallel):
+
+```bash
+# CPU mixed
+olive run --config cpu/mixed/vision_embedding_export.json
+olive run --config cpu/mixed/text.json
+olive run --config cpu/mixed/vision.json
+olive run --config cpu/mixed/audio.json
+
+# CUDA mixed
+olive run --config cuda/mixed/vision_embedding_export.json
+olive run --config cuda/mixed/text.json
+olive run --config cuda/mixed/vision.json
+olive run --config cuda/mixed/audio.json
+```
+
 K-Quant (Q4_K_M) is significantly faster with GPU acceleration —
 install `cupy-cuda12x` for a 19–51× speedup during quantization.
 
@@ -89,12 +123,38 @@ python inference.py --device gpu --variant int4 --interactive
 
 ## Evaluation
 
+### MMLU Pro (text)
+
 ```bash
 # MMLU Pro (default 100 samples), CPU
 python eval.py
 
 # CUDA INT4
 python eval.py --device gpu --variant int4
+```
+
+### Vision — AI2D (exact_match)
+
+Evaluate on the AI2D science diagram QA benchmark (`lmms-lab/ai2d`):
+
+```bash
+# CPU (requires mixed model built)
+olive run --config eval/ai2d_cpu.json
+
+# CUDA
+olive run --config eval/ai2d_cuda.json
+```
+
+### Audio — LibriSpeech WER
+
+Evaluate speech transcription accuracy on LibriSpeech test.clean:
+
+```bash
+# CPU (requires mixed model built)
+olive run --config eval/audio_wer_cpu.json
+
+# CUDA
+olive run --config eval/audio_wer_cuda.json
 ```
 
 ## References
