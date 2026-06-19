@@ -79,5 +79,5 @@
     "search_strategy": false,
     "target": "local_system",
     "evaluate_input_model": false,
-    "output_dir": "models/decoder"
+    "output_dir": "model/decoder"
 }

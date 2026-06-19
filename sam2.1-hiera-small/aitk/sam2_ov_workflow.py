@@ -60,7 +60,7 @@ def main():
         history_folder: str | None = os.path.dirname(args.config)
         logger.info(f"history dir: {history_folder}")
     else:
-        output_dir = "models"
+        output_dir = "model"
         cache_dir = "cache"
         history_folder = None
 
