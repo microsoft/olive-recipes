@@ -36,6 +36,8 @@ Install ONNX Runtime GenAI:
 | Recipe | Pipeline | Output dir |
 |---|---|---|
 | `cpu/fp32/config.json` | `MobiusBuilder(fp32)` | `cpu/fp32/models` |
+| `cpu/fp16/config.json` | `MobiusBuilder(fp16)` | `cpu/fp16/models` |
+| `cpu/bf16/config.json` | `MobiusBuilder(bf16)` | `cpu/bf16/models` |
 | `cpu/int4/config.json` | `MobiusBuilder(fp32)` → `OnnxKQuantQuantization(bits=4, block_size=32)` | `cpu/int4/models` |
 | `cuda/fp16/config.json` | `MobiusBuilder(fp16)` | `cuda/fp16/models` |
 | `cuda/bf16/config.json` | `MobiusBuilder(bf16)` | `cuda/bf16/models` |

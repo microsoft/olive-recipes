@@ -21,6 +21,16 @@ recipes:
     devices:
       - cpu
     eps: CPUExecutionProvider
+  - name: hy-mt2-1_8b-fp16-cpu
+    file: cpu/fp16/config.json
+    devices:
+      - cpu
+    eps: CPUExecutionProvider
+  - name: hy-mt2-1_8b-bf16-cpu
+    file: cpu/bf16/config.json
+    devices:
+      - cpu
+    eps: CPUExecutionProvider
   - name: hy-mt2-1_8b-int4-kquant-cpu
     file: cpu/int4/config.json
     devices:
