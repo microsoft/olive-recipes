@@ -34,7 +34,23 @@ stages:
     recipe_name: lpbq_seqmse
     technique_kwargs:
       lpbq:
-        exceptions_json: config/mixed_precision_config/exceptions.json
+        module_precisions:
+          rms_norm:
+            weight_precision: int16
+            mode: asymmetric
+          embedding:
+            weight_precision: int16
+            mode: asymmetric
+          lm_head:
+            weight_precision: int4
+          kv_cache:
+            activation_precision: int8
+            mode: symmetric
+            match_info: [v_proj]
+          custom:
+            "\\w*self_attn_Concat_1":
+              activation_precision: int8
+              mode: symmetric
 
   genai_builder:
     native_kv: true

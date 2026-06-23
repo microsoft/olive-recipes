@@ -32,8 +32,25 @@ stages:
 
   quantization:
     recipe_name: lpbq_seqmse
-    lpbq:
-      exceptions_json: config/mixed_precision_config/exceptions.json
+    technique_kwargs:
+      lpbq:
+        module_precisions:
+          rms_norm:
+            weight_precision: int16
+            mode: asymmetric
+          embedding:
+            weight_precision: int16
+            mode: asymmetric
+          lm_head:
+            weight_precision: int4
+          kv_cache:
+            activation_precision: int8
+            mode: symmetric
+            match_info: [v_proj]
+          custom:
+            "\\w*self_attn_Concat_1":
+              activation_precision: int8
+              mode: symmetric
 
   genai_builder:
     native_kv: true
@@ -50,5 +67,6 @@ stages:
       bias_precision: 32
     compile_options:
       graphs.hvx_threads: 4
+      graphs.vtcm_size_in_mb: 8
       graphs.optimization_type: 3
       devices.cores.perf_profile: burst

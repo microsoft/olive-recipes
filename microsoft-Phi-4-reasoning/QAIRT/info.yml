@@ -14,3 +14,7 @@ recipes:
       devices:
         - npu
       ep: QNNExecutionProvider
+    - file: "htp_sc8380xp_pipeline.json"
+      devices:
+        - npu
+      ep: QNNExecutionProvider
