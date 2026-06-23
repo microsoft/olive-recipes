@@ -1,0 +1,43 @@
+keywords:
+  - hunyuan
+  - hunyuan-v1-dense
+  - hy-mt2
+  - translation
+  - multilingual
+  - int4
+  - kquant
+  - mobius
+arch: hunyuan
+ep:
+  - CPUExecutionProvider
+  - CUDAExecutionProvider
+device:
+  - cpu
+  - gpu
+name: hy_mt2_1_8b
+recipes:
+  - name: hy-mt2-1_8b-fp32-cpu
+    file: cpu/fp32/config.json
+    devices:
+      - cpu
+    eps: CPUExecutionProvider
+  - name: hy-mt2-1_8b-int4-kquant-cpu
+    file: cpu/int4/config.json
+    devices:
+      - cpu
+    eps: CPUExecutionProvider
+  - name: hy-mt2-1_8b-fp16-cuda
+    file: cuda/fp16/config.json
+    devices:
+      - gpu
+    eps: CUDAExecutionProvider
+  - name: hy-mt2-1_8b-bf16-cuda
+    file: cuda/bf16/config.json
+    devices:
+      - gpu
+    eps: CUDAExecutionProvider
+  - name: hy-mt2-1_8b-int4-kquant-cuda
+    file: cuda/int4/config.json
+    devices:
+      - gpu
+    eps: CUDAExecutionProvider
