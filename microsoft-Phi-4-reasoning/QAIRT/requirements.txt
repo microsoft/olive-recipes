@@ -1,7 +1,5 @@
 onnx==1.16.1
 onnxruntime==1.23.2
 protobuf==5.28.2
-pydantic==2.11.3
-tokenizers==0.21.0
 torch<2.9
-transformers==4.51.1
+transformers==4.57.1
