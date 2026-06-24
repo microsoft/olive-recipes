@@ -8,10 +8,9 @@ from pathlib import Path
 import numpy as np
 import torchvision.transforms as transforms
 import transformers
+from olive.data.registry import Registry
 from torch import from_numpy
 from torch.utils.data import Dataset
-
-from olive.data.registry import Registry
 
 logger = getLogger(__name__)
 

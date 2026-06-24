@@ -18,7 +18,7 @@
             "architecture": "Transformer",
             "status": "Ready",
             "relativePath": "microsoft-Phi-3.5-mini-instruct/aitk",
-            "version": 7,
+            "version": 8,
             "p0": true,
             "pipeline_tags": [
                 "text-generation"
@@ -193,7 +193,7 @@
             "architecture": "Transformer",
             "status": "Ready",
             "relativePath": "meta-llama-Llama-3.2-1B-Instruct/aitk",
-            "version": 7,
+            "version": 8,
             "p0": true,
             "pipeline_tags": [
                 "text-generation"
@@ -347,6 +347,7 @@
             "runtimes": [
                 "QNN",
                 "AMDNPU",
+                "NvidiaTRTRTX",
                 "IntelCPU",
                 "IntelGPU",
                 "IntelNPU"
@@ -480,7 +481,7 @@
                 "QNN"
             ],
             "architecture": "Transformer",
-            "status": "Hide",
+            "status": "Ready",
             "relativePath": "sam-vit-base/aitk",
             "version": 2,
             "pipeline_tags": [
@@ -493,12 +494,15 @@
             "modelLink": "https://huggingface.co/facebook/sam2.1-hiera-small",
             "id": "huggingface/facebook/sam2.1-hiera-small",
             "runtimes": [
-                "QNN"
+                "QNN",
+                "IntelCPU",
+                "IntelGPU",
+                "IntelNPU"
             ],
             "architecture": "Transformer",
-            "status": "Hide",
+            "status": "Ready",
             "relativePath": "sam2.1-hiera-small/aitk",
-            "version": 2,
+            "version": 3,
             "pipeline_tags": [
                 "fill-mask"
             ]
@@ -510,6 +514,7 @@
             "id": "huggingface/meta-llama/Llama-3.1-8B-Instruct",
             "runtimes": [
                 "QNN",
+                "QNNGPU",
                 "AMDNPU",
                 "NvidiaTRTRTX",
                 "IntelCPU",
@@ -520,7 +525,7 @@
             "architecture": "Transformer",
             "status": "Ready",
             "relativePath": "meta-llama-Llama-3.1-8B-Instruct/aitk",
-            "version": 5,
+            "version": 6,
             "p0": false,
             "pipeline_tags": [
                 "text-generation"
@@ -612,12 +617,15 @@
             "modelLink": "https://huggingface.co/openai/whisper-large-v3-turbo",
             "id": "huggingface/openai/whisper-large-v3-turbo",
             "runtimes": [
-                "QNN"
+                "QNN",
+                "IntelCPU",
+                "IntelGPU",
+                "IntelNPU"
             ],
             "architecture": "Transformer",
             "status": "Ready",
             "relativePath": "openai-whisper-large-v3-turbo/aitk",
-            "version": 2,
+            "version": 3,
             "pipeline_tags": [
                 "automatic-speech-recognition"
             ]
@@ -844,7 +852,7 @@
                 "IntelNPU"
             ],
             "architecture": "Transformer",
-            "status": "Hide",
+            "status": "Ready",
             "relativePath": "sd2-community-stable-diffusion-2-1/aitk",
             "version": 2,
             "pipeline_tags": [
@@ -1044,7 +1052,8 @@
             "bfloat16": "a:bf16"
         },
         "QuarkWeightType": {
-            "w_uint4_per_group_asym": "w:int4"
+            "w_uint4_per_group_asym": "w:uint4",
+            "uint4_wo_128": "w:uint4"
         }
     }
 }
