@@ -9,7 +9,7 @@ mdurl==0.1.2
 ninja==1.13.0
 nvidia-ml-py==13.580.82
 nvidia-modelopt==0.35.1
-onnx==1.18.0
+onnx==1.21.0
 onnx-graphsurgeon==0.5.8
 onnxconverter-common==1.16.0
 polygraphy==0.49.26
