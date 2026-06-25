@@ -1,51 +1,17 @@
-# SAM 2.1 Hiera Small Model Quantization
+# SAM2.1 Hiera Small Quantization
 
-This folder contains a sample use case of Olive to optimize the [facebook/sam2.1-hiera-small](https://huggingface.co/facebook/sam2.1-hiera-small) model using **post-training quantization (PTQ)** techniques.
-
-The SAM 2.1 Hiera Small Model has 2 components:-
+This folder contains a sample use case of Olive to optimize the [facebook/sam2.1-hiera-small](https://huggingface.co/facebook/sam2.1-hiera-small) model using Intel® OpenVINO tools.
 
 - SAM2.1 Hiera Small Vision Encoder: [sam2.1-hiera-small vision encoder](#sam-21-hiera-small-vision-encoder)
 - SAM2.1 Hiera Small Mask Decoder: [sam2.1-hiera-small mask decoder](#sam-21-hiera-small-mask-decoder)
 
-## QNN Quantization Workflow
-
-### Generate ONNX Model
-
-Activate the **Quantization Python Environment** and run command to generate encoder and decoder models:
-
-```bash
-python generate_model.py
-```
-
-### Run the Quantization + Compilation Config
-
-Activate the **Quantization Python Environment** and run the workflow:
-
-For Encoder Model:
-
-```bash
-olive run --config sam21_vision_encoder_qnn.json
-```
-
-For Decoder Model:
-
-```bash
-olive run --config sam21_mask_decoder_qnn.json
-```
-
-### Model ORT Execution
-
-Execute SAM model in **AOT Compilation Python Environment** using following command:
-
-```bash
-python sam2_mask_generator.py --model_ve path/to/encoder_model.onnx --model_md path/to/decoder_model.onnx --image_path car.png --box_x 40 --box_y 235 --box_w 940 --box_h 490 --output_path car_mask.png
-```
-
-## Intel® OpenVINO Quantization Workflows
+## Quantization Workflows
 
 For both the SAM 2.1 Vision Encoder and SAM 2.1 Mask Decoder, this workflow performs the optimization pipeline:
 
 - *PyTorch Model -> OpenVINO model -> Quantized OpenVINO model -> Quantized encapsulated ONNX OpenVINO IR model*
+
+## How to run
 
 ### Model Quantization Environment Setup
 
@@ -141,7 +107,7 @@ python -m pip install notebook
 After following the virtual environment creation, activation and package installation steps in [Inference Sample Environment Setup](#inference-sample-environment-setup), run the notebook in the created virtual environment with:
 
 ```bash
-jupyter notebook sam2_ov_workflow_inference_sample.ipynb
+jupyter notebook inference_sample.ipynb
 ```
 
-This will start the Jupyter Notebook server and open a browser window at `http://localhost:8888`. Run the [SAM2.1 Hiera Small Inference Sample Notebook](sam2_ov_workflow_inference_sample.ipynb) with the Olive generated ONNX OpenVINO IR Encapsulated models.
+This will start the Jupyter Notebook server and open a browser window at `http://localhost:8888`. Run the [SAM2.1 Hiera Small Inference Sample Notebook](inference_sample.ipynb) with the Olive generated ONNX OpenVINO IR Encapsulated models.

@@ -494,12 +494,15 @@
             "modelLink": "https://huggingface.co/facebook/sam2.1-hiera-small",
             "id": "huggingface/facebook/sam2.1-hiera-small",
             "runtimes": [
-                "QNN"
+                "QNN",
+                "IntelCPU",
+                "IntelGPU",
+                "IntelNPU"
             ],
             "architecture": "Transformer",
             "status": "Ready",
             "relativePath": "sam2.1-hiera-small/aitk",
-            "version": 2,
+            "version": 3,
             "pipeline_tags": [
                 "fill-mask"
             ]

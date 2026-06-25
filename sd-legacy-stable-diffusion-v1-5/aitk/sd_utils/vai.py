@@ -9,7 +9,6 @@ Unet/vae_decoder use DD session options (dd_cache, VitisAI EP); other submodels 
 
 import importlib
 import json
-import os
 import shutil
 from pathlib import Path
 
