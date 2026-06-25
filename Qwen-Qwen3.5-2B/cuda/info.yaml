@@ -1,0 +1,6 @@
+arch: qwen3_5_text
+recipes:
+  - name: Qwen-Qwen3.5-2B_cuda_int4
+    file: Qwen-Qwen3.5-2B_cuda_int4.json
+    devices: gpu
+    eps: CUDAExecutionProvider
