@@ -1,0 +1,12 @@
+datasets
+onnx==1.16.2
+onnx-ir==0.1.4
+onnxruntime-genai-cuda==0.9.0
+onnxruntime-gpu==1.22.0
+onnxscript
+optimum
+setuptools
+tabulate
+tokenizers
+transformers==4.52.3
+tiktoken
