@@ -1,0 +1,20 @@
+{
+    "input_model": {
+        "type": "ONNXModel",
+        "model_path": "cuda/mixed/models/decoder/model.onnx"
+    },
+    "passes": {
+        "int4_quantize": {
+            "type": "OnnxKQuantQuantization",
+            "bits": 4,
+            "block_size": 32,
+            "save_as_external_data": true
+        }
+    },
+    "target": {
+        "type": "LocalSystem",
+        "accelerators": [{ "device": "gpu", "execution_providers": ["CUDAExecutionProvider"] }]
+    },
+    "no_artifacts": true,
+    "output_dir": "cuda/mixed/models/decoder"
+}
