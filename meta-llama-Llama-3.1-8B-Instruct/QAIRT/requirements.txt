@@ -9,7 +9,6 @@ asttokens==3.0.1
 async-timeout==5.0.1
 attrs==25.4.0
 bleach==6.3.0
-bokeh==3.8.2
 certifi==2026.1.4
 cffi==2.0.0
 charset-normalizer==3.4.4
