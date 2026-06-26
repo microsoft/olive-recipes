@@ -1,0 +1,13 @@
+keywords:
+    - foundry-local
+    - qnn
+    - gemma4
+    - mobius
+arch: gemma
+recipes:
+  - name: gemma4-e2b-qnn
+    file: config.json
+    devices:
+      - npu
+    eps: QNNExecutionProvider
+name: gemma4-e2b-qnn
