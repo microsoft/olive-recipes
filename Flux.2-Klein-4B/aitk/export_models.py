@@ -2,21 +2,24 @@
 # Copyright (C) 2026, Advanced Micro Devices, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 # -------------------------------------------------------------------------
-# Export FLUX.2-klein-4B sub-models to ONNX via Olive.
+# Export FLUX.2-klein-4B sub-models to ONNX via Olive and assemble the
+# AMD NPU pipeline.
 #
-# Usage:
+# This is driven by flux_vitisai_workflow.py: the staged per-component configs
+# (config_<name>.json) and the footprints/output live in the current working
+# directory (the run folder), so paths are resolved relative to cwd. The model
+# id is read from the staged configs (no --model_id / --resolutions inputs).
+#
+# Usage (driven from the run folder):
 #   python export_models.py [--models transformer vae_decoder text_encoder]
-#                           [--model_id <hf_id_or_local_path>]
-#                           [--resolutions 1024x1024]
-#                           [--output_dir ./output_model]
+#                           [--output_dir model/flux_vitisai]
 #
-# Output layout:
-#   output_model/
-#     transformer/dd/replaced.onnx   NPU (RyzenAI)
-#     vae_decoder/dd/replaced.onnx   NPU (RyzenAI)
-#     text_encoder/model.onnx        CPU ONNX
-#     tokenizer/                     from pipeline
-#     scheduler/                     from pipeline
+# Output layout (under --output_dir):
+#   transformer/dd/replaced.onnx   NPU (RyzenAI)
+#   vae_decoder/dd/replaced.onnx   NPU (RyzenAI)
+#   text_encoder/model.onnx        CPU ONNX
+#   tokenizer/                     from pipeline
+#   scheduler/                     from pipeline
 
 import argparse
 import json
@@ -28,10 +31,6 @@ from pathlib import Path
 import torch
 from olive.workflows import run as olive_run
 
-SCRIPT_DIR = Path(__file__).parent.resolve()
-
-DEFAULT_MODEL_ID = "black-forest-labs/FLUX.2-klein-4B"
-DEFAULT_RESOLUTIONS = ["1024x1024"]
 ALL_MODELS = ["transformer", "vae_decoder", "text_encoder"]
 
 NON_ONNX_COMPONENTS = ["tokenizer", "tokenizer_2", "scheduler", "feature_extractor"]
@@ -70,33 +69,9 @@ def _fmt_seconds(seconds: float) -> str:
     return f"{s}s"
 
 
-def update_config_files(model_id: str | None, resolutions: list[str] | None) -> None:
-    for name in ALL_MODELS:
-        config_path = SCRIPT_DIR / f"config_{name}.json"
-        if not config_path.exists():
-            continue
-        with config_path.open() as f:
-            cfg = json.load(f)
-
-        changed = False
-        if model_id is not None and cfg.get("input_model", {}).get("model_path") != model_id:
-            cfg["input_model"]["model_path"] = model_id
-            changed = True
-        if resolutions is not None:
-            for pass_cfg in cfg.get("passes", {}).values():
-                if "resolutions" in pass_cfg and pass_cfg["resolutions"] != resolutions:
-                    pass_cfg["resolutions"] = resolutions
-                    changed = True
-
-        if changed:
-            with config_path.open("w") as f:
-                json.dump(cfg, f, indent=4)
-            print(f"  [CONFIG] Updated {config_path.name}")
-
-
 def load_olive_config(submodel_name: str) -> dict:
-    config_path = SCRIPT_DIR / f"config_{submodel_name}.json"
-    with config_path.open() as f:
+    # Staged config lives in the current working directory (the run folder).
+    with open(f"config_{submodel_name}.json", encoding="utf-8") as f:
         return json.load(f)
 
 
@@ -318,8 +293,14 @@ def assemble_output_dir(
 
 def optimize(args) -> dict[str, bool]:
     config_dd_env()
-    model_id = args.model_id
     output_dir = Path(args.output_dir).resolve()
+    # Footprints are written alongside the assembled pipeline (the staged configs
+    # re-root their output_dir under output_dir's parent), so they live one level
+    # up from the final output dir.
+    footprints_dir = output_dir.parent / "footprints"
+
+    # The model id is carried by the staged component configs.
+    model_id = load_olive_config(args.models[0])["input_model"]["model_path"]
 
     print(f"\n[PIPELINE] Loading Flux2KleinPipeline from '{model_id}' ...")
     from diffusers import Flux2KleinPipeline
@@ -358,7 +339,7 @@ def optimize(args) -> dict[str, bool]:
     total_elapsed = time.monotonic() - total_t0
 
     print(f"\n{'=' * 60}\n  Assembling output directory ...\n{'=' * 60}")
-    assemble_output_dir(pipeline, args.models, SCRIPT_DIR / "footprints", output_dir)
+    assemble_output_dir(pipeline, args.models, footprints_dir, output_dir)
 
     del pipeline
     if torch.cuda.is_available():
@@ -377,25 +358,7 @@ def optimize(args) -> dict[str, bool]:
 
 def parse_args(raw_args=None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Export FLUX.2-klein-4B sub-models to ONNX via Olive.",
-        formatter_class=argparse.RawDescriptionHelpFormatter,
-        epilog=(
-            "Examples:\n"
-            "  python export_models.py\n"
-            "  python export_models.py --models transformer\n"
-            "  python export_models.py --model_id /local/path/to/model\n"
-            "  python export_models.py --output_dir /data/flux2_klein_onnx"
-        ),
-    )
-    parser.add_argument(
-        "--model_id",
-        default=None,
-        type=str,
-        help=(
-            "HuggingFace model ID or local path. "
-            "When provided, writes back to all config_*.json. "
-            f"Default: value in config_*.json (initially '{DEFAULT_MODEL_ID}')."
-        ),
+        description="Export FLUX.2-klein-4B sub-models to ONNX via Olive and assemble the AMD NPU pipeline.",
     )
     parser.add_argument(
         "--models",
@@ -406,21 +369,10 @@ def parse_args(raw_args=None) -> argparse.Namespace:
         help=f"Sub-models to export (default: all). Choices: {', '.join(ALL_MODELS)}",
     )
     parser.add_argument(
-        "--resolutions",
-        nargs="+",
-        default=None,
-        metavar="WxH",
-        help=(
-            "Target resolutions for VitisGenerateModelSD. "
-            "When provided, writes back to all config_*.json. "
-            f"Default: value in config_*.json (initially '{' '.join(DEFAULT_RESOLUTIONS)}')."
-        ),
-    )
-    parser.add_argument(
         "--output_dir",
-        default=str(SCRIPT_DIR / "output_model"),
+        default="output_model",
         type=str,
-        help="Assembled pipeline output directory. Default: <script_dir>/output_model",
+        help="Assembled pipeline output directory (relative to the run folder). Default: output_model",
     )
     return parser.parse_args(raw_args)
 
@@ -428,39 +380,12 @@ def parse_args(raw_args=None) -> argparse.Namespace:
 def main(raw_args=None) -> None:
     args = parse_args(raw_args)
 
-    if args.models:
-        args.models = [m for m in ALL_MODELS if m in args.models]
-    else:
-        args.models = list(ALL_MODELS)
-
-    if args.model_id is not None or args.resolutions is not None:
-        print("\n[CONFIG] Syncing config_*.json ...")
-        update_config_files(args.model_id, args.resolutions)
-
-    if args.model_id is None:
-        first_cfg_path = SCRIPT_DIR / f"config_{args.models[0]}.json"
-        with first_cfg_path.open() as f:
-            args.model_id = json.load(f)["input_model"]["model_path"]
-
-    if args.resolutions is None:
-        args.resolutions = DEFAULT_RESOLUTIONS
-        for name in args.models:
-            with (SCRIPT_DIR / f"config_{name}.json").open() as f:
-                cfg = json.load(f)
-            for pass_cfg in cfg.get("passes", {}).values():
-                if "resolutions" in pass_cfg:
-                    args.resolutions = pass_cfg["resolutions"]
-                    break
-            else:
-                continue
-            break
+    args.models = list(ALL_MODELS) if not args.models else [m for m in ALL_MODELS if m in args.models]
 
     print("=" * 60)
     print("  FLUX.2-klein-4B  —  Olive ONNX Export")
     print("=" * 60)
-    print(f"  model_id    : {args.model_id}")
     print(f"  sub-models  : {', '.join(args.models)}")
-    print(f"  resolutions : {', '.join(args.resolutions)}")
     print(f"  output_dir  : {args.output_dir}")
     print("=" * 60)
 
