@@ -1,0 +1,30 @@
+{
+    "input_model": {
+        "model_path": "black-forest-labs/FLUX.2-klein-4B"
+    },
+    "systems": {
+        "target_system": {
+            "type": "LocalSystem",
+            "accelerators": [
+                {
+                    "device": "npu",
+                    "execution_providers": [
+                        "VitisAIExecutionProvider"
+                    ]
+                }
+            ]
+        }
+    },
+    "passes": {
+        "aitkpython": {
+            "type": "AitkPython",
+            "model_precision": "bf16",
+            "user_script": "flux_vitisai_workflow.py"
+        }
+    },
+    "evaluate_input_model": false,
+    "target": "target_system",
+    "clean_cache": false,
+    "output_dir": "model/flux_vitisai",
+    "cache_dir": "cache"
+}
