@@ -91,6 +91,8 @@ class FluxTransformerWrapper(nn.Module):
             return_dict=False,
         )[0]
 
+device = torch.device("cpu") # ("cuda" if torch.cuda.is_available() else "cpu")
+
 
 # ---------------------------------------------------------------------------
 # Model loader
@@ -103,8 +105,6 @@ def transformer_load(model_path: str) -> FluxTransformerWrapper:
     # Register the RMSNorm custom symbolic here so it only affects the
     # transformer export, not other components (text encoder, VAE).
     torch.onnx.register_custom_op_symbolic("aten::rms_norm", _rms_norm_symbolic, 17)
-
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     transformer = Flux2Transformer2DModel.from_pretrained(
         model_path,
         subfolder="transformer",
@@ -135,7 +135,6 @@ _ROPE_DIMS = 4
 
 
 def transformer_conversion_inputs(model=None):
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     return {
         "hidden_states": torch.randn(_BATCH, _IMG_SEQ_LEN, _HIDDEN_DIM, dtype=torch.float32, device=device),
         "encoder_hidden_states": torch.randn(_BATCH, _TXT_SEQ_LEN, _TXT_DIM, dtype=torch.float32, device=device),
@@ -218,7 +217,6 @@ class Qwen3TextEncoderWrapper(nn.Module):
 def text_encoder_load(model_path: str) -> Qwen3TextEncoderWrapper:
     from transformers import AutoConfig, AutoModelForCausalLM
 
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     config = AutoConfig.from_pretrained(model_path, subfolder="text_encoder")
     config.use_cache = False
     config._attn_implementation = "eager"
@@ -246,7 +244,6 @@ _TEXT_SEQ_LEN = 256
 
 
 def text_encoder_conversion_inputs(model=None):
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     input_ids = torch.zeros((_TEXT_BATCH, _TEXT_SEQ_LEN), dtype=torch.long, device=device)
     attention_mask = torch.ones((_TEXT_BATCH, _TEXT_SEQ_LEN), dtype=torch.long, device=device)
     position_ids = torch.arange(_TEXT_SEQ_LEN, dtype=torch.long, device=device).unsqueeze(0).expand(_TEXT_BATCH, -1)
@@ -301,7 +298,6 @@ def vae_encoder_load(model_path: str) -> VaeEncoderWrapper:
     vae_cls = AutoencoderKLFlux2 if AutoencoderKLFlux2 is not None else AutoencoderKL
     print(f"[INFO] using VAE class: {vae_cls.__name__}")
 
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     vae = vae_cls.from_pretrained(
         model_path,
         subfolder="vae",
@@ -325,7 +321,6 @@ _VAE_ENC_W = 1024
 
 
 def vae_encoder_conversion_inputs(model=None):
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     return {
         "images": torch.randn(
             _VAE_ENC_BATCH,
@@ -369,7 +364,6 @@ def vae_decoder_load(model_path: str) -> VaeDecoderWrapper:
     vae_cls = AutoencoderKLFlux2 if AutoencoderKLFlux2 is not None else AutoencoderKL
     print(f"[INFO] using VAE class: {vae_cls.__name__}")
 
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     vae = vae_cls.from_pretrained(
         model_path,
         subfolder="vae",
@@ -394,7 +388,6 @@ _VAE_LATENT_W = 128
 
 
 def vae_decoder_conversion_inputs(model=None):
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     return {
         "latents": torch.randn(
             _VAE_BATCH,

@@ -69,9 +69,12 @@ def _fmt_seconds(seconds: float) -> str:
     return f"{s}s"
 
 
-def load_olive_config(submodel_name: str) -> dict:
+def load_olive_config(config_dir: str, submodel_name: str) -> dict:
+    file_path = f"config_{submodel_name}.json"
+    if config_dir:
+        file_path = os.path.join(config_dir, file_path)
     # Staged config lives in the current working directory (the run folder).
-    with open(f"config_{submodel_name}.json", encoding="utf-8") as f:
+    with open(file_path, encoding="utf-8") as f:
         return json.load(f)
 
 
@@ -300,7 +303,7 @@ def optimize(args) -> dict[str, bool]:
     footprints_dir = output_dir.parent / "footprints"
 
     # The model id is carried by the staged component configs.
-    model_id = load_olive_config(args.models[0])["input_model"]["model_path"]
+    model_id = load_olive_config(args.config_dir, args.models[0])["input_model"]["model_path"]
 
     print(f"\n[PIPELINE] Loading Flux2KleinPipeline from '{model_id}' ...")
     from diffusers import Flux2KleinPipeline
@@ -324,11 +327,11 @@ def optimize(args) -> dict[str, bool]:
 
     for submodel_name in args.models:
         print(f"\n{'=' * 60}\n  Exporting: {submodel_name}\n{'=' * 60}")
-        olive_config = load_olive_config(submodel_name)
+        olive_config = load_olive_config(args.config_dir, submodel_name)
         t0 = time.monotonic()
         try:
-            olive_run(olive_config)
-            success = True
+            olive_result = olive_run(olive_config)
+            success = olive_result.has_output_model()
         except Exception as exc:
             print(f"\n[ERROR] {submodel_name} export failed: {exc}")
             success = False
@@ -373,6 +376,10 @@ def parse_args(raw_args=None) -> argparse.Namespace:
         default="output_model",
         type=str,
         help="Assembled pipeline output directory (relative to the run folder). Default: output_model",
+    )
+    parser.add_argument(
+        "--config_dir",
+        type=str,
     )
     return parser.parse_args(raw_args)
 

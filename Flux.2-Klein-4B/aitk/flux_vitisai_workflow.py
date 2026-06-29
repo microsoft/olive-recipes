@@ -86,8 +86,9 @@ def main():
             os.path.join(SCRIPT_DIR, "export_models.py"),
             "--output_dir",
             output_dir,
+            "--config_dir",
+            history_folder
         ],
-        cwd=history_folder,
         check=True,
     )
 
