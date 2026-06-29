@@ -5,13 +5,16 @@
 # Export FLUX.2-klein-4B sub-models to ONNX via Olive and assemble the
 # AMD NPU pipeline.
 #
-# This is driven by flux_vitisai_workflow.py: the staged per-component configs
-# (config_<name>.json) and the footprints/output live in the current working
-# directory (the run folder), so paths are resolved relative to cwd. The model
+# This is driven by flux_vitisai_workflow.py. The staged per-component configs
+# (config_<name>.json) are read from --config_dir (the run/history folder),
+# while the working directory stays the project folder so olive can resolve each
+# config's model_script (user_script.py), which is NOT copied into history.
+# Footprints and the assembled pipeline are written relative to cwd. The model
 # id is read from the staged configs (no --model_id / --resolutions inputs).
 #
-# Usage (driven from the run folder):
-#   python export_models.py [--models transformer vae_decoder text_encoder]
+# Usage (driven by the wrapper):
+#   python export_models.py --config_dir <history_folder>
+#                           [--models transformer vae_decoder text_encoder]
 #                           [--output_dir model/flux_vitisai]
 #
 # Output layout (under --output_dir):
@@ -70,10 +73,11 @@ def _fmt_seconds(seconds: float) -> str:
 
 
 def load_olive_config(config_dir: str, submodel_name: str) -> dict:
+    # Staged configs live in the run/history folder (--config_dir); cwd stays the
+    # project folder so olive can resolve each config's model_script (user_script.py).
     file_path = f"config_{submodel_name}.json"
     if config_dir:
         file_path = os.path.join(config_dir, file_path)
-    # Staged config lives in the current working directory (the run folder).
     with open(file_path, encoding="utf-8") as f:
         return json.load(f)
 
@@ -380,6 +384,7 @@ def parse_args(raw_args=None) -> argparse.Namespace:
     parser.add_argument(
         "--config_dir",
         type=str,
+        help="Folder containing the staged config_<name>.json files (the run/history folder).",
     )
     return parser.parse_args(raw_args)
 

@@ -91,7 +91,8 @@ class FluxTransformerWrapper(nn.Module):
             return_dict=False,
         )[0]
 
-device = torch.device("cpu") # ("cuda" if torch.cuda.is_available() else "cpu")
+
+device = torch.device("cpu")  # ("cuda" if torch.cuda.is_available() else "cpu")
 
 
 # ---------------------------------------------------------------------------

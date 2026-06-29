@@ -77,9 +77,10 @@ def main():
             json.dump(updated, file, indent=4)
         logger.info(f"staged config_{name}.json")
 
-    # Run export/compile/assemble. export_models.py stays in this folder, so it
-    # is invoked by its real path; cwd is the run folder so the relative cache /
-    # output / footprint paths in the staged configs resolve there.
+    # Run export/compile/assemble. export_models.py stays in this (project) folder
+    # and is invoked by its real path; cwd stays the project folder so olive can
+    # resolve each config's model_script (user_script.py). The staged configs are
+    # located via --config_dir; footprints/output resolve relative to cwd.
     subprocess.run(
         [
             sys.executable,
@@ -87,7 +88,7 @@ def main():
             "--output_dir",
             output_dir,
             "--config_dir",
-            history_folder
+            history_folder,
         ],
         check=True,
     )
