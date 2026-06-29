@@ -1,0 +1,12 @@
+# Exported ONNX packages
+exported_vlm_pkg/
+exported_vlm_gptq_pkg/
+
+# Quantized HF checkpoint
+vlm_decoder_gptq_hf/
+
+# Optimized components
+out/
+
+# Olive cache
+cache/

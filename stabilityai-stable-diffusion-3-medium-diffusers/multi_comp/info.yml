@@ -1,0 +1,9 @@
+keywords:
+  - olive-ai
+recipes:
+  - name: stable-diffusion-3-medium-multi-component
+    file: sd3_optimize_components.json
+    eps:
+      - CUDAExecutionProvider
+    devices:
+      - gpu
