@@ -7,12 +7,19 @@ recipes:
       ep: QNNExecutionProvider
       aitk:
         oliveFile: "QNN/x_elite_config.json"
+    - file: "llama3_1_qnn_gpu.json"
+      device: gpu
+      ep: QNNExecutionProvider
+      aitk:
+        oliveFile: "../meta-llama-Llama-3.2-1B-Instruct/QNN/config_gpu.json"
+        isGPURequired: true
+        requirements: General/CUDA_py3.12.9
     - file: "llama3_1_vitis_ai_config.json"
       device: npu
       ep: VitisAIExecutionProvider
       aitk:
         oliveFile: "VitisAI/Llama-3.1-8B-Instruct_quark_vitisai_llm.json"
-        requirements: AMD/Quark_py3.10.17
+        requirements: AMD/Quark_py3.12.13
         evalRuntime: AMDNPU
         isGPUSuggested: true
     - file: "llama3_1_ov_config.json"
@@ -41,5 +48,5 @@ recipes:
 aitk:
     modelInfo:
         id: "huggingface/meta-llama/Llama-3.1-8B-Instruct"
-        version: 5
+        version: 6
         p0: false

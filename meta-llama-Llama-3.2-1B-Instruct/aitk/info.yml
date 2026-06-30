@@ -12,7 +12,7 @@ recipes:
       ep: VitisAIExecutionProvider
       aitk:
         oliveFile: "VitisAI/Llama-3.2-1B-Instruct_quark_vitisai_llm.json"
-        requirements: AMD/Quark_py3.10.17
+        requirements: AMD/Quark_py3.12.13
         evalRuntime: AMDNPU
     - file: "llama3_2_ov_config.json"
       devices:
@@ -47,5 +47,5 @@ recipes:
 aitk:
     modelInfo:
         id: "huggingface/meta-llama/Llama-3.2-1B-Instruct"
-        version: 7
+        version: 8
         p0: true

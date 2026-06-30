@@ -12,7 +12,6 @@
             "int4_block_size": 32,
             "extra_options": {
                 "filename": "text.onnx",
-                "quant_mode": "int4",
                 "prune_lm_head": true
             }
         },

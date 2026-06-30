@@ -1,7 +1,7 @@
 # https://learn.microsoft.com/en-us/windows/ai/new-windows-ml/initialize-execution-providers?tabs=python#production-app-example
 
 
-def _get_ep_paths() -> dict[str, str]:
+def _get_ep_paths(ep: str | None = None) -> dict[str, str]:
     import ctypes
     import importlib.util
     from pathlib import Path
@@ -33,6 +33,8 @@ def _get_ep_paths() -> dict[str, str]:
         catalog = winml.ExecutionProviderCatalog.get_default()
         providers = catalog.find_all_providers()
         for provider in providers:
+            if ep is not None and provider.name != ep:
+                continue
             result = provider.ensure_ready_async().get()
             if result.status == winml.ExecutionProviderReadyResultState.SUCCESS:
                 eps[provider.name] = provider.library_path
@@ -43,8 +45,8 @@ def _get_ep_paths() -> dict[str, str]:
     return eps
 
 
-def register_execution_providers():
-    paths = _get_ep_paths()
+def register_execution_providers(ep: str | None = None):
+    paths = _get_ep_paths(ep)
 
     import onnxruntime as ort
 
