@@ -721,7 +721,7 @@ class DecodingTask:
                     if selected_ep_devices:
                         session_options.add_provider_for_devices(selected_ep_devices,provider_options_dict)
                     self.enc_ort_session = ort.InferenceSession(onnx_fname, sess_options=session_options)
-                    print("ONNX session is created succesfully")
+                    print("ONNX session is created successfully")
                     try:
                         eps = self.enc_ort_session.get_providers()
                         print(f"Active execution providers (priority order): {eps}")
@@ -758,7 +758,7 @@ class DecodingTask:
         if audio_features.dtype != (
             torch.float16 if self.options.fp16 else torch.float32
         ):
-            return TypeError(
+            raise TypeError(
                 f"audio_features has an incorrect dtype: {audio_features.dtype}"
             )
 

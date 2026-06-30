@@ -23,7 +23,6 @@
 # Copyright (C) [2026] Advanced Micro Devices, Inc. All Rights Reserved.
 
 import json
-import sys
 
 def _get_ep_paths() -> dict[str, str]:
     from winui3.microsoft.windows.applicationmodel.dynamicdependency.bootstrap import (

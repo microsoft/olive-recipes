@@ -92,6 +92,7 @@ def run_whisper(
 
     if audio_path is not None:
         audio = load_audio_no_ffmpeg(audio_path)
+    audio_duration_sec = min(audio.shape[0] / SAMPLE_RATE, 30.0)
     audio = whisper.pad_or_trim(audio)
 
     model_obj = whisper.load_model(model, download_root=download_root)
@@ -113,7 +114,6 @@ def run_whisper(
         enc_config_json=vitisai_config,
     )
 
-    audio_duration_sec = audio.shape[0] / SAMPLE_RATE
     t0 = time.perf_counter()
     result = whisper.decode(model_obj, mel, options)
     elapsed_sec = time.perf_counter() - t0
