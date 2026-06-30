@@ -44,6 +44,7 @@ recipes:
       aitk:
         requirements: WebGPU/WebGPU_py3.12.13
         evalRuntime: WebGPU
+        oliveFile: "../Qwen-Qwen3-4B/webgpu/Qwen-Qwen3-4B_webgpu_int4.json"
 aitk:
     modelInfo:
         id: "huggingface/microsoft/Phi-3.5-mini-instruct"

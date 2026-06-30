@@ -44,6 +44,7 @@ recipes:
       aitk:
         requirements: WebGPU/WebGPU_py3.12.13
         evalRuntime: WebGPU
+        oliveFile: "../Qwen-Qwen3-4B/webgpu/Qwen-Qwen3-4B_webgpu_int4.json"
 aitk:
     modelInfo:
         id: "huggingface/meta-llama/Llama-3.2-1B-Instruct"
