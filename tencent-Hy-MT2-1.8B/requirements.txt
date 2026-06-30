@@ -1,3 +1,4 @@
 lm-eval
 mobius-ai
 olive-ai[gpu]
+gptqmodel

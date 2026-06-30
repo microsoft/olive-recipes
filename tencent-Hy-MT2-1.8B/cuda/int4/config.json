@@ -1,13 +1,29 @@
 {
-    "input_model": { "type": "HfModel", "model_path": "tencent/Hy-MT2-1.8B" },
+    "input_model": {
+        "type": "HfModel",
+        "model_path": "tencent/Hy-MT2-1.8B",
+        "load_kwargs": { "torch_dtype": "float16" }
+    },
     "passes": {
-        "mobius_build": { "type": "MobiusBuilder", "precision": "fp16" },
-        "int4_quantize": {
-            "type": "OnnxKQuantQuantization",
+        "gptq_quantize": {
+            "type": "gptq",
             "bits": 4,
-            "block_size": 32,
-            "save_as_external_data": true
-        }
+            "sym": false,
+            "group_size": 32
+        },
+        "rtn_quantize": {
+            "type": "rtn",
+            "bits": 4,
+            "sym": false,
+            "group_size": 32,
+            "lm_head": true,
+            "embeds": true,
+            "overrides": {
+                "lm_head": { "bits": 4 },
+                "model.embed_tokens": { "bits": 4 }
+            }
+        },
+        "mobius_build": { "type": "MobiusBuilder", "precision": "fp16" }
     },
     "target": {
         "type": "LocalSystem",

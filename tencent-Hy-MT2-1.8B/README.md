@@ -2,8 +2,8 @@
 
 Olive recipes that export [tencent/Hy-MT2-1.8B](https://huggingface.co/tencent/Hy-MT2-1.8B)
 to ONNX via the [`MobiusBuilder`](https://github.com/microsoft/Olive/tree/main/olive/passes/onnx/mobius_model_builder.py)
-pass and (optionally) quantize the decoder with Olive's K-Quant (Q4_K_M)
-pass for INT4 deployment.
+pass and (optionally) quantize the decoder for INT4 deployment — with Olive's
+K-Quant (Q4_K_M) pass on CPU, or GPTQ + RTN on CUDA.
 
 Hy-MT2-1.8B is a "fast-thinking" multilingual **translation** model
 supporting 33 languages. Architecturally it is a `HunYuanDenseV1` decoder:
@@ -22,7 +22,8 @@ post-processing required.
 pip install -r requirements.txt
 ```
 
-`requirements.txt` pulls in `olive-ai[gpu]`, `mobius-ai`, and `lm-eval`.
+`requirements.txt` pulls in `olive-ai[gpu]`, `mobius-ai`, `gptqmodel`
+(GPTQ quantization for the CUDA INT4 recipe), and `lm-eval`.
 
 Install ONNX Runtime GenAI:
 
@@ -41,12 +42,17 @@ Install ONNX Runtime GenAI:
 | `cpu/int4/config.json` | `MobiusBuilder(fp32)` → `OnnxKQuantQuantization(bits=4, block_size=32)` | `cpu/int4/models` |
 | `cuda/fp16/config.json` | `MobiusBuilder(fp16)` | `cuda/fp16/models` |
 | `cuda/bf16/config.json` | `MobiusBuilder(bf16)` | `cuda/bf16/models` |
-| `cuda/int4/config.json` | `MobiusBuilder(fp16)` → `OnnxKQuantQuantization(bits=4, block_size=32)` | `cuda/int4/models` |
+| `cuda/int4/config.json` | `gptq(bits=4)` → `rtn(bits=4, lm_head, embeds)` → `MobiusBuilder(fp16)` | `cuda/int4/models` |
 
-INT4 (K-Quant Q4_K_M) is recommended for most deployments — at 1.8B
-parameters it is a ~1 GB on-disk model with negligible impact on translation
-quality. K-Quant is significantly faster with GPU acceleration — install
-`cupy-cuda12x` for a large speedup during quantization.
+INT4 is recommended for most deployments — at 1.8B parameters it is a ~1 GB
+on-disk model with negligible impact on translation quality. The CPU INT4
+recipe uses Olive's K-Quant (Q4_K_M) pass; install `cupy-cuda12x` for a large
+speedup during K-Quant. The CUDA INT4 recipe instead quantizes the decoder
+weights with Olive's `gptq` (GPTQ, wikitext-calibrated) and `rtn`
+(round-to-nearest, for the tied `lm_head` / `embed_tokens`) passes — written
+into the HuggingFace `quantization_config` — which `MobiusBuilder` then lowers
+to `MatMulNBits`. GPTQ calibration runs on the GPU, so `gptqmodel` and a CUDA
+build of PyTorch are required.
 
 > BF16 MatMul is not implemented on the ORT CPU EP, so the `bf16` variant
 > runs on CUDA / DML / WebGPU only.
@@ -66,7 +72,7 @@ olive run --config cuda/fp16/config.json
 # CUDA, BF16
 olive run --config cuda/bf16/config.json
 
-# CUDA, INT4 (K-Quant)
+# CUDA, INT4 (GPTQ + RTN, runs on GPU)
 olive run --config cuda/int4/config.json
 ```
 
@@ -124,3 +130,5 @@ HF     : The waters of the Yellow River come from the sky
 - Mobius: <https://github.com/onnxruntime/mobius>
 - Olive `MobiusBuilder` pass: <https://github.com/microsoft/Olive/tree/main/olive/passes/onnx/mobius_model_builder.py>
 - Olive `OnnxKQuantQuantization` pass: <https://github.com/microsoft/Olive/tree/main/olive/passes/onnx/kquant_quantization.py>
+- Olive `gptq` pass: <https://github.com/microsoft/Olive/tree/main/olive/passes/pytorch/gptq.py>
+- Olive `rtn` pass: <https://github.com/microsoft/Olive/tree/main/olive/passes/pytorch/rtn.py>
