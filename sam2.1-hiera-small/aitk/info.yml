@@ -5,7 +5,14 @@ recipes:
   - file: "sam2_qnn_workflow.json"
     device: npu
     ep: QNNExecutionProvider
+  - file: "sam2_ov_workflow.json"
+    devices:
+      - npu
+      - cpu
+      - gpu
+    ep: OpenVINOExecutionProvider
 aitk:
   modelInfo:
     id: "huggingface/facebook/sam2.1-hiera-small"
-    version: 2
+    version: 3
+    status: Ready

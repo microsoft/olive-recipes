@@ -184,6 +184,7 @@ Below are list of available recipes grouped by different criteria. Click the lin
 |  | [microsoft-resnet-50](microsoft-resnet-50/aitk/resnet_migraphx.json) |  |
 |  | [microsoft-resnet-50](microsoft-resnet-50/aitk/resnet_qnn_gpu.json) |  |
 |  | [microsoft-resnet-50](microsoft-resnet-50/aitk/resnet_trtrtx.json) |  |
+|  | [ministral_3_3b](mistralai-Ministral-3-3B-Instruct-2512/builtin/optimize.py) |  |
 |  | [mistral-7b](facebook-opt-125m/cli/optimize.sh) |  |
 |  | [mistral-7b](mistralai-Mistral-7B-v0.1/cli/optimize.sh) |  |
 |  | [mistral-7b](open-llama-3b/cli/optimize.sh) |  |
@@ -217,6 +218,7 @@ Below are list of available recipes grouped by different criteria. Click the lin
 |  | [openai-whisper-large-v3-cuda-int8](openai-whisper-large-v3/cuda/whisper-large-v3_cuda_int8.json) |  |
 |  | [openai-whisper-large-v3-turbo-cuda-int8](openai-whisper-large-v3-turbo/cuda/whisper-large-v3-turbo_cuda_int8.json) |  |
 |  | [openai-whisper-large-v3-turbo-webgpu-int8](openai-whisper-large-v3-turbo/webgpu/whisper-large-v3-turbo_webgpu_int8.json) |  |
+|  | [openai-whisper-large-v3-turbo](openai-whisper-large-v3-turbo/aitk/ov_workflow.json) |  |
 |  | [openai-whisper-large-v3-webgpu-int8](openai-whisper-large-v3/webgpu/whisper-large-v3_webgpu_int8.json) |  |
 |  | [openai-whisper-large-webgpu-int8](openai-whisper-large/webgpu/whisper-large_webgpu_int8.json) |  |
 |  | [openai-whisper-medium-cuda-int8](openai-whisper-medium/cuda/whisper-medium_cuda_int8.json) |  |
@@ -241,6 +243,9 @@ Below are list of available recipes grouped by different criteria. Click the lin
 |  | [qwen3vl-2B-Instruct](Qwen-Qwen3-VL-2B-Instruct/builtin/optimize.py) |  |
 |  | [qwen3vl-4B-Instruct](Qwen-Qwen3-VL-4B-Instruct/builtin/optimize.py) |  |
 |  | [qwen3vl-8B-Instruct](Qwen-Qwen3-VL-8B-Instruct/builtin/optimize.py) |  |
+|  | [sam2.1-hiera-small](sam2.1-hiera-small/OpenVINO/sam21_mask_decoder_ov.json) |  |
+|  | [sam2.1-hiera-small](sam2.1-hiera-small/OpenVINO/sam21_vision_encoder_ov.json) |  |
+|  | [sam2.1-hiera-small](sam2.1-hiera-small/aitk/sam2_ov_workflow.json) |  |
 |  | [sd-legacy-stable-diffusion-v1-5](sd-legacy-stable-diffusion-v1-5/aitk/sd_ov_workflow.json) |  |
 |  | [sd2-community-stable-diffusion-2-1](sd2-community-stable-diffusion-2-1/aitk/sd_ov_workflow.json) |  |
 |  | [sshleifer-tiny-gpt2-sparsegpt](sshleifer-tiny-gpt2/olive/sparsegpt.json) |  |
