@@ -41,6 +41,8 @@ Download the encoder ONNX model from the Hugging Face repo:
 |-------|-------------------|
 | **Large-v3-turbo** | [amd/whisper-large-turbo-onnx-npu](https://huggingface.co/amd/whisper-large-turbo-onnx-npu/tree/main) — get `encoder_model.onnx`, `encoder_model.onnx.data` (if present) |
 
+This recipe uses the pre-exported encoder ONNX from Hugging Face; it does not run Olive conversion as part of the recipe.
+
 Place the encoder ONNX file(s) in your working directory (or a path you will pass to `--enc_onnx`).
 
 ---
