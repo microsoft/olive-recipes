@@ -1,0 +1,11 @@
+keywords:
+  aitk
+arch: flux
+recipes:
+  - file: "flux_vitisai_workflow.json"
+    device: npu
+    ep: VitisAIExecutionProvider
+aitk:
+  modelInfo:
+    id: "huggingface/black-forest-labs/FLUX.2-klein-4B"
+    version: 1

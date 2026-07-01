@@ -63,6 +63,7 @@ org_to_icon = {
     "OFA-Sys": IconEnum.HuggingFace,
     "stable-diffusion-v1-5": IconEnum.HuggingFace,
     "sd2-community": IconEnum.HuggingFace,
+    "black-forest-labs": IconEnum.HuggingFace,
 }
 
 

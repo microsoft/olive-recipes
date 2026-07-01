@@ -185,6 +185,10 @@ def update_config_with_provider(config: dict, provider: str, model_format: str, 
         from sd_utils.qdq import update_qdq_config
 
         return update_qdq_config(config, provider, submodel_name)
+    elif provider == "vitisai":
+        from sd_utils.vai import update_vai_config
+
+        return update_vai_config(config, provider, submodel_name)
     else:
         raise ValueError(f"Unsupported provider: {provider} with format: {model_format}")
 
@@ -269,6 +273,12 @@ def optimize(
         from sd_utils.ov import save_ov_model_info
 
         save_ov_model_info(model_info, optimized_model_dir, pipeline)
+    elif provider == "vitisai":
+        from sd_utils.vai import save_vai_pipeline
+
+        save_vai_pipeline(
+            has_safety_checker, model_info, optimized_model_dir, unoptimized_model_dir, pipeline, submodel_names
+        )
     else:
         from sd_utils.ort import save_onnx_pipeline
 
@@ -289,7 +299,7 @@ def parse_common_args(raw_args):
         "--provider",
         default="cuda",
         type=str,
-        choices=["cuda", "openvino", "cpu", "qnn"],
+        choices=["cuda", "openvino", "cpu", "qnn", "vitisai"],
         help="Execution provider to use",
     )
     parser.add_argument("--optimize", action="store_true", help="Runs the optimization step")
