@@ -42,10 +42,12 @@ Install ONNX Runtime GenAI:
 | `cpu/fp16/config.json` | `MobiusBuilder(fp16)` | `cpu/fp16/models` |
 | `cpu/bf16/config.json` | `MobiusBuilder(bf16)` | `cpu/bf16/models` |
 | `cpu/int4/config.json` | `MobiusBuilder(fp32)` → `OnnxKQuantQuantization(bits=4, block_size=32)` | `cpu/int4/models` |
+| `cpu/int4_tie/config.json` | `MobiusBuilder(fp32)` → `OnnxKQuantQuantization(body)` → `OnnxBlockWiseRtnQuantization(embedding)` → `GraphSurgeries[TieWordEmbeddings]` | `cpu/int4_tie/models` |
 | `cuda/fp16/config.json` | `MobiusBuilder(fp16)` | `cuda/fp16/models` |
 | `cuda/bf16/config.json` | `MobiusBuilder(bf16)` | `cuda/bf16/models` |
 | `cuda/int4/config.json` | `MobiusBuilder(fp16)` → `OnnxKQuantQuantization(body)` → `OnnxBlockWiseRtnQuantization(embedding)` → `GraphSurgeries[TieWordEmbeddings]` | `cuda/int4/models` |
 | `cuda/int4_gptq/config.json` | `gptq(bits=4)` → `rtn(bits=4, lm_head, embeds)` → `MobiusBuilder(fp16)` | `cuda/int4_gptq/models` |
+| `webgpu/int4_tie/config.json` | `MobiusBuilder(fp16)` → `OnnxKQuantQuantization(body)` → `OnnxBlockWiseRtnQuantization(embedding)` → `GraphSurgeries[TieWordEmbeddings]` | `webgpu/int4_tie/models` |
 
 INT4 is recommended for most deployments — at 1.8B parameters it is a ~1 GB
 on-disk model with negligible impact on translation quality. Install
@@ -71,6 +73,12 @@ quantized:
 The two are the same size and speed; K-Quant has slightly higher fidelity to the
 float model, while GPTQ needs no extra Olive graph surgery.
 
+`cpu/int4_tie/config.json` and `webgpu/int4_tie/config.json` apply the same
+K-Quant-body + shared-INT4-tied-embedding pipeline as `cuda/int4` for the CPU and
+WebGPU execution providers (CPU uses `fp32` scales, WebGPU uses `fp16`). They also
+require the `TieWordEmbeddings` reuse mode from
+[microsoft/Olive#2549](https://github.com/microsoft/Olive/pull/2549).
+
 > BF16 MatMul is not implemented on the ORT CPU EP, so the `bf16` variant
 > runs on CUDA / DML / WebGPU only.
 
@@ -83,6 +91,9 @@ olive run --config cpu/fp32/config.json
 # CPU, INT4 (K-Quant)
 olive run --config cpu/int4/config.json
 
+# CPU, INT4 (K-Quant body + shared-INT4 tied embedding)
+olive run --config cpu/int4_tie/config.json
+
 # CUDA, FP16
 olive run --config cuda/fp16/config.json
 
@@ -94,6 +105,9 @@ olive run --config cuda/int4/config.json
 
 # CUDA, INT4 (GPTQ body + tied embedding, runs on GPU)
 olive run --config cuda/int4_gptq/config.json
+
+# WebGPU, INT4 (K-Quant body + shared-INT4 tied embedding)
+olive run --config webgpu/int4_tie/config.json
 ```
 
 Each command produces the full ORT GenAI package in the recipe's

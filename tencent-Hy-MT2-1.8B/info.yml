@@ -13,6 +13,7 @@ arch: hunyuan
 ep:
   - CPUExecutionProvider
   - CUDAExecutionProvider
+  - WebGpuExecutionProvider
 device:
   - cpu
   - gpu
@@ -38,6 +39,11 @@ recipes:
     devices:
       - cpu
     eps: CPUExecutionProvider
+  - name: hy-mt2-1_8b-int4-kquant-tie-cpu
+    file: cpu/int4_tie/config.json
+    devices:
+      - cpu
+    eps: CPUExecutionProvider
   - name: hy-mt2-1_8b-fp16-cuda
     file: cuda/fp16/config.json
     devices:
@@ -58,3 +64,8 @@ recipes:
     devices:
       - gpu
     eps: CUDAExecutionProvider
+  - name: hy-mt2-1_8b-int4-kquant-tie-webgpu
+    file: webgpu/int4_tie/config.json
+    devices:
+      - gpu
+    eps: WebGpuExecutionProvider
