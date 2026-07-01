@@ -23,8 +23,9 @@ post-processing required.
 pip install -r requirements.txt
 ```
 
-`requirements.txt` pulls in `olive-ai[gpu]`, `mobius-ai`, and `lm-eval`.
-Install `cupy-cuda12x` to accelerate K-Quant on the GPU.
+`requirements.txt` pulls in `olive-ai[gpu]`, `mobius-ai`, `gptqmodel` (for the
+GPTQ INT4 recipe), and `lm-eval`. Install `cupy-cuda12x` to accelerate K-Quant on
+the GPU.
 
 Install ONNX Runtime GenAI:
 
@@ -44,21 +45,31 @@ Install ONNX Runtime GenAI:
 | `cuda/fp16/config.json` | `MobiusBuilder(fp16)` | `cuda/fp16/models` |
 | `cuda/bf16/config.json` | `MobiusBuilder(bf16)` | `cuda/bf16/models` |
 | `cuda/int4/config.json` | `MobiusBuilder(fp16)` → `OnnxKQuantQuantization(body)` → `OnnxBlockWiseRtnQuantization(embedding)` → `GraphSurgeries[TieWordEmbeddings]` | `cuda/int4/models` |
+| `cuda/int4_gptq/config.json` | `gptq(bits=4)` → `rtn(bits=4, lm_head, embeds)` → `MobiusBuilder(fp16)` | `cuda/int4_gptq/models` |
 
 INT4 is recommended for most deployments — at 1.8B parameters it is a ~1 GB
 on-disk model with negligible impact on translation quality. Install
 `cupy-cuda12x` for a large speedup during K-Quant.
 
-Both INT4 recipes quantize the transformer body with Olive's K-Quant (Q4_K_M)
-pass. The **CUDA INT4** recipe additionally INT4-quantizes the large tied
-input-embedding table (`OnnxBlockWiseRtnQuantization` → `GatherBlockQuantized`)
-and rebuilds the tied LM head to **share that same INT4 table** as a
-`MatMulNBits` (`TieWordEmbeddings`), so the word-embedding matrix is stored once
-as INT4 instead of once as INT4 plus once as float16. This yields the smallest
-on-disk model (~1.03 GB) at K-Quant body quality.
+There are two CUDA INT4 recipes; both produce a ~1.03 GB model with a shared INT4
+tied embedding / LM head, and differ only in how the **transformer body** is
+quantized:
 
-> The CUDA INT4 recipe requires the `TieWordEmbeddings` reuse mode from
-> [microsoft/Olive#2549](https://github.com/microsoft/Olive/pull/2549).
+- **`cuda/int4/config.json` (K-Quant, recommended)** — quantizes the body with
+  Olive's K-Quant (Q4_K_M) pass, then INT4-quantizes the tied input-embedding
+  table (`OnnxBlockWiseRtnQuantization` → `GatherBlockQuantized`) and rebuilds the
+  tied LM head to **share that same INT4 table** as a `MatMulNBits`
+  (`TieWordEmbeddings`). Highest body quality.
+  Requires the `TieWordEmbeddings` reuse mode from
+  [microsoft/Olive#2549](https://github.com/microsoft/Olive/pull/2549).
+- **`cuda/int4_gptq/config.json` (GPTQ)** — quantizes the whole model (body +
+  tied embedding / LM head) with Olive's `gptq` (GPTQ, wikitext-calibrated) and
+  `rtn` passes, written into the HuggingFace `quantization_config`, which
+  `MobiusBuilder` then lowers to `MatMulNBits` / `GatherBlockQuantized`. GPTQ
+  calibration runs on the GPU and needs `gptqmodel` plus a CUDA build of PyTorch.
+
+The two are the same size and speed; K-Quant has slightly higher fidelity to the
+float model, while GPTQ needs no extra Olive graph surgery.
 
 > BF16 MatMul is not implemented on the ORT CPU EP, so the `bf16` variant
 > runs on CUDA / DML / WebGPU only.
@@ -80,6 +91,9 @@ olive run --config cuda/bf16/config.json
 
 # CUDA, INT4 (K-Quant body + shared-INT4 tied embedding)
 olive run --config cuda/int4/config.json
+
+# CUDA, INT4 (GPTQ body + tied embedding, runs on GPU)
+olive run --config cuda/int4_gptq/config.json
 ```
 
 Each command produces the full ORT GenAI package in the recipe's
@@ -138,3 +152,5 @@ HF     : The waters of the Yellow River come from the sky
 - Olive `OnnxKQuantQuantization` pass: <https://github.com/microsoft/Olive/tree/main/olive/passes/onnx/kquant_quantization.py>
 - Olive `OnnxBlockWiseRtnQuantization` pass: <https://github.com/microsoft/Olive/tree/main/olive/passes/onnx/rtn_quantization.py>
 - Olive `TieWordEmbeddings` graph surgery: <https://github.com/microsoft/Olive/tree/main/olive/passes/onnx/graph_surgeries.py>
+- Olive `gptq` pass: <https://github.com/microsoft/Olive/tree/main/olive/passes/pytorch/gptq.py>
+- Olive `rtn` pass: <https://github.com/microsoft/Olive/tree/main/olive/passes/pytorch/rtn.py>
