@@ -6,7 +6,6 @@ keywords:
   - multilingual
   - int4
   - kquant
-  - gptq
   - rtn
   - mobius
 arch: hunyuan
@@ -48,7 +47,7 @@ recipes:
     devices:
       - gpu
     eps: CUDAExecutionProvider
-  - name: hy-mt2-1_8b-int4-gptq-cuda
+  - name: hy-mt2-1_8b-int4-kquant-cuda
     file: cuda/int4/config.json
     devices:
       - gpu
