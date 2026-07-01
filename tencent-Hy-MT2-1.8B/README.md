@@ -53,7 +53,7 @@ INT4 is recommended for most deployments — at 1.8B parameters it is a ~1 GB
 on-disk model with negligible impact on translation quality. Install
 `cupy-cuda12x` for a large speedup during K-Quant.
 
-There are two CUDA INT4 recipes; both produce a ~1.03 GB model with a shared INT4
+There are two CUDA INT4 recipes; both produce a ~1.03 GiB model with a shared INT4
 tied embedding / LM head, and differ only in how the **transformer body** is
 quantized:
 
@@ -75,8 +75,10 @@ float model, while GPTQ needs no extra Olive graph surgery.
 
 `cpu/int4_tie/config.json` and `webgpu/int4_tie/config.json` apply the same
 K-Quant-body + shared-INT4-tied-embedding pipeline as `cuda/int4` for the CPU and
-WebGPU execution providers (CPU uses `fp32` scales, WebGPU uses `fp16`). They also
-require the `TieWordEmbeddings` reuse mode from
+WebGPU execution providers. The `webgpu` output is byte-for-byte identical to
+`cuda/int4` (both fp16 scales, ~1.03 GiB); `cpu` uses fp32 scales (~1.19 GiB) since
+the CPU EP has limited fp16 kernel support. All three require the
+`TieWordEmbeddings` reuse mode from
 [microsoft/Olive#2549](https://github.com/microsoft/Olive/pull/2549).
 
 > BF16 MatMul is not implemented on the ORT CPU EP, so the `bf16` variant
