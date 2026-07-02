@@ -115,6 +115,52 @@ python eval.py
 python eval.py --device gpu --variant int4
 ```
 
+## QNN (Snapdragon NPU) — experimental, two-step
+
+> **Status: untested.** These configs are authored from the Olive QNN/HTP
+> reference flow. Building an HTP context binary requires the **QNN SDK
+> (via `onnxruntime-qnn`) and a Snapdragon target** — it cannot run on a
+> generic x86/CUDA host. The mobius build and the decoder `GraphSurgeries`
+> step were validated on CPU; every QNN-specific step below is **not yet
+> verified on hardware**.
+
+Because the QNN/HTP LLM passes (`SplitModel`, `StaticLLM`,
+`EPContextBinaryGenerator`) operate on a single decoder — and mobius emits a
+multi-component package — the QNN path is a **two-step** flow that compiles
+each component separately:
+
+```bash
+# Step 1 — build the portable (onnx-standard) multi-component model
+olive run --config qnn/build/config.json
+
+# Step 2 — compile each component to an HTP context binary
+#   (run in a Python env that has onnxruntime-qnn installed; set
+#    python_environment_path and soc_model for your Snapdragon target)
+olive run --config qnn/decoder/config.json          # text decoder (full HTP LLM flow)
+olive run --config qnn/vision_encoder/config.json   # vision encoder
+olive run --config qnn/audio_encoder/config.json    # audio encoder
+olive run --config qnn/embedding/config.json        # embedding fusion
+```
+
+| Recipe | Component | Pipeline |
+|---|---|---|
+| `qnn/build/config.json` | all | `MobiusBuilder(fp32, onnx-standard)` → decoder + vision + audio + embedding |
+| `qnn/decoder/config.json` | decoder | `GraphSurgeries` → `OnnxStaticQuantization` → `SplitModel` → `StaticLLM` → `EPContextBinaryGenerator` → `ComposeOnnxModels` |
+| `qnn/{vision_encoder,audio_encoder,embedding}/config.json` | encoders | `EPContextBinaryGenerator(enable_htp_fp16_precision)` → `ComposeOnnxModels` |
+
+Notes / TODOs before hardware bring-up:
+- Set `systems.qnn_system.python_environment_path` to a venv with
+  `onnxruntime-qnn` installed, and set `cb.provider_options.soc_model` to your
+  device's SoC id.
+- The decoder uses `wikitext` for activation calibration; adjust
+  `context_length` / `batch_size` in `StaticLLM` for your latency budget.
+- Only `AttentionMaskToSequenceLengths` and `SimplifiedLayerNormToL2Norm`
+  surgeries apply to the mobius decoder — the ModelBuilder-specific
+  `RemoveRopeMultiCache` surgery is intentionally omitted (it does not match
+  mobius's single-`RotaryEmbedding` structure).
+- Encoders compile via HTP fp16; per-modality static quantization can be added
+  later with representative image/audio calibration data.
+
 ## References
 
 - Mobius docs: <https://github.com/onnxruntime/mobius>

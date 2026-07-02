@@ -3,6 +3,7 @@ models/
 cpu/models/
 cuda/*/models/
 openvino/*/models/
+qnn/*/models/
 
 # Python bytecode
 __pycache__/

@@ -6,11 +6,13 @@ keywords:
   - kquant
   - mobius
   - openvino
+  - qnn
 arch: gemma
 ep:
   - CPUExecutionProvider
   - CUDAExecutionProvider
   - OpenVINOExecutionProvider
+  - QNNExecutionProvider
 device:
   - cpu
   - gpu
@@ -47,3 +49,28 @@ recipes:
     devices:
       - gpu
     eps: OpenVINOExecutionProvider
+  - name: gemma4-e2b-qnn-build
+    file: qnn/build/config.json
+    devices:
+      - npu
+    eps: QNNExecutionProvider
+  - name: gemma4-e2b-qnn-decoder
+    file: qnn/decoder/config.json
+    devices:
+      - npu
+    eps: QNNExecutionProvider
+  - name: gemma4-e2b-qnn-vision-encoder
+    file: qnn/vision_encoder/config.json
+    devices:
+      - npu
+    eps: QNNExecutionProvider
+  - name: gemma4-e2b-qnn-audio-encoder
+    file: qnn/audio_encoder/config.json
+    devices:
+      - npu
+    eps: QNNExecutionProvider
+  - name: gemma4-e2b-qnn-embedding
+    file: qnn/embedding/config.json
+    devices:
+      - npu
+    eps: QNNExecutionProvider
