@@ -44,11 +44,6 @@ recipes:
     devices:
       - npu
     eps: OpenVINOExecutionProvider
-  - name: gemma4-e2b-int4-kquant-openvino-gpu
-    file: openvino/gpu/config.json
-    devices:
-      - gpu
-    eps: OpenVINOExecutionProvider
   - name: gemma4-e2b-qnn-build
     file: qnn/build/config.json
     devices:
