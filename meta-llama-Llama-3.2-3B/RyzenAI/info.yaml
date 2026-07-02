@@ -1,0 +1,6 @@
+arch: llama
+recipes:
+  - name: Llama-3.2-3B_RyzenAI
+    file: Llama-3.2-3B_quark_ryzenai_llm.json
+    devices: npu
+    eps: RyzenAIExecutionProvider
