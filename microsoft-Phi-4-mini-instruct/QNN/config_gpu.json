@@ -1,7 +1,7 @@
 {
     "input_model": {
         "type": "HfModel",
-        "model_path": "Qwen/Qwen2.5-1.5B-Instruct"
+        "model_path": "microsoft/Phi-4-mini-instruct"
     },
     "systems": {
         "target_system": {
@@ -102,7 +102,7 @@
     },
     "target": "target_system",
     "log_severity_level": 1,
-    "output_dir": "models/qwen_2.5_1.5b_Instruct",
+    "output_dir": "models/phi4-mini-instruct",
     "cache_dir": "cache",
     "no_artifacts": true,
     "evaluate_input_model": false
