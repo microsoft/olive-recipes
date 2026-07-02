@@ -36,7 +36,7 @@ Install ONNX Runtime GenAI:
 | `cpu/int4/config.json` | `MobiusBuilder(fp32)` → `OnnxKQuantQuantization(bits=4, block=32)` | `cpu/int4/models` |
 | `cuda/fp16/config.json` | `MobiusBuilder(fp16)` | `cuda/fp16/models` |
 | `cuda/int4/config.json` | `MobiusBuilder(fp16)` → `OnnxKQuantQuantization(bits=4, block=32)` | `cuda/int4/models` |
-| `openvino/npu/config.json` | `MobiusBuilder(fp16)` → `OnnxKQuantQuantization(bits=4, block=32)` | `openvino/npu/models` |
+| `openvino/npu/config.json` | `MobiusBuilder(fp16)` → `OnnxKQuantQuantization(bits=4, block=32)` → `MatMulNBitsToQDQ` | `openvino/npu/models` |
 
 K-Quant (Q4_K_M) is significantly faster with GPU acceleration —
 install `cupy-cuda12x` for a 19–51× speedup during quantization.
@@ -50,17 +50,21 @@ needed. This requires the OpenVINO EP support in `MobiusBuilder`
 ([microsoft/Olive](https://github.com/microsoft/Olive)) and the mobius
 `openvino` EP ([onnxruntime/mobius](https://github.com/onnxruntime/mobius)).
 
-> **⚠️ Known limitation — does not run on current OpenVINO.** The mobius
-> export uses ONNX **opset 24** ops (notably `ai.onnx::Attention`, plus
-> `RMSNormalization` / `RotaryEmbedding`). As of `onnxruntime-openvino` 1.24
-> (OpenVINO 2024/2025) the OpenVINO EP's ONNX frontend does not support the
-> opset-24 `Attention` op and **fails at session init** (`OpenVINO does not
-> support the following ONNX operations: Attention`) — it does not fall back
-> to the CPU EP. This recipe therefore needs an OpenVINO build whose ONNX
-> frontend implements opset-24 `Attention`, or a graph pass that decomposes
-> `Attention` into OpenVINO-supported primitives. The model does load/run on
-> the plain CPU EP (opset-24 supported there). A prebuilt INT4 package for
-> version/hardware testing is on the Hub:
+> **⚠️ Known limitation — does not fully convert on current OpenVINO yet.**
+> The recipe removes two classes of OpenVINO-unconvertible ops on our side:
+> the mobius `openvino` EP disables `SkipSimplifiedLayerNormalization` fusion
+> (keeping `Add` + `RMSNorm` separate), and `MatMulNBitsToQDQ` lowers the INT4
+> `MatMulNBits` weights to standard QDQ. Two blockers remain **on the OpenVINO
+> side** (frontend fixes pending; tracked upstream):
+> 1. `ai.onnx::RMSNormalization` (opset 24) is not implemented by the OpenVINO
+>    ONNX frontend.
+> 2. `ai.onnx::Attention` (opset 24) with a KV cache fails shape inference in
+>    the OpenVINO frontend (past `f16[?,1,?,256]` vs current `f16[?,?,256]`
+>    rank mismatch in the KV `Concat`).
+>
+> Until those land in OpenVINO, `openvino.convert_model` / the OpenVINO EP
+> cannot consume the graph. A prebuilt INT4 package for version/hardware
+> testing is on the Hub:
 > [`justinchuby/gemma-4-E2B-it-ONNX`](https://huggingface.co/justinchuby/gemma-4-E2B-it-ONNX).
 
 ## Build
