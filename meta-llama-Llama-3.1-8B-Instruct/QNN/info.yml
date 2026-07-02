@@ -1,6 +1,7 @@
 keywords:
     foundry-local
     qnn
+arch: llama3
 recipes:
     - name: llama3.1-8b-instruct-x-elite
       file: x_elite_config.json
@@ -10,3 +11,10 @@ recipes:
       file: x2_elite_config.json
       ep: QNNExecutionProvider
       device: npu
+    - file: "config_gpu.json"
+      devices: gpu
+      ep: QNNExecutionProvider
+    - file: "config_gpu_ctxbin.json"
+      devices: gpu
+      ep: QNNExecutionProvider
+name: Llama-3.1-8B-Instruct

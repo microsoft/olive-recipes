@@ -1,7 +1,17 @@
 keywords:
-  qnn
+    qnn
+arch: phi4
 recipes:
-  - file: "phi4_mini_qnn_docker.json"
-    devices:
-      - npu
-    ep: QNNExecutionProvider
+    - file: "phi4_mini_qnn_docker.json"
+      devices:
+        - npu
+      ep: QNNExecutionProvider
+    - file: "config_gpu.json"
+      devices:
+        - gpu
+      ep: QNNExecutionProvider
+    - file: "config_gpu_ctxbin.json"
+      devices:
+        - gpu
+      ep: QNNExecutionProvider
+name: phi4-mini-instruct

@@ -80,3 +80,52 @@ python -m olive run --config phi4_mini_qnn_docker.json
 ```
 
 The output models will be saved in `models/phi4-mini-qnn-docker`. Simply update `output_dir` field in the config file to customize your own output folder.
+
+## Run Olive workflow with QNN-GPU
+
+### QNN-GPU: Run the Quantization Config
+
+Running QNN-GPU configs requires features and fixes that are not available in the released Olive version. To ensure compatibility, please install Olive directly from the source at the required commit:
+
+```bash
+pip install git+https://github.com/microsoft/Olive.git@da24463e14ed976503dc5871572b285bc5ddc4b2
+```
+
+If you previously installed Olive via PyPI, please uninstall it first and then use the above commit to install:
+
+```bash
+pip uninstall olive-ai
+```
+
+Replace `/path/to/qnn/env/bin` in [config_gpu.json](config_gpu.json) with the path to the directory containing your QNN environment's Python executable. This path can be found by running the following command in the environment:
+
+```bash
+# Linux
+command -v python
+# Windows
+# where python
+```
+
+This command will return the path to the Python executable. Set the parent directory of the executable as the `/path/to/qnn/env/bin` in the config file.
+
+Activate the **Quantization Python Environment** and run the workflow:
+
+```bash
+olive run --config config_gpu.json
+```
+
+✅ Optimized model saved in: `models/phi4-mini-instruct/`
+
+### QNN-GPU: Run the Context Binary Compilation Config
+
+Replace `/path/to/model/` in [config_gpu_ctxbin.json](config_gpu_ctxbin.json) with the output path generated from above step.
+
+Activate the **AOT Python Environment** and run the workflow:
+
+```bash
+olive run --config config_gpu_ctxbin.json
+```
+
+✅ Optimized model saved in: `models/phi4-mini-instruct/`
+
+> ⚠️ If optimization fails during context binary generation, rerun the command. The process will resume from the last completed step.
