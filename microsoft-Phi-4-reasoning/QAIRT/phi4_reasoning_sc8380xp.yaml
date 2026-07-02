@@ -1,0 +1,72 @@
+model_id_or_path: microsoft/Phi-4-reasoning
+backend: HTP
+soc_details: "chipset:SC8380XP"
+
+enable_cache: true
+enable_observers: true
+
+log_level: info
+
+generator_config:
+  sequence_length: 2073
+  context_length: 4096
+
+stages:
+  model_loader:
+    model_reauthoring: true
+    apply_default_adaptations: true
+
+    hf_tokenizer_kwargs:
+      trust_remote_code: true
+
+    hf_pretrained_kwargs:
+      dtype: float32
+      device_map: auto
+      attn_implementation: eager
+
+    model_config_overrides:
+      input_tokens_per_inference: 2073
+      transposed_key_cache: true
+      num_logits_to_keep: 0
+      return_new_key_value_only: true
+
+  quantization:
+    recipe_name: lpbq_seqmse
+    technique_kwargs:
+      lpbq:
+        module_precisions:
+          rms_norm:
+            weight_precision: int16
+            mode: asymmetric
+          embedding:
+            weight_precision: int16
+            mode: asymmetric
+          lm_head:
+            weight_precision: int4
+          kv_cache:
+            activation_precision: int8
+            mode: symmetric
+            match_info: [v_proj]
+          custom:
+            "\\w*self_attn_Concat_1":
+              activation_precision: int8
+              mode: symmetric
+
+  genai_builder:
+    native_kv: true
+    weight_sharing: true
+    prepare_embedding_lut: false
+    transform_options:
+      arn: [32, 128]
+      context_length: [512, 1024, 2048, 3072, 4096]
+      split.num_splits: 9
+      split.split_embedding: true
+      split.split_lm_head: true
+    calibration_options:
+      act_precision: 16
+      bias_precision: 32
+    compile_options:
+      graphs.hvx_threads: 4
+      graphs.vtcm_size_in_mb: 8
+      graphs.optimization_type: 3
+      devices.cores.perf_profile: burst
