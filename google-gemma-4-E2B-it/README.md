@@ -26,6 +26,7 @@ Install ONNX Runtime GenAI:
 |--------|-----------------|
 | CPU | `pip install onnxruntime-genai` |
 | GPU (CUDA) | `pip install onnxruntime-genai-cuda` |
+| OpenVINO (NPU / GPU) | `pip install onnxruntime-genai` + [OpenVINO EP](https://onnxruntime.ai/docs/execution-providers/OpenVINO-ExecutionProvider.html) |
 
 ## Recipes
 
@@ -35,9 +36,20 @@ Install ONNX Runtime GenAI:
 | `cpu/int4/config.json` | `MobiusBuilder(fp32)` → `OnnxKQuantQuantization(bits=4, block=32)` | `cpu/int4/models` |
 | `cuda/fp16/config.json` | `MobiusBuilder(fp16)` | `cuda/fp16/models` |
 | `cuda/int4/config.json` | `MobiusBuilder(fp16)` → `OnnxKQuantQuantization(bits=4, block=32)` | `cuda/int4/models` |
+| `openvino/npu/config.json` | `MobiusBuilder(fp16)` → `OnnxKQuantQuantization(bits=4, block=32)` | `openvino/npu/models` |
+| `openvino/gpu/config.json` | `MobiusBuilder(fp16)` → `OnnxKQuantQuantization(bits=4, block=32)` | `openvino/gpu/models` |
 
 K-Quant (Q4_K_M) is significantly faster with GPU acceleration —
 install `cupy-cuda12x` for a 19–51× speedup during quantization.
+
+The `openvino/*` recipes build the same portable INT4 ONNX and write a
+`genai_config.json` whose `provider_options` select the OpenVINO EP with the
+matching `device_type` (`NPU` for `openvino/npu`, `GPU` for `openvino/gpu`).
+The OpenVINO EP compiles the graph for the target device at load time; ops it
+does not support fall back to the CPU EP automatically. This requires the
+OpenVINO EP support in `MobiusBuilder`
+([microsoft/Olive](https://github.com/microsoft/Olive)) and the mobius
+`openvino` EP ([onnxruntime/mobius](https://github.com/onnxruntime/mobius)).
 
 ## Build
 
@@ -53,6 +65,12 @@ olive run --config cuda/fp16/config.json
 
 # CUDA, INT4 (K-Quant)
 olive run --config cuda/int4/config.json
+
+# OpenVINO NPU, INT4 (K-Quant)
+olive run --config openvino/npu/config.json
+
+# OpenVINO GPU, INT4 (K-Quant)
+olive run --config openvino/gpu/config.json
 ```
 
 Each command produces the full ORT GenAI package in the recipe's
