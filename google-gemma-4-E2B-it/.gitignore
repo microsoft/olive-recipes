@@ -5,6 +5,12 @@ cuda/*/models/
 openvino/*/models/
 qnn/*/models/
 
+# The repo-root .gitignore ignores 'build/' (Python build artifacts); the QNN
+# step-1 build recipe lives under qnn/build/, so re-include it here (its model
+# output under qnn/build/models/ stays ignored).
+!qnn/build/
+qnn/build/models/
+
 # Python bytecode
 __pycache__/
 *.pyc

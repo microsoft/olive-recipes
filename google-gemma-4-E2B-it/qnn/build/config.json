@@ -1,0 +1,11 @@
+{
+    "input_model": { "type": "HfModel", "model_path": "google/gemma-4-E2B-it" },
+    "passes": {
+        "mobius_build": { "type": "MobiusBuilder", "precision": "fp32" }
+    },
+    "target": {
+        "type": "LocalSystem",
+        "accelerators": [{ "device": "npu", "execution_providers": ["QNNExecutionProvider"] }]
+    },
+    "output_dir": "qnn/build/models"
+}
