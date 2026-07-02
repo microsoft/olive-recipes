@@ -33,6 +33,12 @@
         }
     ],
     "passes": {
+        "mq": {
+            "type": "MatMulNBitsToQDQ",
+            "use_int4": true,
+            "add_zero_point": true,
+            "save_as_external_data": true
+        },
         "gs": {
             "type": "GraphSurgeries",
             "surgeries": [
@@ -48,6 +54,7 @@
             "precision": "uint8",
             "calibration_providers": ["CPUExecutionProvider"],
             "quant_preprocess": true,
+            "op_types_to_exclude": ["DequantizeLinear", "QuantizeLinear"],
             "save_as_external_data": true
         },
         "sp": { "type": "SplitModel" },

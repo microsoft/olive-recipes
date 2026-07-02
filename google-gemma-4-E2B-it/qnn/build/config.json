@@ -1,7 +1,13 @@
 {
     "input_model": { "type": "HfModel", "model_path": "google/gemma-4-E2B-it" },
     "passes": {
-        "mobius_build": { "type": "MobiusBuilder", "precision": "fp32" }
+        "mobius_build": { "type": "MobiusBuilder", "precision": "fp32" },
+        "int4_quantize": {
+            "type": "OnnxKQuantQuantization",
+            "bits": 4,
+            "block_size": 32,
+            "save_as_external_data": true
+        }
     },
     "target": {
         "type": "LocalSystem",

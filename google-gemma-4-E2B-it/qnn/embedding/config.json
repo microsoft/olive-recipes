@@ -10,12 +10,20 @@
             "accelerators": [
                 {
                     "device": "npu",
-                    "execution_providers": ["QNNExecutionProvider"]
+                    "execution_providers": [
+                        "QNNExecutionProvider"
+                    ]
                 }
             ]
         }
     },
     "passes": {
+        "mq": {
+            "type": "MatMulNBitsToQDQ",
+            "use_int4": true,
+            "add_zero_point": true,
+            "save_as_external_data": true
+        },
         "cb": {
             "type": "EPContextBinaryGenerator",
             "provider_options": {
@@ -26,7 +34,9 @@
             },
             "weight_sharing": true
         },
-        "cp": { "type": "ComposeOnnxModels" }
+        "cp": {
+            "type": "ComposeOnnxModels"
+        }
     },
     "target": "qnn_system",
     "log_severity_level": 1,

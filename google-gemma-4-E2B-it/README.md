@@ -117,12 +117,14 @@ python eval.py --device gpu --variant int4
 
 ## QNN (Snapdragon NPU) — experimental, two-step
 
-> **Status: untested.** These configs are authored from the Olive QNN/HTP
-> reference flow. Building an HTP context binary requires the **QNN SDK
+> **Status: untested on hardware.** These configs are authored from the Olive
+> QNN/HTP reference flow. Building an HTP context binary requires the **QNN SDK
 > (via `onnxruntime-qnn`) and a Snapdragon target** — it cannot run on a
-> generic x86/CUDA host. The mobius build and the decoder `GraphSurgeries`
-> step were validated on CPU; every QNN-specific step below is **not yet
-> verified on hardware**.
+> generic x86/CUDA host. Validated on CPU: the mobius build, K-Quant, the
+> `MatMulNBitsToQDQ` INT4-QDQ lowering (produces zero `com.microsoft` ops), and
+> the decoder `GraphSurgeries`. The HTP-specific steps
+> (`OnnxStaticQuantization` for HTP, `SplitModel`, `StaticLLM`,
+> `EPContextBinaryGenerator`) are **not yet verified on hardware**.
 
 Because the QNN/HTP LLM passes (`SplitModel`, `StaticLLM`,
 `EPContextBinaryGenerator`) operate on a single decoder — and mobius emits a
@@ -144,22 +146,24 @@ olive run --config qnn/embedding/config.json        # embedding fusion
 
 | Recipe | Component | Pipeline |
 |---|---|---|
-| `qnn/build/config.json` | all | `MobiusBuilder(fp32, onnx-standard)` → decoder + vision + audio + embedding |
-| `qnn/decoder/config.json` | decoder | `GraphSurgeries` → `OnnxStaticQuantization` → `SplitModel` → `StaticLLM` → `EPContextBinaryGenerator` → `ComposeOnnxModels` |
-| `qnn/{vision_encoder,audio_encoder,embedding}/config.json` | encoders | `EPContextBinaryGenerator(enable_htp_fp16_precision)` → `ComposeOnnxModels` |
+| `qnn/build/config.json` | all | `MobiusBuilder(fp32, onnx-standard)` → `OnnxKQuantQuantization(int4)` → decoder + vision + audio + embedding |
+| `qnn/decoder/config.json` | decoder | `MatMulNBitsToQDQ` → `GraphSurgeries` → `OnnxStaticQuantization` → `SplitModel` → `StaticLLM` → `EPContextBinaryGenerator` → `ComposeOnnxModels` |
+| `qnn/{vision_encoder,audio_encoder,embedding}/config.json` | encoders | `MatMulNBitsToQDQ` → `EPContextBinaryGenerator(enable_htp_fp16_precision)` → `ComposeOnnxModels` |
 
 Notes / TODOs before hardware bring-up:
 - Set `systems.qnn_system.python_environment_path` to a venv with
   `onnxruntime-qnn` installed, and set `cb.provider_options.soc_model` to your
   device's SoC id.
-- The decoder uses `wikitext` for activation calibration; adjust
-  `context_length` / `batch_size` in `StaticLLM` for your latency budget.
+- The build step quantizes weights to INT4 with K-Quant; `MatMulNBitsToQDQ`
+  then lowers the `MatMulNBits` ops to **standard-ONNX INT4 QDQ**
+  (`DequantizeLinear` + `MatMul`, zero `com.microsoft` ops), which the QNN HTP
+  backend can consume. The decoder additionally static-quantizes activations
+  (`wikitext` calibration); the encoders keep FP16 activations on HTP.
+- Adjust `context_length` / `batch_size` in `StaticLLM` for your latency budget.
 - Only `AttentionMaskToSequenceLengths` and `SimplifiedLayerNormToL2Norm`
   surgeries apply to the mobius decoder — the ModelBuilder-specific
   `RemoveRopeMultiCache` surgery is intentionally omitted (it does not match
   mobius's single-`RotaryEmbedding` structure).
-- Encoders compile via HTP fp16; per-modality static quantization can be added
-  later with representative image/audio calibration data.
 
 ## References
 
