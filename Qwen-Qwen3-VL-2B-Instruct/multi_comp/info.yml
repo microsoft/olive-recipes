@@ -1,0 +1,15 @@
+keywords:
+  - olive-ai
+recipes:
+  - name: qwen3vl-2B-Instruct
+    file: vlm_optimize_components.json
+    eps:
+      - CPUExecutionProvider
+    devices:
+      - cpu
+  - name: qwen3vl-2B-Instruct
+    file: vlm_quantize_then_export.json
+    eps:
+      - CUDAExecutionProvider
+    devices:
+      - gpu

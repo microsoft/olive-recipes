@@ -1,0 +1,12 @@
+# Exported ONNX packages
+exported_pkg/
+exported_sd3_full2/
+
+# Optimized components
+out/
+
+# Olive cache
+cache/
+
+# Generated images
+*.png
