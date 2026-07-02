@@ -46,11 +46,22 @@ The `openvino/npu` recipe builds the portable INT4 ONNX and writes a
 graph is device-independent, so mobius emits a default OpenVINO
 `device_type` of `NPU`; to target a different OpenVINO device (`GPU` / `CPU`)
 just edit `device_type` in the generated `genai_config.json` — no rebuild is
-needed. The OpenVINO EP compiles the graph for the target device at load
-time; ops it does not support fall back to the CPU EP automatically. This
-requires the OpenVINO EP support in `MobiusBuilder`
+needed. This requires the OpenVINO EP support in `MobiusBuilder`
 ([microsoft/Olive](https://github.com/microsoft/Olive)) and the mobius
 `openvino` EP ([onnxruntime/mobius](https://github.com/onnxruntime/mobius)).
+
+> **⚠️ Known limitation — does not run on current OpenVINO.** The mobius
+> export uses ONNX **opset 24** ops (notably `ai.onnx::Attention`, plus
+> `RMSNormalization` / `RotaryEmbedding`). As of `onnxruntime-openvino` 1.24
+> (OpenVINO 2024/2025) the OpenVINO EP's ONNX frontend does not support the
+> opset-24 `Attention` op and **fails at session init** (`OpenVINO does not
+> support the following ONNX operations: Attention`) — it does not fall back
+> to the CPU EP. This recipe therefore needs an OpenVINO build whose ONNX
+> frontend implements opset-24 `Attention`, or a graph pass that decomposes
+> `Attention` into OpenVINO-supported primitives. The model does load/run on
+> the plain CPU EP (opset-24 supported there). A prebuilt INT4 package for
+> version/hardware testing is on the Hub:
+> [`justinchuby/gemma-4-E2B-it-ONNX`](https://huggingface.co/justinchuby/gemma-4-E2B-it-ONNX).
 
 ## Build
 
