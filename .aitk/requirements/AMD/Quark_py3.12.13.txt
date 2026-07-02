@@ -94,7 +94,7 @@ tokenizers==0.22.2
 torch==2.7.1+cu128
 torchmetrics==1.9.0
 tqdm==4.67.3
-transformers==4.57.6
+transformers==5.3.0
 typer==0.25.1
 typing-extensions==4.15.0
 typing-inspection==0.4.2
