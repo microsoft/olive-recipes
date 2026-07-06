@@ -72,7 +72,7 @@ def run_whisper(
     enc_onnx: str = "encoder_model.onnx",
     enc_cache_dir: str = "cacheDir",
     vitisai_config: str = "vitisai_config.json",
-    model: str = "small",
+    model: str = "turbo",
     download_root: str = None,
 ) -> dict:
     """
@@ -145,9 +145,9 @@ def main():
     parser.add_argument(
         "--model",
         type=str,
-        default="small",
+        default="turbo",
         choices=["small", "medium", "turbo"],
-        help="Whisper model name for load_model (default: small)",
+        help="Whisper model name for load_model (default: turbo)",
     )
     args = parser.parse_args()
 

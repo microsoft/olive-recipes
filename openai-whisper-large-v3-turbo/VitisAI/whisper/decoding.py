@@ -720,6 +720,11 @@ class DecodingTask:
                     selected_ep_devices = [d for d in ep_devices if d.ep_name == "VitisAIExecutionProvider" and d.device.type == ort.OrtHardwareDeviceType.NPU]
                     if selected_ep_devices:
                         session_options.add_provider_for_devices(selected_ep_devices,provider_options_dict)
+                    else:
+                        raise RuntimeError(
+                            "No VitisAI NPU execution provider device found. "
+                            "Check that the VitisAI Execution Provider is installed and an NPU device is available."
+                        )
                     self.enc_ort_session = ort.InferenceSession(onnx_fname, sess_options=session_options)
                     print("ONNX session is created successfully")
                     try:

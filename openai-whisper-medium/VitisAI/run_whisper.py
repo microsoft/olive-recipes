@@ -73,7 +73,7 @@ def run_whisper(
     enc_onnx: str = "encoder_model.onnx",
     enc_cache_dir: str = "cacheDir",
     vitisai_config: str = "vitisai_config.json",
-    model: str = "small",
+    model: str = "medium",
     download_root: str = None,
 ) -> dict:
     """

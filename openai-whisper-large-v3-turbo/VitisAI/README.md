@@ -33,7 +33,7 @@ curl -L -o windowsappruntimeinstall-x86.exe "https://aka.ms/windowsappsdk/1.8/1.
 windowsappruntimeinstall-x86.exe --quiet
 ```
 
-### 4. Download ONNX encoder and Vitis AI cache (`.rai`)
+### 4. Download ONNX encoder
 
 Download the encoder ONNX model from the Hugging Face repo:
 
@@ -49,7 +49,7 @@ Place the encoder ONNX file(s) in your working directory (or a path you will pas
 
 ## Run Inference and Transcribe
 
-Use the encoder ONNX from one of the three Hugging Face repos above (medium, small, or large-v3-turbo) depending on your task — set `--enc_onnx` to that model’s `encoder_model.onnx` (or your local path to it) and `--model` to the matching Whisper model name.
+Use the encoder ONNX from the Hugging Face repo listed above for this recipe — set `--enc_onnx` to that model’s `encoder_model.onnx` (or your local path to it) and `--model` to the matching Whisper model name.
 
 ```bash
 python run_whisper.py \
@@ -70,6 +70,7 @@ In this experiment, we are using encoder portion of the model with ORT and decod
 | `--audio` | Yes | — | Path to input audio WAV file |
 | `--model` | No | `turbo` | Whisper model name: `small`, `medium`, `turbo` (should match encoder ONNX) |
 | `--enc_onnx` | No | `encoder_model.onnx` | Path to encoder ONNX model file |
+| `--download_root` | No | Script directory | Directory to download/cache the Whisper PyTorch model |
 
 ---
 
