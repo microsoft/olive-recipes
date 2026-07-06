@@ -148,7 +148,7 @@ def main():
         type=str,
         default="medium",
         choices=["small", "medium", "turbo"],
-        help="Whisper model name for load_model (default: small)",
+        help="Whisper model name for load_model (default: medium)",
     )
     args = parser.parse_args()
 
