@@ -1,0 +1,6 @@
+cache/
+models/
+prev_caches/
+AOT_comp_venv/
+quan_x64_venv/
+gptq_log_*.log
