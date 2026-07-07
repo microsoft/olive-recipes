@@ -1,19 +1,22 @@
-# Nemotron 3.5 ASR Streaming Multilingual 0.6B (INT4, CPU/CUDA)
+# Nemotron 3.5 ASR Streaming Multilingual 0.6B (INT4 CPU/CUDA, FP16 NvTensorRtRtx)
 
 This recipe exports **nvidia/NVIDIA-Nemotron-3.5-ASR-Streaming-Multilingual-0.6b**
 (100+ languages) to ONNX, optimizes the encoder, and produces deployment-ready
 artifacts for `onnxruntime-genai`.
 
 All model components are handled through Olive's declarative pass system:
-- **Encoder**: OnnxConversion → OnnxKQuantQuantization (INT4 default, or INT8 dynamic)
-- **Decoder**: OnnxConversion (FP32)
-- **Joint**: OnnxConversion (FP32)
+- **Encoder**: OnnxConversion → OnnxKQuantQuantization (INT4 default, or INT8 dynamic) for CPU/CUDA; OnnxConversion FP16 opset 23 for NvTensorRtRtx
+- **Decoder**: OnnxConversion (FP32 for CPU/CUDA; FP16 opset 23 for NvTensorRtRtx)
+- **Joint**: OnnxConversion (FP32 for CPU/CUDA; FP16 opset 23 for NvTensorRtRtx)
 
 ## Files
 - `src/nemotron_encoder_int4_cpu.json` – Olive encoder config (convert → INT4 k-quant)
 - `src/nemotron_encoder_int8_cpu.json` – Olive encoder config (convert → INT8 dynamic, optional)
 - `src/nemotron_decoder_fp32_cpu.json` – Olive decoder config (convert only)
 - `src/nemotron_joint_fp32_cpu.json` – Olive joint config (convert only)
+- `src/nemotron_encoder_fp16_trtrtx.json` – Olive encoder config for NvTensorRtRtx (FP16, opset 23)
+- `src/nemotron_decoder_fp16_trtrtx.json` – Olive decoder config for NvTensorRtRtx (FP16, opset 23)
+- `src/nemotron_joint_fp16_trtrtx.json` – Olive joint config for NvTensorRtRtx (FP16, opset 23)
 - `src/nemotron_model_load.py` – model loaders + dummy inputs for all components
 - `src/optimize.py` – full pipeline script (Olive × 3 + tokenizer + configs + VAD)
 - `scripts/export_tokenizer.py` – tokenizer export
@@ -40,17 +43,20 @@ python src/optimize.py
 # Or INT8 encoder
 python src/optimize.py --encoder-precision int8
 
+# NvTensorRtRtx export; forces FP16 opset-23 encoder, decoder, and joint models
+python src/optimize.py --execution-provider NvTensorRtRtx
+
 # Custom output directory
 python src/optimize.py --output-dir build/multilingual_onnx_int4
 ```
 
 This runs the full pipeline:
-1. **Encoder** — Olive: OnnxConversion → INT4/INT8 quantization
-2. **Decoder** — Olive: OnnxConversion (FP32)
-3. **Joint** — Olive: OnnxConversion (FP32)
+1. **Encoder** — Olive: OnnxConversion → INT4/INT8 quantization, or FP16 opset 23 for NvTensorRtRtx
+2. **Decoder** — Olive: OnnxConversion (FP32 for CPU/CUDA; FP16 opset 23 for NvTensorRtRtx)
+3. **Joint** — Olive: OnnxConversion (FP32 for CPU/CUDA; FP16 opset 23 for NvTensorRtRtx)
 4. **Tokenizer** — exports vocab + tokenizer.json
 5. **Configs** — generates genai_config.json + audio_processor_config.json
-6. **VAD** — downloads Silero VAD ONNX model
+6. **VAD** — downloads Silero VAD ONNX model (skipped for NvTensorRtRtx)
 
 Or run individual components directly with Olive CLI:
 
@@ -59,6 +65,9 @@ python -m olive run --config src/nemotron_encoder_int4_cpu.json
 python -m olive run --config src/nemotron_encoder_int8_cpu.json
 python -m olive run --config src/nemotron_decoder_fp32_cpu.json
 python -m olive run --config src/nemotron_joint_fp32_cpu.json
+python -m olive run --config src/nemotron_encoder_fp16_trtrtx.json
+python -m olive run --config src/nemotron_decoder_fp16_trtrtx.json
+python -m olive run --config src/nemotron_joint_fp16_trtrtx.json
 ```
 
 ## Output
@@ -74,7 +83,7 @@ Expected optimized artifacts in `src/build/onnx_models_int4/` (default output di
 - `tokenizer_config.json`
 - `vocab.txt`
 
-Total size: ~760 MB (INT4 encoder).
+Total size: ~760 MB (INT4 encoder). NvTensorRtRtx exports default to `src/build/onnx_models_trtrtx_fp16/`; all encoder, decoder, and joint floating-point I/O and internal compute are FP16. All three graphs use opset 23.
 
 ## Inference
 

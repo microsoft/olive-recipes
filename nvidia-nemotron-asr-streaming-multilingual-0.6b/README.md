@@ -13,7 +13,8 @@ complete.
 ## Recipes
 
 - [`src/`](./src) — ONNX export + INT4 / INT8 quantization for CPU and CUDA
-  execution providers.
+  execution providers, plus FP16 opset-23 encoder, decoder, and joint models
+  for NvTensorRtRtx.
 
 See the README inside each subfolder for setup and run instructions.
 
