@@ -3,7 +3,7 @@
 --extra-index-url=https://pypi.amd.com/simple
 accelerate==1.13.0
 aiohappyeyeballs==2.6.1
-aiohttp==3.14.0
+aiohttp==3.14.1
 aiosignal==1.4.0
 alembic==1.18.4
 amd-quark==0.11
@@ -91,10 +91,10 @@ sqlalchemy==2.0.49
 sympy==1.14.0
 tabulate==0.10.0
 tokenizers==0.22.2
-torch==2.7.1+cu128
+torch==2.12.1
 torchmetrics==1.9.0
 tqdm==4.67.3
-transformers==4.57.6
+transformers==5.3.0
 typer==0.25.1
 typing-extensions==4.15.0
 typing-inspection==0.4.2
