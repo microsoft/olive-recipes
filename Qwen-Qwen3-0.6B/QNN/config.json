@@ -3,7 +3,7 @@
     "systems" : {
                 "qnn_system": {
             "type": "PythonEnvironment",
-            "python_environment_path": "/prj/qct/lv/computeai-scratch/manovenk/miniconda1/envs/AOT_comp_env/bin",
+            "python_environment_path": "/path/to/your/python/env/bin",
             "accelerators": [ { "execution_providers": [ "QNNExecutionProvider" ] } ]
         }
     },
