@@ -3,7 +3,7 @@
     "systems" : {
                 "qnn_system": {
             "type": "PythonEnvironment",
-            "python_environment_path": "/path/to/your/python/env/bin",
+            "python_environment_path": "/path/to/your/qnn/python/env/bin",
             "accelerators": [ { "execution_providers": [ "QNNExecutionProvider" ] } ]
         }
     },
