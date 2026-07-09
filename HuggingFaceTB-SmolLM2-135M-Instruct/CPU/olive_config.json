@@ -1,0 +1,36 @@
+{
+    "input_model": {
+      "type": "HfModel",
+      "config": {
+        "model_path": "HuggingFaceTB/SmolLM2-135M-Instruct"
+      }
+    },
+    "systems": {
+      "local_system": {
+        "type": "LocalSystem",
+        "config": {
+          "accelerators": [
+            {
+              "device": "cpu",
+              "execution_providers": ["CPUExecutionProvider"]
+            }
+          ]
+        }
+      }
+    },
+    "passes": {
+      "builder": {
+        "type": "ModelBuilder",
+        "config": {
+          "precision": "int4"
+        }
+      }
+    },
+    "engine": {
+      "log_severity_level": 1,
+      "host": "local_system",
+      "target": "local_system",
+      "cache_dir": ".olive-cache",
+      "output_dir": "models/smollm_manual"
+    }
+  }
