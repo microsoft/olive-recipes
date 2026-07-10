@@ -100,8 +100,9 @@ python eval.py --model_path cuda/models --num_samples 100
 | Random chance | 25.00% | — |
 
 #### WEBGPU (AI2D, 3088 samples)
-| Model | Accuracy | Avg latency |
-|-------|----------|-------------|
+| Model | Accuracy | 
+|-------|----------|
+| PyTorch FP32 (baseline) | 83.00% |
 | **ONNX INT4 (WEBGPU)** | **74.21%** | 
 
 A system prompt forcing single-digit responses is applied by default (see `DEFAULT_SYSTEM_PROMPT` in `eval.py`). Without it, the model tends to produce verbose chain-of-thought answers that reduce measured accuracy — a prompt-engineering artifact, not a model quality issue.
