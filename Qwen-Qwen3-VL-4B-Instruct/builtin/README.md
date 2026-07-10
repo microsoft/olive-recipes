@@ -80,27 +80,29 @@ python eval.py --model_path cuda/models --num_samples 100
 
 ### Results
 
-#### CPU (AI2D, 100 samples)
+#### CPU (AI2D, 3088 samples)
 
 | Model | Accuracy | Avg latency |
 |-------|----------|-------------|
 | PyTorch FP32 (baseline) | 83.00% | 10.09 s/sample |
-| **ONNX INT4 (CPU)** | **83.00%** | **7.13 s/sample** |
+| **ONNX INT4 (CPU)** | **73.42%** | **7.13 s/sample** |
 | Random chance | 25.00% | — |
 
 - **CPU INT4 accuracy delta: 0 pp** (83% → 83%)
 - **CPU speedup: 1.41×** vs PyTorch FP32
 
-#### CUDA (AI2D, 200 samples)
+#### CUDA (AI2D, 3088 samples)
 
 | Model | Accuracy | Avg latency |
 |-------|----------|-------------|
 | PyTorch FP32 (baseline) | 83.00% | 0.22 s/sample |
-| **ONNX INT4+FP16 (CUDA)** | **81.00%** | **0.17 s/sample** |
+| **ONNX INT4+FP16 (CUDA)** | **77.21%** | **0.17 s/sample** |
 | Random chance | 25.00% | — |
 
-- **CUDA accuracy delta: −2 pp** (83% → 81%)
-- **CUDA speedup: 1.29×** vs PyTorch FP32
+#### WEBGPU (AI2D, 3088 samples)
+| Model | Accuracy | Avg latency |
+|-------|----------|-------------|
+| **ONNX INT4 (WEBGPU)** | **74.21%** | 
 
 A system prompt forcing single-digit responses is applied by default (see `DEFAULT_SYSTEM_PROMPT` in `eval.py`). Without it, the model tends to produce verbose chain-of-thought answers that reduce measured accuracy — a prompt-engineering artifact, not a model quality issue.
 
