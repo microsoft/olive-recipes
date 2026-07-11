@@ -1,0 +1,44 @@
+{
+    "input_model": {
+        "type": "HfModel",
+        "model_path": "tencent/HY-MT1.5-1.8B",
+        "load_kwargs": {
+            "torch_dtype": "float16"
+        }
+    },
+    "systems": {
+        "local_system": {
+            "type": "LocalSystem",
+            "accelerators": [
+                {
+                    "device": "cpu",
+                    "execution_providers": [
+                        "CPUExecutionProvider"
+                    ]
+                }
+            ]
+        }
+    },
+    "passes": {
+        "m": {
+            "type": "ModelBuilder",
+            "precision": "fp32"
+        },
+        "t": {
+            "type": "GraphSurgeries",
+            "surgeries": [
+                {
+                    "surgeon": "TieWordEmbeddings"
+                }
+            ],
+            "save_as_external_data": true,
+            "all_tensors_to_one_file": true,
+            "external_data_name": "model.onnx.data"
+        }
+    },
+    "target": "local_system",
+    "log_severity_level": 0,
+    "output_dir": "model_cpu_fp32",
+    "cache_dir": "cache_cpu_fp32",
+    "no_artifacts": true
+}
