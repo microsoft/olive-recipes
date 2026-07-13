@@ -1,5 +1,5 @@
 {
-    "input_model": { "type": "HfModel", "model_path": "Qwen/Qwen3-0.6b" },
+    "input_model": { "type": "HfModel", "model_path": "Qwen/Qwen3-0.6B" },
     "systems": {
         "qnn_system": {
             "type": "PythonEnvironment",
@@ -51,6 +51,13 @@
             "int4_accuracy_level": 4,
             "int4_op_types_to_quantize": [ "Gather" ]
         },
+        "mq": {
+            "type": "MatMulNBitsToQDQ",
+            "use_int4": false,
+            "add_zero_point": true,
+            "nodes_to_exclude": [ "/lm_head/MatMulNBits" ],
+            "save_as_external_data": true
+        },
         "gs": {
             "type": "GraphSurgeries",
             "surgeries": [
@@ -86,7 +93,7 @@
     },
     "target": "qnn_system",
     "log_severity_level": 1,
-    "output_dir": "models/qwen3_0.6b",
+    "output_dir": "models/qwen3_0.6B",
     "cache_dir": "cache",
     "no_artifacts": true
 }
