@@ -53,6 +53,6 @@ olive run --config config.json
 
 Olive will run the AOT compilation step in the **AOT Compilation Python Environment** specified in the config file using a subprocess. All other steps will run in the **Quantization Python Environment** natively.
 
-Optimized model saved in: `models/Qwen3-0.6B/`
+Optimized model saved in: `models/Qwen3-0.6b/`
 
 > If optimization fails during context binary generation, rerun the command. The process will resume from the last completed step.
