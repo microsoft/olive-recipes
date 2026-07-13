@@ -68,14 +68,20 @@ python <onnxruntime-genai>/examples/python/model-mm.py \
 `eval.py` measures model quality on [AI2D](https://huggingface.co/datasets/lmms-lab/ai2d) — a multiple-choice visual QA benchmark on scientific diagrams. It supports side-by-side comparison of the quantized ONNX model against the PyTorch FP32 baseline.
 
 ```bash
-# ONNX only (fastest)
+# Quick ONNX subset (fastest)
 python eval.py --num_samples 100
 
-# ONNX + PyTorch comparison
+# Quick ONNX + PyTorch comparison
 python eval.py --num_samples 100 --pytorch_model Qwen/Qwen3-VL-4B-Instruct
 
-# Evaluate CUDA models
-python eval.py --model_path cuda/models --num_samples 100
+# Full AI2D test split (matches the Results below)
+python eval.py --num_samples 3088
+
+# Full AI2D ONNX + PyTorch comparison
+python eval.py --num_samples 3088 --pytorch_model Qwen/Qwen3-VL-4B-Instruct
+
+# Full AI2D CUDA model
+python eval.py --model_path cuda/models --num_samples 3088
 ```
 
 ### Results
@@ -88,7 +94,7 @@ python eval.py --model_path cuda/models --num_samples 100
 | **ONNX INT4 (CPU)** | **73.42%** | **7.13 s/sample** |
 | Random chance | 25.00% | — |
 
-- **CPU INT4 accuracy delta: 0 pp** (83% → 83%)
+- **CPU INT4 accuracy delta: -9.58 pp** (83.00% → 73.42%)
 - **CPU speedup: 1.41×** vs PyTorch FP32
 
 #### CUDA (AI2D, 3088 samples)
@@ -99,15 +105,21 @@ python eval.py --model_path cuda/models --num_samples 100
 | **ONNX INT4+FP16 (CUDA)** | **77.21%** | **0.17 s/sample** |
 | Random chance | 25.00% | — |
 
+- **CUDA accuracy delta: -5.79 pp** (83.00% → 77.21%)
+- **CUDA speedup: 1.29×** vs PyTorch FP32
+
 #### WEBGPU (AI2D, 3088 samples)
-| Model | Accuracy | 
+
+| Model | Accuracy |
 |-------|----------|
 | PyTorch FP32 (baseline) | 83.00% |
-| **ONNX INT4 (WEBGPU)** | **74.21%** | 
+| **ONNX INT4 (WEBGPU)** | **74.21%** |
+
+- **WEBGPU accuracy delta: -8.79 pp** (83.00% → 74.21%)
 
 A system prompt forcing single-digit responses is applied by default (see `DEFAULT_SYSTEM_PROMPT` in `eval.py`). Without it, the model tends to produce verbose chain-of-thought answers that reduce measured accuracy — a prompt-engineering artifact, not a model quality issue.
 
-> CPU results measured with `--num_samples 100`; CUDA results measured with `--num_samples 200` from the AI2D test split.
+> Results above were measured on the full AI2D test split (`--num_samples 3088`).
 
 ## Directory Structure
 
