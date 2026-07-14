@@ -1,9 +1,10 @@
 # Gemma 4 E2B Evaluation
 
-Evaluate quantized ONNX Gemma 4 E2B models on vision and audio benchmarks using Olive's built-in metrics.
+Evaluate quantized ONNX Gemma 4 E2B models on text, vision and audio benchmarks using Olive's built-in metrics.
 
 ## Benchmarks
 
+- **MMLU Pro** — Multi-task language understanding (`leaderboard_mmlu_pro`, accuracy)
 - **AI2D** — Science diagram multiple-choice QA (`lmms-lab/ai2d`, test split, exact_match)
 - **Audio WER** — Speech transcription accuracy (`hf-audio/esb-datasets-test-only-sorted`, LibriSpeech test.clean, WER + RTFx)
 
@@ -14,6 +15,10 @@ Ensure you have the ONNX models built using the mixed configs (see `../cpu/mixed
 ## Usage
 
 ```bash
+# Text evaluation (MMLU Pro)
+olive run --config mmlu_cpu.json      # CPU
+olive run --config mmlu_cuda.json     # CUDA
+
 # Vision evaluation
 olive run --config ai2d_cpu.json      # CPU
 olive run --config ai2d_cuda.json     # CUDA
@@ -24,6 +29,21 @@ olive run --config audio_wer_cuda.json  # CUDA
 ```
 
 ## Configs
+
+### Text (MMLU Pro)
+
+| Config | Model Path | Device |
+|--------|-----------|--------|
+| `mmlu_cpu.json` | `../cpu/mixed/models` | CPU |
+| `mmlu_cuda.json` | `../cuda/mixed/models` | GPU (CUDA) |
+
+These use Olive's `LMEvaluator` with the `ortgenai` backend. Gemma 4 exports with
+`past_present_share_buffer` enabled, but the decoder requires it **disabled** for correct
+KV-cache handling during evaluation, so the configs pass
+`"model_args": { "past_present_share_buffer": false }`. Both `model_args` and the
+`past_present_share_buffer` override require Olive with
+[microsoft/Olive#2569](https://github.com/microsoft/Olive/pull/2569).
+The default `limit` is 100 samples; remove it to run the full benchmark.
 
 ### Vision (AI2D)
 

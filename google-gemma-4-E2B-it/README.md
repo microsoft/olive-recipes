@@ -128,6 +128,15 @@ python inference.py --device gpu --variant mixed --interactive
 
 ### MMLU Pro (text)
 
+Run through Olive with the `LMEvaluator` configs in `eval/` (mixed model):
+
+```bash
+olive run --config eval/mmlu_cpu.json    # CPU
+olive run --config eval/mmlu_cuda.json   # CUDA
+```
+
+Or use the standalone script (also supports `--task`, `--limit`, and other variants):
+
 ```bash
 # MMLU Pro (default 100 samples), CPU
 python eval.py

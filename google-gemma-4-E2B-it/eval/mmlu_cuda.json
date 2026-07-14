@@ -1,0 +1,38 @@
+{
+    "input_model": {
+        "type": "OnnxModel",
+        "model_path": "../cuda/mixed/models",
+        "onnx_file_name": "decoder/model.onnx"
+    },
+    "evaluators": {
+        "mmlu_evaluator": {
+            "type": "LMEvaluator",
+            "tasks": ["leaderboard_mmlu_pro"],
+            "model_class": "ortgenai",
+            "batch_size": 1,
+            "max_length": 4096,
+            "limit": 100,
+            "bootstrap_iters": 0,
+            "model_args": {
+                "past_present_share_buffer": false
+            }
+        }
+    },
+    "engine": {
+        "evaluate_input_model": true,
+        "evaluator": "mmlu_evaluator",
+        "host": "local_system",
+        "target": "local_system"
+    },
+    "systems": {
+        "local_system": {
+            "type": "LocalSystem",
+            "accelerators": [
+                {
+                    "device": "gpu",
+                    "execution_providers": ["CUDAExecutionProvider"]
+                }
+            ]
+        }
+    }
+}
