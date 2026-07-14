@@ -44,6 +44,9 @@ KV-cache handling during evaluation, so the configs pass
 `past_present_share_buffer` override require Olive with
 [microsoft/Olive#2569](https://github.com/microsoft/Olive/pull/2569).
 The default `limit` is 100 samples; remove it to run the full benchmark.
+The configs also set `"sample_log_num": 100`, which writes the per-question prediction
+vs. target for the first 100 samples to `sample_logs/leaderboard_mmlu_pro_samples.jsonl`
+for inspection/debugging (set to `0` to disable).
 
 ### Vision (AI2D)
 
