@@ -77,7 +77,7 @@ def generator_intel(id: str, recipe, folder: Path):
         return
 
     intel_runtime_values: list[str] = recipe.get("devices", [recipe.get("device")])
-    name = f"Convert to Intel {"/".join([runtime.upper() for runtime in intel_runtime_values])}"
+    name = f"Convert to Intel {'/'.join([runtime.upper() for runtime in intel_runtime_values])}"
 
     parameter = create_model_parameter(aitk, name, configFile)
     parameter.isLLM = isLLM
