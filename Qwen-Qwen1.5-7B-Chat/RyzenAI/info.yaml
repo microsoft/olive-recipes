@@ -1,0 +1,6 @@
+arch: qwen2
+recipes:
+  - name: Qwen1.5-7B-Chat_RyzenAI
+    file: Qwen1.5-7B-Chat_quark_ryzenai_llm.json
+    devices: npu
+    eps: RyzenAIExecutionProvider
