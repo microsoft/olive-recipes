@@ -164,7 +164,7 @@ def generate_amd_quantization_config(
         content = json.load(f)
     parameters = []
     for k, v in content[OlivePropertyNames.Passes].items():
-        if v[OlivePropertyNames.Type].lower() == OlivePassNames.QuarkQuantization:
+        if v[OlivePropertyNames.Type].lower() == OlivePassNames.QuarkQuantizationVitisAI:
             # https://github.com/amd/Quark/blob/0a542692aa39181b7ab0ae77246cb537a0f97791/examples/onnx/accuracy_improvement/quarot/data_preparation.py#L78
             data_name = v.get(OlivePropertyNames.Dataset)
             if data_name:
