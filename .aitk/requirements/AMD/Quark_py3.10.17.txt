@@ -47,7 +47,6 @@ multiprocess==0.70.16
 networkx==3.4.2
 ninja==1.11.1.4
 numpy==2.1.3
-# olive-ai@git+https://github.com/microsoft/Olive.git@29f6db7b6177ab3f58f53b56e22c8732780a2024#egg=olive-ai
 olive-ai@git+https://github.com/microsoft/Olive.git@29f6db7b6177ab3f58f53b56e22c8732780a2024#egg=olive-ai
 # onnx==1.17.0
 onnx==1.17.0
