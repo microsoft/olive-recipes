@@ -18,7 +18,7 @@
             "architecture": "Transformer",
             "status": "Ready",
             "relativePath": "microsoft-Phi-3.5-mini-instruct/aitk",
-            "version": 8,
+            "version": 9,
             "p0": true,
             "pipeline_tags": [
                 "text-generation"
@@ -69,7 +69,7 @@
             "architecture": "Transformer",
             "status": "Ready",
             "relativePath": "deepseek-ai-DeepSeek-R1-Distill-Qwen-1.5B/aitk",
-            "version": 7,
+            "version": 8,
             "p0": true,
             "pipeline_tags": [
                 "text-generation"
@@ -193,7 +193,7 @@
             "architecture": "Transformer",
             "status": "Ready",
             "relativePath": "meta-llama-Llama-3.2-1B-Instruct/aitk",
-            "version": 8,
+            "version": 9,
             "p0": true,
             "pipeline_tags": [
                 "text-generation"
@@ -269,7 +269,7 @@
             "architecture": "Transformer",
             "status": "Ready",
             "relativePath": "Qwen-Qwen2.5-1.5B-Instruct/aitk",
-            "version": 7,
+            "version": 8,
             "p0": true,
             "pipeline_tags": [
                 "text-generation"
@@ -293,7 +293,7 @@
             "architecture": "Transformer",
             "status": "Ready",
             "relativePath": "microsoft-Phi-3-mini-128k-instruct/aitk",
-            "version": 4,
+            "version": 5,
             "pipeline_tags": [
                 "text-generation"
             ]
@@ -316,7 +316,7 @@
             "architecture": "Transformer",
             "status": "Ready",
             "relativePath": "microsoft-Phi-3-mini-4k-instruct/aitk",
-            "version": 4,
+            "version": 5,
             "pipeline_tags": [
                 "text-generation"
             ]
@@ -355,7 +355,7 @@
             "architecture": "Transformer",
             "status": "Ready",
             "relativePath": "microsoft-Phi-4-mini-instruct/aitk",
-            "version": 4,
+            "version": 5,
             "pipeline_tags": [
                 "text-generation"
             ]
@@ -374,7 +374,7 @@
             "architecture": "Transformer",
             "status": "Ready",
             "relativePath": "microsoft-Phi-4-mini-reasoning/aitk",
-            "version": 4,
+            "version": 5,
             "pipeline_tags": [
                 "text-generation"
             ]
@@ -446,7 +446,7 @@
             "architecture": "Transformer",
             "status": "Ready",
             "relativePath": "deepseek-ai-DeepSeek-R1-Distill-Qwen-7B/aitk",
-            "version": 4,
+            "version": 5,
             "pipeline_tags": [
                 "text-generation"
             ]
@@ -525,7 +525,7 @@
             "architecture": "Transformer",
             "status": "Ready",
             "relativePath": "meta-llama-Llama-3.1-8B-Instruct/aitk",
-            "version": 6,
+            "version": 7,
             "p0": false,
             "pipeline_tags": [
                 "text-generation"
@@ -546,7 +546,7 @@
             "architecture": "Transformer",
             "status": "Ready",
             "relativePath": "mistralai-Mistral-7B-Instruct-v0.2/aitk",
-            "version": 3,
+            "version": 4,
             "pipeline_tags": [
                 "text-generation"
             ]
@@ -664,7 +664,7 @@
             "architecture": "Transformer",
             "status": "Ready",
             "relativePath": "Qwen-Qwen2.5-0.5B-Instruct/aitk",
-            "version": 4,
+            "version": 5,
             "pipeline_tags": [
                 "text-generation"
             ]
@@ -707,7 +707,7 @@
             "architecture": "Transformer",
             "status": "Ready",
             "relativePath": "Qwen-Qwen2.5-7B-Instruct/aitk",
-            "version": 4,
+            "version": 5,
             "pipeline_tags": [
                 "text-generation"
             ]
@@ -750,7 +750,7 @@
             "architecture": "Transformer",
             "status": "Ready",
             "relativePath": "Qwen-Qwen2.5-Coder-0.5B-Instruct/aitk",
-            "version": 4,
+            "version": 5,
             "pipeline_tags": [
                 "text-generation"
             ]
@@ -772,7 +772,7 @@
             "architecture": "Transformer",
             "status": "Ready",
             "relativePath": "Qwen-Qwen2.5-Coder-1.5B-Instruct/aitk",
-            "version": 4,
+            "version": 5,
             "pipeline_tags": [
                 "text-generation"
             ]
@@ -814,7 +814,7 @@
             "architecture": "Transformer",
             "status": "Ready",
             "relativePath": "Qwen-Qwen2.5-Coder-7B-Instruct/aitk",
-            "version": 4,
+            "version": 5,
             "pipeline_tags": [
                 "text-generation"
             ]
