@@ -70,6 +70,20 @@ olive run --config config_gpu.json
 
 ✅ Optimized model saved in: `models/llama3.2_1b_Instruct/`
 
+### QNN-GPU: Run the FP16 Quantization Config
+
+[config_gpu_fp16.json](config_gpu_fp16.json) produces an FP16 model instead of the default FP32 output of [config_gpu.json](config_gpu.json).
+
+Replace `/path/to/qnn/env/bin` in [config_gpu_fp16.json](config_gpu_fp16.json) with the path to the directory containing your QNN environment's Python executable.
+
+Activate the **Quantization Python Environment** and run the workflow:
+
+```bash
+olive run --config config_gpu_fp16.json
+```
+
+✅ Optimized model saved in: `models/llama3.2_1b_Instruct_fp16/`
+
 ### QNN-GPU: Run the Context Binary Compilation Config
 
 Replace `/path/to/model/` in [config_gpu_ctxbin.json](config_gpu_ctxbin.json) with the output path generated from above step.

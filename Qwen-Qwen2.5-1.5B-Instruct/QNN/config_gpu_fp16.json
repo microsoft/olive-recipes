@@ -1,7 +1,7 @@
 {
     "input_model": {
         "type": "HfModel",
-        "model_path": "meta-llama/Llama-3.1-8B-Instruct"
+        "model_path": "Qwen/Qwen2.5-1.5B-Instruct"
     },
     "systems": {
         "target_system": {
@@ -84,6 +84,10 @@
             ],
             "save_as_external_data": true
         },
+        "fp16": {
+            "type": "OnnxFloatToFloat16",
+            "save_as_external_data": true
+        },
         "dtfs": {
             "type": "DynamicToFixedShape",
             "dim_param": ["past_sequence_length"],
@@ -98,7 +102,7 @@
     },
     "target": "target_system",
     "log_severity_level": 1,
-    "output_dir": "models/llama3.1-8B-Instruct",
+    "output_dir": "models/qwen_2.5_1.5b_Instruct_fp16",
     "cache_dir": "cache",
     "no_artifacts": true,
     "evaluate_input_model": false

@@ -84,10 +84,6 @@
             ],
             "save_as_external_data": true
         },
-        "fp16": {
-            "type": "OnnxFloatToFloat16",
-            "save_as_external_data": true
-        },
         "dtfs": {
             "type": "DynamicToFixedShape",
             "dim_param": ["past_sequence_length"],
