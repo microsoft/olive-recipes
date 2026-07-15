@@ -1,0 +1,5 @@
+accelerate
+datasets
+onnxruntime-genai
+safetensors
+transformers
