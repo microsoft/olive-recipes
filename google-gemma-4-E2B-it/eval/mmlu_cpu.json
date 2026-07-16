@@ -7,13 +7,16 @@
     "evaluators": {
         "mmlu_evaluator": {
             "type": "LMEvaluator",
-            "tasks": ["leaderboard_mmlu_pro"],
+            "tasks": ["mmlu"],
             "model_class": "ortgenai",
             "batch_size": 1,
             "max_length": 4096,
             "limit": 100,
             "bootstrap_iters": 0,
             "sample_log_num": 100,
+            "num_fewshot": 5,
+            "apply_chat_template": true,
+            "fewshot_as_multiturn": true,
             "model_args": {
                 "past_present_share_buffer": false
             }

@@ -4,7 +4,7 @@ Evaluate quantized ONNX Gemma 4 E2B models on text, vision and audio benchmarks 
 
 ## Benchmarks
 
-- **MMLU Pro** — Multi-task language understanding (`leaderboard_mmlu_pro`, accuracy)
+- **MMLU** — Multi-task language understanding (`mmlu`, 5-shot, accuracy)
 - **AI2D** — Science diagram multiple-choice QA (`lmms-lab/ai2d`, test split, exact_match)
 - **FLEURS ASR** — Speech transcription accuracy (`google/fleurs`, en_us test split, WER + RTFx)
 
@@ -15,7 +15,7 @@ Ensure you have the ONNX models built using the mixed configs (see `../cpu/mixed
 ## Usage
 
 ```bash
-# Text evaluation (MMLU Pro)
+# Text evaluation (MMLU, 5-shot)
 olive run --config mmlu_cpu.json      # CPU
 olive run --config mmlu_cuda.json     # CUDA
 
@@ -30,7 +30,7 @@ olive run --config fleurs_asr_cuda.json  # CUDA
 
 ## Configs
 
-### Text (MMLU Pro)
+### Text (MMLU, 5-shot)
 
 | Config | Model Path | Device |
 |--------|-----------|--------|
@@ -43,9 +43,11 @@ KV-cache handling during evaluation, so the configs pass
 `"model_args": { "past_present_share_buffer": false }`. Both `model_args` and the
 `past_present_share_buffer` override require Olive with
 [microsoft/Olive#2569](https://github.com/microsoft/Olive/pull/2569).
+The configs run 5-shot (`"num_fewshot": 5`) with the chat template applied
+(`"apply_chat_template": true`, `"fewshot_as_multiturn": true`).
 The default `limit` is 100 samples; remove it to run the full benchmark.
 The configs also set `"sample_log_num": 100`, which writes the per-question prediction
-vs. target for the first 100 samples to `sample_logs/leaderboard_mmlu_pro_samples.jsonl`
+vs. target for the first 100 samples to `sample_logs/mmlu_samples.jsonl`
 for inspection/debugging (set to `0` to disable).
 
 ### Vision (AI2D)
