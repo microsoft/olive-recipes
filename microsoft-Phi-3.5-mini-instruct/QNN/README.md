@@ -59,19 +59,7 @@ Olive will run the AOT compilation step in the **AOT Compilation Python Environm
 QCOM-GPU: Phi-3.5 Model Optimization
 ====================================
 
-Running QNN-GPU configs requires features and fixes that are not available in the released Olive version 0.9.3.
-To ensure compatibility, please install Olive directly from the source at the required commit:
-
-```bash
-pip install git+https://github.com/microsoft/Olive.git@da24463e14ed976503dc5871572b285bc5ddc4b2
-```
-
-If you previously installed Olive via PyPI or pinned it to version 0.9.3, please uninstall it first and then use the above
-commit to install:
-
-```bash
-pip uninstall olive-ai
-```
+QNN-GPU configs require Olive >= 0.11.0 (already satisfied by the pinned version in [requirements.txt](requirements.txt)).
 
 Replace `/path/to/qnn/env/bin` in [config_gpu.json](config_gpu.json) with the path to the directory containing your QNN environment's Python executable.
 
@@ -83,23 +71,15 @@ olive run --config config_gpu.json
 
 ✅ Optimized model saved in: `models/phi3.5-mini-instruct/`
 
-### QNN-GPU: Run the FP16 Quantization Config
+The `StaticLLM` pass in [config_gpu.json](config_gpu.json) defaults `context_iterator_models` to `true`, which generates **both** the AR1 (`iterator`, sequence length 1) and AR128 (`context`, sequence length = `context_length`) static models in this single run, and updates `genai_config.json` with a `decoder.pipeline` entry covering both components.
 
-[config_gpu_fp16.json](config_gpu_fp16.json) produces an FP16 model instead of the default FP32 output of [config_gpu.json](config_gpu.json).
-
-Replace `/path/to/qnn/env/bin` in [config_gpu_fp16.json](config_gpu_fp16.json) with the path to the directory containing your QNN environment's Python executable.
-
-Activate the **Quantization Python Environment** and run the workflow:
-
-```bash
-olive run --config config_gpu_fp16.json
-```
-
-✅ Optimized model saved in: `models/phi3.5-mini-instruct_fp16/`
+To generate only a single static model instead (sequence length = `context_length`), set `"context_iterator_models": false`.
 
 ### QNN-GPU: Run the Context Binary Compilation Config
 
-Replace `/path/to/model/` in [config_gpu_ctxbin.json](config_gpu_ctxbin.json) with the output path generated from above step.
+The context binary compilation config is shared across models — use [config_gpu_ctxbin.json](../../meta-llama-Llama-3.2-1B-Instruct/QNN/config_gpu_ctxbin.json) from the Llama-3.2-1B-Instruct recipe.
+
+Replace `/path/to/model/` in that config with the output path generated from the above step.
 
 Activate the **AOT Python Environment** and run the workflow:
 

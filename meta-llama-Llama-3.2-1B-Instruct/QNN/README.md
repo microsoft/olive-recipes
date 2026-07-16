@@ -28,7 +28,7 @@ Model compilation using QNN Execution Provider requires a Python environment wit
 
 ```bash
 # Install Olive
-pip install olive-ai==0.9.3
+pip install olive-ai==0.11.0
 
 # Install ONNX Runtime QNN
 pip install -r https://raw.githubusercontent.com/microsoft/onnxruntime/refs/heads/main/requirements.txt
@@ -37,19 +37,7 @@ pip install --index-url https://aiinfra.pkgs.visualstudio.com/PublicPackages/_pa
 
 ### QNN-GPU: Run the Quantization Config
 
-Running QNN-GPU configs requires features and fixes that are not available in the released Olive version 0.9.3.
-To ensure compatibility, please install Olive directly from the source at the required commit:
-
-```bash
-pip install git+https://github.com/microsoft/Olive.git@da24463e14ed976503dc5871572b285bc5ddc4b2
-```
-
-If you previously installed Olive via PyPI or pinned it to version 0.9.3, please uninstall it first and then use the above
-commit to install:
-
-```bash
-pip uninstall olive-ai
-```
+QNN-GPU configs require Olive >= 0.11.0 (already satisfied by the pinned version in [requirements.txt](requirements.txt)).
 
 Replace `/path/to/qnn/env/bin` in [config_gpu.json](config_gpu.json) with the path to the directory containing your QNN environment's Python executable. This path can be found by running the following command in the environment:
 
@@ -70,21 +58,13 @@ olive run --config config_gpu.json
 
 ✅ Optimized model saved in: `models/llama3.2_1b_Instruct/`
 
-### QNN-GPU: Run the FP16 Quantization Config
+The `StaticLLM` pass in [config_gpu.json](config_gpu.json) defaults `context_iterator_models` to `true`, which generates **both** the AR1 (`iterator`, sequence length 1) and AR128 (`context`, sequence length = `context_length`) static models in this single run, and updates `genai_config.json` with a `decoder.pipeline` entry covering both components.
 
-[config_gpu_fp16.json](config_gpu_fp16.json) produces an FP16 model instead of the default FP32 output of [config_gpu.json](config_gpu.json).
-
-Replace `/path/to/qnn/env/bin` in [config_gpu_fp16.json](config_gpu_fp16.json) with the path to the directory containing your QNN environment's Python executable.
-
-Activate the **Quantization Python Environment** and run the workflow:
-
-```bash
-olive run --config config_gpu_fp16.json
-```
-
-✅ Optimized model saved in: `models/llama3.2_1b_Instruct_fp16/`
+To generate only a single static model instead (sequence length = `context_length`), set `"context_iterator_models": false`.
 
 ### QNN-GPU: Run the Context Binary Compilation Config
+
+This config is shared across the Qwen2.5-1.5B-Instruct, Llama-3.1-8B-Instruct, and Phi-3.5-mini-instruct QNN-GPU recipes as well.
 
 Replace `/path/to/model/` in [config_gpu_ctxbin.json](config_gpu_ctxbin.json) with the output path generated from above step.
 

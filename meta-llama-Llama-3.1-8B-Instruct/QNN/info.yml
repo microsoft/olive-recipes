@@ -14,10 +14,4 @@ recipes:
     - file: "config_gpu.json"
       devices: gpu
       ep: QNNExecutionProvider
-    - file: "config_gpu_fp16.json"
-      devices: gpu
-      ep: QNNExecutionProvider
-    - file: "config_gpu_ctxbin.json"
-      devices: gpu
-      ep: QNNExecutionProvider
 name: Llama-3.1-8B-Instruct
