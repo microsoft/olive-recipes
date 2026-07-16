@@ -6,7 +6,7 @@ Evaluate quantized ONNX Gemma 4 E2B models on text, vision and audio benchmarks 
 
 - **MMLU Pro** — Multi-task language understanding (`leaderboard_mmlu_pro`, accuracy)
 - **AI2D** — Science diagram multiple-choice QA (`lmms-lab/ai2d`, test split, exact_match)
-- **Audio WER** — Speech transcription accuracy (`hf-audio/esb-datasets-test-only-sorted`, LibriSpeech test.clean, WER + RTFx)
+- **FLEURS ASR** — Speech transcription accuracy (`google/fleurs`, en_us test split, WER + RTFx)
 
 ## Prerequisites
 
@@ -23,9 +23,9 @@ olive run --config mmlu_cuda.json     # CUDA
 olive run --config ai2d_cpu.json      # CPU
 olive run --config ai2d_cuda.json     # CUDA
 
-# Audio evaluation
-olive run --config audio_wer_cpu.json   # CPU
-olive run --config audio_wer_cuda.json  # CUDA
+# Audio evaluation (FLEURS ASR)
+olive run --config fleurs_asr_cpu.json   # CPU
+olive run --config fleurs_asr_cuda.json  # CUDA
 ```
 
 ## Configs
@@ -55,9 +55,9 @@ for inspection/debugging (set to `0` to disable).
 | `ai2d_cpu.json` | `../cpu/mixed/models` | CPU |
 | `ai2d_cuda.json` | `../cuda/mixed/models` | GPU (CUDA) |
 
-### Audio (WER)
+### Audio (FLEURS ASR)
 
 | Config | Model Path | Device |
 |--------|-----------|--------|
-| `audio_wer_cpu.json` | `../cpu/mixed/models` | CPU |
-| `audio_wer_cuda.json` | `../cuda/mixed/models` | GPU (CUDA) |
+| `fleurs_asr_cpu.json` | `../cpu/mixed/models/decoder` | CPU |
+| `fleurs_asr_cuda.json` | `../cuda/mixed/models/decoder` | GPU (CUDA) |
