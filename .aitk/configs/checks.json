@@ -1,6 +1,6 @@
 {
-    "configCheck": 176,
-    "copyCheck": 184,
+    "configCheck": 174,
+    "copyCheck": 182,
     "executePatchPyCheck": 0,
     "executeRuntimeCheck": 108,
     "extensionCheck": 2,
@@ -14,6 +14,6 @@
     "pathCheck": 1480,
     "requirementsCheck": 45,
     "templateCheck": 3,
-    "venvRequirementsCheck": 26,
-    "winmlCopyCheck": 39
+    "venvRequirementsCheck": 23,
+    "winmlCopyCheck": 38
 }
