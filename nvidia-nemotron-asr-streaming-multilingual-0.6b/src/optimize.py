@@ -44,7 +44,6 @@ DEFAULT_TRT_RTX_OUTPUT_DIR = "build/onnx_models_trtrtx_fp16"
 TRT_RTX_ALIASES = {
     "nvtensorrtrtx",
     "nvtensorrtx",
-    "trt-rtx",
     "trtrtx",
     "nvtensorrtxexecutionprovider",
     "nvtensorrtrtxexecutionprovider",
@@ -347,7 +346,7 @@ def main():
     from src.nemotron_model_load import MODEL_NAME, CHUNK_SIZE
 
     parser = argparse.ArgumentParser(
-        description="Optimize Nemotron Speech Streaming for CPU or NvTensorRtRtx inference"
+        description="Optimize Nemotron Speech Streaming for CPU, CUDA, or NvTensorRtRtx inference"
     )
     parser.add_argument(
         "--model-name",

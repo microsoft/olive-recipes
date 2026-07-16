@@ -12,7 +12,11 @@ from unittest.mock import patch
 SRC_DIR = Path(__file__).resolve().parent
 spec = importlib.util.spec_from_file_location("nemotron_optimize", SRC_DIR / "optimize.py")
 optimize = importlib.util.module_from_spec(spec)
-spec.loader.exec_module(optimize)
+original_sys_path = sys.path.copy()
+try:
+    spec.loader.exec_module(optimize)
+finally:
+    sys.path[:] = original_sys_path
 
 
 def _load_export_tokenizer_module():
@@ -48,6 +52,7 @@ class NemotronOptimizePlanTest(unittest.TestCase):
 
         self.assertEqual(plan.config_name, "nemotron_encoder_fp16_trtrtx.json")
         self.assertEqual(plan.encoder_precision, "fp16")
+        self.assertTrue(optimize._is_trt_rtx_execution_provider("trt-rtx"))
 
         config = json.loads((SRC_DIR / plan.config_name).read_text())
         self.assertEqual(
