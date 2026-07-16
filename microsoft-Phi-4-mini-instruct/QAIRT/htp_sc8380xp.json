@@ -4,6 +4,14 @@
         "model_path": "microsoft/phi-4-mini-instruct",
         "load_kwargs": { "trust_remote_code": true }
     },
+    "recipe_metadata": {
+        "version": "1.0.0",
+        "validated_with": {
+            "qairt_sdk": "2.48.0",
+            "qairt_dev": "0.8.1",
+            "python": "3.10"
+        }
+    },
     "passes": {
         "qp": {
             "type": "QairtPreparation",
