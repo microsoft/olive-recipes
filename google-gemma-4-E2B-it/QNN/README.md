@@ -4,10 +4,80 @@
 > running [`google/gemma-4-E2B-it`](https://huggingface.co/google/gemma-4-E2B-it)
 > on the Qualcomm Hexagon NPU via the QNN ONNX Runtime execution
 > provider (Snapdragon X / Copilot+ PC, Snapdragon 8 Gen 3+, etc.).
-> Has *not* yet been validated on hardware — see
-> [Limitations](#limitations).
+> The HTP EPContext compilation has *not* yet been validated on hardware
+> — see [Limitations](#limitations).
 
-## Approach
+## Two build paths
+
+This directory ships **two** ways to produce the INT4 Gemma 4 E2B ONNX
+model that the QNN AOT stages then compile to an HTP context binary:
+
+| Path | Config | INT4 source | Cost |
+|---|---|---|---|
+| **GGUF-direct (recommended)** | `config_gguf.json` | reuse [`unsloth/gemma-4-E2B-it-GGUF`](https://huggingface.co/unsloth/gemma-4-E2B-it-GGUF) Q4_K_M weights | cheap — no calibration/RTN quant |
+| HF-source | `config.json` | quantize fp32 weights with `OnnxKQuantQuantization` | expensive (RTN over 262 k-vocab; GPU / cupy recommended) |
+
+The **GGUF-direct** path is the reason to use the unsloth GGUF: it skips
+the expensive `OnnxKQuantQuantization` pass entirely by re-packing the
+already-INT4 GGUF weights into `com.microsoft::MatMulNBits`, then runs
+the identical QNN AOT stages. `mobius build-gguf` performs the GGUF →
+ONNX conversion; the resulting model has been **verified end-to-end** to
+produce correct text on ONNX Runtime CPU (see below).
+
+### GGUF-direct: step 1 — build the INT4 ONNX with mobius
+
+Run this once, on any machine (x64 or Windows ARM64), in the quantization
+environment:
+
+```bash
+pip install "mobius-ai[gguf]"
+mobius build-gguf "unsloth/gemma-4-E2B-it-GGUF:gemma-4-E2B-it-Q4_K_M.gguf" \
+    --keep-quantized --ep qnn --dtype f16 --output model_int4
+```
+
+This emits `model_int4/model.onnx` — the Gemma 4 E2B text decoder with
+INT4 `MatMulNBits` projections (205 nodes), opset-24 standard `Attention`
+(35, no GroupQueryAttention — the QNN capability advertises empty
+`gqa_dtypes`), and `RMSNormalization`. Mixed Q6_K tensors in the Q4_K_M
+preset are re-quantized to 4-bit / block-32 automatically.
+
+> **Requires the mobius Gemma-4 GGUF fixes**
+> ([onnxruntime/mobius PR](https://github.com/onnxruntime/mobius/pull/new/justinchuby/gemma4-gguf-qnn)):
+> per-layer `feed_forward_length` → scalar + `use_double_wide_mlp`,
+> per-layer-input tensor mapping, quantized-linear wiring, KV-shared
+> standard-Attention shape inference, and the `gelu_pytorch_tanh`
+> activation default (Gemma GGUFs omit the activation key; the old `silu`
+> default produced garbage output). Without these, the build either fails
+> to load in ORT or generates incoherent text.
+
+Verified on Windows ARM64 (Snapdragon), ONNX Runtime 1.27 CPU EP, from
+`model_int4/model.onnx`:
+
+```
+Q: What is the capital of France?   A: The capital of France is **Paris**.
+Q: Name a primary color.            A: Red
+```
+
+The dequantized GGUF weights were confirmed to match the gated
+`google/gemma-4-E2B-it` safetensors checkpoint (all projection / norm /
+embedding correlations ≥ 0.98).
+
+### GGUF-direct: step 2 — compile to a QNN HTP context binary
+
+Point `config_gguf.json`'s `input_model.model_path` at the
+`model_int4/model.onnx` produced above (and set the `qnn_system` Python
+path), then run Olive from the quantization environment:
+
+```bash
+olive run --config config_gguf.json
+```
+
+`config_gguf.json` drops `MobiusBuilder` **and** `OnnxKQuantQuantization`
+(the INT4 weights already exist) and runs only
+`MatMulNBitsToQDQ → OnnxStaticQuantization → StaticLLM →
+EPContextBinaryGenerator`.
+
+## Approach (HF-source path)
 
 All four Gemma 4 components (decoder, embedding, vision_encoder,
 audio_encoder) are compiled into QNN EPContext binaries together.
