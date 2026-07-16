@@ -126,7 +126,7 @@ python inference.py --device gpu --variant mixed --interactive
 
 ## Evaluation
 
-### MMLU Pro (text)
+### MMLU (text)
 
 Run through Olive with the `LMEvaluator` configs in `eval/` (mixed model):
 
@@ -138,7 +138,7 @@ olive run --config eval/mmlu_cuda.json   # CUDA
 Or use the standalone script (also supports `--task`, `--limit`, and other variants):
 
 ```bash
-# MMLU Pro (default 100 samples), CPU
+# MMLU (5-shot, default 100 samples), CPU
 python eval.py
 
 # CUDA INT4
@@ -154,7 +154,7 @@ python eval.py --device gpu --variant mixed
 > layouts in the evaluator's genai_config.json discovery. Until then, use
 > a custom evaluation script.
 
-### Audio — LibriSpeech WER
+### Audio — FLEURS ASR (WER)
 
 > **Note**: The `olive run` audio eval configs require Olive to add gemma4
 > as a supported model type in the speech evaluator. Until then, use a custom
