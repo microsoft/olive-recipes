@@ -82,12 +82,18 @@ class NemotronOptimizePlanTest(unittest.TestCase):
         self.assertFalse(optimize.should_include_vad("NvTensorRtRtx"))
         self.assertFalse(optimize.should_include_vad("NvTensorRTRTXExecutionProvider"))
 
-    def test_cuda_execution_provider_aliases_are_accepted(self):
+    def test_execution_provider_aliases_are_accepted(self):
         model_load = types.ModuleType("src.nemotron_model_load")
         model_load.MODEL_NAME = "nvidia/test-model"
         model_load.CHUNK_SIZE = 0.16
 
-        for execution_provider in ("cuda", "CUDAExecutionProvider"):
+        for execution_provider in (
+            "cuda",
+            "CUDAExecutionProvider",
+            "trt-rtx",
+            "trtrtx",
+            "nvtensorrtrtxexecutionprovider",
+        ):
             with self.subTest(execution_provider=execution_provider):
                 with (
                     patch.dict(sys.modules, {"src.nemotron_model_load": model_load}),

@@ -5,11 +5,11 @@ using Olive's declarative pass system:
 
   - Encoder: OnnxConversion → OnnxKQuantQuantization for CPU, or FP16
     OnnxConversion with native Attention for NvTensorRtRtx
-  - Decoder: FP16 OnnxConversion for NvTensorRtRtx, FP32 for CPU
-  - Joint:   FP16 OnnxConversion for NvTensorRtRtx, FP32 for CPU
+  - Decoder: FP16 OnnxConversion for NvTensorRtRtx, FP32 for CPU/CUDA
+  - Joint:   FP16 OnnxConversion for NvTensorRtRtx, FP32 for CPU/CUDA
 
 After the Olive pipelines, tokenizer and config files are generated. Silero
-VAD is downloaded for CPU and omitted for NvTensorRtRtx.
+VAD is downloaded for CPU/CUDA and omitted for NvTensorRtRtx.
 
 Usage:
     # Full pipeline
@@ -373,6 +373,8 @@ def main():
             "CUDAExecutionProvider",
             "NvTensorRtRtx",
             "NvTensorRTRTXExecutionProvider",
+            "trt-rtx",
+            *sorted(TRT_RTX_ALIASES),
         ],
         default="cpu",
         help="Target execution provider. NvTensorRtRtx forces FP16 export with opset 23.",
