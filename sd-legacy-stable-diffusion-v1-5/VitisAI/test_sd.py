@@ -15,6 +15,7 @@ def main():
     model_file = os.path.join(args.model, "replaced.onnx")
 
     ort.register_execution_provider_library(ExecutionProvider, ep_dll)
+    print("Registered!")
 
     # Create ONNX runtime session
     def add_ep_for_device(session_options, ep_name, device_type, ep_options=None):
@@ -27,9 +28,11 @@ def main():
 
     session_options = ort.SessionOptions()
     session_options.register_custom_ops_library(custom_dll)
+    print("Registered custom dll!")
     session_options.add_session_config_entry("dd_cache",cache_dir)
     add_ep_for_device(session_options, ExecutionProvider, ort.OrtHardwareDeviceType.NPU, {"target": "SD"})
 
+    print("Setup!")
     session = ort.InferenceSession(
         model_file,
         sess_options=session_options,
