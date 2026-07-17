@@ -204,25 +204,45 @@ This recipe has **not yet been validated end-to-end**. Concrete findings
 from HTP experiments on a Snapdragon X (ORT 1.27, onnxruntime-qnn 2.4.0,
 QNN SDK 2.48.40, HTP V73):
 
-0. **gemma4 `--static-cache` is the top prerequisite.** HTP needs fully
-   static shapes, and Olive's QNN `StaticLLM` needs the ORT-GenAI
-   static-KV contract. mobius `build-gguf --static-cache` now provides the
-   general plumbing, but the Gemma-4 decoder itself does not implement the
-   `StaticCacheState` dispatch — its `Gemma4TextAttention` has KV-shared
-   layers (some layers borrow K,V from a source layer and keep no cache of
-   their own), sliding-window + full alternating layers, and dual
-   local/global RoPE. Adding static-cache support means: (a) generating a
-   static-cache attention bias for *both* layer types via
-   `create_static_cache_attention_bias`, (b) threading `StaticCacheState`
-   through `Gemma4DecoderLayer` / `Gemma4TextAttention`, allocating buffers
-   only for the `num_kv_layers` cache layers, (c) making KV-shared layers
-   read the source layer's static buffer. This is correctness-critical
-   surgery on the most complex model in mobius and must be validated with
-   HF numerical parity before use.
+0. **gemma4 `--static-cache` — DONE** (onnxruntime/mobius, commit `5d804b7`).
+   `Gemma4TextAttention`/`Gemma4DecoderLayer` now implement the
+   `StaticCacheState` dispatch: static-cache attention bias for both sliding
+   and full layer types, per-cache-layer buffers (KV-shared layers borrow the
+   source layer's static buffer, so only the `num_kv_layers` cache-owning
+   layers get buffers), and dual head_dim (sliding vs full). Verified: static
+   decode logits match the dynamic reference at every position (~1e-6 fp32),
+   and the full E2B static model **generates correct text on ORT CPU**
+   (`build-gguf ... --static-cache --max-seq-len 512` → "The capital of France
+   is **Paris**."). `build-gguf --static-cache` emits a fully static-shaped,
+   decomposed, QDQ graph (0 fused `Attention`, 0 `MatMulNBits`, 30
+   `TensorScatter`, 15 cache layers with dual head_dim 256/512).
 
-1. **Full-model single-graph HTP compose fails on size.** See the blocker
-   note under [step 2](#gguf-direct-step-2--compile-to-a-qnn-htp-context-binary).
-   Needs model splitting + weight-shared EPContext binaries.
+1. **Full-model single-graph HTP still needs splitting — two confirmed
+   blockers** (Snapdragon X, ORT 1.27, onnxruntime-qnn 2.4.0):
+   - **4.7 GB per-layer embedding overflows QNN's 32-bit static-tensor
+     size** (`embed_tokens_per_layer` `[262144, 8960]` fp16 = 4 697 620 480 B
+     wraps mod 2³² → 402 653 184 B → `Data length mismatch for static
+     tensor`). Fix: keep the embedding tables on CPU. Splitting the graph
+     after the two embedding `Gather`s yields a 5.5 GB embedding model (CPU)
+     and a 2.15 GB transformer (no > 4 GB tensors) — the transformer then
+     *composes* on HTP.
+   - **The 35-layer transformer fails single-graph HTP finalization**
+     (`Failed to finalize QNN graph` after ~20 min) — one context is too
+     large. A **4-layer chunk composes on HTP in ~21 s and runs**, so the fix
+     is to split the transformer into weight-shared EPContext chunks
+     (`SplitModel` / `EPContextBinaryGenerator(weight_sharing=True)`).
+
+2. **Performance: mobius's decompose+inline QDQ form runs slowly on HTP.**
+   The 4-layer chunk decodes at ~650–810 ms/step (extrapolates to ~0.2 tok/s
+   for 35 layers) because the decomposed SDPA + `DequantizeLinear`+`MatMul`
+   land largely on the CPU EP (QNN partitions them out) with HTP↔CPU
+   transfers, and the runtime INT4 nibble-unpack (`BitwiseAnd`/`BitShift`,
+   constant-foldable) adds overhead. A *reasonable* NPU throughput needs the
+   Olive static-INT path: **keep `MatMulNBits`** in the mobius export and run
+   `MatMulNBitsToQDQ` (clean int4 initializers, no runtime unpack) +
+   `OnnxStaticQuantization` (uint16 activations / uint8 weights) so the matmuls
+   hit HTP's integer engine, then chunk into weight-shared EPContext binaries.
+   This is now unblocked by the static-cache support above.
 
 2. **Fused ops have no HTP kernel** (filed as
    [onnxruntime/onnxruntime-qnn#646](https://github.com/onnxruntime/onnxruntime-qnn/issues/646)):
