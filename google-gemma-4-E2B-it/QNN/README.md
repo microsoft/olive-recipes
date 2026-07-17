@@ -244,13 +244,35 @@ QNN SDK 2.48.40, HTP V73):
    hit HTP's integer engine, then chunk into weight-shared EPContext binaries.
    This is now unblocked by the static-cache support above.
 
-2. **Fused ops have no HTP kernel** (filed as
-   [onnxruntime/onnxruntime-qnn#646](https://github.com/onnxruntime/onnxruntime-qnn/issues/646)):
-   the opset-24 `Attention` op and `com.microsoft::MatMulNBits` are forced
-   onto CPU by the QNN EP. mobius `--ep qnn` decomposes / inlines both so
-   the graph stays on HTP; empirically `RMSNormalization`, `Gelu`,
-   `MatMul`, `Softmax`, `Transpose` and blocked `DequantizeLinear` *do*
-   run on HTP.
+2. **HTP op coverage — DONE in the mobius qnn lowering** (onnxruntime/mobius
+   commit `be98116`). Empirically (Snapdragon X, onnxruntime-qnn 2.4.0,
+   `session.disable_cpu_ep_fallback=1`) the QNN HTP backend has **no kernel**
+   for these ops, each forcing its node onto CPU: the fused opset-24
+   `Attention`, `com.microsoft::MatMulNBits`, `RotaryEmbedding`,
+   `TensorScatter`, `Tile`, `Range`, `BitwiseAnd`/`BitShift`. mobius `--ep qnn`
+   now lowers **all** of them to HTP-supported equivalents:
+   `Attention`→SDPA, `RotaryEmbedding`→rotate-half, `TensorScatter`→`ScatterND`,
+   `Tile`→`Expand`, `Range`→`Constant`+`Slice`, `MatMulNBits`→QDQ, and the
+   `BitwiseAnd`/`BitShift` nibble-unpack constant-folds away. HTP-OK primitives
+   confirmed: `MatMul`, `Softmax`, `RMSNormalization`, `Gelu`, `Sigmoid`,
+   `Transpose`, `Reshape`, `Slice`, `Concat`, `Expand`, `ScatterND`, `Where`,
+   `GreaterOrEqual`, `Less`, `And`, `Neg`, `Mul`, `Add`, `Sub`, `Div`,
+   `ReduceMean`, `Sqrt`, `Gather`. **Result: a non-quantized (fp16) gemma4
+   static model composes and runs *entirely* on the HTP** (no CPU fallback).
+   Filed the original fused-op gap as
+   [onnxruntime/onnxruntime-qnn#646](https://github.com/onnxruntime/onnxruntime-qnn/issues/646).
+
+2b. **INT4 weights still need quantized *activations* for HTP.** A weight-only
+   `DequantizeLinear`→`MatMul` (float activations) runs on HTP **only** for
+   *per-tensor* weights; *per-channel* and *blocked* int8/int4 weight DQ is
+   CPU-forced. QNN HTP claims per-channel/blocked weight matmuls only inside a
+   **full int QDQ group** — `DequantizeLinear(act)` + `DequantizeLinear(weight
+   per-channel)` → `MatMul` → `QuantizeLinear`. So the GGUF INT4 weights need
+   **quantized activations** (`OnnxStaticQuantization`, which needs calibration)
+   to keep their matmuls on HTP — that is an Olive pass, not a mobius lowering.
+   Two viable deployments: (a) fp16 weights → fully on HTP today via the mobius
+   qnn lowering (4× larger, so still needs the transformer chunked for HTP
+   finalization); (b) INT4 + Olive static activation quant → int8 QDQ on HTP.
 
 3. **Logit soft-cap may not lower to HTP.** Gemma 4's
    `logits = cap * tanh(logits / cap)` is unusual for QNN. If HTP
