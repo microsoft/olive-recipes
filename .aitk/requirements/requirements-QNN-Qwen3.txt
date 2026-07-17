@@ -1,2 +1,3 @@
-# uvpip:install onnxruntime-qnn==2.3.0 --no-deps;pre
+# uvpip:install onnxruntime-qnn==2.3.0 --no-deps;post
 olive-ai==0.13.0
+onnxruntime==1.24.4

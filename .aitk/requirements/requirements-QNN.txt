@@ -38,6 +38,8 @@ numpy==2.2.4
 git+https://github.com/microsoft/Olive.git@b9c975f5651a4446283d9183348add9dcd4ed45f#egg=olive_ai
 onnx==1.17.0
 onnx-ir==0.1.10
+# Uninstall onnxruntime from Qwen3 feature
+# uvpip:uninstall onnxruntime;pre
 # uvpip:install onnxruntime-qnn==1.23.2 --extra-index-url https://aiinfra.pkgs.visualstudio.com/PublicPackages/_packaging/ORT-Nightly/pypi/simple --no-deps;post
 onnxscript==0.5.3
 optuna==4.2.1
