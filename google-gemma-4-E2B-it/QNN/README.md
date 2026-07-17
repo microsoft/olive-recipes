@@ -354,6 +354,28 @@ The resulting model loads on the QNN HTP with
 real deployment, replace `FakeCalib` with a proper calibration dataset (the
 `static_quant` pass in `config_gguf.json`) so the output is accurate.
 
+### GPU (Adreno) vs NPU (HTP) backend
+
+The QNN EP can also target the Adreno **GPU** (`backend_path=QnnGpu.dll`)
+instead of the Hexagon **NPU** (`backend_path=QnnHtp.dll`). All the tok/s
+numbers above use the **HTP (NPU)** backend. For reference, a 10-layer E2B-dim
+feed-forward stack (hidden 1536 / intermediate 6144, batch=1 decode shape,
+best-of-3 on a Snapdragon X) placed on each backend:
+
+| Model | CPU EP | QNN GPU (Adreno) | QNN HTP (NPU) |
+|---|---|---|---|
+| int8 per-channel QDQ | 2.75 ms | 3.03 ms | 2.92 ms |
+| fp16 | 11.18 ms | 10.51 ms | **9.38 ms** |
+
+Both QNN backends genuinely engage (on fp16 the GPU beats the CPU EP), but the
+**HTP (NPU) is the fastest in every case**; the GPU sits between CPU and NPU.
+For int8 the ARM64 CPU EP is already very strong (good dot-product SIMD), so the
+NPU's edge is small — consistent with the batch-1 decode being memory-bound. The
+GPU backend is a valid fallback where the HTP is unavailable or oversubscribed,
+but it is **not** faster than the NPU for this workload. (Note: `QnnCpu.dll` is
+not shipped in the `onnxruntime-qnn` wheel — only `QnnGpu.dll` and `QnnHtp.dll`.)
+
+
 ## Discussion
 
 If you have a Snapdragon test rig and the pipeline blows up on a
