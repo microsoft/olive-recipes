@@ -244,7 +244,7 @@ QNN SDK 2.48.40, HTP V73):
    hit HTP's integer engine, then chunk into weight-shared EPContext binaries.
    This is now unblocked by the static-cache support above.
 
-2. **HTP op coverage — DONE in the mobius qnn lowering** (onnxruntime/mobius
+3. **HTP op coverage — DONE in the mobius qnn lowering** (onnxruntime/mobius
    commit `be98116`). Empirically (Snapdragon X, onnxruntime-qnn 2.4.0,
    `session.disable_cpu_ep_fallback=1`) the QNN HTP backend has **no kernel**
    for these ops, each forcing its node onto CPU: the fused opset-24
@@ -262,7 +262,7 @@ QNN SDK 2.48.40, HTP V73):
    Filed the original fused-op gap as
    [onnxruntime/onnxruntime-qnn#646](https://github.com/onnxruntime/onnxruntime-qnn/issues/646).
 
-2b. **INT4 weights still need quantized *activations* for HTP.** A weight-only
+4. **INT4 weights still need quantized *activations* for HTP.** A weight-only
    `DequantizeLinear`→`MatMul` (float activations) runs on HTP **only** for
    *per-tensor* weights; *per-channel* and *blocked* int8/int4 weight DQ is
    CPU-forced. QNN HTP claims per-channel/blocked weight matmuls only inside a
@@ -274,22 +274,22 @@ QNN SDK 2.48.40, HTP V73):
    qnn lowering (4× larger, so still needs the transformer chunked for HTP
    finalization); (b) INT4 + Olive static activation quant → int8 QDQ on HTP.
 
-3. **Logit soft-cap may not lower to HTP.** Gemma 4's
+5. **Logit soft-cap may not lower to HTP.** Gemma 4's
    `logits = cap * tanh(logits / cap)` is unusual for QNN. If HTP
    rejects it, options are (a) skip soft-cap during QNN compile and
    apply it in host post-processing, or (b) add a
    `RemoveLogitSoftcap` GraphSurgery upstream in Olive.
 
-4. **Hybrid local/global attention with dual head_dim.** Gemma 4 E2B
+6. **Hybrid local/global attention with dual head_dim.** Gemma 4 E2B
    alternates local sliding-window and global attention layers with
    different head_dim. Small dual-head_dim subsets compose on HTP; the
    full alternation at 35 layers is untested past the size blocker above.
 
-5. **256k tokenizer calibration.** `wikitext-2` calibration likely
+7. **256k tokenizer calibration.** `wikitext-2` calibration likely
    under-represents Gemma 4's image / audio special tokens. Consider
    augmenting with multimodal-formatted prompts before production.
 
-6. **`StaticLLM context_length=64`.** Placeholder mirroring existing QNN
+8. **`StaticLLM context_length=64`.** Placeholder mirroring existing QNN
    recipes; tune to the target Snapdragon SKU memory budget.
 
 ### Reference: tok/s baselines (gemma-4-E2B Q4_K_M, Snapdragon X, 12 threads)
