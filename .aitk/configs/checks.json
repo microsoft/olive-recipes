@@ -1,11 +1,11 @@
 {
     "configCheck": 175,
-    "copyCheck": 186,
+    "copyCheck": 184,
     "executePatchPyCheck": 0,
     "executeRuntimeCheck": 107,
     "extensionCheck": 2,
     "gitignoreCheck": 45,
-    "inferenceModelCheck": 26,
+    "inferenceModelCheck": 25,
     "ipynbCheck": 53,
     "licenseCheck": 42,
     "modelProjectCheck": 47,
