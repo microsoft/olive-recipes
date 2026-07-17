@@ -300,7 +300,59 @@ QNN SDK 2.48.40, HTP V73):
 | mobius INT4 ONNX (ORT CPU EP) | 18.2 |
 | HuggingFace transformers (fp32 torch CPU) | 0.04 |
 
-These are the CPU baselines to beat once the HTP/NPU path is unblocked.
+## Measured HTP results (fully-on-HTP path)
+
+With the mobius qnn lowering (commit `be98116`) **every op runs on HTP** — no
+CPU fallback — once the INT4 GGUF weights are re-quantized to a QNN-runnable
+form. Measured on a Snapdragon X (onnxruntime-qnn 2.4.0), 10-layer model at
+E2B per-layer dims (hidden 1536, intermediate 6144, head_dim 256/512,
+static cache max_seq_len=512), extrapolated to the 35-layer transformer
+(embeddings + lm_head excluded, run on CPU):
+
+| Quantization | **HTP (NPU)** decode | **CPU** decode |
+|---|---|---|
+| int4 per-channel + uint8 activations | **16.4 tok/s** | 17.5 tok/s |
+| int8 per-channel + uint8 activations | 16.6 tok/s | 16.7 tok/s |
+
+**The NPU decode speed ≈ CPU (~16–17 tok/s); it does not beat CPU here, and
+int4 vs int8 barely differ.** Single-token (batch=1) decode is memory-bound and
+low-parallelism — not the regime an NPU wins. IO-binding (in-place KV) and
+EPContext were tried and did **not** change decode latency (CPU/HTP share SoC
+DRAM, so there is no host↔device transfer to eliminate; EPContext only speeds up
+model *loading*). The HTP's real value is **power efficiency, prefill throughput,
+and batching**, not single-stream decode tok/s.
+
+**How to get a fully-on-HTP model (fake-calibration shortcut for testing).**
+QNN HTP claims a weight `DequantizeLinear`→`MatMul` only for **per-channel**
+int4/int8 weights inside a **full int QDQ group** (quantized activations); the
+GGUF Q4_K **blocked** form (`block_size=32`) is CPU-forced at any bit width
+(see [onnxruntime/onnxruntime-qnn#650](https://github.com/onnxruntime/onnxruntime-qnn/issues/650)).
+So the INT4 blocked weights must be re-quantized to **per-channel** and the
+activations quantized. For a throughput/latency test where accuracy does not
+matter, run `onnxruntime.quantization.quantize_static` with a **fake
+calibration reader** (a couple of random/zero input batches) instead of the
+expensive wikitext calibration — it inserts per-channel weight QDQ + uint8
+activation QDQ and completes in seconds:
+
+```python
+from onnxruntime.quantization import (
+    quantize_static, QuantType, QuantFormat, CalibrationDataReader)
+
+class FakeCalib(CalibrationDataReader):
+    def __init__(self, feeds): self.it = iter(feeds)          # a few dummy input dicts
+    def get_next(self): return next(self.it, None)
+
+quantize_static(
+    "model_static.onnx", "model_int8.onnx", FakeCalib(dummy_feeds),
+    quant_format=QuantFormat.QDQ, per_channel=True,
+    activation_type=QuantType.QUInt8, weight_type=QuantType.QInt4,  # or QInt8
+    op_types_to_quantize=["MatMul"])
+```
+
+The resulting model loads on the QNN HTP with
+`session.disable_cpu_ep_fallback = "1"` and runs entirely on the NPU. For a
+real deployment, replace `FakeCalib` with a proper calibration dataset (the
+`static_quant` pass in `config_gguf.json`) so the output is accurate.
 
 ## Discussion
 
