@@ -5,23 +5,9 @@
     },
     "passes": {
         "qp": {
-            "type": "QairtPreparation",
-            "script_path": "phi4_reasoning_script.py",
-            "script_config": {
-                "PLATFORM_GEN": 2
-            }
-        },
-        "qgab": {
-            "type": "QairtGenAIBuilder",
-            "log_level": "INFO",
-            "backend": "HTP",
-            "soc_details": "chipset:SC8380XP",
-            "vtcm_size_in_mb": 8,
-            "hvx_threads": 8,
-            "extended_udma": false,
-            "sequence_lengths": [32, 128],
-            "native_kv": true,
-            "multi_graph": true
+            "type": "QairtPipelinePass",
+            "recipe": "phi4_reasoning_sc8380xp.yaml",
+            "cache_dir": "cache/qairt"
         },
         "qe": {
             "type": "QairtEncapsulation",

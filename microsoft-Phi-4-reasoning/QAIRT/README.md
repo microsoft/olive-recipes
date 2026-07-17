@@ -1,25 +1,24 @@
 # Phi-4 Reasoning Model Optimization
 
-This directory demonstrates the optimization of the [Microsoft Phi-4 Reasoning](https://huggingface.co/microsoft/Phi-4-reasoning) model using various AIMET quantization techniques.
+This directory demonstrates the optimization of the [Microsoft Phi-4 Reasoning](https://huggingface.co/microsoft/Phi-4-reasoning) model using the QAIRT Pipeline API.
 
 ## Overview
 
-This workflow utilizes a Phi-4 Reasoning script to perform quantization based on the [Qualcomm-distributed Jupyter notebook](https://qpm.qualcomm.com/#/main/tools/details/Tutorial_for_Phi4_Reasoning_14B_Compute) for Phi-4-reasoning which is available for download via QPM.
+This workflow uses the `QairtPipelinePass` to perform quantization, model transformation, DLC conversion, and HTP compilation in a single YAML-recipe-driven pass.
 
-After quantization, the QAIRT GenAIBuilder API is utilized to apply additional model transformations, perform conversion, and compile the model for execution on the HTP backend.
-
-Finally, a prepared QAIRT DLC is encapsulated in an ONNX protobuf and exported to a directory compatible with onnxruntime-genai.
+After the pipeline pass, a `QairtEncapsulation` pass wraps the compiled DLC in an ONNX protobuf and exports a directory compatible with onnxruntime-genai.
 
 ## Requirements
 
 **Validated host configuration:**
 * Ubuntu 22.04
 * Python 3.10.12
-* qairt-dev 0.5.0
+* qairt-dev 0.9.0
 * QAIRT 2.45.40
 
-**Validated target configuration:**
+**Validated target configurations:**
 * HTP backend on SC8480XP
+* HTP backend on SC8380XP
 
 Other configurations may work but have not been validated.
 
@@ -29,8 +28,8 @@ Other configurations may work but have not been validated.
 
 ```bash
 pip install olive-ai[qairt]
-pip list | grep qairt-dev  # Ensure the proper qairt-dev version  was installed
-pip install qairt-dev[onnx]==0.5.0  # Install the proper qairt-dev version, if not installed
+pip list | grep qairt-dev  # Ensure the proper qairt-dev version was installed
+pip install qairt-dev[onnx]==0.9.0  # Install the proper qairt-dev version, if not installed
 ```
 
 2. (Optional) Use qairt-vm to install a non-default version of QAIRT and set QAIRT_SDK_ROOT
@@ -56,8 +55,14 @@ pip install -r requirements.txt
 
 4. Run Olive recipe
 
+For SC8480XP:
 ```bash
 olive run --config htp_sc8480xp.json
+```
+
+For SC8380XP:
+```bash
+olive run --config htp_sc8380xp.json
 ```
 
 ## Execution Instructions
@@ -70,9 +75,3 @@ pip install onnxruntime-qnn>=2.1.0
 ```
 
 Please see the following script in the onnxruntime-genai repository for [an example of how to run this model directory](https://github.com/microsoft/onnxruntime-genai/blob/main/examples/python/model-qa.py).
-
-## Known Issues
-
-### `AttributeError: module 'pydantic._internal._typing_extra' has no attribute 'add_module_globals'`
-
-This error can occasionally occur on the first invocation of the recipe. If encountered, re-running the recipe is sufficient as a workaround.
