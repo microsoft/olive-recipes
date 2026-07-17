@@ -412,6 +412,22 @@
             ]
         },
         {
+            "displayName": "black-forest-labs/FLUX.2-klein-4B",
+            "icon": "HuggingFace",
+            "modelLink": "https://huggingface.co/black-forest-labs/FLUX.2-klein-4B",
+            "id": "huggingface/black-forest-labs/FLUX.2-klein-4B",
+            "runtimes": [
+                "AMDNPU"
+            ],
+            "architecture": "Transformer",
+            "status": "Ready",
+            "relativePath": "Flux.2-Klein-4B/aitk",
+            "version": 1,
+            "pipeline_tags": [
+                "image-to-image"
+            ]
+        },
+        {
             "displayName": "deepseek-ai/DeepSeek-R1-Distill-Llama-8B",
             "icon": "DeepSeek",
             "modelLink": "https://huggingface.co/deepseek-ai/DeepSeek-R1-Distill-Llama-8B",
@@ -485,7 +501,7 @@
             "relativePath": "sam-vit-base/aitk",
             "version": 2,
             "pipeline_tags": [
-                "fill-mask"
+                "mask-generation"
             ]
         },
         {
@@ -504,7 +520,7 @@
             "relativePath": "sam2.1-hiera-small/aitk",
             "version": 3,
             "pipeline_tags": [
-                "fill-mask"
+                "mask-generation"
             ]
         },
         {
@@ -866,6 +882,7 @@
             "id": "huggingface/stable-diffusion-v1-5/stable-diffusion-v1-5",
             "runtimes": [
                 "QNN",
+                "AMDNPU",
                 "IntelCPU",
                 "IntelGPU",
                 "IntelNPU"

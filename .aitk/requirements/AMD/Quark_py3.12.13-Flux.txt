@@ -1,0 +1,6 @@
+diffusers==0.38.0
+olive-ai==0.13.0
+pillow==12.2.0
+# need directml in VitisGenerateModelSD
+# uvpip:uninstall onnxruntime;pre
+onnxruntime-directml==1.24.3
