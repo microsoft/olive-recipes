@@ -8,7 +8,11 @@ recipes:
       aitk:
         oliveFile: "QNN/config.json"
         isGPURequired: true
-        requirements: General/CUDA_py3.12.9
+        executeRuntimeFeatures:
+          - GptqModel
+          - Qwen3
+        pyEnvRuntimeFeatures:
+          - Qwen3
 aitk:
     modelInfo:
         id: "huggingface/Qwen/Qwen3-0.6B"
