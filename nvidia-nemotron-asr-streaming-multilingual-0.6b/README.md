@@ -7,14 +7,14 @@ a 0.6B-parameter streaming multilingual ASR model covering 100+ languages.
 
 Multilingual evaluation is in progress on **FLEURS**, **Common Voice**,
 **Multilingual LibriSpeech (MLS)**, and **VoxPopuli**. Per-language WER
-numbers for the INT4 ONNX build will be published here once the matrix is
-complete.
+numbers will be published here once the matrix is complete.
 
 ## Recipes
 
-- [`src/`](./src) — ONNX export + INT4 / INT8 quantization for CPU and CUDA
-  execution providers, plus FP16 opset-23 encoder, decoder, and joint models
-  for NvTensorRtRtx.
+- [`cpu/`](./cpu) — INT4 or INT8 encoder with FP32 decoder and joint models for
+  the CPU execution provider.
+- [`NvTensorRtRtx/`](./NvTensorRtRtx) — homogeneous FP16 opset-23 encoder,
+  decoder, and joint models for the NvTensorRtRtx execution provider.
 
 See the README inside each subfolder for setup and run instructions.
 
@@ -22,11 +22,11 @@ See the README inside each subfolder for setup and run instructions.
 
 Streaming inference is supported via [`onnxruntime-genai`](https://github.com/microsoft/onnxruntime-genai),
 with a per-utterance `--language` flag (or `auto`) that selects the encoder
-prompt token. Example:
+prompt token. For example, after running the CPU recipe:
 
 ```bash
 python onnxruntime-genai/examples/python/nemotron_speech.py \
-    --model_path src/build/onnx_models_int4 \
+    --model_path cpu/build/onnx_models_int4 \
     --audio_file path/to/audio.wav \
     --language de \
     -e cpu
