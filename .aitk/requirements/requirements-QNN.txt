@@ -40,6 +40,7 @@ onnx==1.17.0
 onnx-ir==0.1.10
 # Uninstall onnxruntime from Qwen3 feature
 # uvpip:uninstall onnxruntime;pre
+# uvpip:uninstall onnxruntime-qnn;pre
 # uvpip:install onnxruntime-qnn==1.23.2 --extra-index-url https://aiinfra.pkgs.visualstudio.com/PublicPackages/_packaging/ORT-Nightly/pypi/simple --no-deps;post
 onnxscript==0.5.3
 optuna==4.2.1
