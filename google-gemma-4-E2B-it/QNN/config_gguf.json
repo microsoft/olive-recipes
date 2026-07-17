@@ -30,12 +30,6 @@
         }
     ],
     "passes": {
-        "mnb_to_qdq": {
-            "type": "MatMulNBitsToQDQ",
-            "use_int4": true,
-            "add_zero_point": true,
-            "save_as_external_data": true
-        },
         "static_quant": {
             "type": "OnnxStaticQuantization",
             "data_config": "wikitext2_train_act",

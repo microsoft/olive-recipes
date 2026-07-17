@@ -35,11 +35,30 @@ mobius build-gguf "unsloth/gemma-4-E2B-it-GGUF:gemma-4-E2B-it-Q4_K_M.gguf" \
     --keep-quantized --ep qnn --dtype f16 --output model_int4
 ```
 
-This emits `model_int4/model.onnx` — the Gemma 4 E2B text decoder with
-INT4 `MatMulNBits` projections (205 nodes), opset-24 standard `Attention`
-(35, no GroupQueryAttention — the QNN capability advertises empty
-`gqa_dtypes`), and `RMSNormalization`. Mixed Q6_K tensors in the Q4_K_M
+This emits `model_int4/model.onnx` — the Gemma 4 E2B text decoder. With
+`--ep qnn` the mobius QNN capability now **decomposes** the fused opset-24
+`Attention` op into scaled-dot-product primitives (Reshape / Transpose /
+MatMul / Softmax / Add / Tile) and **inlines** `com.microsoft::MatMulNBits`
+into a QDQ form (nibble-unpack + blocked `DequantizeLinear` + `MatMul`),
+because the QNN HTP backend has no kernel for either fused op (they would
+otherwise be forced onto CPU — see
+[onnxruntime/onnxruntime-qnn#646](https://github.com/onnxruntime/onnxruntime-qnn/issues/646)).
+`RMSNormalization` is kept (HTP runs it). Mixed Q6_K tensors in the Q4_K_M
 preset are re-quantized to 4-bit / block-32 automatically.
+
+Because mobius already lowers `MatMulNBits` → QDQ for `--ep qnn`, the Olive
+`MatMulNBitsToQDQ` pass is a **no-op** on this model and is omitted from
+`config_gguf.json`.
+
+> **Static shapes for HTP.** The HTP backend requires *fully static*
+> shapes. mobius `build-gguf` now accepts `--static-cache --max-seq-len N`
+> (pre-allocated fixed-width KV buffers written in place via
+> `TensorScatter`) to emit a static-shaped graph. **Caveat:** the Gemma-4
+> decoder does not yet implement the `StaticCacheState` dispatch (it has
+> KV-shared / sliding-window layers with dual RoPE), so
+> `--static-cache` currently raises `TypeError` for gemma4. Adding that
+> support is the main prerequisite for the QNN AOT path below — see
+> [Limitations](#limitations).
 
 > **Requires the mobius Gemma-4 GGUF fixes**
 > ([onnxruntime/mobius PR](https://github.com/onnxruntime/mobius/pull/new/justinchuby/gemma4-gguf-qnn)):
@@ -72,10 +91,29 @@ path), then run Olive from the quantization environment:
 olive run --config config_gguf.json
 ```
 
-`config_gguf.json` drops `MobiusBuilder` **and** `OnnxKQuantQuantization`
-(the INT4 weights already exist) and runs only
-`MatMulNBitsToQDQ → OnnxStaticQuantization → StaticLLM →
-EPContextBinaryGenerator`.
+`config_gguf.json` drops `MobiusBuilder`, `OnnxKQuantQuantization`, **and**
+`MatMulNBitsToQDQ` (the mobius `--ep qnn` build already emits decomposed
+Attention + QDQ INT4 weights) and runs only
+`OnnxStaticQuantization → StaticLLM → EPContextBinaryGenerator`.
+
+> **Known blocker (this recipe is not yet hardware-validated).** Two
+> gaps remain before the AOT stages compile the full model to HTP:
+>
+> 1. **Full-model single-graph HTP compose fails on size.** The complete
+>    35-layer / 4.65 B-param E2B graph returns `EP_FAIL: Failed to
+>    compose Qnn graph`. Bisection shows small/medium subsets (up to a few
+>    full-width layers, 262 k vocab, dual head_dim) compose fine on HTP —
+>    it is the *total* single-context size that exceeds the HTP
+>    finalization budget. The fix is to split the model and compile
+>    weight-shared EPContext binaries (`StaticLLM` / `SplitModel` +
+>    `EPContextBinaryGenerator(weight_sharing=True)`).
+> 2. **`StaticLLM` expects the ORT-GenAI static-KV contract.** Olive's
+>    QNN `StaticLLM` path assumes a GQA model with `past_seq_len` /
+>    `total_seq_len` scalar inputs and a fixed sliding-window KV buffer.
+>    mobius's `--ep qnn` output uses standard decomposed attention with
+>    `attention_mask` / `position_ids` and dynamic concat-grow KV, so it
+>    does not match. Implementing gemma4 `--static-cache` (see
+>    [Limitations](#limitations)) is the prerequisite that closes this gap.
 
 ## Approach (HF-source path)
 
@@ -162,47 +200,65 @@ but the existing borrowed-from-Phi-3 set is not it.
 
 ## Limitations
 
-This recipe has **not yet been validated end-to-end**. Known gaps:
+This recipe has **not yet been validated end-to-end**. Concrete findings
+from HTP experiments on a Snapdragon X (ORT 1.27, onnxruntime-qnn 2.4.0,
+QNN SDK 2.48.40, HTP V73):
 
-1. **Logit soft-cap may not lower to HTP.** Gemma 4's
+0. **gemma4 `--static-cache` is the top prerequisite.** HTP needs fully
+   static shapes, and Olive's QNN `StaticLLM` needs the ORT-GenAI
+   static-KV contract. mobius `build-gguf --static-cache` now provides the
+   general plumbing, but the Gemma-4 decoder itself does not implement the
+   `StaticCacheState` dispatch — its `Gemma4TextAttention` has KV-shared
+   layers (some layers borrow K,V from a source layer and keep no cache of
+   their own), sliding-window + full alternating layers, and dual
+   local/global RoPE. Adding static-cache support means: (a) generating a
+   static-cache attention bias for *both* layer types via
+   `create_static_cache_attention_bias`, (b) threading `StaticCacheState`
+   through `Gemma4DecoderLayer` / `Gemma4TextAttention`, allocating buffers
+   only for the `num_kv_layers` cache layers, (c) making KV-shared layers
+   read the source layer's static buffer. This is correctness-critical
+   surgery on the most complex model in mobius and must be validated with
+   HF numerical parity before use.
+
+1. **Full-model single-graph HTP compose fails on size.** See the blocker
+   note under [step 2](#gguf-direct-step-2--compile-to-a-qnn-htp-context-binary).
+   Needs model splitting + weight-shared EPContext binaries.
+
+2. **Fused ops have no HTP kernel** (filed as
+   [onnxruntime/onnxruntime-qnn#646](https://github.com/onnxruntime/onnxruntime-qnn/issues/646)):
+   the opset-24 `Attention` op and `com.microsoft::MatMulNBits` are forced
+   onto CPU by the QNN EP. mobius `--ep qnn` decomposes / inlines both so
+   the graph stays on HTP; empirically `RMSNormalization`, `Gelu`,
+   `MatMul`, `Softmax`, `Transpose` and blocked `DequantizeLinear` *do*
+   run on HTP.
+
+3. **Logit soft-cap may not lower to HTP.** Gemma 4's
    `logits = cap * tanh(logits / cap)` is unusual for QNN. If HTP
    rejects it, options are (a) skip soft-cap during QNN compile and
    apply it in host post-processing, or (b) add a
    `RemoveLogitSoftcap` GraphSurgery upstream in Olive.
 
-2. **Hybrid local/global attention with dual head_dim.** Gemma 4 E2B
-   alternates local sliding-window (head_dim=256) and global
-   (head_dim=512) attention layers. Whether HTP can dispatch this
-   correctly per-layer needs testing.
+4. **Hybrid local/global attention with dual head_dim.** Gemma 4 E2B
+   alternates local sliding-window and global attention layers with
+   different head_dim. Small dual-head_dim subsets compose on HTP; the
+   full alternation at 35 layers is untested past the size blocker above.
 
-3. **`per_layer_inputs` data flow.** The embedding component emits a
-   second output (`per_layer_inputs`, shape `[B, S, L*D]`) consumed by
-   every decoder block. When all components compile to QNN this should
-   "just work" (the data path stays inside the package), but the
-   `StaticLLM` pass may need a hint to recognise this extra tensor.
-
-4. **256k tokenizer calibration.** `wikitext-2` calibration likely
+5. **256k tokenizer calibration.** `wikitext-2` calibration likely
    under-represents Gemma 4's image / audio special tokens. Consider
    augmenting with multimodal-formatted prompts before production.
 
-5. **`StaticLLM context_length=64`.** Placeholder mirroring existing QNN
-   recipes; tune to target Snapdragon SKU memory budget.
+6. **`StaticLLM context_length=64`.** Placeholder mirroring existing QNN
+   recipes; tune to the target Snapdragon SKU memory budget.
 
-6. **Standard `Attention` op, not `GroupQueryAttention`.** mobius only
-   emits `com.microsoft::GroupQueryAttention(seqlens_k, total_seq_len)`
-   when the EP capability advertises `gqa_dtypes`. The QNN EP
-   capability in mobius currently has an empty `gqa_dtypes` list, so
-   `Gemma4TextModel.forward` (`src/mobius/models/gemma4.py:1500-1508`)
-   falls back to the standard opset-23 `Attention` with an
-   `attention_mask` input. QNN's HTP backend should have an attention
-   kernel for the standard op, but if it doesn't lower well there are
-   two options:
-   - extend mobius `ep_capabilities()` to advertise QNN-supported
-     dtypes for `gqa_dtypes`, then mobius will emit `GQA` directly
-     (no GraphSurgery needed); or
-   - port `AttentionMaskToSequenceLengths` to operate on standard
-     `Attention` (it currently checks for `GroupQueryAttention` only
-     and no-ops otherwise).
+### Reference: tok/s baselines (gemma-4-E2B Q4_K_M, Snapdragon X, 12 threads)
+
+| Runtime | Decode tok/s |
+|---|---|
+| llama.cpp (CPU ARM64) | 43.7 |
+| mobius INT4 ONNX (ORT CPU EP) | 18.2 |
+| HuggingFace transformers (fp32 torch CPU) | 0.04 |
+
+These are the CPU baselines to beat once the HTP/NPU path is unblocked.
 
 ## Discussion
 
