@@ -468,7 +468,9 @@
             "status": "Ready",
             "relativePath": "deepseek-ai-DeepSeek-R1-Distill-Qwen-14B/aitk",
             "version": 4,
-            "pipeline_tags": []
+            "pipeline_tags": [
+                "text-generation"
+            ]
         },
         {
             "displayName": "facebook/sam-vit-base",
@@ -562,7 +564,9 @@
             "status": "Ready",
             "relativePath": "mistralai-Mistral-7B-Instruct-v0.3/aitk",
             "version": 4,
-            "pipeline_tags": []
+            "pipeline_tags": [
+                "text-generation"
+            ]
         },
         {
             "displayName": "OFA-Sys/chinese-clip-vit-base-patch16",
