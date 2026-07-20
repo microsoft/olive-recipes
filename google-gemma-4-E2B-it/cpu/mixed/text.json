@@ -1,0 +1,16 @@
+{
+    "input_model": {
+        "type": "ONNXModel",
+        "model_path": "cpu/mixed/models/decoder/model.onnx"
+    },
+    "passes": {
+        "int4_quantize": {
+            "type": "OnnxKQuantQuantization",
+            "bits": 4,
+            "block_size": 32,
+            "save_as_external_data": true
+        }
+    },
+    "no_artifacts": true,
+    "output_dir": "cpu/mixed/models/decoder"
+}
