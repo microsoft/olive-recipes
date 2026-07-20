@@ -223,7 +223,12 @@ def project_processor():
         # model info
         modelInfo = convert_yaml_to_model_info(root_dir, yml_file, yaml_object)
         if GlobalVars.fillPipelineTags:
-            modelInfo.pipeline_tags = fetch_pipeline_tags(modelInfo.modelLink)
+            fetched_tags = fetch_pipeline_tags(modelInfo.modelLink)
+            if fetched_tags is None:
+                modelInfo.pipeline_tags = existing_pipeline_tags.get(modelInfo.id)
+                print(f"Warning: Could not fetch pipeline tags for {modelInfo.id}, using existing")
+            else:
+                modelInfo.pipeline_tags = fetched_tags
         else:
             modelInfo.pipeline_tags = existing_pipeline_tags.get(modelInfo.id)
         if modelInfo.id.lower() in all_ids:
