@@ -17,3 +17,4 @@ aitk:
     modelInfo:
         id: "huggingface/Qwen/Qwen3-0.6B"
         version: 1
+        status: Hide

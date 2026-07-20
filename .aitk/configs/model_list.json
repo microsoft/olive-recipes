@@ -849,7 +849,7 @@
                 "QNN"
             ],
             "architecture": "Transformer",
-            "status": "Ready",
+            "status": "Hide",
             "relativePath": "Qwen-Qwen3-0.6B/aitk",
             "version": 1,
             "pipeline_tags": [
