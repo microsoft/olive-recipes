@@ -10,7 +10,7 @@ This workflow contains two steps:
 
 ### Post-training Quantization (PTQ)
 
-This step using GPTQModel library, MatMul-NBits-QDQ and Static Quantization etc. They are resource-intensive and requires GPU acceleration.
+This step uses GPTQModel library, MatMul-NBits-QDQ and Static Quantization etc. They are resource-intensive and require GPU acceleration.
 
 ### Ahead of Time (AOT) Compilation
 
