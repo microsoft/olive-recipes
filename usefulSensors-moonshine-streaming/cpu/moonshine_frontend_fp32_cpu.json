@@ -1,0 +1,51 @@
+{
+    "input_model": {
+        "type": "PyTorchModel",
+        "model_path": "usefulsensors/moonshine-streaming-small",
+        "model_loader": "frontend_model_loader",
+        "model_script": "cpu/moonshine_model_load.py",
+        "io_config": {
+            "input_names": [
+                "audio_chunk", "sample_buffer", "sample_len",
+                "conv1_buffer", "conv2_buffer", "frame_count"
+            ],
+            "output_names": [
+                "features", "sample_buffer_out", "sample_len_out",
+                "conv1_buffer_out", "conv2_buffer_out", "frame_count_out"
+            ],
+            "dynamic_shapes": {
+                "audio_chunk": {"1": "audio_len"},
+                "sample_buffer": {},
+                "sample_len": {},
+                "conv1_buffer": {},
+                "conv2_buffer": {},
+                "frame_count": {}
+            }
+        },
+        "dummy_inputs_func": "frontend_dummy_inputs"
+    },
+    "systems": {
+        "local_system": {
+            "type": "LocalSystem",
+            "accelerators": [
+                {
+                    "device": "cpu",
+                    "execution_providers": ["CPUExecutionProvider"]
+                }
+            ]
+        }
+    },
+    "passes": {
+        "convert": {
+            "type": "OnnxConversion",
+            "target_opset": 20,
+            "dynamic": true,
+            "use_dynamo_exporter": true,
+            "save_as_external_data": true,
+            "external_data_name": "frontend.onnx.data"
+        }
+    },
+    "target": "local_system",
+    "output_dir": "build/onnx/frontend.onnx",
+    "no_artifacts": true
+}

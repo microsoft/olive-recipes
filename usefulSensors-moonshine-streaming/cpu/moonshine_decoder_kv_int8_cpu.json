@@ -1,0 +1,53 @@
+{
+    "input_model": {
+        "type": "PyTorchModel",
+        "model_path": "usefulsensors/moonshine-streaming-small",
+        "model_loader": "decoder_kv_model_loader",
+        "model_script": "cpu/moonshine_model_load.py",
+        "io_config": {
+            "input_names": ["token", "k_self", "v_self", "out_k_cross", "out_v_cross"],
+            "output_names": ["logits", "out_k_self", "out_v_self", "out_k_cross", "out_v_cross"],
+            "dynamic_shapes": {
+                "token": {"1": "q_seq"},
+                "k_self": {"3": "past_seq"},
+                "v_self": {"3": "past_seq"},
+                "out_k_cross": {"3": "cross_seq"},
+                "out_v_cross": {"3": "cross_seq"}
+            }
+        },
+        "dummy_inputs_func": "decoder_kv_dummy_inputs"
+    },
+    "systems": {
+        "local_system": {
+            "type": "LocalSystem",
+            "accelerators": [
+                {
+                    "device": "cpu",
+                    "execution_providers": ["CPUExecutionProvider"]
+                }
+            ]
+        }
+    },
+    "passes": {
+        "convert": {
+            "type": "OnnxConversion",
+            "target_opset": 20,
+            "dynamic": true,
+            "use_dynamo_exporter": true,
+            "save_as_external_data": true,
+            "external_data_name": "decoder_kv_fp32.onnx.data"
+        },
+        "quantize": {
+            "type": "OnnxDynamicQuantization",
+            "precision": "int8",
+            "op_types_to_quantize": ["MatMul"],
+            "per_channel": true,
+            "quant_preprocess": false,
+            "save_as_external_data": true,
+            "external_data_name": "decoder_kv.onnx.data"
+        }
+    },
+    "target": "local_system",
+    "output_dir": "build/onnx/decoder_kv.onnx",
+    "no_artifacts": true
+}
