@@ -11,10 +11,7 @@ Run inside the ``moonshine`` conda env:
 
 The exporter uses the TorchDynamo ONNX path (``dynamo=True``) so data-dependent
 shapes in the stateful frontend export cleanly, then rewrites every graph's
-input/output names to the exact contract genai expects.  Reference inputs and
-torch outputs for each graph are dumped to ``<output-dir>/refs/`` so the
-companion validation script can check numerical parity against the official
-``.ort`` graphs without needing transformers.
+input/output names to the exact contract genai expects.
 """
 
 from __future__ import annotations
@@ -22,7 +19,6 @@ from __future__ import annotations
 import argparse
 import os
 
-import numpy as np
 import onnx
 import torch
 from torch.export import Dim
@@ -118,23 +114,6 @@ def rename_io(path, input_names, output_names):
 
 
 # --------------------------------------------------------------------------- #
-# Reference dump for validation                                               #
-# --------------------------------------------------------------------------- #
-def dump_refs(refs_dir, name, module, dummy_args, input_names, output_names):
-    os.makedirs(refs_dir, exist_ok=True)
-    with torch.no_grad():
-        outputs = module(*dummy_args)
-    if not isinstance(outputs, (tuple, list)):
-        outputs = (outputs,)
-    arrays = {}
-    for n, t in zip(input_names, dummy_args):
-        arrays[f"in__{n}"] = t.detach().cpu().numpy()
-    for n, t in zip(output_names, outputs):
-        arrays[f"out__{n}"] = t.detach().cpu().numpy()
-    np.savez(os.path.join(refs_dir, f"{name}.npz"), **arrays)
-
-
-# --------------------------------------------------------------------------- #
 # Main                                                                        #
 # --------------------------------------------------------------------------- #
 def export_component(spec, model_name, output_dir, opset):
@@ -162,11 +141,6 @@ def export_component(spec, model_name, output_dir, opset):
     onnx.checker.check_model(onnx_path)
     print(f"  inputs : {ins}")
     print(f"  outputs: {outs}")
-
-    dump_refs(
-        os.path.join(output_dir, "refs"), name, module, dummy_args,
-        spec["input_names"], spec["output_names"],
-    )
     return onnx_path
 
 
