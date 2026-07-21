@@ -56,11 +56,9 @@ COMPONENTS = [
 # algorithm:
 #   "dynamic" -> INT8 RTN dynamic quant (MatMulInteger + DynamicQuantizeLinear),
 #               matching the official .ort.
-#   "kquant"  -> INT4 weight-only k-quant (MatMulNBits), like the nemotron
-#               recipe; smaller and uses least-squares refinement.
-#   "kquant8" -> INT8 weight-only k-quant (MatMulNBits, bits=8); same k-quant
-#               least-squares refinement as "kquant" but 8-bit weights for
-#               higher accuracy at a larger artifact than INT4.
+#   "kquant8" -> INT8 weight-only k-quant (MatMulNBits, bits=8); uses
+#               least-squares refinement for higher accuracy than dynamic
+#               quant at a similar disk size.
 #   "kquant8-enc" -> same INT8 weight-only k-quant as "kquant8" but applied to
 #               the ENCODER ONLY; decoder_kv stays FP32 (use when decoder
 #               quantization degrades transcription quality).
@@ -68,10 +66,6 @@ QUANTIZED_CONFIGS = {
     "dynamic": {
         "encoder.onnx": "moonshine_encoder_int8_cpu.json",
         "decoder_kv.onnx": "moonshine_decoder_kv_int8_cpu.json",
-    },
-    "kquant": {
-        "encoder.onnx": "moonshine_encoder_int4_cpu.json",
-        "decoder_kv.onnx": "moonshine_decoder_kv_int4_cpu.json",
     },
     "kquant8": {
         "encoder.onnx": "moonshine_encoder_kquant8_cpu.json",
@@ -85,7 +79,6 @@ QUANTIZED_CONFIGS = {
 }
 _QUANT_LABELS = {
     "dynamic": "OnnxConversion -> INT8 DynamicQuant (RTN)",
-    "kquant": "OnnxConversion -> INT4 k-quant (MatMulNBits)",
     "kquant8": "OnnxConversion -> INT8 k-quant (MatMulNBits)",
     "kquant8-enc": "OnnxConversion -> INT8 k-quant, encoder only (MatMulNBits)",
 }
@@ -337,13 +330,24 @@ def main():
     parser.add_argument("--quantize", action="store_true",
                         help="Quantize the encoder + decoder_kv MatMuls "
                              "(frontend/adapter/cross_kv stay FP32).")
-    parser.add_argument("--quant-method", choices=["dynamic", "kquant", "kquant8", "kquant8-enc"], default="dynamic",
+    parser.add_argument("--quant-method", choices=["dynamic", "kquant8", "kquant8-enc"], default="dynamic",
                         help="Algorithm used when --quantize is set: 'dynamic' = INT8 RTN "
                              "dynamic quant (MatMulInteger, matches the official .ort); "
-                             "'kquant' = INT4 weight-only k-quant (MatMulNBits, like nemotron); "
                              "'kquant8' = INT8 weight-only k-quant (MatMulNBits, bits=8); "
                              "'kquant8-enc' = INT8 k-quant on the encoder only (decoder_kv stays FP32).")
     args = parser.parse_args()
+
+    # This recipe is architecture-locked to the usefulsensors/moonshine-streaming
+    # family (tiny / small). Other checkpoints may have different frontend
+    # buffer sizes, encoder/decoder dims, or tokenizer configs and won't
+    # produce a runnable genai model. Warn but don't hard-fail so local
+    # forks can still opt in.
+    if not args.model_name.startswith("usefulsensors/moonshine-streaming-"):
+        print(
+            f"  Warning: --model-name '{args.model_name}' is outside the "
+            f"'usefulsensors/moonshine-streaming-*' family this recipe was "
+            f"built for; export may fail or produce an unusable model."
+        )
 
     run_olive_pipelines(args.model_name, args.output_dir,
                         quantize=args.quantize, quant_method=args.quant_method)

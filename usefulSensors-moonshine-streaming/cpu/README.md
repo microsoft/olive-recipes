@@ -26,8 +26,6 @@ with the exact input/output names the streaming runner expects:
 - `cpu/moonshine_decoder_kv_fp32_cpu.json` – Olive decoder-KV config (convert only)
 - `cpu/moonshine_encoder_int8_cpu.json` – Olive encoder config (convert → INT8 dynamic quant)
 - `cpu/moonshine_decoder_kv_int8_cpu.json` – Olive decoder-KV config (convert → INT8 dynamic quant)
-- `cpu/moonshine_encoder_int4_cpu.json` – Olive encoder config (convert → INT4 k-quant)
-- `cpu/moonshine_decoder_kv_int4_cpu.json` – Olive decoder-KV config (convert → INT4 k-quant)
 - `cpu/moonshine_model_load.py` – model loaders + wrapper modules + dummy inputs
 - `cpu/optimize.py` – full pipeline script (Olive × 5 + tokenizer + configs + VAD)
 - `cpu/export_moonshine_streaming.py` – standalone exporter (no Olive; for debugging)
@@ -79,39 +77,22 @@ are unchanged. `--quant-method` picks the algorithm:
   which chain `OnnxConversion → OnnxDynamicQuantization` (weight matmuls become
   `MatMulInteger` + `DynamicQuantizeLinear`), matching the shipped official
   `.ort`. Fastest on CPU.
-- `--quant-method kquant` — INT4 **weight-only k-quant** (like the nemotron
-  recipe). Swaps in `moonshine_encoder_int4_cpu.json` /
-  `moonshine_decoder_kv_int4_cpu.json`, which chain
-  `OnnxConversion → OnnxKQuantQuantization` (`bits=4`, `block_size=32`,
-  `accuracy_level=4`; weight matmuls become `MatMulNBits`). Smallest on disk;
-  weight-only, so activation×activation attention matmuls stay FP32 and the
-  token-embedding `Gather` is left FP32.
 
 ```bash
 # INT8 RTN dynamic (default)
 python cpu/optimize.py --quantize --output-dir build/moonshine-small-int8
-
-# INT4 k-quant
-python cpu/optimize.py --quantize --quant-method kquant \
-    --output-dir build/moonshine-small-int4
 ```
 
-On a 40s clip (CPU EP), both preserve transcription quality; INT8 dynamic is
-fastest, INT4 k-quant is smallest:
+On a 40s clip (CPU EP), INT8 dynamic preserves transcription quality:
 
 | build | encoder | decoder_kv | total | RTF |
 |---|---|---|---|---|
 | FP32 | 168 MB | 309 MB | ~541 MB | ~7.0× |
 | INT8 dynamic (`--quantize`) | 42 MB | 125 MB | ~233 MB | ~9.0× |
-| INT4 k-quant (`--quant-method kquant`) | 27 MB | 103 MB | ~196 MB | ~7.7× |
 | official `.ort` | 42 MB | 174 MB | — | ~9.4× |
 
-Transcription is essentially identical to FP32 for both (only quant-noise
-wording drift). INT4 k-quant is the smallest model but on CPU it is *not*
-faster than INT8 dynamic: `MatMulNBits` is weight-only, so the int4→compute
-de-quant overhead offsets the memory-bandwidth win for this small,
-compute-bound model. Prefer `dynamic` for speed, `kquant` for the smallest
-artifact.
+Transcription is essentially identical to FP32 for INT8 dynamic (only
+quant-noise wording drift).
 
 Or run individual components directly with the Olive CLI:
 
