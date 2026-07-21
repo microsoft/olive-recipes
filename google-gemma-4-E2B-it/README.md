@@ -39,8 +39,9 @@ Install ONNX Runtime GenAI:
 ### Mixed quantization (separate text / vision / audio)
 
 These recipes split the model into components with per-component
-quantization — int4 for the text decoder, int8 for vision and audio
-encoders — for better accuracy vs. latency trade-offs.
+quantization — int4 for the text decoder, int8 for the vision and audio
+encoders, and int8 for the token embedding — for better accuracy vs.
+latency/size trade-offs.
 
 | Recipe | Pipeline | Output dir |
 |---|---|---|
@@ -48,13 +49,15 @@ encoders — for better accuracy vs. latency trade-offs.
 | `cpu/mixed/text.json` | `OnnxKQuantQuantization(int4, block=32)` — quantize decoder | `cpu/mixed/models/decoder` |
 | `cpu/mixed/vision.json` | `OnnxBlockWiseRtnQuantization(int8, block=128)` — quantize vision encoder | `cpu/mixed/models/vision_encoder` |
 | `cpu/mixed/audio.json` | `OnnxBlockWiseRtnQuantization(int8, block=128)` — quantize audio encoder | `cpu/mixed/models/audio_encoder` |
+| `cpu/mixed/embedding.json` | `OnnxBlockWiseRtnQuantization(int8, block=128)` — quantize token embedding | `cpu/mixed/models/embedding` |
 | `cuda/mixed/export.json` | `MobiusBuilder(fp16)` — export all components | `cuda/mixed/models` |
 | `cuda/mixed/text.json` | `OnnxKQuantQuantization(int4, block=32)` — quantize decoder | `cuda/mixed/models/decoder` |
 | `cuda/mixed/vision.json` | `OnnxBlockWiseRtnQuantization(int8, block=32)` — quantize vision encoder | `cuda/mixed/models/vision_encoder` |
 | `cuda/mixed/audio.json` | `OnnxBlockWiseRtnQuantization(int8, block=32)` — quantize audio encoder | `cuda/mixed/models/audio_encoder` |
+| `cuda/mixed/embedding.json` | `OnnxBlockWiseRtnQuantization(int8, block=32)` — quantize token embedding | `cuda/mixed/models/embedding` |
 
-**Run order**: export first, then text, vision, and audio (the latter three
-can run in parallel):
+**Run order**: export first, then text, vision, audio, and embedding (the
+latter four can run in parallel):
 
 ```bash
 # CPU mixed
@@ -62,12 +65,14 @@ olive run --config cpu/mixed/export.json
 olive run --config cpu/mixed/text.json
 olive run --config cpu/mixed/vision.json
 olive run --config cpu/mixed/audio.json
+olive run --config cpu/mixed/embedding.json
 
 # CUDA mixed
 olive run --config cuda/mixed/export.json
 olive run --config cuda/mixed/text.json
 olive run --config cuda/mixed/vision.json
 olive run --config cuda/mixed/audio.json
+olive run --config cuda/mixed/embedding.json
 ```
 
 K-Quant (Q4_K_M) is significantly faster with GPU acceleration —
