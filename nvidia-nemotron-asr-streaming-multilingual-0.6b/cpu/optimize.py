@@ -1,23 +1,17 @@
-"""End-to-end optimization pipeline for Nemotron Speech Streaming.
+"""End-to-end CPU optimization pipeline for Nemotron Speech Streaming.
 
-All model components (encoder, decoder, joint) are exported and optimized
-using Olive's declarative pass system:
-
-  - Encoder: OnnxConversion → OnnxKQuantQuantization
-  - Decoder: OnnxConversion (FP32)
-  - Joint:   OnnxConversion (FP32)
-
-After the Olive pipelines, tokenizer and config files are generated and
-Silero VAD is downloaded.
+The encoder is exported and quantized to INT4 or INT8. The decoder and joint
+network are exported in FP32. The pipeline also exports the tokenizer,
+generates runtime configuration files, and downloads Silero VAD.
 
 Usage:
-    # Full pipeline
-    python src/optimize.py
+    python cpu/optimize.py
+    python cpu/optimize.py --encoder-precision int8
 
-    # Or use Olive CLI directly for individual components:
-    python -m olive run --config src/nemotron_encoder_int4_cpu.json
-    python -m olive run --config src/nemotron_decoder_fp32_cpu.json
-    python -m olive run --config src/nemotron_joint_fp32_cpu.json
+    # Or run individual Olive configs:
+    python -m olive run --config cpu/nemotron_encoder_int4_cpu.json
+    python -m olive run --config cpu/nemotron_decoder_fp32_cpu.json
+    python -m olive run --config cpu/nemotron_joint_fp32_cpu.json
 """
 
 import argparse
@@ -28,7 +22,7 @@ import sys
 import tempfile
 from pathlib import Path
 
-# Ensure the recipe root is on sys.path so `from src.nemotron_model_load import ...` works
+# Ensure the recipe root is on sys.path so `from cpu.nemotron_model_load import ...` works
 # regardless of where the script is invoked from.
 _SCRIPT_DIR = Path(__file__).resolve().parent
 _RECIPE_ROOT = _SCRIPT_DIR.parent
@@ -40,8 +34,15 @@ _TOKENIZER_SCRIPT = _RECIPE_ROOT / "scripts" / "export_tokenizer.py"
 DEFAULT_OUTPUT_DIR = "build/onnx_models_int4"
 
 
+def resolve_encoder_config(encoder_precision: str) -> str:
+    """Select the encoder Olive config for the requested precision."""
+    if encoder_precision == "int8":
+        return "nemotron_encoder_int8_cpu.json"
+    return "nemotron_encoder_int4_cpu.json"
+
+
 def _resolve(path: str) -> Path:
-    """Resolve a path relative to the src/ directory."""
+    """Resolve a path relative to the cpu/ directory."""
     p = Path(path)
     return p if p.is_absolute() else _SCRIPT_DIR / p
 
@@ -71,14 +72,12 @@ def _run_olive_pipeline(config_name: str, output_dir: str, output_subdir: str, m
 
 
 def run_olive_pipelines(output_dir: str, model_path: str = None, encoder_precision: str = "int4"):
-    """Run all Olive pipelines: encoder (INT4 or INT8), decoder (FP32), joint (FP32)."""
+    """Run the CPU Olive pipelines."""
     if encoder_precision == "int8":
-        encoder_config = "nemotron_encoder_int8_cpu.json"
         print("=== Stage 1: Olive Encoder (OnnxConversion → INT8 k-quant) ===")
     else:
-        encoder_config = "nemotron_encoder_int4_cpu.json"
         print("=== Stage 1: Olive Encoder (OnnxConversion → INT4 quant) ===")
-    _run_olive_pipeline(encoder_config, output_dir, "encoder.onnx", model_path)
+    _run_olive_pipeline(resolve_encoder_config(encoder_precision), output_dir, "encoder.onnx", model_path)
     print()
 
     print("=== Stage 2: Olive Decoder (OnnxConversion, FP32) ===")
@@ -105,14 +104,14 @@ def run_tokenizer_export(model_name: str, output_dir: str):
     print()
 
 
-def generate_configs(model_name: str, output_dir: str, chunk_size: float):
+def generate_configs(model_name: str, output_dir: str, chunk_size: float, include_vad: bool = True):
     """Generate genai_config.json and audio_processor_config.json.
 
     Loads the NeMo model to extract architecture parameters, then writes
     the config files needed by onnxruntime-genai for inference.
     """
     print("=== Stage 5: Generating config files ===")
-    from src.nemotron_model_load import _load_nemo_model, get_att_context_size, D_MODEL, N_LAYERS, DECODER_HIDDEN, DECODER_LSTM_LAYERS
+    from cpu.nemotron_model_load import _load_nemo_model, get_att_context_size, D_MODEL, N_LAYERS, DECODER_HIDDEN, DECODER_LSTM_LAYERS
 
     asr_model = _load_nemo_model(model_name)
     asr_model.eval()
@@ -217,14 +216,15 @@ def generate_configs(model_name: str, output_dir: str, chunk_size: float):
                     "logits": "joint_output",
                 },
             },
-            "vad": {
-                "filename": "silero_vad.onnx",
-                "threshold": 0.3,
-                "silence_duration_ms": 3360,
-                "prefix_padding_ms": 560,
-            },
         },
     }
+    if include_vad:
+        genai_config["model"]["vad"] = {
+            "filename": "silero_vad.onnx",
+            "threshold": 0.3,
+            "silence_duration_ms": 3360,
+            "prefix_padding_ms": 560,
+        }
 
     with open(dst / "genai_config.json", "w") as f:
         json.dump(genai_config, f, indent=2)
@@ -294,7 +294,7 @@ def download_silero_vad(output_dir: str):
 
 
 def main():
-    from src.nemotron_model_load import MODEL_NAME, CHUNK_SIZE
+    from cpu.nemotron_model_load import MODEL_NAME, CHUNK_SIZE
 
     parser = argparse.ArgumentParser(
         description="Optimize Nemotron Speech Streaming for CPU inference"
@@ -313,36 +313,29 @@ def main():
         "--encoder-precision",
         choices=["int4", "int8"],
         default="int4",
-        help="Encoder precision: int4 (k-quant) or int8 (dynamic). Default: int4.",
+        help="Encoder precision. Default: int4.",
     )
     args = parser.parse_args()
 
-    # Validate model name — the Olive configs and model_load.py constants are
-    # specific to the 0.6B model architecture.
     if not args.model_name.endswith(".nemo") and args.model_name != MODEL_NAME:
         raise ValueError(
             f"This recipe only supports '{MODEL_NAME}' (or a .nemo file with the same architecture). "
             f"Got: '{args.model_name}'"
         )
 
-    # Stages 1-3: Run Olive pipelines for encoder, decoder, joint
     run_olive_pipelines(
         output_dir=args.output_dir,
         model_path=args.model_name,
         encoder_precision=args.encoder_precision,
     )
-
-    # Stage 4: Export tokenizer
     run_tokenizer_export(model_name=args.model_name, output_dir=args.output_dir)
-
-    # Stage 5: Generate config files (chunk_size matches the hardcoded export shapes)
     generate_configs(
         model_name=args.model_name,
         output_dir=args.output_dir,
         chunk_size=CHUNK_SIZE,
+        include_vad=True,
     )
 
-    # Stage 6: Download Silero VAD
     vad_dest = _resolve(args.output_dir) / "silero_vad.onnx"
     try:
         download_silero_vad(output_dir=args.output_dir)
@@ -353,16 +346,18 @@ def main():
             f"  and place silero_vad.onnx at: {vad_dest}"
         )
 
-    # Summary
     output_path = _resolve(args.output_dir)
     if output_path.exists():
         files = sorted(f for f in output_path.iterdir() if f.is_file())
         total_mb = sum(f.stat().st_size for f in files) / (1024 * 1024)
         print(f"=== Done! Optimized models → {output_path} ===")
         print(f"    Total size: {total_mb:.1f} MB")
-        enc_label = {"int4": "INT4 k-quant (Olive)", "int8": "INT8 dynamic (Olive)"}.get(args.encoder_precision, "")
+        enc_label = {
+            "int4": "INT4 k-quant (Olive)",
+            "int8": "INT8 dynamic (Olive)",
+        }[args.encoder_precision]
         for f in files:
-            tag = f" ← {enc_label}" if f.name.startswith("encoder") and enc_label else ""
+            tag = f" ← {enc_label}" if f.name.startswith("encoder") else ""
             print(f"    {f.name} ({f.stat().st_size / (1024 * 1024):.1f} MB){tag}")
 
 
