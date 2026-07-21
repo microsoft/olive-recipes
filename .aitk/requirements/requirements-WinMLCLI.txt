@@ -45,7 +45,7 @@ multiprocess==0.70.19
 narwhals==2.22.1
 networkx==3.6.1
 numpy==2.2.6
-onnx==1.18.0
+onnx==1.22.0
 onnx-ir==0.2.1
 onnxruntime-windowsml==1.24.5.202604171637
 onnxscript==0.7.1
@@ -95,12 +95,12 @@ sympy==1.14.0
 threadpoolctl==3.6.0
 timm==1.0.27
 tokenizers==0.22.2
-torch==2.12.1
+torch==2.13.0
 torchinfo==1.8.0
 torchmetrics==1.9.0
 torchvision==0.27.1
 tqdm==4.68.3
-transformers==4.57.6
+transformers==5.5.0
 typing-extensions==4.15.0
 typing-inspection==0.4.2
 tzdata==2026.2
