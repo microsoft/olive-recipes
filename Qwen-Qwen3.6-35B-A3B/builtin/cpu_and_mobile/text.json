@@ -1,0 +1,19 @@
+{
+    "input_model": {
+        "type": "HfModel",
+        "model_path": "Qwen/Qwen3.6-35B-A3B"
+    },
+    "passes": {
+        "m": {
+            "type": "ModelBuilder",
+            "precision": "int4",
+            "int4_block_size": 128,
+            "int4_accuracy_level": 4,
+            "extra_options": {
+                "filename": "text.onnx"
+            }
+        }
+    },
+    "no_artifacts": true,
+    "output_dir": "cpu_and_mobile/models/text.onnx"
+}
