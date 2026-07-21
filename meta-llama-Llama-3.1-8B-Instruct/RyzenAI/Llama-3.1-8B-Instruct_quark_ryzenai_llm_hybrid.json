@@ -1,5 +1,8 @@
 {
-    "input_model": { "type": "HFModel", "model_path": "meta-llama/Llama-3.1-8B-Instruct" },
+    "input_model": {
+        "type": "HFModel",
+        "model_path": "meta-llama/Llama-3.1-8B-Instruct"
+    },
     "passes": {
         "qq": {
             "type": "QuarkQuantization",
@@ -8,19 +11,25 @@
             "dataset": "pileval_for_awq_benchmark",
             "data_type": "bfloat16",
             "num_calib_data": 128,
-            "model_export": ["hf_format"],
+            "model_export": [
+                "hf_format"
+            ],
             "exclude_layers": []
         },
         "mg": {
             "type": "RyzenGenerateModelLLM",
-            "recipe": "token_fusion",
+            "mode": "hybrid",
+            "recipe": "prefill_fusion",
             "extra_options": {
-                "model_type": "llama3-8b"
+                "model_type": "llama3-8b",
+                "max_seq_len": "16384",
+                "flash_mha": "true",
+                "attributes": "enable_flat_kv=true enable_flatmlp=true"
             }
         }
     },
     "log_severity_level": 1,
-    "output_dir": "models/Llama-3.1-8B-Instruct-rai",
+    "output_dir": "models/Llama-3.1-8B-Instruct-hybrid-rai",
     "cache_dir": "olive_cache",
     "no_artifacts": true
 }

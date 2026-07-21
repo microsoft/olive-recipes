@@ -1,5 +1,8 @@
 {
-    "input_model": { "type": "HFModel", "model_path": "microsoft/Phi-4-mini-instruct" },
+    "input_model": {
+        "type": "HFModel",
+        "model_path": "microsoft/Phi-4-mini-instruct"
+    },
     "passes": {
         "qq": {
             "type": "QuarkQuantization",
@@ -8,20 +11,26 @@
             "dataset": "pileval_for_awq_benchmark",
             "data_type": "bfloat16",
             "num_calib_data": 128,
-            "model_export": ["hf_format"],
+            "model_export": [
+                "hf_format"
+            ],
             "exclude_layers": [],
             "trust_remote_code": false
         },
         "mg": {
             "type": "RyzenGenerateModelLLM",
-            "recipe": "token_fusion",
+            "mode": "hybrid",
+            "recipe": "prefill_fusion",
             "extra_options": {
-                "max_seq_len": "16384"
+                "model_type": "phi-4",
+                "max_seq_len": "16384",
+                "flash_mha": "true",
+                "attributes": "enable_flat_kv=true enable_flatmlp=true"
             }
         }
     },
     "log_severity_level": 1,
-    "output_dir": "models/Phi-4-mini-instruct-rai",
+    "output_dir": "models/Phi-4-mini-instruct-hybrid-rai",
     "cache_dir": "olive_cache",
     "no_artifacts": true
 }
