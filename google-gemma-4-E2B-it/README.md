@@ -36,7 +36,7 @@ Install ONNX Runtime GenAI:
 | `cuda/fp16/config.json` | `MobiusBuilder(fp16)` | `cuda/fp16/models` |
 | `cuda/int4/config.json` | `MobiusBuilder(fp16)` → `OnnxKQuantQuantization(bits=4, block=32)` | `cuda/int4/models` |
 
-### Mixed quantization (separate text / vision / audio)
+### Mixed quantization (separate text / vision / audio / embedding)
 
 These recipes split the model into components with per-component
 quantization — int4 for the text decoder, int8 for the vision and audio
