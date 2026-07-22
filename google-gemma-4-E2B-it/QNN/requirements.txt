@@ -1,0 +1,6 @@
+datasets
+gguf
+mobius-ai
+olive-ai
+onnxruntime-gpu
+transformers
