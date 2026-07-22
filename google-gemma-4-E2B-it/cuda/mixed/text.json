@@ -8,12 +8,444 @@
             "type": "OnnxKQuantQuantization",
             "bits": 4,
             "block_size": 32,
+            "customized_weight_config": {
+                "decoder/model/layers.0/mlp/down_proj/MatMul_node_124": {
+                    "bits": 8
+                },
+                "decoder/model/layers.1/mlp/down_proj/MatMul_node_173": {
+                    "bits": 8
+                },
+                "decoder/model/layers.2/mlp/down_proj/MatMul_node_222": {
+                    "bits": 8
+                },
+                "decoder/model/layers.3/mlp/down_proj/MatMul_node_271": {
+                    "bits": 8
+                },
+                "decoder/model/layers.4/mlp/down_proj/MatMul_node_320": {
+                    "bits": 8
+                },
+                "decoder/model/layers.5/mlp/down_proj/MatMul_node_369": {
+                    "bits": 8
+                },
+                "decoder/model/layers.6/mlp/down_proj/MatMul_node_418": {
+                    "bits": 8
+                },
+                "decoder/model/layers.7/mlp/down_proj/MatMul_node_467": {
+                    "bits": 8
+                },
+                "decoder/model/layers.8/mlp/down_proj/MatMul_node_516": {
+                    "bits": 8
+                },
+                "decoder/model/layers.9/mlp/down_proj/MatMul_node_565": {
+                    "bits": 8
+                },
+                "decoder/model/layers.10/mlp/down_proj/MatMul_node_614": {
+                    "bits": 8
+                },
+                "decoder/model/layers.11/mlp/down_proj/MatMul_node_663": {
+                    "bits": 8
+                },
+                "decoder/model/layers.12/mlp/down_proj/MatMul_node_712": {
+                    "bits": 8
+                },
+                "decoder/model/layers.13/mlp/down_proj/MatMul_node_761": {
+                    "bits": 8
+                },
+                "decoder/model/layers.14/mlp/down_proj/MatMul_node_810": {
+                    "bits": 8
+                },
+                "decoder/model/layers.15/mlp/down_proj/MatMul_node_846": {
+                    "bits": 8
+                },
+                "decoder/model/layers.16/mlp/down_proj/MatMul_node_882": {
+                    "bits": 8
+                },
+                "decoder/model/layers.17/mlp/down_proj/MatMul_node_918": {
+                    "bits": 8
+                },
+                "decoder/model/layers.18/mlp/down_proj/MatMul_node_954": {
+                    "bits": 8
+                },
+                "decoder/model/layers.19/mlp/down_proj/MatMul_node_990": {
+                    "bits": 8
+                },
+                "decoder/model/layers.20/mlp/down_proj/MatMul_node_1026": {
+                    "bits": 8
+                },
+                "decoder/model/layers.21/mlp/down_proj/MatMul_node_1062": {
+                    "bits": 8
+                },
+                "decoder/model/layers.22/mlp/down_proj/MatMul_node_1098": {
+                    "bits": 8
+                },
+                "decoder/model/layers.23/mlp/down_proj/MatMul_node_1134": {
+                    "bits": 8
+                },
+                "decoder/model/layers.24/mlp/down_proj/MatMul_node_1170": {
+                    "bits": 8
+                },
+                "decoder/model/layers.25/mlp/down_proj/MatMul_node_1206": {
+                    "bits": 8
+                },
+                "decoder/model/layers.26/mlp/down_proj/MatMul_node_1242": {
+                    "bits": 8
+                },
+                "decoder/model/layers.27/mlp/down_proj/MatMul_node_1278": {
+                    "bits": 8
+                },
+                "decoder/model/layers.28/mlp/down_proj/MatMul_node_1314": {
+                    "bits": 8
+                },
+                "decoder/model/layers.29/mlp/down_proj/MatMul_node_1350": {
+                    "bits": 8
+                },
+                "decoder/model/layers.30/mlp/down_proj/MatMul_node_1386": {
+                    "bits": 8
+                },
+                "decoder/model/layers.31/mlp/down_proj/MatMul_node_1422": {
+                    "bits": 8
+                },
+                "decoder/model/layers.32/mlp/down_proj/MatMul_node_1458": {
+                    "bits": 8
+                },
+                "decoder/model/layers.33/mlp/down_proj/MatMul_node_1494": {
+                    "bits": 8
+                },
+                "decoder/model/layers.34/mlp/down_proj/MatMul_node_1530": {
+                    "bits": 8
+                },
+                "decoder/lm_head/MatMul_node_1544": {
+                    "bits": 8
+                },
+                "decoder/model/layers.0/self_attn/o_proj/MatMul_node_113": {
+                    "bits": 8
+                },
+                "decoder/model/layers.1/self_attn/o_proj/MatMul_node_162": {
+                    "bits": 8
+                },
+                "decoder/model/layers.2/self_attn/o_proj/MatMul_node_211": {
+                    "bits": 8
+                },
+                "decoder/model/layers.3/self_attn/o_proj/MatMul_node_260": {
+                    "bits": 8
+                },
+                "decoder/model/layers.4/self_attn/o_proj/MatMul_node_309": {
+                    "bits": 8
+                },
+                "decoder/model/layers.5/self_attn/o_proj/MatMul_node_358": {
+                    "bits": 8
+                },
+                "decoder/model/layers.6/self_attn/o_proj/MatMul_node_407": {
+                    "bits": 8
+                },
+                "decoder/model/layers.7/self_attn/o_proj/MatMul_node_456": {
+                    "bits": 8
+                },
+                "decoder/model/layers.8/self_attn/o_proj/MatMul_node_505": {
+                    "bits": 8
+                },
+                "decoder/model/layers.9/self_attn/o_proj/MatMul_node_554": {
+                    "bits": 8
+                },
+                "decoder/model/layers.10/self_attn/o_proj/MatMul_node_603": {
+                    "bits": 8
+                },
+                "decoder/model/layers.11/self_attn/o_proj/MatMul_node_652": {
+                    "bits": 8
+                },
+                "decoder/model/layers.12/self_attn/o_proj/MatMul_node_701": {
+                    "bits": 8
+                },
+                "decoder/model/layers.13/self_attn/o_proj/MatMul_node_750": {
+                    "bits": 8
+                },
+                "decoder/model/layers.14/self_attn/o_proj/MatMul_node_799": {
+                    "bits": 8
+                },
+                "decoder/model/layers.15/self_attn/o_proj/MatMul_node_835": {
+                    "bits": 8
+                },
+                "decoder/model/layers.16/self_attn/o_proj/MatMul_node_871": {
+                    "bits": 8
+                },
+                "decoder/model/layers.17/self_attn/o_proj/MatMul_node_907": {
+                    "bits": 8
+                },
+                "decoder/model/layers.18/self_attn/o_proj/MatMul_node_943": {
+                    "bits": 8
+                },
+                "decoder/model/layers.19/self_attn/o_proj/MatMul_node_979": {
+                    "bits": 8
+                },
+                "decoder/model/layers.20/self_attn/o_proj/MatMul_node_1015": {
+                    "bits": 8
+                },
+                "decoder/model/layers.21/self_attn/o_proj/MatMul_node_1051": {
+                    "bits": 8
+                },
+                "decoder/model/layers.22/self_attn/o_proj/MatMul_node_1087": {
+                    "bits": 8
+                },
+                "decoder/model/layers.23/self_attn/o_proj/MatMul_node_1123": {
+                    "bits": 8
+                },
+                "decoder/model/layers.24/self_attn/o_proj/MatMul_node_1159": {
+                    "bits": 8
+                },
+                "decoder/model/layers.25/self_attn/o_proj/MatMul_node_1195": {
+                    "bits": 8
+                },
+                "decoder/model/layers.26/self_attn/o_proj/MatMul_node_1231": {
+                    "bits": 8
+                },
+                "decoder/model/layers.27/self_attn/o_proj/MatMul_node_1267": {
+                    "bits": 8
+                },
+                "decoder/model/layers.28/self_attn/o_proj/MatMul_node_1303": {
+                    "bits": 8
+                },
+                "decoder/model/layers.29/self_attn/o_proj/MatMul_node_1339": {
+                    "bits": 8
+                },
+                "decoder/model/layers.30/self_attn/o_proj/MatMul_node_1375": {
+                    "bits": 8
+                },
+                "decoder/model/layers.31/self_attn/o_proj/MatMul_node_1411": {
+                    "bits": 8
+                },
+                "decoder/model/layers.32/self_attn/o_proj/MatMul_node_1447": {
+                    "bits": 8
+                },
+                "decoder/model/layers.33/self_attn/o_proj/MatMul_node_1483": {
+                    "bits": 8
+                },
+                "decoder/model/layers.34/self_attn/o_proj/MatMul_node_1519": {
+                    "bits": 8
+                },
+                "decoder/model/layers.0/mlp/gate_proj/MatMul_node_118": {
+                    "bits": 8
+                },
+                "decoder/model/layers.1/mlp/gate_proj/MatMul_node_167": {
+                    "bits": 8
+                },
+                "decoder/model/layers.2/mlp/gate_proj/MatMul_node_216": {
+                    "bits": 8
+                },
+                "decoder/model/layers.3/mlp/gate_proj/MatMul_node_265": {
+                    "bits": 8
+                },
+                "decoder/model/layers.4/mlp/gate_proj/MatMul_node_314": {
+                    "bits": 8
+                },
+                "decoder/model/layers.5/mlp/gate_proj/MatMul_node_363": {
+                    "bits": 8
+                },
+                "decoder/model/layers.6/mlp/gate_proj/MatMul_node_412": {
+                    "bits": 8
+                },
+                "decoder/model/layers.7/mlp/gate_proj/MatMul_node_461": {
+                    "bits": 8
+                },
+                "decoder/model/layers.8/mlp/gate_proj/MatMul_node_510": {
+                    "bits": 8
+                },
+                "decoder/model/layers.9/mlp/gate_proj/MatMul_node_559": {
+                    "bits": 8
+                },
+                "decoder/model/layers.10/mlp/gate_proj/MatMul_node_608": {
+                    "bits": 8
+                },
+                "decoder/model/layers.11/mlp/gate_proj/MatMul_node_657": {
+                    "bits": 8
+                },
+                "decoder/model/layers.12/mlp/gate_proj/MatMul_node_706": {
+                    "bits": 8
+                },
+                "decoder/model/layers.13/mlp/gate_proj/MatMul_node_755": {
+                    "bits": 8
+                },
+                "decoder/model/layers.14/mlp/gate_proj/MatMul_node_804": {
+                    "bits": 8
+                },
+                "decoder/model/layers.15/mlp/gate_proj/MatMul_node_840": {
+                    "bits": 8
+                },
+                "decoder/model/layers.16/mlp/gate_proj/MatMul_node_876": {
+                    "bits": 8
+                },
+                "decoder/model/layers.17/mlp/gate_proj/MatMul_node_912": {
+                    "bits": 8
+                },
+                "decoder/model/layers.18/mlp/gate_proj/MatMul_node_948": {
+                    "bits": 8
+                },
+                "decoder/model/layers.19/mlp/gate_proj/MatMul_node_984": {
+                    "bits": 8
+                },
+                "decoder/model/layers.20/mlp/gate_proj/MatMul_node_1020": {
+                    "bits": 8
+                },
+                "decoder/model/layers.21/mlp/gate_proj/MatMul_node_1056": {
+                    "bits": 8
+                },
+                "decoder/model/layers.22/mlp/gate_proj/MatMul_node_1092": {
+                    "bits": 8
+                },
+                "decoder/model/layers.23/mlp/gate_proj/MatMul_node_1128": {
+                    "bits": 8
+                },
+                "decoder/model/layers.24/mlp/gate_proj/MatMul_node_1164": {
+                    "bits": 8
+                },
+                "decoder/model/layers.25/mlp/gate_proj/MatMul_node_1200": {
+                    "bits": 8
+                },
+                "decoder/model/layers.26/mlp/gate_proj/MatMul_node_1236": {
+                    "bits": 8
+                },
+                "decoder/model/layers.27/mlp/gate_proj/MatMul_node_1272": {
+                    "bits": 8
+                },
+                "decoder/model/layers.28/mlp/gate_proj/MatMul_node_1308": {
+                    "bits": 8
+                },
+                "decoder/model/layers.29/mlp/gate_proj/MatMul_node_1344": {
+                    "bits": 8
+                },
+                "decoder/model/layers.30/mlp/gate_proj/MatMul_node_1380": {
+                    "bits": 8
+                },
+                "decoder/model/layers.31/mlp/gate_proj/MatMul_node_1416": {
+                    "bits": 8
+                },
+                "decoder/model/layers.32/mlp/gate_proj/MatMul_node_1452": {
+                    "bits": 8
+                },
+                "decoder/model/layers.33/mlp/gate_proj/MatMul_node_1488": {
+                    "bits": 8
+                },
+                "decoder/model/layers.34/mlp/gate_proj/MatMul_node_1524": {
+                    "bits": 8
+                },
+                "decoder/model/layers.0/mlp/up_proj/MatMul_node_121": {
+                    "bits": 8
+                },
+                "decoder/model/layers.1/mlp/up_proj/MatMul_node_170": {
+                    "bits": 8
+                },
+                "decoder/model/layers.2/mlp/up_proj/MatMul_node_219": {
+                    "bits": 8
+                },
+                "decoder/model/layers.3/mlp/up_proj/MatMul_node_268": {
+                    "bits": 8
+                },
+                "decoder/model/layers.4/mlp/up_proj/MatMul_node_317": {
+                    "bits": 8
+                },
+                "decoder/model/layers.5/mlp/up_proj/MatMul_node_366": {
+                    "bits": 8
+                },
+                "decoder/model/layers.6/mlp/up_proj/MatMul_node_415": {
+                    "bits": 8
+                },
+                "decoder/model/layers.7/mlp/up_proj/MatMul_node_464": {
+                    "bits": 8
+                },
+                "decoder/model/layers.8/mlp/up_proj/MatMul_node_513": {
+                    "bits": 8
+                },
+                "decoder/model/layers.9/mlp/up_proj/MatMul_node_562": {
+                    "bits": 8
+                },
+                "decoder/model/layers.10/mlp/up_proj/MatMul_node_611": {
+                    "bits": 8
+                },
+                "decoder/model/layers.11/mlp/up_proj/MatMul_node_660": {
+                    "bits": 8
+                },
+                "decoder/model/layers.12/mlp/up_proj/MatMul_node_709": {
+                    "bits": 8
+                },
+                "decoder/model/layers.13/mlp/up_proj/MatMul_node_758": {
+                    "bits": 8
+                },
+                "decoder/model/layers.14/mlp/up_proj/MatMul_node_807": {
+                    "bits": 8
+                },
+                "decoder/model/layers.15/mlp/up_proj/MatMul_node_843": {
+                    "bits": 8
+                },
+                "decoder/model/layers.16/mlp/up_proj/MatMul_node_879": {
+                    "bits": 8
+                },
+                "decoder/model/layers.17/mlp/up_proj/MatMul_node_915": {
+                    "bits": 8
+                },
+                "decoder/model/layers.18/mlp/up_proj/MatMul_node_951": {
+                    "bits": 8
+                },
+                "decoder/model/layers.19/mlp/up_proj/MatMul_node_987": {
+                    "bits": 8
+                },
+                "decoder/model/layers.20/mlp/up_proj/MatMul_node_1023": {
+                    "bits": 8
+                },
+                "decoder/model/layers.21/mlp/up_proj/MatMul_node_1059": {
+                    "bits": 8
+                },
+                "decoder/model/layers.22/mlp/up_proj/MatMul_node_1095": {
+                    "bits": 8
+                },
+                "decoder/model/layers.23/mlp/up_proj/MatMul_node_1131": {
+                    "bits": 8
+                },
+                "decoder/model/layers.24/mlp/up_proj/MatMul_node_1167": {
+                    "bits": 8
+                },
+                "decoder/model/layers.25/mlp/up_proj/MatMul_node_1203": {
+                    "bits": 8
+                },
+                "decoder/model/layers.26/mlp/up_proj/MatMul_node_1239": {
+                    "bits": 8
+                },
+                "decoder/model/layers.27/mlp/up_proj/MatMul_node_1275": {
+                    "bits": 8
+                },
+                "decoder/model/layers.28/mlp/up_proj/MatMul_node_1311": {
+                    "bits": 8
+                },
+                "decoder/model/layers.29/mlp/up_proj/MatMul_node_1347": {
+                    "bits": 8
+                },
+                "decoder/model/layers.30/mlp/up_proj/MatMul_node_1383": {
+                    "bits": 8
+                },
+                "decoder/model/layers.31/mlp/up_proj/MatMul_node_1419": {
+                    "bits": 8
+                },
+                "decoder/model/layers.32/mlp/up_proj/MatMul_node_1455": {
+                    "bits": 8
+                },
+                "decoder/model/layers.33/mlp/up_proj/MatMul_node_1491": {
+                    "bits": 8
+                },
+                "decoder/model/layers.34/mlp/up_proj/MatMul_node_1527": {
+                    "bits": 8
+                }
+            },
             "save_as_external_data": true
         }
     },
     "target": {
         "type": "LocalSystem",
-        "accelerators": [{ "device": "gpu", "execution_providers": ["CUDAExecutionProvider"] }]
+        "accelerators": [
+            {
+                "device": "gpu",
+                "execution_providers": [
+                    "CUDAExecutionProvider"
+                ]
+            }
+        ]
     },
     "no_artifacts": true,
     "output_dir": "cuda/mixed/models/decoder"
