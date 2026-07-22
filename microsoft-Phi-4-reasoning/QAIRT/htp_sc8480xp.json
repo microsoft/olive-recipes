@@ -3,12 +3,16 @@
         "type": "HFModel",
         "model_path": "microsoft/Phi-4-reasoning"
     },
-    "recipe_metadata": {
-        "version": "1.0.0",
-        "validated_with": {
-            "qairt_sdk": "2.45.0",
-            "qairt_dev": "0.5.0",
-            "python": "3.10"
+    "vendor": {
+        "qairt": {
+            "recipe_metadata": {
+                "version": "1.0.0",
+                "validated_with": {
+                    "qairt_sdk": "2.45.0",
+                    "qairt_dev": "0.5.0",
+                    "python": "3.10"
+                }
+            }
         }
     },
     "passes": {

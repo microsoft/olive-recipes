@@ -3,12 +3,16 @@
         "type": "HFModel",
         "model_path": "meta-llama/Llama-3.1-8B-Instruct"
     },
-    "recipe_metadata": {
-        "version": "1.0.0",
-        "validated_with": {
-            "qairt_sdk": "2.48.0",
-            "qairt_dev": "0.8.1",
-            "python": "3.10"
+    "vendor": {
+        "qairt": {
+            "recipe_metadata": {
+                "version": "1.0.0",
+                "validated_with": {
+                    "qairt_sdk": "2.48.0",
+                    "qairt_dev": "0.8.1",
+                    "python": "3.10"
+                }
+            }
         }
     },
     "passes": {
