@@ -39,19 +39,35 @@ Install ONNX Runtime GenAI:
 ### Mixed quantization (separate text / vision / audio / embedding)
 
 These recipes split the model into components with per-component
-quantization — int4 for the text decoder, int8 for the vision and audio
-encoders, and int8 for the token embedding — for better accuracy vs.
+quantization — a **mixed int4/int8 text decoder**, int8 for the vision and
+audio encoders, and int8 for the token embedding — for better accuracy vs.
 latency/size trade-offs.
+
+**Mixed-bit decoder**: the decoder is int4 K-Quant by default, but the most
+quantization-sensitive weights are upcast to int8 via the
+`customized_weight_config` in `text.json`. This targets, in every one of the
+35 transformer layers, the `down_proj`, `gate_proj`, `up_proj`, and
+`o_proj` MatMuls plus the global `lm_head` (141 weights total → int8; the
+remaining `q/k/v_proj` and per-layer gates stay int4). Empirically these
+nodes carry most of the int4 accuracy loss, so upcasting only them recovers
+most of the fp16 quality for a small size cost (CUDA decoder 1.41 GB pure-int4
+→ 2.50 GB mixed). See the validation table in the PR for AI2D / FLEURS / MMLU
+numbers.
+
+> Note: `customized_weight_config` keys are exact exported node names
+> (e.g. `.../down_proj/MatMul_node_124`). These are deterministic for a given
+> MobiusBuilder export but can shift if the export graph changes; regenerate
+> the config against the current export if node names move.
 
 | Recipe | Pipeline | Output dir |
 |---|---|---|
 | `cpu/mixed/export.json` | `MobiusBuilder(fp32)` — export all components | `cpu/mixed/models` |
-| `cpu/mixed/text.json` | `OnnxKQuantQuantization(int4, block=32)` — quantize decoder | `cpu/mixed/models/decoder` |
+| `cpu/mixed/text.json` | `OnnxKQuantQuantization(int4, block=32)` + int8 upcast of sensitive weights — quantize decoder | `cpu/mixed/models/decoder` |
 | `cpu/mixed/vision.json` | `OnnxBlockWiseRtnQuantization(int8, block=128)` — quantize vision encoder | `cpu/mixed/models/vision_encoder` |
 | `cpu/mixed/audio.json` | `OnnxBlockWiseRtnQuantization(int8, block=128)` — quantize audio encoder | `cpu/mixed/models/audio_encoder` |
 | `cpu/mixed/embedding.json` | `OnnxBlockWiseRtnQuantization(int8, block=128)` — quantize token embedding | `cpu/mixed/models/embedding` |
 | `cuda/mixed/export.json` | `MobiusBuilder(fp16)` — export all components | `cuda/mixed/models` |
-| `cuda/mixed/text.json` | `OnnxKQuantQuantization(int4, block=32)` — quantize decoder | `cuda/mixed/models/decoder` |
+| `cuda/mixed/text.json` | `OnnxKQuantQuantization(int4, block=32)` + int8 upcast of sensitive weights — quantize decoder | `cuda/mixed/models/decoder` |
 | `cuda/mixed/vision.json` | `OnnxBlockWiseRtnQuantization(int8, block=32)` — quantize vision encoder | `cuda/mixed/models/vision_encoder` |
 | `cuda/mixed/audio.json` | `OnnxBlockWiseRtnQuantization(int8, block=32)` — quantize audio encoder | `cuda/mixed/models/audio_encoder` |
 | `cuda/mixed/embedding.json` | `OnnxBlockWiseRtnQuantization(int8, block=32)` — quantize token embedding | `cuda/mixed/models/embedding` |
@@ -122,7 +138,7 @@ python inference.py --variant int4 --prompt "Hello"
 # CUDA INT4
 python inference.py --device gpu --variant int4 --prompt "Explain quantum computing"
 
-# CUDA mixed (int4 decoder + int8 vision/audio)
+# CUDA mixed (mixed int4/int8 decoder + int8 vision/audio/embedding)
 python inference.py --device gpu --variant mixed --prompt "Explain quantum computing"
 
 # Interactive mode
