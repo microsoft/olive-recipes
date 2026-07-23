@@ -18,7 +18,8 @@
     },
     "passes": {
         "cb": {
-            "type": "EPContextBinaryGenerator"
+            "type": "EPContextBinaryGenerator",
+            "weight_sharing": true
         }
     },
     "target": "qnn_system",
