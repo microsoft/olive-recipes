@@ -34,7 +34,7 @@ _RECIPE_ROOT = _SCRIPT_DIR.parent
 if str(_RECIPE_ROOT) not in sys.path:
     sys.path.insert(0, str(_RECIPE_ROOT))
 
-MODEL_NAME = "usefulsensors/moonshine-streaming-small"
+MODEL_NAME = "usefulsensors/moonshine-streaming-tiny"
 DEFAULT_OUTPUT_DIR = "build/onnx"
 
 # chunk_samples is the streaming window fed to the frontend each step. It must

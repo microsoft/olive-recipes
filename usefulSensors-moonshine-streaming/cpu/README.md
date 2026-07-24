@@ -1,7 +1,7 @@
 # Moonshine Streaming (CPU EP)
 
-This recipe exports **usefulsensors/moonshine-streaming-small** or
-**usefulsensors/moonshine-streaming-tiny** to ONNX and produces CPU-ready
+This recipe exports **usefulsensors/moonshine-streaming-tiny** (default) or
+**usefulsensors/moonshine-streaming-small** to ONNX and produces CPU-ready
 ONNX Runtime GenAI artifacts for streaming ASR. Pick the variant with
 `--model-name` (see [Run](#run)).
 
@@ -48,7 +48,7 @@ From the `usefulSensors-moonshine-streaming` directory:
 ```bash
 cd usefulSensors-moonshine-streaming
 
-python cpu/optimize.py --output-dir build/moonshine-small
+python cpu/optimize.py --output-dir build/moonshine-tiny
 ```
 
 This runs the full pipeline:
@@ -60,11 +60,11 @@ This runs the full pipeline:
 `--output-dir` is resolved relative to the `cpu/` directory unless an absolute
 path is given.
 
-Export the **tiny** variant instead:
+Export the **small** variant instead:
 
 ```bash
-python cpu/optimize.py --model-name usefulsensors/moonshine-streaming-tiny \
-    --output-dir build/moonshine-tiny
+python cpu/optimize.py --model-name usefulsensors/moonshine-streaming-small \
+    --output-dir build/moonshine-small
 ```
 
 ### Quantization (`--quantize`)
@@ -84,11 +84,11 @@ are unchanged. `--quant-method` picks the algorithm:
 
 ```bash
 # INT8 k-quant on encoder + decoder_kv (default)
-python cpu/optimize.py --quantize --output-dir build/moonshine-small-kquant8
+python cpu/optimize.py --quantize --output-dir build/moonshine-tiny-kquant8
 
 # INT8 k-quant on encoder only, FP32 decoder
 python cpu/optimize.py --quantize --quant-method kquant8-enc \
-    --output-dir build/moonshine-small-kquant8-enc
+    --output-dir build/moonshine-tiny-kquant8-enc
 ```
 
 On a 40s clip (CPU EP), INT8 k-quant preserves transcription quality:
@@ -114,7 +114,7 @@ python -m olive run --config cpu/moonshine_decoder_kv_fp32_cpu.json
 ```
 
 ## Output
-Expected artifacts in `cpu/build/moonshine-small/`:
+Expected artifacts in `cpu/build/moonshine-tiny/`:
 - `frontend.onnx` (+ `frontend.onnx.data`)
 - `encoder.onnx` (+ `encoder.onnx.data`)
 - `adapter.onnx` (+ `adapter.onnx.data`)

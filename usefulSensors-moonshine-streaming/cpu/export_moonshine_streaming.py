@@ -6,8 +6,8 @@ Run inside the ``moonshine`` conda env:
 
     source /home/nebanfic/miniconda3/bin/activate moonshine
     python export_moonshine_streaming.py \
-        --model usefulsensors/moonshine-streaming-small \
-        --output-dir /datadisks/disk3/nebanfic/moonshine-streaming-small-mine
+        --model usefulsensors/moonshine-streaming-tiny \
+        --output-dir /datadisks/disk3/nebanfic/moonshine-streaming-tiny-mine
 
 The exporter uses the TorchDynamo ONNX path (``dynamo=True``) so data-dependent
 shapes in the stateful frontend export cleanly, then rewrites every graph's
@@ -146,7 +146,7 @@ def export_component(spec, model_name, output_dir, opset):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--model", default="usefulsensors/moonshine-streaming-small")
+    parser.add_argument("--model", default="usefulsensors/moonshine-streaming-tiny")
     parser.add_argument("--output-dir", required=True)
     parser.add_argument("--opset", type=int, default=20)
     parser.add_argument("--chunk-samples", type=int, default=8000)

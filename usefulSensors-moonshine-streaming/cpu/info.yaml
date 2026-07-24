@@ -1,8 +1,8 @@
 name: usefulSensors-moonshine-streaming
 provider: usefulsensors
-model_id: usefulsensors/moonshine-streaming-small
-# The recipe also supports usefulsensors/moonshine-streaming-tiny via
-# `--model-name usefulsensors/moonshine-streaming-tiny`.
+model_id: usefulsensors/moonshine-streaming-tiny
+# The recipe also supports usefulsensors/moonshine-streaming-small via
+# `--model-name usefulsensors/moonshine-streaming-small`.
 task: automatic-speech-recognition
 framework: ONNX Runtime
 execution_provider: CPUExecutionProvider
