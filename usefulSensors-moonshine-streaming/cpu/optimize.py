@@ -10,12 +10,12 @@ Torch checkpoint -- no pre-built ``.ort`` graphs are used.
       -> OnnxConversion (FP32, dynamo exporter, dynamic sequence axes)
 
 Usage:
-    # Full pipeline (small model -> build/onnx)
+    # Full pipeline (tiny model -> build/onnx)
     python cpu/optimize.py
 
-    # Tiny model
-    python cpu/optimize.py --model-name usefulsensors/moonshine-streaming-tiny \
-        --output-dir build/onnx-tiny
+    # Small model
+    python cpu/optimize.py --model-name usefulsensors/moonshine-streaming-small \
+        --output-dir build/onnx-small
 
     # Or run a single component directly through the Olive CLI:
     python -m olive run --config cpu/moonshine_frontend_fp32_cpu.json
