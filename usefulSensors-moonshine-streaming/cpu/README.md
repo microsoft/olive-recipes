@@ -1,7 +1,9 @@
-# Moonshine Streaming (CPU EP, FP32)
+# Moonshine Streaming (CPU EP)
 
-This recipe exports **usefulsensors/moonshine-streaming-small** to ONNX and
-produces CPU-ready ONNX Runtime GenAI artifacts for streaming ASR.
+This recipe exports **usefulsensors/moonshine-streaming-small** or
+**usefulsensors/moonshine-streaming-tiny** to ONNX and produces CPU-ready
+ONNX Runtime GenAI artifacts for streaming ASR. Pick the variant with
+`--model-name` (see [Run](#run)).
 
 The streaming model is exported as **five FP32 ONNX components**, each handled
 through Olive's declarative `OnnxConversion` pass (dynamo exporter, opset 20)
@@ -29,7 +31,6 @@ with the exact input/output names the streaming runner expects:
 - `cpu/moonshine_model_load.py` – model loaders + wrapper modules + dummy inputs
 - `cpu/optimize.py` – full pipeline script (Olive × 5 + tokenizer + configs + VAD)
 - `cpu/export_moonshine_streaming.py` – standalone exporter (no Olive; for debugging)
-- `cpu/validate_export.py` – per-component torch-vs-ONNX numeric check
 
 ## Setup
 From repo root:
@@ -92,11 +93,12 @@ python cpu/optimize.py --quantize --quant-method kquant8-enc \
 
 On a 40s clip (CPU EP), INT8 k-quant preserves transcription quality:
 
-| build | encoder | decoder_kv | total | RTF |
-|---|---|---|---|---|
-| FP32 | 168 MB | 309 MB | ~541 MB | ~7.0× |
-| INT8 k-quant (`--quantize`) | ~40 MB | ~120 MB | ~230 MB | ~8– 9× |
-| official `.ort` | 42 MB | 174 MB | — | ~9.4× |
+| variant | build | encoder | decoder_kv | total | RTF |
+|---|---|---|---|---|---|
+| small | FP32 | 168 MB | 309 MB | ~541 MB | ~7.0× |
+| small | INT8 k-quant (`--quantize`) | ~40 MB | ~120 MB | ~230 MB | ~8–9× |
+| small | official `.ort` | 42 MB | 174 MB | — | ~9.4× |
+| tiny  | INT8 k-quant (`--quantize`) | ~8 MB | ~64 MB | ~94 MB | ~17× |
 
 Transcription is essentially identical to FP32 (only quant-noise wording
 drift).
@@ -123,19 +125,3 @@ Expected artifacts in `cpu/build/moonshine-small/`:
 - `tokenizer.json`
 - `tokenizer_config.json`
 - `silero_vad.onnx`
-
-## Validation
-`validate_export.py` checks each component two ways: exported ONNX vs the
-PyTorch reference outputs (tight tolerance), and — optionally — exported ONNX vs
-the shipped official graph on identical inputs (loose tolerance for the
-int8-quantized cross-KV / decoder-KV graphs).
-
-It expects the `--mine` directory to contain `<component>.onnx` plus
-`refs/<component>.npz` (torch reference in/out dumped by the standalone
-`export_moonshine_streaming.py`). `--official` is optional:
-
-```bash
-python cpu/validate_export.py \
-    --mine /path/to/moonshine-streaming-small-mine \
-    --official /path/to/moonshine-streaming-small-official
-```
