@@ -81,9 +81,13 @@ class FrontendModule(nn.Module):
     (even), the stride-2 phase stays aligned across chunks and the concatenated
     output is bit-for-bit identical to running the embedder on the full signal.
 
-    Sub-frame audio (``total_samples % frame_len``) is carried in
-    ``sample_buffer`` / ``sample_len`` and prepended to the next chunk so the
-    framing is contiguous.
+    Sub-frame audio (``total_samples % frame_len``) is emitted in
+    ``sample_buffer_out`` / ``sample_len_out`` so a final (flush) chunk of
+    non-multiple length records its remainder before reset.  The input
+    ``sample_buffer`` / ``sample_len`` slots exist for graph shape parity but
+    are not consumed in the current genai contract: ``chunk_samples`` is a
+    multiple of ``frame_len``, so ``sample_len`` is always ``0`` on input and
+    the chunk is framed directly.  See ``forward()``.
     """
 
     def __init__(self, full: MoonshineStreamingForConditionalGeneration):
@@ -102,8 +106,8 @@ class FrontendModule(nn.Module):
     def forward(
         self,
         audio_chunk,      # [1, L]     float32
-        sample_buffer,    # [1, 79]    float32
-        sample_len,       # [1]        int64
+        sample_buffer,    # [1, 79]    float32  (unused; kept for graph parity)
+        sample_len,       # [1]        int64    (unused; assumed 0 by contract)
         conv1_buffer,     # [1, C1, 4] float32  (last inputs of conv1)
         conv2_buffer,     # [1, C2, 4] float32  (last inputs of conv2)
         frame_count,      # [1]        int64

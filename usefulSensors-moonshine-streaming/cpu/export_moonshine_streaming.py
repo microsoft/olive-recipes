@@ -2,12 +2,12 @@
 graphs for onnxruntime-genai (frontend / encoder / adapter / cross_kv /
 decoder_kv).
 
-Run inside the ``moonshine`` conda env:
+Run inside a Python env with the moonshine transformers integration installed:
 
-    source /home/nebanfic/miniconda3/bin/activate moonshine
+    conda activate moonshine   # or: source .venv/bin/activate
     python export_moonshine_streaming.py \
         --model usefulsensors/moonshine-streaming-tiny \
-        --output-dir /datadisks/disk3/nebanfic/moonshine-streaming-tiny-mine
+        --output-dir build/moonshine-streaming-tiny
 
 The exporter uses the TorchDynamo ONNX path (``dynamo=True``) so data-dependent
 shapes in the stateful frontend export cleanly, then rewrites every graph's
