@@ -54,19 +54,13 @@ COMPONENTS = [
 # With --quantize, swap the encoder + decoder_kv to a quantized config
 # (frontend/adapter/cross_kv always stay FP32). --quant-method picks the
 # algorithm:
-#   "dynamic" -> INT8 RTN dynamic quant (MatMulInteger + DynamicQuantizeLinear),
-#               matching the official .ort.
 #   "kquant8" -> INT8 weight-only k-quant (MatMulNBits, bits=8); uses
-#               least-squares refinement for higher accuracy than dynamic
-#               quant at a similar disk size.
+#               least-squares refinement for higher accuracy than plain RTN
+#               at a similar disk size.
 #   "kquant8-enc" -> same INT8 weight-only k-quant as "kquant8" but applied to
 #               the ENCODER ONLY; decoder_kv stays FP32 (use when decoder
 #               quantization degrades transcription quality).
 QUANTIZED_CONFIGS = {
-    "dynamic": {
-        "encoder.onnx": "moonshine_encoder_int8_cpu.json",
-        "decoder_kv.onnx": "moonshine_decoder_kv_int8_cpu.json",
-    },
     "kquant8": {
         "encoder.onnx": "moonshine_encoder_kquant8_cpu.json",
         "decoder_kv.onnx": "moonshine_decoder_kv_kquant8_cpu.json",
@@ -78,7 +72,6 @@ QUANTIZED_CONFIGS = {
     },
 }
 _QUANT_LABELS = {
-    "dynamic": "OnnxConversion -> INT8 DynamicQuant (RTN)",
     "kquant8": "OnnxConversion -> INT8 k-quant (MatMulNBits)",
     "kquant8-enc": "OnnxConversion -> INT8 k-quant, encoder only (MatMulNBits)",
 }
@@ -142,7 +135,7 @@ def _run_olive_pipeline(config_name, model_name, output_dir, output_subdir):
         Path(tmp_path).unlink(missing_ok=True)
 
 
-def run_olive_pipelines(model_name, output_dir, quantize=False, quant_method="dynamic"):
+def run_olive_pipelines(model_name, output_dir, quantize=False, quant_method="kquant8"):
     configs = QUANTIZED_CONFIGS.get(quant_method, {}) if quantize else {}
     for i, (config_name, subdir) in enumerate(COMPONENTS, 1):
         if subdir in configs:
@@ -330,9 +323,8 @@ def main():
     parser.add_argument("--quantize", action="store_true",
                         help="Quantize the encoder + decoder_kv MatMuls "
                              "(frontend/adapter/cross_kv stay FP32).")
-    parser.add_argument("--quant-method", choices=["dynamic", "kquant8", "kquant8-enc"], default="dynamic",
-                        help="Algorithm used when --quantize is set: 'dynamic' = INT8 RTN "
-                             "dynamic quant (MatMulInteger, matches the official .ort); "
+    parser.add_argument("--quant-method", choices=["kquant8", "kquant8-enc"], default="kquant8",
+                        help="Algorithm used when --quantize is set: "
                              "'kquant8' = INT8 weight-only k-quant (MatMulNBits, bits=8); "
                              "'kquant8-enc' = INT8 k-quant on the encoder only (decoder_kv stays FP32).")
     args = parser.parse_args()

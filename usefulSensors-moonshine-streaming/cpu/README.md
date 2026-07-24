@@ -24,8 +24,8 @@ with the exact input/output names the streaming runner expects:
 - `cpu/moonshine_adapter_fp32_cpu.json` – Olive adapter config (convert only)
 - `cpu/moonshine_cross_kv_fp32_cpu.json` – Olive cross-KV config (convert only)
 - `cpu/moonshine_decoder_kv_fp32_cpu.json` – Olive decoder-KV config (convert only)
-- `cpu/moonshine_encoder_int8_cpu.json` – Olive encoder config (convert → INT8 dynamic quant)
-- `cpu/moonshine_decoder_kv_int8_cpu.json` – Olive decoder-KV config (convert → INT8 dynamic quant)
+- `cpu/moonshine_encoder_kquant8_cpu.json` – Olive encoder config (convert → INT8 k-quant)
+- `cpu/moonshine_decoder_kv_kquant8_cpu.json` – Olive decoder-KV config (convert → INT8 k-quant)
 - `cpu/moonshine_model_load.py` – model loaders + wrapper modules + dummy inputs
 - `cpu/optimize.py` – full pipeline script (Olive × 5 + tokenizer + configs + VAD)
 - `cpu/export_moonshine_streaming.py` – standalone exporter (no Olive; for debugging)
@@ -72,27 +72,34 @@ Add `--quantize` to quantize the **encoder** and **decoder_kv** MatMuls
 (frontend / adapter / cross_kv stay FP32). IO names and the runtime configs
 are unchanged. `--quant-method` picks the algorithm:
 
-- `--quant-method dynamic` (default) — INT8 RTN **dynamic** quant. Swaps in
-  `moonshine_encoder_int8_cpu.json` / `moonshine_decoder_kv_int8_cpu.json`,
-  which chain `OnnxConversion → OnnxDynamicQuantization` (weight matmuls become
-  `MatMulInteger` + `DynamicQuantizeLinear`), matching the shipped official
-  `.ort`. Fastest on CPU.
+- `--quant-method kquant8` (default) — INT8 **weight-only k-quant**. Swaps in
+  `moonshine_encoder_kquant8_cpu.json` / `moonshine_decoder_kv_kquant8_cpu.json`,
+  which chain `OnnxConversion → OnnxKQuantQuantization` (`bits=8`, `block_size=32`;
+  weight matmuls become `MatMulNBits`). Weight-only, so activation×activation
+  attention matmuls stay FP32.
+- `--quant-method kquant8-enc` — same INT8 k-quant, **encoder only**;
+  `decoder_kv` stays FP32. Use when decoder quantization degrades transcription
+  quality and you can afford the larger decoder.
 
 ```bash
-# INT8 RTN dynamic (default)
-python cpu/optimize.py --quantize --output-dir build/moonshine-small-int8
+# INT8 k-quant on encoder + decoder_kv (default)
+python cpu/optimize.py --quantize --output-dir build/moonshine-small-kquant8
+
+# INT8 k-quant on encoder only, FP32 decoder
+python cpu/optimize.py --quantize --quant-method kquant8-enc \
+    --output-dir build/moonshine-small-kquant8-enc
 ```
 
-On a 40s clip (CPU EP), INT8 dynamic preserves transcription quality:
+On a 40s clip (CPU EP), INT8 k-quant preserves transcription quality:
 
 | build | encoder | decoder_kv | total | RTF |
 |---|---|---|---|---|
 | FP32 | 168 MB | 309 MB | ~541 MB | ~7.0× |
-| INT8 dynamic (`--quantize`) | 42 MB | 125 MB | ~233 MB | ~9.0× |
+| INT8 k-quant (`--quantize`) | ~40 MB | ~120 MB | ~230 MB | ~8– 9× |
 | official `.ort` | 42 MB | 174 MB | — | ~9.4× |
 
-Transcription is essentially identical to FP32 for INT8 dynamic (only
-quant-noise wording drift).
+Transcription is essentially identical to FP32 (only quant-noise wording
+drift).
 
 Or run individual components directly with the Olive CLI:
 
