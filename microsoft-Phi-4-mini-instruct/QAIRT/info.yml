@@ -3,9 +3,9 @@ keywords:
     qnn
 version: "1.0.0"
 validated_with:
-    qairt_sdk: "2.48.0"
+    qairt_sdk: "2.45.40"
     qairt_dev: "0.8.1"
-    python: "3.10"
+    python: "3.10.12"
 recipes:
     - file: "htp_sc8380xp.json"
       devices:
