@@ -3,15 +3,11 @@ keywords:
     qnn
 version: "1.0.0"
 validated_with:
-    qairt_sdk: "2.45.0"
-    qairt_dev: "0.5.0"
+    qairt_sdk: "2.48.0"
+    qairt_dev: "0.8.1"
     python: "3.10"
 recipes:
     - file: "htp_sc8380xp.json"
-      devices:
-        - npu
-      ep: QNNExecutionProvider
-    - file: "htp_sc8480xp.json"
       devices:
         - npu
       ep: QNNExecutionProvider
