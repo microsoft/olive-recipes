@@ -23,6 +23,24 @@
                     "output_idx": 0,
                     "dim_idx": 0,
                     "dim_name": "num_logical_patches"
+                },
+                {
+                    "surgeon": "RenameOutputDims",
+                    "output_idx": 1,
+                    "dim_idx": 0,
+                    "dim_name": "num_logical_patches"
+                },
+                {
+                    "surgeon": "RenameOutputDims",
+                    "output_idx": 2,
+                    "dim_idx": 0,
+                    "dim_name": "num_logical_patches"
+                },
+                {
+                    "surgeon": "RenameOutputDims",
+                    "output_idx": 3,
+                    "dim_idx": 0,
+                    "dim_name": "num_logical_patches"
                 }
             ]
         },

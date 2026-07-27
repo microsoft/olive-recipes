@@ -466,7 +466,11 @@ class Qwen3VLVisionModel(Qwen3VLPreTrainedModel):
                 The temporal, height and width of feature shape of each image in LLM.
 
         Returns:
-            `torch.Tensor`: hidden_states (merged image features).
+            tuple of `torch.Tensor`:
+                - image_features (merged image features), shape `(num_logical_patches, out_hidden_size)`
+                - deepstack_feature_0/1/2: the per-index DeepStack features (same shape), captured at
+                  `deepstack_visual_indexes` and passed through their patch mergers. Returned separately
+                  (NOT folded into image_features) so the text decoder can inject them per-layer.
         """
         hidden_states = self.patch_embed(hidden_states)
 
@@ -487,8 +491,13 @@ class Qwen3VLVisionModel(Qwen3VLPreTrainedModel):
         )
         cu_seqlens = F.pad(cu_seqlens, (1, 0), value=0)
 
-        # NOTE: DeepStack features are not exported separately for ONNX.
-        # They are handled by the text model builder (ModelBuilder) in the text.json pass.
+        # DeepStack: capture visual features at the configured layers and run them
+        # through their per-index patch mergers. Return them SEPARATELY (not folded
+        # into the merged features) so the text decoder can inject each into its
+        # corresponding early layer (feature[i] -> decoder layer i), matching HF's
+        # layer-wise deepstack injection exactly instead of the input-embedding
+        # approximation.
+        deepstack_feats = []
         for layer_num, blk in enumerate(self.blocks):
             hidden_states = blk(
                 hidden_states,
@@ -496,10 +505,14 @@ class Qwen3VLVisionModel(Qwen3VLPreTrainedModel):
                 position_embeddings=position_embeddings,
                 **kwargs,
             )
+            if layer_num in self.deepstack_visual_indexes:
+                ds_idx = self.deepstack_visual_indexes.index(layer_num)
+                deepstack_feats.append(self.deepstack_merger_list[ds_idx](hidden_states))
 
         hidden_states = self.merger(hidden_states)
 
-        return hidden_states
+        # image_features + one output per deepstack index (3 for case2: indexes [5, 11, 17])
+        return (hidden_states, *deepstack_feats)
 
 
 @dataclass
@@ -862,24 +875,38 @@ class Qwen3VLModel(Qwen3VLPreTrainedModel):
     def get_image_features(self, pixel_values: torch.FloatTensor, image_grid_thw: Optional[torch.LongTensor] = None):
         """
         Encodes images into continuous embeddings that can be forwarded to the language model.
-        For ONNX export, only returns the main merged features (no deepstack).
+
+        Returns a tuple `(image_features, deepstack_0, deepstack_1, deepstack_2)`. vision.onnx is
+        exported single-image (VisionState loops per-image in C++), so no per-image split is needed;
+        the DeepStack features are returned separately for per-layer injection in the text decoder.
         """
         pixel_values = pixel_values.type(self.visual.dtype)
-        image_embeds = self.visual(pixel_values, grid_thw=image_grid_thw)
-        split_sizes = (image_grid_thw.prod(-1) // self.visual.spatial_merge_size**2).tolist()
-        image_embeds = torch.split(image_embeds, split_sizes)
-        return image_embeds
+        image_features, *deepstack_feats = self.visual(pixel_values, grid_thw=image_grid_thw)
+        return (image_features, *deepstack_feats)
 
-    def get_fused_input_embeddings(self, input_ids, image_features=None):
+    def get_fused_input_embeddings(
+        self,
+        input_ids,
+        image_features=None,
+        deepstack_features_0=None,
+        deepstack_features_1=None,
+        deepstack_features_2=None,
+    ):
         """
-        Fuses the input embeddings from the language model with the image features.
+        Fuses the input embeddings from the language model with the image features, and scatters
+        the three per-token DeepStack features into full-length (batch, seq, hidden) tensors so the
+        text decoder can inject them with plain static Adds at layers 0/1/2.
 
         Args:
             input_ids (`torch.LongTensor`): The input IDs for the language model.
             image_features (`torch.FloatTensor`, optional): The image features to fuse with the input embeddings.
+            deepstack_features_0/1/2 (`torch.FloatTensor`, optional): per-token DeepStack features
+                (same shape as image_features) for decoder layers 0/1/2.
 
         Returns:
-            `torch.FloatTensor`: The fused input embeddings.
+            tuple `(inputs_embeds, deepstack_0_full, deepstack_1_full, deepstack_2_full)`, where each
+            `deepstack_i_full` is a zero tensor with `deepstack_features_i` scattered into image-token
+            positions (or all-zeros during generation when there are no image tokens).
         """
         def true_fn_for_input_ids(input_ids):
             special_image_mask = input_ids == self.config.image_token_id
@@ -898,24 +925,32 @@ class Qwen3VLModel(Qwen3VLPreTrainedModel):
 
         inputs_embeds = self.language_model.get_input_embeddings()(llm_input_ids)
 
-        def image_features_is_none(inputs_embeds, image_features=None):
-            return inputs_embeds
+        def image_features_is_none(inputs_embeds, image_features, ds0, ds1, ds2):
+            zeros = torch.zeros_like(inputs_embeds)
+            return inputs_embeds, zeros, zeros.clone(), zeros.clone()
 
-        def image_features_is_not_none(inputs_embeds, image_features=None):
+        def image_features_is_not_none(inputs_embeds, image_features, ds0, ds1, ds2):
             special_image_mask = (llm_input_ids == self.config.image_token_id).unsqueeze(-1)
             special_image_mask = special_image_mask.expand_as(inputs_embeds).to(inputs_embeds.device)
             image_features = image_features.to(inputs_embeds.device, inputs_embeds.dtype)
             inputs_embeds = inputs_embeds.masked_scatter(special_image_mask, image_features)
-            return inputs_embeds
 
-        inputs_embeds = torch.cond(
+            ds0 = ds0.to(inputs_embeds.device, inputs_embeds.dtype)
+            ds1 = ds1.to(inputs_embeds.device, inputs_embeds.dtype)
+            ds2 = ds2.to(inputs_embeds.device, inputs_embeds.dtype)
+            ds0_full = torch.zeros_like(inputs_embeds).masked_scatter(special_image_mask, ds0)
+            ds1_full = torch.zeros_like(inputs_embeds).masked_scatter(special_image_mask, ds1)
+            ds2_full = torch.zeros_like(inputs_embeds).masked_scatter(special_image_mask, ds2)
+            return inputs_embeds, ds0_full, ds1_full, ds2_full
+
+        inputs_embeds, ds0_full, ds1_full, ds2_full = torch.cond(
             image_features is None,
             image_features_is_none,
             image_features_is_not_none,
-            (inputs_embeds, image_features,)
+            (inputs_embeds, image_features, deepstack_features_0, deepstack_features_1, deepstack_features_2,)
         )
 
-        return inputs_embeds
+        return inputs_embeds, ds0_full, ds1_full, ds2_full
 
     def get_rope_index(
         self,

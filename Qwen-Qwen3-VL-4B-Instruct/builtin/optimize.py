@@ -68,11 +68,21 @@ def update_genai_config(output_dir: str = MODELS_DIR, device: str = "gpu"):
 
     session_options = {"log_id": "onnxruntime-genai", "provider_options": provider_options}
 
+    # Qwen3-VL DeepStack: vision emits one extra per-token feature per deepstack_visual_index
+    # (3 for the 4B model: vision layers [5, 11, 17]). embedding.onnx scatters them to full
+    # length; the decoder injects them after layers 0/1/2.
+    deepstack_features = [f"deepstack_features_{i}" for i in range(3)]
+    deepstack_full = [f"deepstack_{i}" for i in range(3)]
+
     # Embedding configuration
     config["model"]["embedding"] = {
         "filename": "embedding.onnx",
-        "inputs": {"input_ids": "input_ids", "image_features": "image_features"},
-        "outputs": {"inputs_embeds": "inputs_embeds"},
+        "inputs": {
+            "input_ids": "input_ids",
+            "image_features": "image_features",
+            "deepstack_features": deepstack_features,
+        },
+        "outputs": {"inputs_embeds": "inputs_embeds", "deepstack": deepstack_full},
         "session_options": session_options,
     }
 
@@ -84,9 +94,12 @@ def update_genai_config(output_dir: str = MODELS_DIR, device: str = "gpu"):
         "tokens_per_second": 2.0,
         "patch_size": 16,
         "inputs": {"pixel_values": "pixel_values", "image_grid_thw": "image_grid_thw"},
-        "outputs": {"image_features": "image_features"},
+        "outputs": {"image_features": "image_features", "deepstack_features": deepstack_features},
         "session_options": session_options,
     }
+
+    # Decoder consumes the full-length scattered DeepStack features (from embedding).
+    config["model"].setdefault("decoder", {}).setdefault("inputs", {})["deepstack"] = deepstack_full
 
     config["model"]["image_token_id"] = 151655
     config["model"]["video_token_id"] = 151656
