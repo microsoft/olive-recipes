@@ -49,7 +49,7 @@ ninja==1.13.0
 nltk==3.9.4
 numpy==1.26.4
 olive-ai==0.12.1
-onnx==1.18.0
+onnx==1.22.0
 onnx-ir==0.2.1
 onnx-tool==1.0.1
 onnxruntime==1.26.0
@@ -84,7 +84,7 @@ ryzenai-onnx-utils==1.7.1
 safetensors==0.7.0
 scipy==1.17.1
 sentencepiece==0.2.1
-setuptools==81.0.0
+setuptools==83.0.0
 shellingham==1.5.4
 six==1.17.0
 sqlalchemy==2.0.49
