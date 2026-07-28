@@ -45,7 +45,7 @@ multiprocess==0.70.19
 narwhals==2.22.1
 networkx==3.6.1
 numpy==2.2.6
-onnx==1.18.0
+onnx==1.22.0
 onnx-ir==0.2.1
 onnxruntime-windowsml==1.24.5.202604171637
 onnxscript==0.7.1
@@ -86,7 +86,7 @@ scikit-learn==1.9.0
 scipy==1.15.3
 sentencepiece==0.2.1
 seqeval==1.2.2
-setuptools==81.0.0
+setuptools==83.0.0
 six==1.17.0
 snakemd==2.4.1
 sse-starlette==3.4.5
