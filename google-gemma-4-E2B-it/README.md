@@ -36,6 +36,70 @@ Install ONNX Runtime GenAI:
 | `cuda/fp16/config.json` | `MobiusBuilder(fp16)` | `cuda/fp16/models` |
 | `cuda/int4/config.json` | `MobiusBuilder(fp16)` → `OnnxKQuantQuantization(bits=4, block=32)` | `cuda/int4/models` |
 
+### Mixed quantization (separate text / vision / audio / embedding)
+
+These recipes split the model into components with per-component
+quantization — a **mixed int4/int8 text decoder**, int8 for the vision and
+audio encoders, and int8 for the token embedding — for better accuracy vs.
+latency/size trade-offs.
+
+**Mixed-bit decoder**: the decoder is int4 K-Quant by default, but the most
+quantization-sensitive weights are upcast to int8 via the
+`customized_weight_config` in `text.json`. This targets, in every one of the
+35 transformer layers, the `down_proj`, `gate_proj`, `up_proj`, and
+`o_proj` MatMuls plus the global `lm_head` (141 weights total → int8; the
+remaining `q/k/v_proj` and per-layer gates stay int4). Empirically these
+nodes carry most of the int4 accuracy loss, so upcasting only them recovers
+most of the fp16 quality for a small size cost (CUDA decoder 1.41 GB pure-int4
+→ 2.50 GB mixed).
+
+Validation (CUDA, full eval sets), mixed int4/int8 decoder vs. the pure-int4
+decoder baseline:
+
+| Metric | int4 decoder | mixed int4/int8 decoder |
+|---|---|---|
+| AI2D exact_match (3,088) | 57.7% | 62.86% (+5.2) |
+| FLEURS en_us strict WER (647) | 9.48% | 8.94% (−0.54) |
+| MMLU 5-shot (14,042) | — | 60.09% (PT bf16 ref 60.80%) |
+| decoder size | 1.41 GB | 2.50 GB |
+
+> Note: `customized_weight_config` keys are exact exported node names
+> (e.g. `.../down_proj/MatMul_node_124`). These are deterministic for a given
+> MobiusBuilder export but can shift if the export graph changes; regenerate
+> the config against the current export if node names move.
+
+| Recipe | Pipeline | Output dir |
+|---|---|---|
+| `cpu/mixed/export.json` | `MobiusBuilder(fp32)` — export all components | `cpu/mixed/models` |
+| `cpu/mixed/text.json` | `OnnxKQuantQuantization(int4, block=32)` + int8 upcast of sensitive weights — quantize decoder | `cpu/mixed/models/decoder` |
+| `cpu/mixed/vision.json` | `OnnxBlockWiseRtnQuantization(int8, block=128)` — quantize vision encoder | `cpu/mixed/models/vision_encoder` |
+| `cpu/mixed/audio.json` | `OnnxBlockWiseRtnQuantization(int8, block=128)` — quantize audio encoder | `cpu/mixed/models/audio_encoder` |
+| `cpu/mixed/embedding.json` | `OnnxBlockWiseRtnQuantization(int8, block=128)` — quantize token embedding | `cpu/mixed/models/embedding` |
+| `cuda/mixed/export.json` | `MobiusBuilder(fp16)` — export all components | `cuda/mixed/models` |
+| `cuda/mixed/text.json` | `OnnxKQuantQuantization(int4, block=32)` + int8 upcast of sensitive weights — quantize decoder | `cuda/mixed/models/decoder` |
+| `cuda/mixed/vision.json` | `OnnxBlockWiseRtnQuantization(int8, block=32)` — quantize vision encoder | `cuda/mixed/models/vision_encoder` |
+| `cuda/mixed/audio.json` | `OnnxBlockWiseRtnQuantization(int8, block=32)` — quantize audio encoder | `cuda/mixed/models/audio_encoder` |
+| `cuda/mixed/embedding.json` | `OnnxBlockWiseRtnQuantization(int8, block=32)` — quantize token embedding | `cuda/mixed/models/embedding` |
+
+**Run order**: export first, then text, vision, audio, and embedding (the
+latter four can run in parallel):
+
+```bash
+# CPU mixed
+olive run --config cpu/mixed/export.json
+olive run --config cpu/mixed/text.json
+olive run --config cpu/mixed/vision.json
+olive run --config cpu/mixed/audio.json
+olive run --config cpu/mixed/embedding.json
+
+# CUDA mixed
+olive run --config cuda/mixed/export.json
+olive run --config cuda/mixed/text.json
+olive run --config cuda/mixed/vision.json
+olive run --config cuda/mixed/audio.json
+olive run --config cuda/mixed/embedding.json
+```
+
 K-Quant (Q4_K_M) is significantly faster with GPU acceleration —
 install `cupy-cuda12x` for a 19–51× speedup during quantization.
 
@@ -83,18 +147,48 @@ python inference.py --variant int4 --prompt "Hello"
 # CUDA INT4
 python inference.py --device gpu --variant int4 --prompt "Explain quantum computing"
 
+# CUDA mixed (mixed int4/int8 decoder + int8 vision/audio/embedding)
+python inference.py --device gpu --variant mixed --prompt "Explain quantum computing"
+
 # Interactive mode
-python inference.py --device gpu --variant int4 --interactive
+python inference.py --device gpu --variant mixed --interactive
 ```
 
 ## Evaluation
 
+### MMLU (text)
+
+Run through Olive with the `LMEvaluator` configs in `eval/` (mixed model):
+
 ```bash
-# MMLU Pro (default 100 samples), CPU
+olive run --config eval/mmlu_cpu.json    # CPU
+olive run --config eval/mmlu_cuda.json   # CUDA
+```
+
+Or use the standalone script (also supports `--task`, `--limit`, and other variants):
+
+```bash
+# MMLU (5-shot, default 100 samples), CPU
 python eval.py
 
 # CUDA INT4
 python eval.py --device gpu --variant int4
+
+# CUDA mixed
+python eval.py --device gpu --variant mixed
+```
+
+### Vision — AI2D (exact_match)
+
+> **Note**: The `olive run` eval configs require Olive to support nested model
+> layouts in the evaluator's genai_config.json discovery. Until then, use
+> a custom evaluation script.
+
+### Audio — FLEURS ASR (WER)
+
+> **Note**: The `olive run` audio eval configs require Olive to add gemma4
+> as a supported model type in the speech evaluator. Until then, use a custom
+> evaluation script.
 ```
 
 ## References

@@ -72,6 +72,11 @@ def _get_streaming_shapes():
         "chunk_encoded_frames": chunk_encoded_frames,
     }
 
+def configure_encoder_for_sdpa(encoder):
+    for layer in getattr(encoder, "layers", []) or []:
+        attention = getattr(layer, "self_attn", None)
+        if attention is not None and hasattr(attention, "use_pytorch_sdpa"):
+            attention.use_pytorch_sdpa = True
 
 def _load_nemo_model(model_name=MODEL_NAME):
     """Load the NeMo ASR model (shared across loaders).
@@ -103,7 +108,7 @@ def _load_nemo_model(model_name=MODEL_NAME):
             )
         nemo_path = hf_hub_download(repo_id=model_name, filename=nemo_files[0])
 
-    asr_model = nemo_asr.models.ASRModel.restore_from(nemo_path)
+    asr_model = nemo_asr.models.ASRModel.restore_from(nemo_path, map_location="cpu")
     asr_model = asr_model.cpu()
     asr_model.eval()
     return asr_model
@@ -182,6 +187,14 @@ def encoder_dummy_inputs(model):
     )
 
 
+def encoder_fp16_dummy_inputs(model):
+    """Generate FP16 floating-point inputs for the TRT-RTX encoder export."""
+    inputs = list(encoder_dummy_inputs(model))
+    for index in (0, 2, 3):
+        inputs[index] = inputs[index].to(dtype=torch.float16)
+    return tuple(inputs)
+
+
 # ---------------------------------------------------------------------------
 # Decoder (stateful LSTM)
 # ---------------------------------------------------------------------------
@@ -214,6 +227,23 @@ def decoder_model_loader(model_name):
     return wrapper
 
 
+def encoder_fp16_model_loader(model_name):
+    """Load the streaming encoder wrapper in FP16 for NvTensorRtRtx export."""
+    wrapper = encoder_model_loader(model_name)
+    configure_encoder_for_sdpa(wrapper.enc)
+    wrapper.to(dtype=torch.float16)
+    wrapper.eval()
+    return wrapper
+
+
+def decoder_fp16_model_loader(model_name):
+    """Load the stateful decoder wrapper in FP16 for NvTensorRtRtx export."""
+    wrapper = decoder_model_loader(model_name)
+    wrapper.to(dtype=torch.float16)
+    wrapper.eval()
+    return wrapper
+
+
 def decoder_dummy_inputs(model):
     """Generate dummy inputs for ONNX export of the stateful decoder."""
     batch = 1
@@ -222,6 +252,14 @@ def decoder_dummy_inputs(model):
         torch.zeros(DECODER_LSTM_LAYERS, batch, DECODER_HIDDEN, dtype=torch.float32),
         torch.zeros(DECODER_LSTM_LAYERS, batch, DECODER_HIDDEN, dtype=torch.float32),
     )
+
+
+def decoder_fp16_dummy_inputs(model):
+    """Generate INT64 targets and FP16 LSTM states for NvTensorRtRtx export."""
+    inputs = list(decoder_dummy_inputs(model))
+    inputs[1] = inputs[1].to(dtype=torch.float16)
+    inputs[2] = inputs[2].to(dtype=torch.float16)
+    return tuple(inputs)
 
 
 # ---------------------------------------------------------------------------
@@ -250,6 +288,14 @@ def joint_model_loader(model_name):
     return wrapper
 
 
+def joint_fp16_model_loader(model_name):
+    """Load the joint wrapper in FP16 for NvTensorRtRtx export."""
+    wrapper = joint_model_loader(model_name)
+    wrapper.to(dtype=torch.float16)
+    wrapper.eval()
+    return wrapper
+
+
 def joint_dummy_inputs(model):
     """Generate dummy inputs for ONNX export of the joint network."""
     batch = 1
@@ -257,3 +303,8 @@ def joint_dummy_inputs(model):
         torch.randn(batch, 1, D_MODEL),
         torch.randn(batch, 1, DECODER_HIDDEN),
     )
+
+
+def joint_fp16_dummy_inputs(model):
+    """Generate FP16 encoder and decoder inputs for NvTensorRtRtx export."""
+    return tuple(value.to(dtype=torch.float16) for value in joint_dummy_inputs(model))

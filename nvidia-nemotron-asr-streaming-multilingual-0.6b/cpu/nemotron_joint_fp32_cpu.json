@@ -3,7 +3,7 @@
         "type": "PyTorchModel",
         "model_path": "nvidia/NVIDIA-Nemotron-3.5-ASR-Streaming-Multilingual-0.6b",
         "model_loader": "joint_model_loader",
-        "model_script": "src/nemotron_model_load.py",
+        "model_script": "cpu/nemotron_model_load.py",
         "io_config": {
             "input_names": ["encoder_output", "decoder_output"],
             "output_names": ["joint_output"],

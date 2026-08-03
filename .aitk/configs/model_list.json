@@ -485,7 +485,7 @@
             "relativePath": "sam-vit-base/aitk",
             "version": 2,
             "pipeline_tags": [
-                "fill-mask"
+                "mask-generation"
             ]
         },
         {
@@ -504,7 +504,7 @@
             "relativePath": "sam2.1-hiera-small/aitk",
             "version": 3,
             "pipeline_tags": [
-                "fill-mask"
+                "mask-generation"
             ]
         },
         {
@@ -836,6 +836,22 @@
             "status": "Ready",
             "relativePath": "Qwen-Qwen2.5-Coder-14B-Instruct/aitk",
             "version": 4,
+            "pipeline_tags": [
+                "text-generation"
+            ]
+        },
+        {
+            "displayName": "Qwen/Qwen3-0.6B",
+            "icon": "qwen",
+            "modelLink": "https://huggingface.co/Qwen/Qwen3-0.6B",
+            "id": "huggingface/Qwen/Qwen3-0.6B",
+            "runtimes": [
+                "QNN"
+            ],
+            "architecture": "Transformer",
+            "status": "Hide",
+            "relativePath": "Qwen-Qwen3-0.6B/aitk",
+            "version": 1,
             "pipeline_tags": [
                 "text-generation"
             ]
