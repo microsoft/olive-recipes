@@ -31,15 +31,22 @@ def format_chat_prompt(tokenizer, prompt: str, system_prompt: str | None = None)
     """Format a prompt using Gemma4's chat template.
 
     Gemma4 instruction-tuned models require chat formatting for best results.
-    The tokenizer's apply_chat_template handles <bos>, turn markers, etc.
+    Falls back to manual Gemma4 turn markers if the exported Jinja template
+    uses macros that ORT GenAI's minimal Jinja parser can't handle.
     """
     messages = []
     if system_prompt:
         messages.append({"role": "system", "content": system_prompt})
     messages.append({"role": "user", "content": prompt})
 
-    # ORT GenAI tokenizer expects the messages as a JSON string
-    return tokenizer.apply_chat_template(json.dumps(messages))
+    try:
+        return tokenizer.apply_chat_template(json.dumps(messages))
+    except RuntimeError:
+        parts = ["<bos>"]
+        if system_prompt:
+            parts.append(f"<|turn>system\n{system_prompt}<turn|>\n")
+        parts.append(f"<|turn>user\n{prompt}<turn|>\n<|turn>model\n")
+        return "".join(parts)
 
 
 def generate(
