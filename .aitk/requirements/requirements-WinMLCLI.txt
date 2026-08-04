@@ -45,7 +45,7 @@ multiprocess==0.70.19
 narwhals==2.22.1
 networkx==3.6.1
 numpy==2.2.6
-onnx==1.18.0
+onnx==1.22.0
 onnx-ir==0.2.1
 onnxruntime-windowsml==1.24.5.202604171637
 onnxscript==0.7.1

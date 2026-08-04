@@ -170,7 +170,7 @@ nvidia-nvshmem-cu13==3.4.5
 nvidia-nvtx==13.0.85
 nvidia-nvtx-cu12==12.1.105
 oauthlib==3.3.1
-onnx==1.17.0
+onnx==1.22.0
 onnx-ir==0.1.15
 onnx_graphsurgeon==0.5.8
 onnxruntime==1.23.2
