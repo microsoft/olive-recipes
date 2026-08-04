@@ -57,22 +57,6 @@
             "fuse_reshape_operations": false,
             "fix_com_microsoft_opset": true,
             "cast_chain_elimination": true
-        },
-        "gs2": {
-            "type": "GraphSurgeries",
-            "surgeries": [
-                {
-                    "surgeon": "GemmToMatMulAdd"
-                }
-            ]
-        },
-        "int4": {
-            "type": "OnnxBlockWiseRtnQuantization",
-            "block_size": 128,
-            "is_symmetric": true,
-            "accuracy_level": 4,
-            "save_as_external_data": true,
-            "external_data_name": "vision.onnx.data"
         }
     },
     "no_artifacts": true,
