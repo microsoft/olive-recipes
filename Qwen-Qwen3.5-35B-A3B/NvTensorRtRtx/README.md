@@ -8,8 +8,8 @@ This folder contains an Olive recipe for exporting the text-only component of `Q
 The `Qwen3.5-35B-A3B_model_builder_int4.json` recipe uses the ONNX Runtime GenAI `ModelBuilder` to:
 
 1. Export a standalone text model by including the token embedding layer (`exclude_embeds=false`).
-2. Apply symmetric INT4 weight-only quantization with a block size of 32 using ModelBuilder's default quantizer.
-3. Emit INT4 QDQ directly for `NvTensorRTRTXExecutionProvider`, and run `MatMulNBitsToQDQ` as a compatibility fallback for any remaining `MatMulNBits` nodes.
+2. Apply symmetric INT4 RTN weight-only quantization with a block size of 32.
+3. Convert any resulting `MatMulNBits` nodes to signed INT4 QDQ with the explicit `MatMulNBitsToQDQ` pass.
 4. Enable the shared past/present buffer and CUDA graph capture for TRT-RTX inference.
 5. Repair affected ONNX Runtime GenAI exports so every MoE layer computes
    `shared_expert_output * sigmoid(shared_expert_gate)` before combining the shared and routed experts.

@@ -6,10 +6,6 @@ This folder contains examples of Olive recipes for `Qwen2.5-14B-Instruct` optimi
 
 The olive recipe `Qwen2.5-14B-Instruct_model_builder_int4.json` uses `ModelBuilder` and `MatMulNBitsToQDQ` passes to generate the INT4 model for `NvTensorRTRTXExecutionProvider` (aka `NvTensorRtRtx` EP).
 
-ONNX Runtime GenAI selects QDQ for TRT-RTX automatically. The recipe uses ModelBuilder's `default` weight-only
-quantizer so that selection is honored natively. `MatMulNBitsToQDQ` remains as a compatibility fallback for exporter
-versions that still emit `MatMulNBits`.
-
 ### Setup
 
 1. Install Olive

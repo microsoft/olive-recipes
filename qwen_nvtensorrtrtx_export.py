@@ -2,7 +2,7 @@
 # Copyright (c) Microsoft Corporation. All rights reserved.
 # Licensed under the MIT License.
 # --------------------------------------------------------------------------
-"""Export and validate Qwen3.5/3.6 models for the NvTensorRtRtx EP."""
+"""Export and validate Qwen3.5/3.6 35B-A3B models for the NvTensorRtRtx EP."""
 
 from __future__ import annotations
 
@@ -58,7 +58,7 @@ def _is_valid_shared_expert(
 
 
 def repair_shared_expert_graph(model: ModelProto) -> int:
-    """Repair the duplicate-Mul-name defect in Qwen3.5 MoE model-builder output.
+    """Repair the duplicate-Mul-name defect in Qwen3.5/3.6 MoE model-builder output.
 
     Affected ONNX Runtime GenAI exporters use ``<shared_expert>/Mul`` for both
     ``silu(gate) * up`` and ``down * sigmoid(shared_expert_gate)``. The second
