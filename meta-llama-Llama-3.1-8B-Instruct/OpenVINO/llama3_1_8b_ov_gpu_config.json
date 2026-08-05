@@ -18,7 +18,6 @@
                 "awq": true,
                 "scale_estimation": true,
                 "sym": true,
-                "all-layers": true,
                 "all_layers": true,
                 "trust_remote_code": true,
                 "backup_precision": "int8_sym",
