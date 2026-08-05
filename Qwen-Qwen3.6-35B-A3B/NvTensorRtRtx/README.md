@@ -12,15 +12,8 @@ which matches the architecture declared by the Qwen3.6 checkpoint, to:
 2. Apply symmetric INT4 RTN weight-only quantization with a block size of 32.
 3. Convert any resulting `MatMulNBits` nodes to signed INT4 QDQ with the explicit `MatMulNBitsToQDQ` pass.
 4. Enable the shared past/present buffer and CUDA graph capture for TRT-RTX inference.
-5. Repair affected ONNX Runtime GenAI exports so every MoE layer computes
-   `shared_expert_output * sigmoid(shared_expert_gate)` before combining the shared and routed experts.
 
 The vision encoder is not exported.
-
-The `export.py` entry point runs Olive, applies the shared-expert correction when needed, and validates that the final
-model contains signed INT4 QDQ weights, no `MatMulNBits` nodes, one shared-expert gate per `QMoE` layer, a shared
-past/present buffer, and CUDA graph configuration. The command fails instead of silently returning an incompatible
-model if any requirement is missing.
 
 ## Setup
 
@@ -32,7 +25,5 @@ model if any requirement is missing.
 ## Run
 
 ```bash
-python export.py -o output
+olive run --config Qwen3.6-35B-A3B_model_builder_int4.json
 ```
-
-The TRT-RTX-ready model is written to `output/model.onnx`.
