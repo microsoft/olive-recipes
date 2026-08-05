@@ -33,7 +33,7 @@ def _shared_expert_gate_nodes(model: ModelProto) -> list[NodeProto]:
 
 
 def _shared_expert_basename(gate_sigmoid: NodeProto) -> str:
-    return gate_sigmoid.name[: -len("_gate/Sigmoid")]
+    return gate_sigmoid.name.removesuffix("_gate/Sigmoid")
 
 
 def _find_down_projection(nodes: list[NodeProto], basename: str) -> NodeProto:
@@ -61,9 +61,10 @@ def repair_shared_expert_graph(model: ModelProto) -> int:
     """Repair the duplicate-Mul-name defect in Qwen3.5/3.6 MoE model-builder output.
 
     Affected ONNX Runtime GenAI exporters use ``<shared_expert>/Mul`` for both
-    ``silu(gate) * up`` and ``down * sigmoid(shared_expert_gate)``. The second
-    node replaces the first, leaving an invalid graph. This function gives the
-    gate/up multiplication a unique name and restores the final gating Mul.
+    ``silu(gate) * up`` and ``down * sigmoid(shared_expert_gate)``. Only the
+    gate/up multiplication is retained, leaving the down projection ungated.
+    This function gives the retained multiplication a unique name and restores
+    the missing final gating Mul.
     Already-correct graphs are left unchanged.
     """
 
