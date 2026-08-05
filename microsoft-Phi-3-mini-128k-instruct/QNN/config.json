@@ -60,7 +60,7 @@
         "gs": {
             "type": "GraphSurgeries",
             "surgeries": [
-                { "surgeon": "RemoveRopeMultiCache" },
+                { "surgeon": "RemoveRopeMultiCache", "use_large_cache": true},
                 { "surgeon": "AttentionMaskToSequenceLengths" },
                 { "surgeon": "SimplifiedLayerNormToL2Norm" }
             ],
