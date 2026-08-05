@@ -6,9 +6,9 @@ This folder contains examples of Olive recipes for `Qwen2.5-Coder-7B-Instruct` o
 
 The olive recipe `Qwen2.5-Coder-7B-Instruct_model_builder_int4.json` uses `ModelBuilder` and `MatMulNBitsToQDQ` passes to generate the INT4 model for `NvTensorRTRTXExecutionProvider` (aka `NvTensorRtRtx` EP).
 
-The recipe uses ModelBuilder's RTN weight-only quantizer, which first emits `MatMulNBits`. The explicit
-`MatMulNBitsToQDQ` pass then converts those nodes to the signed INT4 `DequantizeLinear` and `MatMul` pattern required
-by TRT-RTX.
+ONNX Runtime GenAI selects QDQ for TRT-RTX automatically. The recipe uses ModelBuilder's `default` weight-only
+quantizer so that selection is honored natively. `MatMulNBitsToQDQ` remains as a compatibility fallback for exporter
+versions that still emit `MatMulNBits`.
 
 ### Setup
 

@@ -6,10 +6,6 @@ This folder contains examples of Olive recipes for `Mistral-7B-Instruct-v0.2` op
 
 The olive recipe `Mistral-7B-Instruct-v0.2_model_builder_int4.json` uses `ModelBuilder` and `MatMulNBitsToQDQ` passes to generate the INT4 model for `NvTensorRTRTXExecutionProvider` (aka `NvTensorRtRtx` EP).
 
-ONNX Runtime GenAI selects QDQ for TRT-RTX automatically. The recipe uses ModelBuilder's `default` weight-only
-quantizer so that selection is honored natively. `MatMulNBitsToQDQ` remains as a compatibility fallback for exporter
-versions that still emit `MatMulNBits`.
-
 ### Setup
 
 1. Install Olive

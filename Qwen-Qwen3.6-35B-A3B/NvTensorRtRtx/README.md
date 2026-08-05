@@ -9,8 +9,8 @@ The `Qwen3.6-35B-A3B_model_builder_int4.json` recipe uses the ONNX Runtime GenAI
 which matches the architecture declared by the Qwen3.6 checkpoint, to:
 
 1. Export a standalone text model by including the token embedding layer (`exclude_embeds=false`).
-2. Apply symmetric INT4 weight-only quantization with a block size of 32 using ModelBuilder's RTN quantizer.
-3. Convert the resulting `MatMulNBits` nodes to signed INT4 QDQ with `MatMulNBitsToQDQ`.
+2. Apply symmetric INT4 weight-only quantization with a block size of 32 using ModelBuilder's default quantizer.
+3. Emit INT4 QDQ directly for `NvTensorRTRTXExecutionProvider`, and run `MatMulNBitsToQDQ` as a compatibility fallback for any remaining `MatMulNBits` nodes.
 4. Enable the shared past/present buffer and CUDA graph capture for TRT-RTX inference.
 5. Repair affected ONNX Runtime GenAI exports so every MoE layer computes
    `shared_expert_output * sigmoid(shared_expert_gate)` before combining the shared and routed experts.

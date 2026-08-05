@@ -4,11 +4,7 @@ This folder contains examples of Olive recipes for `Llama-3.1-8B-Instruct` optim
 
 ## INT4 Model Building
 
-The olive recipe `Llama-3.1-8B-Instruct_model_builder_int4.json` uses `ModelBuilder` and `MatMulNBitsToQDQ` passes to generate the INT4 model for `NvTensorRTRTXExecutionProvider` (aka `NvTensorRtRtx` EP).
-
-ONNX Runtime GenAI selects QDQ for TRT-RTX automatically. The recipe uses ModelBuilder's `default` weight-only
-quantizer so that selection is honored natively. `MatMulNBitsToQDQ` remains as a compatibility fallback for exporter
-versions that still emit `MatMulNBits`.
+The olive recipe `Llama-3.1-8B-Instruct_model_builder_int4.json` uses `ModelBuilder` pass to generate the INT4 model for `NvTensorRTRTXExecutionProvider` (aka `NvTensorRtRtx` EP).
 
 ### Setup
 
