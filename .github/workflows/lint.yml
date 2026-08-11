@@ -1,0 +1,53 @@
+name: Lint
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  actions: read
+  contents: read
+  security-events: write
+
+jobs:
+  lint:
+    name: Lintrunner
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install -r requirements-dev.txt
+          lintrunner init
+
+      - name: Run lintrunner on all files
+        run: |
+          if ! lintrunner --force-color --all-files --tee-json=lint.json -v; then
+            echo
+            echo "Run 'lintrunner --all-files' locally to reproduce these results."
+            exit 1
+          fi
+
+      - name: Produce SARIF
+        if: always()
+        run: python -m lintrunner_adapters to-sarif lint.json lintrunner.sarif
+
+      - name: Upload SARIF
+        if: always()
+        continue-on-error: true
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: lintrunner.sarif
+          category: lintrunner
+          checkout_path: ${{ github.workspace }}
