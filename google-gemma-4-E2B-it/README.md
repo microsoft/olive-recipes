@@ -55,12 +55,12 @@ most of the fp16 quality for a small size cost (CUDA decoder 1.41 GB pure-int4
 Validation (CUDA, full eval sets), mixed int4/int8 decoder vs. the pure-int4
 decoder baseline:
 
-| Metric | int4 decoder | mixed int4/int8 decoder |
-|---|---|---|
-| AI2D exact_match (3,088) | 57.7% | 62.86% (+5.2) |
-| FLEURS en_us strict WER (647) | 9.48% | 8.94% (−0.54) |
-| MMLU 5-shot (14,042) | — | 60.09% (PT bf16 ref 60.80%) |
-| decoder size | 1.41 GB | 2.50 GB |
+| Metric | int4 decoder | mixed int4/int8 decoder | PyTorch bf16 |
+|---|---|---|---|
+| AI2D exact_match (3,088) | 57.7% | 62.86% (+5.2) | 63.6% |
+| FLEURS en_us strict WER (647) | 9.48% | 8.94% (−0.54) | 10.5% |
+| MMLU 5-shot (14,042) | — | 60.09% | 60.8% |
+| decoder size | 1.41 GB | 2.50 GB | — |
 
 > Note: `customized_weight_config` keys are exact exported node names
 > (e.g. `.../down_proj/MatMul_node_124`). These are deterministic for a given
