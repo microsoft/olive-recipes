@@ -74,8 +74,12 @@ def syntax_error_location(error: Exception) -> tuple[int | None, int | None]:
 
 
 def check_syntax(path: Path) -> LintMessage | None:
+    check = SYNTAX_CHECKS.get(path.suffix.lower())
+    if check is None:
+        return None
+
     try:
-        SYNTAX_CHECKS[path.suffix.lower()](path)
+        check(path)
     except (SyntaxError, json.JSONDecodeError, yaml.YAMLError, ElementTree.ParseError, UnicodeDecodeError) as error:
         line, char = syntax_error_location(error)
         return lint_message(
