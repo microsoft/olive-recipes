@@ -137,14 +137,6 @@ Follow the [Black formatter](https://black.readthedocs.io)'s coding style when p
 
 Please adhere to the [PEP8 Style Guide](https://www.python.org/dev/peps/pep-0008/). We use [Google's python style guide](https://google.github.io/styleguide/pyguide.html) as the style guide which is an extension to PEP8.
 
-To install the lintrunner-backed pre-commit hook, run:
-
-```sh
-pre-commit install
-```
-
-The hook checks staged files using the same configuration as CI.
-
 ## Licensing guidelines
 
 This project welcomes contributions and suggestions. Most contributions require you to

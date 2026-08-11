@@ -1,4 +1,3 @@
 lintrunner
 lintrunner-adapters
-pre-commit
 PyYAML

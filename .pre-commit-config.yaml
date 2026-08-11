@@ -1,9 +1,0 @@
-repos:
-  - repo: local
-    hooks:
-      - id: lintrunner
-        name: lintrunner
-        entry: lintrunner
-        language: system
-        require_serial: true
-        types: [text]
