@@ -92,16 +92,14 @@ Test the *behavior*, instead of the *implementation*. To make what a test is tes
 e.g. `test_method_x_raises_error_when_dims_is_not_a_sequence`
 
 ### Linting
-Ensure that the correct development packages are installed by `pip install -r requirements-dev.txt`.
+Install and initialize the development tools:
 
-This project uses [lintrunner](https://github.com/suo/lintrunner) for linting. It provides a consistent linting experience locally and in CI. You can initialize with
-
-```sh
+```bash
+python -m pip install -r requirements-dev.txt
 lintrunner init
 ```
 
-This will install lintrunner on your system and download all the necessary
-dependencies to run linters locally.
+This project uses [lintrunner](https://github.com/suo/lintrunner) for consistent linting locally and in CI.
 If you want to see what lintrunner init will install, run
 `lintrunner init --dry-run`.
 
@@ -139,13 +137,13 @@ Follow the [Black formatter](https://black.readthedocs.io)'s coding style when p
 
 Please adhere to the [PEP8 Style Guide](https://www.python.org/dev/peps/pep-0008/). We use [Google's python style guide](https://google.github.io/styleguide/pyguide.html) as the style guide which is an extension to PEP8.
 
-Auto-formatting is done with `black` and `isort`. The tools are configured in `pyproject.toml`. From the root of the repository, you can run
+To install the lintrunner-backed pre-commit hook, run:
 
 ```sh
-lintrunner f --all-files
+pre-commit install
 ```
 
-to format Python files.
+The hook checks staged files using the same configuration as CI.
 
 ## Licensing guidelines
 
