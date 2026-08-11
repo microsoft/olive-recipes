@@ -1,0 +1,2 @@
+mobius-ai @ git+https://github.com/onnxruntime/mobius.git@5ee7332
+olive-ai[gpu]
