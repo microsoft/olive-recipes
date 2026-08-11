@@ -1,3 +1,3 @@
 lm-eval
-mobius-ai
+mobius-onnx
 olive-ai[gpu]

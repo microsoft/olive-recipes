@@ -16,7 +16,7 @@ post-processing required.
 ## Prerequisites
 
 ```bash
-pip install olive-ai mobius-ai
+pip install olive-ai mobius-onnx
 pip install -r requirements.txt
 ```
 
