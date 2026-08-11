@@ -52,7 +52,7 @@ pip install cupy-cuda12x
 ```
 
 The requirements pin Mobius to the Muse Glimmer implementation validated
-against the checkpoint. The pin can move to a released `mobius-ai` version
+against the checkpoint. The pin can move to a released `mobius-onnx` version
 after that support is published.
 
 ## Build
