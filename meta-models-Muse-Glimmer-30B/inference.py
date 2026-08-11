@@ -2,7 +2,12 @@
 
 import argparse
 import json
+import os
 from pathlib import Path
+
+# cuDNN SDPA currently rejects long BF16 GQA prefills on Hopper. The CUDA
+# Flash/MEA kernels remain enabled and handle both text and image prompts.
+os.environ.setdefault("ORT_ENABLE_CUDNN_FLASH_ATTENTION", "0")
 
 import onnxruntime_genai as og
 

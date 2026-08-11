@@ -55,6 +55,10 @@ The requirements pin Mobius to the Muse Glimmer implementation validated
 against the checkpoint. The pin can move to a released `mobius-onnx` version
 after that support is published.
 
+Native runtime loading requires
+[microsoft/onnxruntime-genai#2397](https://github.com/microsoft/onnxruntime-genai/pull/2397)
+until Muse Glimmer support reaches an ONNX Runtime GenAI release.
+
 ## Build
 
 Run from this directory so Olive resolves the relative output path here:
@@ -97,6 +101,14 @@ The Mobius implementation is covered by:
 
 See [onnxruntime/mobius#475](https://github.com/onnxruntime/mobius/pull/475)
 for implementation and validation details.
+
+The complete recipe was also run on an NVIDIA H200:
+
+- BF16 export and INT4 quantization completed in 1,436 seconds;
+- the three-model ORT GenAI package occupied 18 GB;
+- deterministic CUDA text generation produced a coherent Rayleigh-scattering answer;
+- CUDA image generation correctly identified the test image as a Chinatown street
+  scene with a traditional archway.
 
 ## References
 
