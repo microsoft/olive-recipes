@@ -52,8 +52,8 @@ nodes carry most of the int4 accuracy loss, so upcasting only them recovers
 most of the fp16 quality for a small size cost (CUDA decoder 1.41 GB pure-int4
 → 2.50 GB mixed).
 
-Validation (CUDA, full eval sets), mixed int4/int8 decoder vs. the pure-int4
-decoder baseline:
+Validation (CUDA, full eval sets), mixed int4/int8 decoder compared with the
+pure-int4 decoder baseline and PyTorch bf16 reference:
 
 | Metric | int4 decoder | mixed int4/int8 decoder | PyTorch bf16 |
 |---|---|---|---|
