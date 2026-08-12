@@ -1,0 +1,7 @@
+datasets
+olive-ai==0.13.0
+onnxruntime-genai-cuda==0.14.0
+onnxruntime-gpu==1.27.0
+optimum
+# newer transformers might have incompatibility with gptq passes
+transformers==4.57.3
