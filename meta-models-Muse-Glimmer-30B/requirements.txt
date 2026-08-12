@@ -1,3 +1,3 @@
-mobius-onnx @ git+https://github.com/onnxruntime/mobius.git@51e3a2b75ddb2d34d80c96d596dc8fb5ea761aae
+mobius-onnx @ git+https://github.com/onnxruntime/mobius.git@60bb91cc7a1627fdcb366df32112f916ca2bf60a
 olive-ai[gpu]
 torchvision
