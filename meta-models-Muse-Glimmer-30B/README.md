@@ -35,6 +35,10 @@ practical on 24 GB and 32 GB CUDA systems. Quantization requires enough host
 memory for the source checkpoint and intermediate ONNX model. Installing a
 CUDA-matched CuPy package can substantially accelerate K-Quant.
 
+The generated ORT GenAI configuration enables CUDA Graph capture for the
+autoregressive decoder while leaving the one-shot vision encoder and embedding
+sessions uncaptured.
+
 ## Prerequisites
 
 - NVIDIA GPU with BF16 and INT4 support.
