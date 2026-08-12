@@ -77,14 +77,17 @@ To generate only a single static model instead (sequence length = `context_lengt
 
 ### QNN-GPU: Run the Context Binary Compilation Config
 
-The context binary compilation config is shared across models — use [config_gpu_ctxbin.json](../../meta-llama-Llama-3.2-1B-Instruct/QNN/config_gpu_ctxbin.json) from the Llama-3.2-1B-Instruct recipe.
+The context binary compilation configs are shared across models. Pick the one that matches how `context_iterator_models` was set for [config_gpu.json](config_gpu.json) above:
 
-Replace `/path/to/model/` in that config with the output path generated from the above step.
+- **Single model** (`context_iterator_models: false`, one static model): use [config_gpu_ctxbin.json](../../meta-llama-Llama-3.2-1B-Instruct/QNN/config_gpu_ctxbin.json) from the Llama-3.2-1B-Instruct recipe. Replace `/path/to/model/`, `additional_files` list, and `output_dir` in that config with the corresponding paths generated from the above step.
+- **Composite model** (`context_iterator_models: true`, the default — AR1 `iterator` + AR128 `context`): use [config_gpu_composite_ctxbin.json](../../meta-llama-Llama-3.2-1B-Instruct/QNN/config_gpu_composite_ctxbin.json) from the Llama-3.2-1B-Instruct recipe, which loads both static ONNX models as a `CompositeModel` and sets `weight_sharing: true` on the `EPContextBinaryGenerator` pass so weights shared between the two models aren't duplicated in the compiled context binaries. Replace the `context.onnx`/`iterator.onnx` paths under `model_components`, the `additional_files` list, and `output_dir` with the paths generated from the above step.
 
 Activate the **AOT Python Environment** and run the workflow:
 
 ```bash
 olive run --config config_gpu_ctxbin.json
+# or, for the composite (context + iterator) model
+olive run --config config_gpu_composite_ctxbin.json
 ```
 
 ✅ Optimized model saved in: `models/phi3.5-mini-instruct/`
