@@ -1,7 +1,17 @@
 {
     "input_model": {
-        "type": "OnnxModel",
-        "model_path": "/path/to/model/onnx",
+        "type": "CompositeModel",
+        "model_components": [
+            {
+                "type": "OnnxModel",
+                "model_path": "path/to/context.onnx"
+            },
+            {
+                "type": "OnnxModel",
+                "model_path": "path/to/iterator.onnx"
+            }
+        ],
+        "model_component_names": ["context", "iterator"],
         "model_attributes": {
             "additional_files": [
                "list_of_paths/to/additional_files"
@@ -23,11 +33,12 @@
     },
     "passes": {
         "cb": {
-            "type": "EPContextBinaryGenerator"
+            "type": "EPContextBinaryGenerator",
+            "weight_sharing": true
         }
     },
     "target": "qnn_system",
-    "output_dir": "/path/to/model",
+    "output_dir": "output",
     "cache_dir": "cache",
-    "no_artifacts": false
+    "no_artifacts": true
 }
