@@ -37,7 +37,9 @@ CUDA-matched CuPy package can substantially accelerate K-Quant.
 
 The generated ORT GenAI configuration enables CUDA Graph capture for the
 autoregressive decoder while leaving the one-shot vision encoder and embedding
-sessions uncaptured.
+sessions uncaptured. Muse RMS normalization is emitted with fused ONNX
+`RMSNormalization` and residual `SkipSimplifiedLayerNormalization` operators
+rather than decomposed elementwise reductions.
 
 ## Prerequisites
 
