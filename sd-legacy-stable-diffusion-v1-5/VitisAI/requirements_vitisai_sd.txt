@@ -14,7 +14,7 @@ model-generate
 nltk
 numpy==1.26.4
 olive-ai[auto-opt]
-onnx==1.20.1
+onnx==1.22.0
 onnxruntime-vitisai
 optimum
 pandas==2.2.2
@@ -23,6 +23,6 @@ ryzenai-dynamic-dispatch
 ryzenai-onnx-utils
 sentencepiece
 tabulate
-torch==2.6.0
-transformers==4.56.2
+torch==2.13.0
+transformers==5.5.0
 voe
