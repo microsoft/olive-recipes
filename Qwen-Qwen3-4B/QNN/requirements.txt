@@ -1,0 +1,6 @@
+datasets
+olive-ai==0.13.0
+onnxruntime-genai-cuda==0.14.1
+onnxruntime-gpu==1.28.0
+optimum
+transformers==4.57.3
