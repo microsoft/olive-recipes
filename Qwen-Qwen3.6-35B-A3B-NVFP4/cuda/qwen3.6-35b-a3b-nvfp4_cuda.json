@@ -1,0 +1,32 @@
+{
+    "input_model": {
+        "type": "HfModel",
+        "model_path": "nvidia/Qwen3.6-35B-A3B-NVFP4"
+    },
+    "systems": {
+        "local_system": {
+            "type": "LocalSystem",
+            "accelerators": [
+                {
+                    "device": "gpu",
+                    "execution_providers": ["CUDAExecutionProvider"]
+                }
+            ]
+        }
+    },
+    "passes": {
+        "m": {
+            "type": "ModelBuilder",
+            "precision": "int4",
+            "int4_block_size": 128,
+            "int4_algo_config": "rtn_last",
+            "extra_options": {
+                "use_nvfp4_moe": true,
+                "filename": "text.onnx"
+            }
+        }
+    },
+    "target": "local_system",
+    "no_artifacts": true,
+    "output_dir": "cuda/models/text.onnx"
+}
