@@ -1,0 +1,3 @@
+olive-ai[gpu]>=0.9.0
+mobius-onnx
+onnxruntime-genai-cuda
