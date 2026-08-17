@@ -53,16 +53,22 @@ explicitly since they are easy to reproduce with a naive config:
   `CausalConvWithState` kernel's registered types, so use `fp16` for CUDA
   exports of this architecture until/unless a `BFloat16` CUDA kernel is
   added upstream.
-- **Disable `enable_cuda_graph` for now.** The genai_config the CUDA EP
-  capabilities produce sets `"enable_cuda_graph": "1"` by default,
-  but not all decoder graph nodes are currently assigned to the CUDA EP
-  (some fall back to CPU), and ORT GenAI's CUDA graph capture requires the
-  *entire* graph to run on one EP. Until that gap is closed, remove
-  `enable_cuda_graph` from the generated `genai_config.json`'s
-  `provider_options` before loading the model with `onnxruntime_genai`, or
-  model load will fail with: `This session cannot use the graph capture
-  feature as requested by the user as all compute graph nodes have not been
-  partitioned to the CUDAExecutionProvider`.
+- **QMoE scales must match the export precision (fixed upstream).** Mobius's
+  MoE component used to pin the `fc1_scales`/`fc2_scales` initializers to
+  `FLOAT32` regardless of the requested export precision. ONNX Runtime's
+  `com.microsoft::QMoE` kernel (`quant_type="int"`) requires those scales'
+  dtype (`T2`) to exactly match the activation dtype (`T`) — there is no
+  registered kernel for `T2=FLOAT32`/`T=FLOAT16`. With the mismatch, ORT
+  silently found *no* matching QMoE kernel on either EP and fell back to
+  running **every QMoE node — i.e. the entire MoE FFN compute — on the CPU
+  EP**, even though the workflow explicitly targeted CUDA. This also broke
+  `enable_cuda_graph`, since ORT GenAI's CUDA graph capture requires every
+  decoder node to be assigned to the same EP. This is fixed in
+  [mobius#505](https://github.com/onnxruntime/mobius/pull/505) (scales are
+  now downcast to the model's target precision like every other parameter);
+  make sure your `mobius` install includes that fix. With the fix, all QMoE
+  nodes are correctly assigned to CUDA and `enable_cuda_graph: "1"` works
+  out of the box with no manual `genai_config.json` edits.
 
 ## Setup
 
