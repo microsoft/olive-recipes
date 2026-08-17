@@ -1,6 +1,6 @@
 # Qwen3-1.7B Model Optimization
 
-This repository demonstrates the optimization of the [Qwen3-1.7B](https://huggingface.co/Qwen/Qwen3-1.7B) model using **post-training quantization (PTQ)** techniques. 
+This repository demonstrates the optimization of the [Qwen3-1.7B](https://huggingface.co/Qwen/Qwen3-1.7B) model using **post-training quantization (PTQ)** techniques.
 
 ### Quantization Python Environment Setup
 Quantization is resource-intensive and requires GPU acceleration. In an x64 Python environment, install the required packages:
