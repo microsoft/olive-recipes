@@ -47,14 +47,14 @@
             }
         },
         "mb": {
-            "type": "ModelBuilder", 
+            "type": "ModelBuilder",
             "precision": "int4",
-            "int4_block_size": 32, 
-            "int4_accuracy_level": 4, 
+            "int4_block_size": 32,
+            "int4_accuracy_level": 4,
             "int4_op_types_to_quantize": [ "Gather" ]
         },
         "mq": {
-            "type": "MatMulNBitsToQDQ", 
+            "type": "MatMulNBitsToQDQ",
             "use_int4": true,
             "add_zero_point": true,
             "nodes_to_exclude": [ "/lm_head/MatMulNBits" ],
@@ -71,7 +71,7 @@
             "save_as_external_data": true
         },
         "sq": {
-            "type": "OnnxStaticQuantization", 
+            "type": "OnnxStaticQuantization",
             "data_config": "wikitext2_train_act",
             "activation_type": "uint16",
             "precision": "uint8",
