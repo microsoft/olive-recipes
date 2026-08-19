@@ -5,7 +5,7 @@ mpmath==1.3.0
 numpy==2.2.4
 onnxruntime-windowsml==1.24.5.202604171637
 packaging==24.2
-protobuf==5.29.6
+protobuf==7.35.1
 pyreadline3==3.5.4
 sympy==1.14.0
 # uvpip:install wasdk-Microsoft.Windows.AI.MachineLearning==2.0.1 --no-deps;post
