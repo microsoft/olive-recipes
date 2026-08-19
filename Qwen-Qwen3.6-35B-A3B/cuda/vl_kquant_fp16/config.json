@@ -26,7 +26,10 @@
             "bits": 4,
             "group_size": 128,
             "sym": true,
-            "moe": true
+            "moe": true,
+            "quantize_vision": false,
+            "embeds": false,
+            "lm_head": false
         },
         "mobius": {
             "type": "MobiusBuilder",
