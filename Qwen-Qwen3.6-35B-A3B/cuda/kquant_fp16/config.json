@@ -20,8 +20,8 @@
     },
     "target": "local_system",
     "passes": {
-        "rtn": {
-            "type": "Rtn",
+        "kquant": {
+            "type": "KQuant",
             "bits": 4,
             "group_size": 128,
             "sym": true,
@@ -32,5 +32,5 @@
             "precision": "fp16"
         }
     },
-    "output_dir": "cuda/rtn_fp16/models"
+    "output_dir": "cuda/kquant_fp16/models"
 }

@@ -2,6 +2,7 @@
     "input_model": {
         "type": "HfModel",
         "model_path": "Qwen/Qwen3.6-35B-A3B",
+        "task": "image-text-to-text",
         "load_kwargs": {
             "revision": "995ad96eacd98c81ed38be0c5b274b04031597b0",
             "trust_remote_code": false
@@ -20,8 +21,8 @@
     },
     "target": "local_system",
     "passes": {
-        "rtn": {
-            "type": "Rtn",
+        "kquant": {
+            "type": "KQuant",
             "bits": 4,
             "group_size": 128,
             "sym": true,
@@ -32,5 +33,5 @@
             "precision": "fp16"
         }
     },
-    "output_dir": "cuda/rtn_fp16/models"
+    "output_dir": "cuda/vl_kquant_fp16/models"
 }

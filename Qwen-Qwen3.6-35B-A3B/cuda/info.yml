@@ -1,6 +1,14 @@
+keywords:
+  - olive-ai
+  - mobius
+  - moe
+  - int4
+  - rtn
+  - kquant
+  - multimodal
 arch: qwen3_5_moe_text
 recipes:
   - name: Qwen3.6-35B-A3B_RTN_MoE_Mobius_FP16
-    file: config.json
+    file: rtn_fp16/config.json
     devices: gpu
     eps: CUDAExecutionProvider
