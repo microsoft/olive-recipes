@@ -269,6 +269,27 @@ python cuda/inference_vl.py \
   --prompt "Describe this image."
 ```
 
+It also supports text-only prompts through the VL package, interactive
+image/text input, and directory benchmarks with time-to-first-token and decode
+throughput:
+
+```bash
+python cuda/inference_vl.py --prompt "What is the capital of France?"
+python cuda/inference_vl.py --interactive
+python cuda/inference_vl.py --benchmark /path/to/images
+```
+
+`eval_vl.py` measures diagram-question accuracy and average latency on a
+deterministic prefix of the AI2D test set:
+
+```bash
+python cuda/eval_vl.py --num-samples 100
+```
+
+AI2D is downloaded from Hugging Face on the first run. This evaluation driver
+tests the exported ORT GenAI package only; it does not co-load the roughly
+70 GB FP16 PyTorch checkpoint for side-by-side comparison on the same GPU.
+
 ## Status
 
 - `rtn_fp16`: RTN 4-bit MoE quantization + Mobius ONNX export was **validated
