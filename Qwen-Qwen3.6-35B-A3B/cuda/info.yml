@@ -12,3 +12,7 @@ recipes:
     file: rtn_fp16/config.json
     devices: gpu
     eps: CUDAExecutionProvider
+  - name: Qwen3.6-35B-A3B_VL_KQuant_MoE_Mobius_FP16
+    file: vl_kquant_fp16/config.json
+    devices: gpu
+    eps: CUDAExecutionProvider

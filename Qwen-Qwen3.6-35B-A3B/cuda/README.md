@@ -19,7 +19,7 @@ graphs, and multi-component vision-language packages.
 |---|---|---|---|---|
 | `rtn_fp16/config.json` | `Qwen3_5MoeForCausalLM` (text-only, default `text-generation` task) | `Rtn` int4, `group_size=128`, `sym`, `moe` | `decoder` (single `model.onnx`) | **Previously validated** (A100-80GB); re-validation pending with the pinned post-#2630 dependencies |
 | `kquant_fp16/config.json` | `Qwen3_5MoeForCausalLM` (text-only, default `text-generation` task) | `KQuant` int4, `group_size=128`, `sym`, `moe` | `decoder` (single `model.onnx`) | **Not yet validated** — config-only; no full GPU run recorded |
-| `vl_kquant_fp16/config.json` | `Qwen3_5MoeForConditionalGeneration` (multimodal, `task: image-text-to-text`) | `KQuant` int4, `group_size=128`, `sym`, `moe` | `decoder` + `vision_encoder` + `embedding` | **Blocked / not yet validated** — requires [mobius#515](https://github.com/onnxruntime/mobius/pull/515) |
+| `vl_kquant_fp16/config.json` | `Qwen3_5MoeForConditionalGeneration` (multimodal, `task: image-text-to-text`) | `KQuant` int4, `group_size=128`, `sym`, `moe` | `decoder` + `vision_encoder` + `embedding` | **Validated end to end** (A100-80GB) |
 
 All three target the CUDA EP and export at `fp16` (see
 [Why `fp16` and why the EP matters](#why-precision-fp16-not-bf16-and-why-targetaccelerators-matter)).
@@ -97,10 +97,10 @@ Olive#2456 (`components_to_export` on `MobiusBuilder`), #2457
 (`components_to_skip` on `OnnxBlockWiseRtnQuantization`) and #2480
 (multi-build support) — is therefore **not** a dependency of this recipe.
 
-### Required mixed-precision fix: mobius#515
+### Required Mobius fixes
 
-With current Olive module selection, all three recipes require mobius#515.
-Olive leaves
+With current Olive module selection, all three recipes require
+[mobius#515](https://github.com/onnxruntime/mobius/pull/515). Olive leaves
 `linear_attn.*` and `shared_expert_gate` in floating point (see the table
 above), but mobius builds those modules with the quantized-linear factory for
 any Olive-format checkpoint — so graph construction expects packed
@@ -114,10 +114,15 @@ selection: for `quant_method == "olive"` MoE checkpoints, `linear_attn` and
 the shared-expert MLP, and the fused QMoE experts stay quantized. Dense,
 non-Olive and unquantized graph construction is unchanged.
 
-The pinned mobius revision in `requirements.txt` contains #515. The original
-`rtn_fp16` validation predates Olive#2630, so it must also be re-run with these
-dependencies. Treat both KQuant configs as unvalidated until their full GPU
-runs complete.
+The multimodal workflow also requires
+[mobius#519](https://github.com/onnxruntime/mobius/pull/519), which recognizes
+the unwrapped `qwen3_5_moe_text` config as a Qwen VL processor target. Without
+it, the generated processor omits `PatchImage` and produces rank-3 pixels while
+the vision encoder expects rank-2 packed patches.
+
+The pinned mobius revision in `requirements.txt` contains both fixes. The
+original `rtn_fp16` validation predates Olive#2630, so it must still be re-run
+with these dependencies.
 
 ## Why `precision: fp16` (not `bf16`) and why `target`/`accelerators` matter
 
@@ -172,8 +177,9 @@ pip install -r cuda/requirements.txt
 ```
 
 The requirements pin unreleased Olive and mobius revisions containing the
-MoE-aware KQuant path, VL model-wrapper support, and mobius#515. The model
+MoE-aware KQuant path, VL model-wrapper support, and mobius#515/#519. The model
 configs also pin the Hugging Face checkpoint revision and disable remote code.
+`onnx-ir>=1.0.0` is required for Mobius's sharded external-data save API.
 Replace these pins with compatible release versions once those changes ship.
 
 ## Run
@@ -185,7 +191,7 @@ olive run --config cuda/rtn_fp16/config.json
 # text-only, KQuant
 olive run --config cuda/kquant_fp16/config.json
 
-# multimodal (decoder + vision_encoder + embedding), KQuant
+# multimodal (decoder + vision_encoder + embedding), KQuant (validated)
 olive run --config cuda/vl_kquant_fp16/config.json
 ```
 
@@ -254,10 +260,14 @@ while not generator.is_done():
     print(tokenizer_stream.decode(generator.get_next_tokens()[0]), end="", flush=True)
 ```
 
-No multimodal inference script is shipped yet: the VL package has not been
-produced once (see the blocker above), so any image-prompt driver would be
-written against an unverified `genai_config.json` / processor contract. It will
-be added after the first successful export, together with the measured results.
+`inference_vl.py` runs image + text generation through ORT GenAI:
+
+```bash
+python cuda/inference_vl.py \
+  --model-path cuda/vl_kquant_fp16/models \
+  --image /path/to/image.png \
+  --prompt "Describe this image."
+```
 
 ## Status
 
@@ -271,17 +281,14 @@ be added after the first successful export, together with the measured results.
   `RunConfig` schema, but no full quantize + export + generate run has been
   recorded yet. Expect the k-quant search to be substantially slower and use
   more transient device memory than RTN on the fused expert tensors.
-- `vl_kquant_fp16`: **config only, and blocked** on
-  [mobius#515](https://github.com/onnxruntime/mobius/pull/515). The Olive-side
-  half (VL class loading, composite config resolution, decoder-only
-  quantization target selection) is covered by
-  [Olive#2630](https://github.com/microsoft/Olive/pull/2630) and was verified
-  there against this checkpoint's real config plus a shape-faithful synthetic
-  VL model; the end-to-end export on the real 35B checkpoint has **not** been
-  run. On the first run, verify that Olive copied the pinned processor metadata
-  into the quantized checkpoint and that mobius's emitted
-  `processor_config.json` matches it. Peak host/GPU memory for loading the VL
-  class (decoder + vision tower) is also unmeasured.
+- `vl_kquant_fp16`: **validated end to end** on a single A100-80GB with the
+  pinned dependencies. KQuant completed in about 194 seconds and Mobius export
+  in about 158 seconds, producing a roughly 22 GB three-component package.
+  `onnxruntime_genai.Model(...)` loaded on CUDA in about 59 seconds. A generated
+  256x256 four-color test image produced 86 input tokens and successful
+  multimodal generation; the model correctly described a square divided into
+  four equal quadrants. Broader image-quality and throughput benchmarks remain
+  to be recorded.
 - GPTQ MoE quantization on this model was evaluated but deferred: with 40
   layers x 256 experts (10240 total per-expert Cholesky solves), GPTQ is
   estimated to take multiple hours on a single GPU (Olive's GPTQ pass has no
@@ -293,7 +300,8 @@ be added after the first successful export, together with the measured results.
 - Mobius: <https://github.com/onnxruntime/mobius>
 - mobius#505 (QMoE scale precision): <https://github.com/onnxruntime/mobius/pull/505>
 - mobius#511 (VL decoder QMoE support): <https://github.com/onnxruntime/mobius/pull/511>
-- mobius#515 (Olive mixed-precision VL/MoE export — **required** for `vl_kquant_fp16`): <https://github.com/onnxruntime/mobius/pull/515>
+- mobius#515 (Olive mixed-precision VL/MoE export): <https://github.com/onnxruntime/mobius/pull/515>
+- mobius#519 (Qwen3.6 packed VL processor export): <https://github.com/onnxruntime/mobius/pull/519>
 - Olive#2630 (Qwen3.5/3.6-MoE VL checkpoints in PyTorch-side quantization): <https://github.com/microsoft/Olive/pull/2630>
 - Olive#2610 (exclude MoE routers from quantization): <https://github.com/microsoft/Olive/pull/2610>
 - Olive `Rtn` pass: <https://github.com/microsoft/Olive/tree/main/olive/passes/pytorch/rtn.py>
