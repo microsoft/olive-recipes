@@ -19,6 +19,7 @@ Finally, a prepared QAIRT DLC is encapsulated in an ONNX protobuf and exported t
 * QAIRT 2.45.40
 
 **Validated target configuration:**
+* HTP backend on SC8380XP
 * HTP backend on SC8480XP
 
 Other configurations may work but have not been validated.
