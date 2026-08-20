@@ -1,0 +1,13 @@
+keywords:
+  - olive-ai
+  - mobius
+  - moe
+  - int4
+  - kquant
+  - text-generation
+arch: qwen3_moe
+recipes:
+  - name: Qwen3-30B-A3B_KQuant_MoE_Mobius_FP16
+    file: kquant_fp16/config.json
+    devices: gpu
+    eps: CUDAExecutionProvider
