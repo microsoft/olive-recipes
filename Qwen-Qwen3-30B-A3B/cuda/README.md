@@ -56,8 +56,20 @@ no vision encoder, image processor, or multimodal pipeline is involved.
 
 ## Validation status
 
-Configuration and metadata validation are complete. Full KQuant export and
-generation validation on the 30B model are pending.
+The complete workflow was validated on an NVIDIA A100 80 GB GPU with ONNX
+Runtime 1.30.0 and ONNX Runtime GenAI 0.16.0-dev:
+
+- KQuant produced a 16.7 GB quantized checkpoint.
+- Mobius exported a 16.7 GB `model.onnx.data` file and the ORT GenAI package.
+- ORT GenAI loaded the package in approximately 53-58 seconds.
+- CUDA greedy generation produced coherent text, valid Python code, and the
+  correct answer `391` for `17 * 23`.
+- Qwen3 reasoning token metadata resolved correctly (`bor=151667`,
+  `eor=151668`).
+
+Observed generation throughput ranged from 61 to 182 output tokens per second
+for the short smoke-test prompts after model load. This is a functional
+validation result, not a controlled performance benchmark.
 
 ## References
 

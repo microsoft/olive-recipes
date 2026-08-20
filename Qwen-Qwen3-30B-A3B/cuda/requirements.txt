@@ -1,4 +1,4 @@
-mobius-onnx @ git+https://github.com/onnxruntime/mobius.git@ab48fd5b3fd68b17b7b6b9e99d433524522d0ff6
+mobius-onnx @ git+https://github.com/onnxruntime/mobius.git@e48b5e8acec62f8e82f002cb5ee03056bdda58a5
 olive-ai[gpu] @ git+https://github.com/microsoft/Olive.git@9253bbe0993193d711f8e4b7384126927622df8c
 onnx-ir>=1.0.0
 onnxruntime-genai-cuda
