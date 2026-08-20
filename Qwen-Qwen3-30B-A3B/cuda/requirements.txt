@@ -1,4 +1,5 @@
+lm-eval
 mobius-onnx @ git+https://github.com/onnxruntime/mobius.git@e48b5e8acec62f8e82f002cb5ee03056bdda58a5
-olive-ai[gpu] @ git+https://github.com/microsoft/Olive.git@9253bbe0993193d711f8e4b7384126927622df8c
+olive-ai[gpu] @ git+https://github.com/microsoft/Olive.git@18bf0b7f4943cd6ca7a8546a4c427e34d7343543
 onnx-ir>=1.0.0
 onnxruntime-genai-cuda
