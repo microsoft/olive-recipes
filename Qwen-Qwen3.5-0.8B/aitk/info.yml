@@ -1,0 +1,13 @@
+keywords:
+    aitk
+arch: qwen3_5_text
+recipes:
+    - file: "Qwen3.5-0.8B_model_builder_int4.json"
+      device: gpu
+      ep: NvTensorRTRTXExecutionProvider
+      aitk:
+        oliveFile: "NvTensorRtRtx/Qwen3.5-0.8B_model_builder_int4.json"
+aitk:
+    modelInfo:
+        id: "huggingface/Qwen/Qwen3.5-0.8B"
+        version: 1
