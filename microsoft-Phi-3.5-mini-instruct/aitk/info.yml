@@ -38,8 +38,11 @@ recipes:
         oliveFile: "QNN/config_gpu.json"
         isGPURequired: true
         requirements: General/CUDA_py3.12.9
+        executeRuntimeFeatures:
+          - olive
+          - AutoGptq
 aitk:
     modelInfo:
         id: "huggingface/microsoft/Phi-3.5-mini-instruct"
-        version: 9
+        version: 10
         p0: true

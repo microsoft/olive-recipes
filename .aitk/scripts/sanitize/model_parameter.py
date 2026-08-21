@@ -750,7 +750,7 @@ class ModelParameter(BaseModelClass):
                     label,
                     refJson[OlivePropertyNames.Passes],
                     localJson[OlivePropertyNames.Passes],
-                    refFile,
+                    str(refPath),
                     ignoreConfig,
                 )
             return
@@ -780,9 +780,10 @@ class ModelParameter(BaseModelClass):
             return
         with open_ex(oliveFile, "r") as file:
             oliveFileJson = json.load(file)
-        label = "/".join(Path(self._file if self._file else "UNKNOWN").parts[-3:])
+        _file = Path(self._file if self._file else "UNKNOWN")
+        label = ("/".join(_file.parts[-3:-1])) + "/" + _file.stem
         self._diffOlivePasses(
-            label, oliveFileJson[OlivePropertyNames.Passes], oliveJson[OlivePropertyNames.Passes], oliveFileRef
+            label, oliveFileJson[OlivePropertyNames.Passes], oliveJson[OlivePropertyNames.Passes], str(oliveFile)
         )
 
     def checkExecutePatchPy(self):
