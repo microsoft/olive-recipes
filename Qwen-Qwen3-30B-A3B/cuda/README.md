@@ -126,8 +126,40 @@ for all four variants.
 
 > lm-eval downloads its task datasets from the Hugging Face Hub on first use, so
 > the machine needs network access (and `huggingface-cli login` for gated
-> datasets). Set `HF_HOME` or `HF_DATASETS_CACHE` to reuse an existing cache. No
-> accuracy numbers have been measured for this recipe yet.
+> datasets). Set `HF_HOME` or `HF_DATASETS_CACHE` to reuse an existing cache.
+
+## Benchmark results
+
+All four variants were exported and evaluated end to end on a single NVIDIA
+A100 80 GB GPU (CUDA execution provider) with ONNX Runtime 1.30.0 and ONNX
+Runtime GenAI 0.16.0-dev. `eval.py --task mmlu --limit 200` was run identically
+across all four model directories (same task, sample cap, and few-shot
+setting):
+
+| Variant | MMLU acc | acc_stderr | Δ vs FP16 | Export time |
+|---|---|---|---|---|
+| FP16 (baseline, unquantized) | 0.8077 | 0.0039 | — | ~16 min |
+| GPTQ | 0.7982 | 0.0040 | -0.95 pt | ~2 h |
+| KQuant | 0.7963 | 0.0040 | -1.14 pt | few min |
+| RTN | 0.7918 | 0.0040 | -1.59 pt | ~6 min |
+
+(9,183 effective samples out of 57 MMLU subtasks; subtasks with fewer than 200
+test examples were run to completion rather than padded.)
+
+Accuracy degrades in the expected direction (FP16 > GPTQ > KQuant > RTN), and
+all three quantized variants stay within ~1.6 points of the unquantized
+baseline at 4-bit weights. GPTQ improves over plain RTN by 0.64 points despite
+a substantial calibration-coverage shortfall: across the 48 MoE layers (6,144
+routed experts total), **2,344 experts (38.2%) were "starved"** of calibration
+tokens and **94 (1.5%) were entirely unseen**, so roughly 40% of all experts in
+the "GPTQ" checkpoint were actually quantized with the RTN fallback, not GPTQ.
+This is with the default calibration policy (WikiText-2, 128 samples x 2048
+tokens) — a larger/more diverse calibration set that routes tokens to more
+experts should close more of this coverage gap and is expected to further
+improve GPTQ's result. GPTQ's ~2 hour calibration/quantization time (vs. a few
+minutes for KQuant/RTN) is the dominant cost of producing all four variants;
+eval itself takes ~5-6 minutes per quantized variant and ~75 minutes for the
+uncompressed FP16 baseline (memory-bandwidth bound, not compute bound).
 
 ## KQuant validation status
 
@@ -144,9 +176,9 @@ Runtime 1.30.0 and ONNX Runtime GenAI 0.16.0-dev:
 
 Observed generation throughput ranged from 61 to 182 output tokens per second
 for the short smoke-test prompts after model load. This is a functional
-validation result, not a controlled performance benchmark. The FP16, RTN, and
-GPTQ variants are provided for controlled comparison but have not yet been run
-end to end on this model.
+validation result, not a controlled performance benchmark. See "Benchmark
+results" above for the accuracy comparison across all four variants, which
+have now all been run end to end on this model.
 
 ## References
 
