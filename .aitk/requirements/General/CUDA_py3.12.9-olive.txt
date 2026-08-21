@@ -1,4 +1,4 @@
-olive-ai==0.13.0
+git+https://github.com/microsoft/Olive.git@20f407e38ac991838d23012a19089adf113241c7#egg=olive_ai
 opentelemetry-api==1.44.0
 opentelemetry-sdk==1.44.0
 opentelemetry-semantic-conventions==0.65b0

@@ -87,16 +87,11 @@
             "type": "OnnxFloatToFloat16",
             "save_as_external_data": true
         },
-        "dtfs": {
-            "type": "DynamicToFixedShape",
-            "dim_param": ["past_sequence_length"],
-            "dim_value": [4096],
-            "save_as_external_data": true
-        },
         "st": {
             "type": "StaticLLM",
             "batch_size": 1,
-            "context_length": 128
+            "context_length": 128,
+            "update_genai_config": true
         }
     },
     "target": "target_system",
