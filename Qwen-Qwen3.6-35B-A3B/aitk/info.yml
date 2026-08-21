@@ -2,7 +2,7 @@ keywords:
     aitk
 arch: qwen3_5_moe_text
 recipes:
-    - file: "Qwen3.6-35B-A3B_model_builder_int4.json"
+    - file: "Qwen3.6-35B-A3B_NvTensorRtRtx.json"
       device: gpu
       ep: NvTensorRTRTXExecutionProvider
       aitk:
