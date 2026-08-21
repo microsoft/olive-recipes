@@ -14,6 +14,9 @@ recipes:
         oliveFile: "../meta-llama-Llama-3.2-1B-Instruct/QNN/config_gpu.json"
         isGPURequired: true
         requirements: General/CUDA_py3.12.9
+        executeRuntimeFeatures:
+          - olive
+          - AutoGptq
     - file: "llama3_1_vitis_ai_config.json"
       device: npu
       ep: VitisAIExecutionProvider
