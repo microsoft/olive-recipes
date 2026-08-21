@@ -1,1 +1,2 @@
 onnxruntime-genai-winml==0.15.2
+onnxruntime-windowsml==1.27.1.202607110137
