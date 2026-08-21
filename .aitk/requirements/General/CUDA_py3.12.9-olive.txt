@@ -5,3 +5,4 @@ opentelemetry-semantic-conventions==0.65b0
 prompt-toolkit==3.0.53
 questionary==2.1.1
 wcwidth==0.8.2
+onnx-ir==0.1.12
