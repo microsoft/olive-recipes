@@ -28,11 +28,10 @@ Model compilation using QNN Execution Provider requires a Python environment wit
 pip install olive-ai==0.13.0
 
 # Install ONNX Runtime QNN
-pip install -r https://raw.githubusercontent.com/microsoft/onnxruntime/refs/heads/main/requirements.txt
-pip install onnxruntime-qnn==2.3.0 --no-deps
+pip install onnxruntime==1.25.1
+pip install onnxruntime-qnn==2.3.0
 
 # Additional dependencies
-pip install onnxruntime==1.25.1
 pip install requests
 ```
 
