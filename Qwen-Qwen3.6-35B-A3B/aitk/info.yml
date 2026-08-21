@@ -9,6 +9,8 @@ recipes:
         oliveFile: "NvTensorRtRtx/Qwen3.6-35B-A3B_model_builder_int4.json"
         executeRuntimeFeatures:
           - genai
+        evaluationRuntimeFeatures:
+          - genai
 aitk:
     modelInfo:
         id: "huggingface/Qwen/Qwen3.6-35B-A3B"
