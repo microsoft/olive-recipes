@@ -2,4 +2,9 @@ lm-eval
 mobius-onnx @ git+https://github.com/onnxruntime/mobius.git@e48b5e8acec62f8e82f002cb5ee03056bdda58a5
 olive-ai[gpu] @ git+https://github.com/microsoft/Olive.git@18bf0b7f4943cd6ca7a8546a4c427e34d7343543
 onnx-ir>=1.0.0
+# NOTE: unpinned. The ONNX Runtime GenAI 0.16.0-dev / ONNX Runtime 1.30.0
+# build used for this recipe's validation is not yet published on PyPI or the
+# public ORT-Nightly feed; this line resolves to whatever release is current.
+# Build onnxruntime-genai (CUDA) from source to reproduce the validated setup
+# exactly. See cuda/README.md "Setup and export" for details.
 onnxruntime-genai-cuda

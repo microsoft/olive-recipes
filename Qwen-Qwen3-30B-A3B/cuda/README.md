@@ -50,6 +50,21 @@ olive run --config cuda/rtn_fp16/config.json
 olive run --config cuda/gptq_fp16/config.json
 ```
 
+> `cuda/requirements.txt` leaves `onnxruntime-genai-cuda` unpinned. As of this
+> writing, neither the ONNX Runtime 1.30.0 nor the ONNX Runtime GenAI
+> 0.16.0-dev build used for the validation below (see "Benchmark results" and
+> "KQuant validation status") is published on PyPI or the public
+> [ORT-Nightly feed](https://aiinfra.pkgs.visualstudio.com/PublicPackages/_packaging/ORT-Nightly/pypi/simple/)
+> yet — both were built from source. `pip install -r cuda/requirements.txt`
+> alone will resolve to whatever `onnxruntime-genai-cuda` release is current
+> on PyPI, which may be older and behave differently. To reproduce the
+> validated setup exactly, build `onnxruntime` and `onnxruntime-genai` from
+> source for CUDA (see the
+> [ONNX Runtime GenAI build docs](https://github.com/microsoft/onnxruntime-genai/blob/main/README.md#build-from-source))
+> and install the resulting wheels before running `olive run`. Once a public
+> release incorporates the required functionality, pin
+> `onnxruntime-genai-cuda` (and `onnxruntime-gpu`, if needed) here instead.
+
 Each workflow writes to its own directory:
 
 | Variant | Configuration | Output |
