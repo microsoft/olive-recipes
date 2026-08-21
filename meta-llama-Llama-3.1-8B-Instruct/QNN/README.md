@@ -54,3 +54,49 @@ Olive will run the AOT compilation step in the **AOT Compilation Python Environm
 ✅ Optimized model saved in: `models/llama_3.1_8b_Instruct/`
 
 > ⚠️ If optimization fails during context binary generation, rerun the command. The process will resume from the last completed step.
+
+### QNN-GPU: Run the Quantization Config
+
+QNN-GPU configs require Olive >= 0.11.0 (already satisfied by the pinned version in [requirements.txt](requirements.txt)).
+
+Replace `/path/to/qnn/env/bin` in [config_gpu.json](config_gpu.json) with the path to the directory containing your QNN environment's Python executable. This path can be found by running the following command in the environment:
+
+```bash
+# Linux
+command -v python
+# Windows
+# where python
+```
+
+This command will return the path to the Python executable. Set the parent directory of the executable as the `/path/to/qnn/env/bin` in the config file.
+
+Activate the **Quantization Python Environment** and run the workflow:
+
+```bash
+olive run --config config_gpu.json
+```
+
+✅ Optimized model saved in: `models/llama3.1-8B-Instruct/`
+
+The `StaticLLM` pass in [config_gpu.json](config_gpu.json) defaults `context_iterator_models` to `true`, which generates **both** the AR1 (`iterator`, sequence length 1) and AR128 (`context`, sequence length = `context_length`) static models in this single run, and updates `genai_config.json` with a `decoder.pipeline` entry covering both components.
+
+To generate only a single static model instead (sequence length = `context_length`), set `"context_iterator_models": false`.
+
+### QNN-GPU: Run the Context Binary Compilation Config
+
+The context binary compilation configs are shared across models. Pick the one that matches how `context_iterator_models` was set for [config_gpu.json](config_gpu.json) above:
+
+- **Single model** (`context_iterator_models: false`, one static model): use [config_gpu_ctxbin.json](../../meta-llama-Llama-3.2-1B-Instruct/QNN/config_gpu_ctxbin.json) from the Llama-3.2-1B-Instruct recipe. Replace `/path/to/model/`, `additional_files` list, and `output_dir` in that config with the corresponding paths generated from the above step.
+- **Composite model** (`context_iterator_models: true`, the default — AR1 `iterator` + AR128 `context`): use [config_gpu_composite_ctxbin.json](../../meta-llama-Llama-3.2-1B-Instruct/QNN/config_gpu_composite_ctxbin.json) from the Llama-3.2-1B-Instruct recipe, which loads both static ONNX models as a `CompositeModel` and sets `weight_sharing: true` on the `EPContextBinaryGenerator` pass so weights shared between the two models aren't duplicated in the compiled context binaries. Replace the `context.onnx`/`iterator.onnx` paths under `model_components`, the `additional_files` list, and `output_dir` with the paths generated from the above step.
+
+Activate the **AOT Python Environment** and run the workflow:
+
+```bash
+olive run --config config_gpu_ctxbin.json
+# or, for the composite (context + iterator) model
+olive run --config config_gpu_composite_ctxbin.json
+```
+
+✅ Optimized model saved in: `models/llama3.1-8B-Instruct/`
+
+> ⚠️ If optimization fails during context binary generation, rerun the command. The process will resume from the last completed step.
