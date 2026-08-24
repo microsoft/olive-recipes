@@ -119,16 +119,18 @@ def get_embedding_dummy_inputs(model=None):
         "image_features": torch.randn(
             num_logical_patches,
             out_hidden_size,
-            dtype=torch.float32,  # fp32 to match embedding model export dtype
+            # bf16 in, bf16 out: the vision model already rounds these to bf16 on the NPU and
+            # the scatter runs in bf16, so exporting them as fp32 only buys a cast back down
+            dtype=torch.bfloat16,
         ),
         "deepstack_features_0": torch.randn(
-            num_logical_patches, out_hidden_size, dtype=torch.float32
+            num_logical_patches, out_hidden_size, dtype=torch.bfloat16
         ),
         "deepstack_features_1": torch.randn(
-            num_logical_patches, out_hidden_size, dtype=torch.float32
+            num_logical_patches, out_hidden_size, dtype=torch.bfloat16
         ),
         "deepstack_features_2": torch.randn(
-            num_logical_patches, out_hidden_size, dtype=torch.float32
+            num_logical_patches, out_hidden_size, dtype=torch.bfloat16
         ),
     }
 

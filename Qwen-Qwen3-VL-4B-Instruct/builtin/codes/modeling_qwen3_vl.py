@@ -924,6 +924,10 @@ class Qwen3VLModel(Qwen3VLPreTrainedModel):
         )
 
         inputs_embeds = self.language_model.get_input_embeddings()(llm_input_ids)
+        # bf16 from here on: the decoder's first op on each of the four full-length outputs is a
+        # cast to bf16 anyway, so doing it before the scatter halves both the embedding->decoder
+        # buffers genai shares and the decoder's cast temporaries. Same rounding, same values.
+        inputs_embeds = inputs_embeds.to(torch.bfloat16)
 
         def image_features_is_none(inputs_embeds, image_features, ds0, ds1, ds2):
             zeros = torch.zeros_like(inputs_embeds)
@@ -940,12 +944,19 @@ class Qwen3VLModel(Qwen3VLPreTrainedModel):
             # masked_scatter ignores trailing source rows; index_put requires an exact match.
             num_rows = batch_idx.shape[0]
 
-            image_features = image_features.to(inputs_embeds.device, inputs_embeds.dtype)
+            # match() rather than .to(device, dtype): device and dtype are both static during
+            # export, so the guards fold away and no Cast is emitted when the features already
+            # arrive as bf16. An unconditional .to() -- either argument -- traces to a Cast
+            # regardless, leaving four full-width no-op copies behind.
+            def match(t):
+                if t.device != inputs_embeds.device:
+                    t = t.to(inputs_embeds.device)
+                return t if t.dtype == inputs_embeds.dtype else t.to(inputs_embeds.dtype)
+
+            image_features = match(image_features)
             inputs_embeds = inputs_embeds.index_put((batch_idx, pos_idx), image_features[:num_rows])
 
-            ds0 = ds0.to(inputs_embeds.device, inputs_embeds.dtype)
-            ds1 = ds1.to(inputs_embeds.device, inputs_embeds.dtype)
-            ds2 = ds2.to(inputs_embeds.device, inputs_embeds.dtype)
+            ds0, ds1, ds2 = match(ds0), match(ds1), match(ds2)
             ds0_full = torch.zeros_like(inputs_embeds).index_put((batch_idx, pos_idx), ds0[:num_rows])
             ds1_full = torch.zeros_like(inputs_embeds).index_put((batch_idx, pos_idx), ds1[:num_rows])
             ds2_full = torch.zeros_like(inputs_embeds).index_put((batch_idx, pos_idx), ds2[:num_rows])
