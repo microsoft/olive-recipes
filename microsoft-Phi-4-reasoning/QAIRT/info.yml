@@ -2,19 +2,11 @@ keywords:
     qairt
     qnn
 recipes:
-    - file: "htp_sc8380xp.json"
+    - file: "x_elite_config.json"
       devices:
         - npu
       ep: QNNExecutionProvider
-    - file: "htp_sc8480xp.json"
-      devices:
-        - npu
-      ep: QNNExecutionProvider
-    - file: "htp_sc8480xp_pipeline.json"
-      devices:
-        - npu
-      ep: QNNExecutionProvider
-    - file: "htp_sc8380xp_pipeline.json"
+    - file: "x2_elite_config.json"
       devices:
         - npu
       ep: QNNExecutionProvider

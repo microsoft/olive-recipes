@@ -6,7 +6,7 @@
     "passes": {
         "qp": {
             "type": "QairtPipelinePass",
-            "recipe": "phi4_reasoning_sc8480xp.yaml",
+            "recipe": "x2_elite_config.yaml",
             "cache_dir": "cache/qairt"
         },
         "qe": {
@@ -16,7 +16,7 @@
         }
     },
     "log_severity_level": 1,
-    "output_dir": "models/phi4_reasoning-qairt-htp-sc8480xp",
+    "output_dir": "models/phi4_reasoning_x2_elite",
     "cache_dir": "cache",
     "no_artifacts": true
 }

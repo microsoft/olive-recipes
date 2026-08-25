@@ -17,8 +17,8 @@ After the pipeline pass, a `QairtEncapsulation` pass wraps the compiled DLC in a
 * QAIRT 2.45.40
 
 **Validated target configurations:**
-* HTP backend on SC8480XP
-* HTP backend on SC8380XP
+* HTP backend on X2 Elite
+* HTP backend on X Elite
 
 Other configurations may work but have not been validated.
 
@@ -55,14 +55,14 @@ pip install -r requirements.txt
 
 4. Run Olive recipe
 
-For SC8480XP:
+For Snapdragon X2 Elite:
 ```bash
-olive run --config htp_sc8480xp.json
+olive run --config x2_elite_config.json
 ```
 
-For SC8380XP:
+For Snapdragon X Elite:
 ```bash
-olive run --config htp_sc8380xp.json
+olive run --config x_elite_config.json
 ```
 
 ## Execution Instructions
