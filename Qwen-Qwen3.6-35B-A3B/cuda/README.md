@@ -104,6 +104,29 @@ python "$ORT_GENAI_ROOT/examples/python/model-qa.py" \
 The default chat template enables reasoning mode. Allow enough `max_length`
 for reasoning prompts so generation can reach the final answer.
 
+## Text evaluation
+
+Use Olive's standard lm-eval integration for text benchmarks instead of a
+model-specific evaluation script. Install the optional benchmark dependency,
+then evaluate the exported ORT GenAI package:
+
+```bash
+pip install lm-eval
+olive benchmark \
+  --model_name_or_path cuda/kquant_fp16/models/ \
+  --tasks mmlu \
+  --device gpu \
+  --backend ortgenai \
+  --batch_size 1 \
+  --max_length 4096 \
+  --limit 100 \
+  --output_path benchmark/mmlu
+```
+
+This exercises only the standalone decoder with text lm-eval tasks. It is not
+a VLM benchmark and does not require a multimodal processor. No accuracy result
+from this optional evaluation command is claimed in the validation below.
+
 ## Validation
 
 The complete recipe was validated on 2026-08-25 with one NVIDIA
