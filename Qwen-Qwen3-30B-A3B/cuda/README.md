@@ -76,68 +76,93 @@ Each workflow writes to its own directory:
 
 ## Inference
 
-`inference.py` in the recipe root loads the exported package with ONNX Runtime
-GenAI and streams a greedy response. Run it from the `Qwen-Qwen3-30B-A3B/`
-directory:
+Use ONNX Runtime GenAI's upstream
+[`model-qa.py`](https://github.com/microsoft/onnxruntime-genai/blob/main/examples/python/model-qa.py)
+sample. Run it from the `Qwen-Qwen3-30B-A3B/` directory, replacing
+`/path/to/onnxruntime-genai` with a checkout of that repository:
 
 ```bash
-# Single prompt (reasoning enabled, the Qwen3 default)
-python inference.py --prompt "What is the capital of France?"
+# Single prompt; /no_think suppresses Qwen3's reasoning trace
+python /path/to/onnxruntime-genai/examples/python/model-qa.py \
+  --model_path cuda/kquant_fp16/models \
+  --execution_provider cuda \
+  --user_prompt "What is 17 * 23? /no_think" \
+  --non_interactive \
+  --timings
 
-# Skip the <think> reasoning trace with Qwen3's /no_think switch
-python inference.py --prompt "What is 17 * 23?" --no-think
-
-# Stateless interactive loop (each turn is an independent single-turn chat)
-python inference.py --interactive
-```
-
-The script defaults to `--model-path cuda/kquant_fp16/models`, generates
-`--max-new-tokens 1024` tokens on top of the prompt, and reports time to first
-token, decode throughput, and total generation time. Reasoning traces can be
-long, so raise `--max-new-tokens` or pass `--no-think` when a short answer is
-enough. `--system-prompt` sets a system turn and `--verbose` adds the input
-token count and the resolved search length. Pass `--model-path cuda/fp16/models`,
-`--model-path cuda/rtn_fp16/models`, or `--model-path
-cuda/gptq_fp16/models` to test another variant.
-
-The generic ORT GenAI text-generation example works as well:
-
-```bash
-python /path/to/onnxruntime-genai/examples/python/model-generate.py \
+# Interactive, stateless question/answer loop
+python /path/to/onnxruntime-genai/examples/python/model-qa.py \
   -m cuda/kquant_fp16/models \
   -e cuda \
-  -pr "What is the capital of France?" \
-  --non_interactive
+  --timings
 ```
 
-This is a decoder-only package, so ORT GenAI uses its text-only runtime path;
-no vision encoder, image processor, or multimodal pipeline is involved.
+The sample applies the package's chat template and removes each user message
+after generation, so interactive prompts are independent and retain only the
+configured system prompt. `--timings` reports time to first token plus prompt
+and new-token throughput; `--verbose` shows model and search setup.
+`--max_length` can cap the total prompt-plus-generation length. Reasoning
+traces can be long, so include Qwen3's `/no_think` switch directly in a prompt
+when a short answer is enough. Change `--model_path` to any other output path
+in the table above to test that variant.
+
+This is a standalone decoder-only text package, so ORT GenAI uses its text-only
+runtime path; no vision encoder, image processor, or multimodal pipeline is
+involved.
 
 ## Evaluation
 
-`eval.py` in the recipe root scores the exported package with
-[lm-eval-harness](https://github.com/EleutherAI/lm-evaluation-harness) through
-Olive's `ortgenai` model class (`olive.evaluator.lmeval_ort`) on the CUDA
-execution provider. Run it from the `Qwen-Qwen3-30B-A3B/` directory:
+`eval/mmlu_cuda.json` declaratively scores the standalone ORT GenAI package
+with Olive's `LMEvaluator` and
+[lm-eval-harness](https://github.com/EleutherAI/lm-evaluation-harness). It
+defaults to the KQuant output and preserves the benchmark settings used for
+the results below: MMLU, 200 samples per subtask, task-default few-shot
+behavior (`num_fewshot: null`), batch size 1, maximum length 4096, the CUDA
+execution provider, the `ortgenai` model class, and no chat-template wrapping.
+
+Run from the `Qwen-Qwen3-30B-A3B/` directory. Olive resolves the config's
+relative model path from the current working directory:
 
 ```bash
-# MMLU, 100 samples per subtask (defaults)
-python eval.py
+# KQuant (the config default)
+olive run --config eval/mmlu_cuda.json
 
-# A single, quicker task
-python eval.py --task arc_challenge --limit 200
-
-# Full task, no sample cap
-python eval.py --task mmlu --limit 0
+# Run exactly the same evaluator against all four exported variants
+for model_path in \
+  cuda/fp16/models \
+  cuda/kquant_fp16/models \
+  cuda/rtn_fp16/models \
+  cuda/gptq_fp16/models
+do
+  olive run --config eval/mmlu_cuda.json \
+    --model_name_or_path "$model_path"
+done
 ```
 
-`--limit` caps the samples per task (task groups such as `mmlu` apply it to
-every subtask), `--max-length` sets the evaluation sequence length, and
-`--num-fewshot` overrides the shot count baked into the task. Every metric
-lm-eval reports for the task is printed. Use `--model-path` to evaluate the
-corresponding FP16, KQuant, RTN, or GPTQ output. The FP16 result is the
-unquantized quality baseline; use identical task, limit, and few-shot settings
-for all four variants.
+For an ad-hoc run without the checked-in config, Olive's benchmark command has
+equivalent defaults for task-selected few-shot behavior and chat wrapping:
+
+```bash
+for model_path in \
+  cuda/fp16/models \
+  cuda/kquant_fp16/models \
+  cuda/rtn_fp16/models \
+  cuda/gptq_fp16/models
+do
+  olive benchmark \
+    --model_name_or_path "$model_path" \
+    --tasks mmlu \
+    --backend ortgenai \
+    --device gpu \
+    --batch_size 1 \
+    --max_length 4096 \
+    --limit 200
+done
+```
+
+The FP16 result is the unquantized quality baseline; keep all evaluator options
+identical when comparing variants. This is a text `lm-eval` path, not the
+`lmms-eval` path used by vision-language models.
 
 > lm-eval downloads its task datasets from the Hugging Face Hub on first use, so
 > the machine needs network access (and `huggingface-cli login` for gated
@@ -147,9 +172,10 @@ for all four variants.
 
 All four variants were exported and evaluated end to end on a single NVIDIA
 A100 80 GB GPU (CUDA execution provider) with ONNX Runtime 1.30.0 and ONNX
-Runtime GenAI 0.16.0-dev. `eval.py --task mmlu --limit 200` was run identically
-across all four model directories (same task, sample cap, and few-shot
-setting):
+Runtime GenAI 0.16.0-dev. MMLU was run identically across all four model
+directories using the methodology now encoded in `eval/mmlu_cuda.json`: limit
+200 per subtask, task-default few-shot setting, batch size 1, maximum length
+4096, the `ortgenai` model class on CUDA, and no chat-template wrapping:
 
 | Variant | MMLU acc | acc_stderr | Δ vs FP16 | Export time |
 |---|---|---|---|---|
