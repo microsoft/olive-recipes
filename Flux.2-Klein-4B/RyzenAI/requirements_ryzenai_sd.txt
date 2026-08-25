@@ -1,0 +1,24 @@
+# AMD model generation
+--extra-index-url=https://pypi.amd.com/acas/olive_SD/1.8/simple
+accelerate
+datasets
+# Pin onnx version
+diffusers==0.38.0
+evaluate
+# opentelemetry-api requires importlib-metadata<8.8.0
+importlib-metadata>=6.0,<8.8.0
+model-generate
+nltk
+numpy==1.26.4
+olive-ai[auto-opt]
+onnx==1.20.1
+onnxruntime-directml==1.24.3
+optimum
+pandas==2.2.2
+psutil==6.0.0
+ryzenai-dynamic-dispatch
+ryzenai-onnx-utils
+sentencepiece
+tabulate
+torch==2.7.0
+transformers==4.56.2

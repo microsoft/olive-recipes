@@ -20,19 +20,12 @@ This folder contains sample Olive configurations to optimize **Stable Diffusion 
 conda create -n olive python=3.12,pip
 conda activate olive
 ```
-
-```bash
-git clone https://github.com/microsoft/Olive.git
-cd Olive
-pip install -e .
-```
-
 #### Install VitisAI Stable Diffusion dependencies
 
 ```bash
 git clone https://github.com/microsoft/olive-recipes.git
 cd olive-recipes/sd-legacy-stable-diffusion-v1-5/VitisAI
-pip install --force-reinstall -r requirements_vitisai_sd.txt
+pip install -r requirements_vitisai_sd.txt
 ```
 
 ## Generate optimized subgraphs (optional)

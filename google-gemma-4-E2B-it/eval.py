@@ -49,7 +49,7 @@ def main():
     )
     parser.add_argument(
         "--variant",
-        choices=["fp32", "fp16", "int4"],
+        choices=["fp32", "fp16", "int4", "mixed"],
         default=None,
         help="Model variant (cpu defaults to fp32, gpu defaults to int4)",
     )

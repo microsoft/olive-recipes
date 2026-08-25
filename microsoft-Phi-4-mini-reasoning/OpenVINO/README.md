@@ -65,3 +65,15 @@ The sample command to run after all setup would be as follows:-
 ```bash
 python model-chat.py -e follow_config -v -g -m models/Phi-4-mini-reasoning_context_ov_dynamic_sym_gs128_bkp_int8_sym/model/
 ```
+
+## ONNX Runtime ortpackage
+
+Combine the two quantized OpenVINO IR outputs into a single
+`.ortpackage` that the ONNX Runtime GenAI runtime can load:
+
+```bash
+olive generate-model-package \
+  -s models/Phi_4_mini_reasoning_gpu_context_dy \
+  -s models/Phi-4-mini-reasoning_context_ov_dynamic_sym_gs128_bkp_int8_sym \
+  -o ovortpackage
+```

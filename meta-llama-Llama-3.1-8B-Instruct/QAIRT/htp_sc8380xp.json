@@ -18,7 +18,22 @@
             "native_kv": true,
             "multi_graph": true
         },
-        "qe": { "type": "QairtEncapsulation", "log_level": "ERROR", "run_checker": "true" }
+        "qe": {
+            "type": "QairtEncapsulation",
+            "log_level": "ERROR",
+            "run_checker": "true",
+            "engine_config_overrides": {
+                "n_threads": 3,
+                "htp": { "cpu_mask": "0xe0", "allow_async_init": false, "poll": false, "mmap_budget": 0 }
+            },
+            "backend_extensions_overrides": {
+                "graphs": null,
+                "devices": [ { "pd_session": "unsigned" } ],
+                "groupContext": { "share_resources": false },
+                "memory": { "mem_type": "shared_buffer" },
+                "context": [ { "weight_sharing_enabled": true, "reused_io_limit_mb": 100 } ]
+            }
+        }
     },
     "log_severity_level": 1,
     "output_dir": "models/llama3_1-8b-instruct-qairt-htp-sc8380xp",

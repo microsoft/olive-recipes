@@ -3,7 +3,7 @@ from pathlib import Path
 from typing import Optional
 
 from .constants import OliveDeviceTypes, OlivePassNames, OlivePropertyNames, PhaseTypeEnum
-from .generator_common import create_model_parameter, set_optimization_path
+from .generator_common import apply_runtime_feature_overrides, create_model_parameter, set_optimization_path
 from .model_parameter import ModelParameter, OptimizationPath, Section
 from .parameters import Parameter
 from .utils import isLLM_by_id, open_ex
@@ -88,6 +88,8 @@ def generator_intel(id: str, recipe, folder: Path):
     quantize = generate_quantization_config(configFile, parameter)
     if quantize:
         parameter.sections.append(quantize)
+
+    apply_runtime_feature_overrides(aitk, parameter)
 
     parameter.writeIfChanged()
     print(f"\tGenerated Intel configuration for {file}")

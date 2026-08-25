@@ -1,0 +1,41 @@
+{
+    "input_model": {
+        "type": "PyTorchModel",
+        "model_path": "black-forest-labs/FLUX.2-klein-4B",
+        "model_loader": "vae_decoder_load",
+        "model_script": "user_script.py",
+        "io_config": {
+            "input_names": ["latents"],
+            "output_names": ["images"],
+            "dynamic_axes": {
+                "latents": {"0": "batch_size", "2": "h", "3": "w"},
+                "images":  {"0": "batch_size", "2": "height",   "3": "width"}
+            }
+        },
+        "dummy_inputs_func": "vae_decoder_conversion_inputs"
+    },
+    "systems": {
+        "local_system": {
+            "type": "LocalSystem",
+            "accelerators": [{"device": "cpu", "execution_providers": ["CPUExecutionProvider"]}]
+        }
+    },
+    "passes": {
+        "convert": {
+            "type": "OnnxConversion",
+            "target_opset": 17,
+            "all_tensors_to_one_file": true
+        },
+        "model_generation": {
+            "type": "VitisGenerateModelSD",
+            "model_type": "sd3-vae-decoder",
+            "resolutions": ["1024x1024"]
+        }
+    },
+    "log_severity_level": 0,
+    "evaluate_input_model": false,
+    "host": "local_system",
+    "target": "local_system",
+    "cache_dir": "ryzenai_cache",
+    "output_dir": "footprints/vae_decoder"
+}

@@ -1,0 +1,6 @@
+arch: phi3
+recipes:
+  - name: Phi-3-mini-128k-instruct_RyzenAI
+    file: Phi-3-mini-128k-instruct_quark_ryzenai_llm.json
+    devices: npu
+    eps: RyzenAIExecutionProvider

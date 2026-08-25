@@ -1,0 +1,6 @@
+arch: chatglm
+recipes:
+  - name: CodeLlama-7b-Instruct-hf_RyzenAI
+    file: CodeLlama-7b-Instruct-hf_quark_ryzenai_llm.json
+    devices: npu
+    eps: RyzenAIExecutionProvider

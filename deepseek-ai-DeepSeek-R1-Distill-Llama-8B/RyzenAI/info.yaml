@@ -1,0 +1,6 @@
+arch: llama
+recipes:
+  - name: DeepSeek-R1-Distill-Llama-8B_RyzenAI
+    file: DeepSeek-R1-Distill-Llama-8B_quark_ryzenai_llm.json
+    devices: npu
+    eps: RyzenAIExecutionProvider

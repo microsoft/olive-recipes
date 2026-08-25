@@ -2,7 +2,7 @@ import json
 from pathlib import Path
 
 from .constants import OlivePassNames, OlivePropertyNames
-from .generator_common import create_model_parameter, set_optimization_path
+from .generator_common import apply_runtime_feature_overrides, create_model_parameter, set_optimization_path
 from .generator_dml import generate_quantization_config
 from .model_info import ModelList
 from .model_parameter import ModelParameter
@@ -41,6 +41,7 @@ def generator_trtrtx(id: str, recipe, folder: Path, modelList: ModelList):
     parameter.isLLM = isLLM
 
     generate_additional_config(configFile, parameter)
+    apply_runtime_feature_overrides(aitk, parameter)
 
     quantize = generate_quantization_config(configFile, parameter)
     if quantize:
