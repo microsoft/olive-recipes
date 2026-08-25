@@ -1,6 +1,4 @@
-datasets
-mobius-onnx @ git+https://github.com/onnxruntime/mobius.git@8093037c9e107a50ef21daa5d5324f932c31ab34
+mobius-onnx @ git+https://github.com/onnxruntime/mobius.git@38ede626cd92bd6b1b0545b964ffbcf917255dd9
 olive-ai[gpu] @ git+https://github.com/microsoft/Olive.git@9253bbe0993193d711f8e4b7384126927622df8c
-onnx-ir>=1.0.0
-onnxruntime-genai-cuda
-pillow
+onnx-ir==1.0.0
+transformers==5.15.1

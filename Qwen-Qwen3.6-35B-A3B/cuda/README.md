@@ -1,180 +1,150 @@
-# Qwen3.6-35B-A3B VL KQuant + Mobius (CUDA)
+# Qwen3.6-35B-A3B text-only KQuant + Mobius (CUDA)
 
-This recipe exports
+This recipe exports the text model from
 [`Qwen/Qwen3.6-35B-A3B`](https://huggingface.co/Qwen/Qwen3.6-35B-A3B)
-as a three-component ONNX Runtime GenAI vision-language package for CUDA.
+as a standalone ONNX Runtime GenAI package for the CUDA execution provider.
+The vision encoder is intentionally not exported.
 
-The workflow uses Olive's MoE-aware PyTorch-side `KQuant` pass for supported
-decoder weights, followed by `MobiusBuilder` to export the decoder, vision
-encoder, embedding model, runtime configuration, tokenizer, and image
-processor in one operation.
+## Pipeline and quantization scope
 
-## Quantization scope
+Olive loads the checkpoint with `task: text-generation`, selecting the
+standalone `qwen3_5_moe_text` causal language model. The pipeline then:
 
-The relevant `KQuant` options are explicit in `vl_kquant_fp16/config.json`:
+1. Applies the MoE-aware `KQuant` pass to supported decoder weights using
+   symmetric 4-bit quantization with group size 128.
+2. Uses `MobiusBuilder` to export the quantized text model and its ONNX Runtime
+   GenAI configuration and tokenizer assets at fp16 precision.
 
-```json
-{
-    "bits": 4,
-    "group_size": 128,
-    "sym": true,
-    "moe": true,
-    "quantize_vision": false,
-    "embeds": false,
-    "lm_head": false
-}
-```
-
-`quantize_vision` is the Olive option controlling whether the vision tower
-participates in this PyTorch-side quantization pass. There is no `vision_only`
-option. Setting it to `false` leaves the vision tower floating point.
-`embeds: false` and `lm_head: false` likewise leave the input embedding and
-language-model head floating point.
-
-The resulting mixed-precision selection is:
-
-| Module group | Representation |
-|---|---|
-| Decoder self-attention linears | int4 KQuant |
-| Shared-expert MLP linears | int4 KQuant |
-| Fused MoE expert tensors | int4 KQuant, independently per expert |
-| Vision tower | fp16 export (`quantize_vision: false`) |
-| Input embedding and LM head | fp16 export (`embeds: false`, `lm_head: false`) |
-| MoE routers and `shared_expert_gate` | fp16 export; always excluded by Olive |
-| GatedDeltaNet `linear_attn` | fp16 export; recurrent/SSM blocks are excluded by Olive |
-
-The `fp16` descriptions refer to the Mobius export precision. The original
-checkpoint values remain at their loaded floating-point precision until
-export.
-
-## Why one workflow is sufficient
-
-The input uses `task: image-text-to-text`, so Transformers loads
-`Qwen3_5MoeForConditionalGeneration` with both the decoder and vision tower.
-Olive applies the selection above to the full model and saves one mixed
-checkpoint.
-
-Mobius then exports the complete ORT GenAI package:
-
-- `decoder`: hybrid full/GatedDeltaNet attention and quantized MoE FFNs
-- `vision_encoder`: floating-point Qwen vision transformer
-- `embedding`: floating-point token embedding and image-feature fusion
-
-No partial export, per-component Olive workflow, or manual
-`genai_config.json` assembly is required.
-
-## Required revisions
-
-`requirements.txt` pins unreleased revisions containing:
-
-- Olive MoE-aware KQuant and Qwen3.5/3.6 VL selection support
-- [mobius#515](https://github.com/onnxruntime/mobius/pull/515), which builds
-  Olive-format Qwen3.5/3.6 `linear_attn` and `shared_expert_gate` as floating
-  point while retaining quantized attention/MLP/QMoE modules
-- [mobius#519](https://github.com/onnxruntime/mobius/pull/519), which treats
-  both the outer `qwen3_5_moe` config and unwrapped `qwen3_5_moe_text` config
-  as Qwen VL processor targets, ensuring `PatchImage` produces the rank-2
-  packed patches expected by the vision encoder
-- `onnx-ir>=1.0.0`, required by Mobius's sharded external-data save API
-
-Replace the Git revisions with compatible releases after those changes ship.
+The token embeddings and language-model head are excluded from KQuant by
+`embeds: false` and `lm_head: false`. MoE routers, `shared_expert_gate`, and
+the GatedDeltaNet `linear_attn` recurrent/SSM blocks also remain floating
+point rather than being KQuant targets. Because this is a text-generation
+workflow, it neither quantizes nor exports a vision tower, image embedding
+model, image processor, or other multimodal component.
 
 ## Why CUDA uses fp16
 
-The target system and CUDA execution provider are explicit because
-`MobiusBuilder` derives graph/runtime choices from the Olive accelerator
-specification.
-
-The export uses `fp16`, not `bf16`. ONNX Runtime's CUDA
-`CausalConvWithState` kernel used by Qwen3.6 GatedDeltaNet layers currently
-supports float and float16, but not bfloat16. Mobius also emits QMoE scales in
-the requested export precision so QMoE remains assigned to CUDA.
+The target `LocalSystem` explicitly selects `CUDAExecutionProvider`, allowing
+Mobius to build the graph and runtime configuration for CUDA. The Mobius
+export precision is fp16 because that is the precision validated for the
+complete CUDA graph. The exported artifact uses standard `Conv` nodes after
+Mobius inlining; bf16 was not validated for the complete graph.
 
 ## Setup and export
 
+From the `Qwen-Qwen3.6-35B-A3B/` directory:
+
 ```bash
 pip install -r cuda/requirements.txt
-
-olive run --config cuda/vl_kquant_fp16/config.json
+olive run --config cuda/kquant_fp16/config.json
 ```
 
-Run the command from the `Qwen-Qwen3.6-35B-A3B/` directory because
-`output_dir` is relative to that directory.
+The pinned model revision makes the source checkpoint reproducible. The
+dependency revisions provide Olive's MoE-aware KQuant and MobiusBuilder
+support. Mobius PR #525 provides packed Olive QMoE sidecar handling, while
+Mobius PR #631 is required for correct generic-decoder versus multimodal
+runtime routing. PR #631 is still open and unmerged, so its revision remains
+pinned by `requirements.txt`.
+
+## Runtime setup
+
+`requirements.txt` covers export dependencies only. The documented inference
+result requires ONNX Runtime GenAI built from source at commit
+`a8e0fdf81b061e67c1c3f9485bfdc06735ccd473` together with the
+`onnxruntime-gpu` 1.30.0.dev20260823001 nightly built from ONNX Runtime commit
+`4d308dacbb`. Follow the upstream
+[ONNX Runtime GenAI build instructions](https://github.com/microsoft/onnxruntime-genai/blob/main/BUILD.md)
+for the source build.
+
+Stable ONNX Runtime GenAI 0.15.2 was not validated for this graph. The
+generated `runtime_compatibility.json` values (minimum 0.14.0 and tested
+0.15.2) are generic decoder ABI metadata and do not represent
+model-specific runtime validation.
 
 ## Output
 
+The validated export is a root-level standalone text package:
+
 ```text
-cuda/vl_kquant_fp16/models/
-├── decoder/
-│   ├── model.onnx
-│   └── model.onnx.data
-├── vision_encoder/
-│   ├── model.onnx
-│   └── model.onnx.data
-├── embedding/
-│   ├── model.onnx
-│   └── model.onnx.data
+cuda/kquant_fp16/models/
+├── footprint.json
+├── output_footprint.json
+├── run_history.txt
+├── model_config.json
+├── model.onnx
+├── model.onnx.data
 ├── genai_config.json
-├── processor_config.json
+├── runtime_compatibility.json
+├── chat_template.jinja
 ├── tokenizer.json
-├── tokenizer_config.json
-└── chat_template.jinja
+└── tokenizer_config.json
 ```
 
-## Inference
+There is no `vision_encoder`, embedding model, or image processor. The package
+is 20 GB; `model.onnx.data` is 20,948,779,008 bytes.
 
-Image and text:
+## Text inference
+
+After export, validate and test the package with the standard ONNX Runtime
+GenAI
+[`model-chat.py`](https://github.com/microsoft/onnxruntime-genai/blob/main/examples/python/model-chat.py)
+or
+[`model-qa.py`](https://github.com/microsoft/onnxruntime-genai/blob/main/examples/python/model-qa.py)
+examples. For example, from the recipe directory:
 
 ```bash
-python cuda/inference_vl.py \
-  --image /path/to/image.png \
-  --prompt "Describe this image."
+export ORT_GENAI_ROOT=/path/to/onnxruntime-genai
+python "$ORT_GENAI_ROOT/examples/python/model-qa.py" \
+  -m cuda/kquant_fp16/models/ \
+  --user_prompt "Calculate 17 * 23 and state the final answer." \
+  --max_length 512 \
+  --non_interactive
 ```
 
-The same package also supports text-only prompts, interactive input, and a
-directory benchmark reporting time-to-first-token and decode throughput:
-
-```bash
-python cuda/inference_vl.py --prompt "What is the capital of France?"
-python cuda/inference_vl.py --interactive
-python cuda/inference_vl.py --benchmark /path/to/images
-```
-
-## Evaluation
-
-`eval_vl.py` measures diagram-question accuracy and average latency on a
-deterministic prefix of the AI2D test set:
-
-```bash
-python cuda/eval_vl.py --num-samples 100
-```
-
-AI2D is downloaded from Hugging Face on first use. The script evaluates the
-exported ORT GenAI package only; it does not co-load the roughly 70 GB fp16
-PyTorch checkpoint on the same GPU.
+The default chat template enables reasoning mode. Allow enough `max_length`
+for reasoning prompts so generation can reach the final answer.
 
 ## Validation
 
-The recipe was validated end to end on one NVIDIA A100-SXM4-80GB:
+The complete recipe was validated on 2026-08-25 with one NVIDIA
+A100-SXM4-80GB and the CUDA execution provider:
 
-- KQuant selected 240 decoder parameters and completed in about 194 seconds
-- Mobius export completed in about 158 seconds
-- the three-component package was approximately 22 GB
-- `onnxruntime_genai.Model` loaded the package on CUDA in about 59 seconds
-- a synthetic 256x256 four-color image produced 86 input tokens and successful
-  multimodal generation; the model correctly identified a square divided into
-  four equal quadrants
+- Olive loaded `Qwen/Qwen3.6-35B-A3B` at the pinned revision beginning
+  `995ad96e` as `Qwen3_5MoeForCausalLM` / `qwen3_5_moe_text` with Transformers
+  5.15.1 and the `text-generation` task.
+- KQuant used symmetric int4 quantization with group size 128 and MoE support
+  enabled, while excluding embeddings and the language-model head. It
+  quantized 240 parameter tensors in 500.967169 seconds.
+- The fp16 MobiusBuilder export completed in 143.995098 seconds.
+- `genai_config.json` identifies a `decoder` model with root-level
+  `model.onnx`, enables CUDA graphs with `enable_cuda_graph=1`, and sets a
+  262144-token context length.
+- The generated `runtime_compatibility.json` records generic-decoder minimum
+  ONNX Runtime GenAI 0.14.0 and tested version 0.15.2. Model-specific runtime
+  validation instead used source-built ONNX Runtime GenAI 0.16.0.dev0 at commit
+  `a8e0fdf81b061e67c1c3f9485bfdc06735ccd473` and `onnxruntime-gpu`
+  1.30.0.dev20260823001 from commit `4d308dacbb`.
+- Exactly two reasoning-mode smoke runs used `model-qa.py` with greedy
+  decoding (`top_k=1`). Both produced coherent reasoning that derived `391`
+  for `Calculate 17 * 23 and state the final answer.`, but the capped runs
+  were not evidence of completed final-channel answers.
+- In a separate no-think check, the Hugging Face chat template was rendered
+  with `enable_thinking=false`; generation produced the exact output `391`.
+  This check was repeated successfully in the validated `qwen35-4b`
+  environment.
 
-The expanded inference benchmark modes and full AI2D evaluation have not yet
-been run against the large artifact because it was removed after validation.
+The two reasoning-mode runs produced the following smoke measurements on that
+one A100. These are not a broad benchmark:
+
+| Max total tokens (prompt + generated cap) | Time to first token | Decode throughput |
+|---:|---:|---:|
+| 256 | 4.25 s | 77.66 tokens/s |
+| 512 | 3.36 s | 93.16 tokens/s |
 
 ## References
 
 - [Olive KQuant](https://github.com/microsoft/Olive/tree/main/olive/passes/pytorch/kquant.py)
 - [Olive MobiusBuilder](https://github.com/microsoft/Olive/tree/main/olive/passes/onnx/mobius_model_builder.py)
-- [Olive#2630: Qwen3.5/3.6 MoE VL quantization selection](https://github.com/microsoft/Olive/pull/2630)
 - [Mobius](https://github.com/onnxruntime/mobius)
-- [mobius#505: QMoE scale precision](https://github.com/onnxruntime/mobius/pull/505)
-- [mobius#511: VL decoder QMoE support](https://github.com/onnxruntime/mobius/pull/511)
-- [mobius#515: Olive mixed-precision export](https://github.com/onnxruntime/mobius/pull/515)
-- [mobius#519: Qwen3.6 packed VL processor](https://github.com/onnxruntime/mobius/pull/519)
+- [Mobius PR #525: packed Olive QMoE sidecars](https://github.com/onnxruntime/mobius/pull/525)
+- [Mobius PR #631: standalone text and multimodal runtime type routing](https://github.com/onnxruntime/mobius/pull/631)
