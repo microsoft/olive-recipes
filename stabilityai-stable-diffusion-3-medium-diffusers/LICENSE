@@ -1,0 +1,14 @@
+Stable Diffusion 3 Medium is released under the Stability AI Community License.
+
+The model "stabilityai/stable-diffusion-3-medium-diffusers" is a gated model. You must
+review and accept its license on Hugging Face before downloading or using the weights:
+
+  https://huggingface.co/stabilityai/stable-diffusion-3-medium-diffusers
+
+Full license text:
+
+  https://stability.ai/license
+
+The recipes in this directory are provided by the olive-recipes project under the
+repository's root LICENSE. The license referenced above governs use of the Stable
+Diffusion 3 model weights only.
