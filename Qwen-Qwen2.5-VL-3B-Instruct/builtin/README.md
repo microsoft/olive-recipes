@@ -1,8 +1,17 @@
-# Qwen2.5-VL-3B-Instruct ONNX Runtime GenAI Example
+# Qwen2.5-VL-3B-Instruct — Olive + Mobius Multi-Component Recipe
 
-This example demonstrates how to convert [Qwen2.5-VL-3B-Instruct](https://huggingface.co/Qwen/Qwen2.5-VL-3B-Instruct) vision-language model to ONNX format using Olive and run inference with ONNX Runtime GenAI.
+This recipe exports
+[`Qwen/Qwen2.5-VL-3B-Instruct`](https://huggingface.co/Qwen/Qwen2.5-VL-3B-Instruct)
+with Olive's `MobiusBuilder`, then optimizes all three ONNX components from one
+Olive multi-build config:
 
-The pipeline exports three sub-models (vision encoder, text embedding, text decoder), applies graph optimizations (Cast chain elimination, Gemm→MatMul conversion), and quantizes all three sub-models to INT4.
+- `decoder`
+- `vision_encoder`
+- `embedding`
+
+Mobius owns the model graph, weight mapping, ORT GenAI configuration, tokenizer,
+and image processor generation. The previous custom PyTorch model and three
+independent component configs are no longer required.
 
 ## Prerequisites
 
@@ -10,109 +19,122 @@ The pipeline exports three sub-models (vision encoder, text embedding, text deco
 pip install -r requirements.txt
 ```
 
-Install ONNX Runtime GenAI based on your target device:
+Install ONNX Runtime GenAI for the target:
 
-| Device | Install Command |
-|--------|-----------------|
-| GPU (CUDA) | `pip install onnxruntime-genai-cuda --index-url https://aiinfra.pkgs.visualstudio.com/PublicPackages/_packaging/ORT-Nightly/pypi/simple` |
-| CPU | `pip install onnxruntime-genai --index-url https://aiinfra.pkgs.visualstudio.com/PublicPackages/_packaging/ORT-Nightly/pypi/simple` |
+| Target | Install command |
+|---|---|
+| CPU | `pip install onnxruntime-genai` |
+| CUDA | `pip install onnxruntime-genai-cuda` |
 
-## Steps
+Run commands from this `builtin` directory.
 
-### 1. Export & Optimize Models (CPU)
+## Export and optimize
 
-All graph transformations and quantization are declared in the JSON config files inside `cpu_and_mobile/` and `cuda/`. The top-level `optimize.py` script orchestrates the three Olive runs and generates the GenAI runtime configs.
-
-| Command | Description |
-|---------|-------------|
-| `python optimize.py --config-dir cpu_and_mobile --device cpu` | Full pipeline: export, optimize, INT4 quantize (CPU) |
-| `python optimize.py --config-dir cuda --device gpu` | Full pipeline with FP16 + INT4 (CUDA) |
-| `python optimize.py --config-dir cpu_and_mobile --skip-export` | Regenerate configs only (models already exported) |
-
-> **Note:** The text model is always exported as INT4 via ModelBuilder. The vision encoder is graph-optimized and quantized to INT4 by Olive passes. The embedding model's Gather-based embedding table is quantized to INT4 using GatherBlockQuantized.
->
-> The vision encoder is exported for a single image using the Dynamo exporter. At runtime, ONNX Runtime GenAI handles multiple images by calling the vision encoder once per image and concatenating the results — so there is no upper bound on the number of images passed to the model.
-
-### 2. Run Inference
-
-From the top-level model directory:
+### CPU and mobile
 
 ```bash
-# Text-only (CPU models, default)
-python inference.py --prompt "What is the capital of France?"
-
-# With a single image
-python inference.py --prompt "Describe this image" --image cat.jpeg
-
-# CUDA models
-python inference.py --model_path cuda/models --prompt "Describe this image" --image cat.jpeg
-
-# Interactive mode
-python inference.py --interactive
+python optimize.py --config-dir cpu_and_mobile --device cpu
 ```
 
-**Multi-image inference** is supported via `model-mm.py` from the `onnxruntime-genai` examples:
+`cpu_and_mobile/config.json` is one Olive config containing three named builds.
+All three components use block-wise INT4 RTN:
+
+| Build | Pipeline |
+|---|---|
+| `decoder` | `OnnxBlockWiseRtnQuantization` |
+| `vision_encoder` | `OnnxBlockWiseRtnQuantization` |
+| `embedding` | `OnnxBlockWiseRtnQuantization` |
+
+### CUDA
 
 ```bash
-# Two images — compare or reason across multiple images
-# Adjust paths to your onnxruntime-genai checkout and model directory
-python <onnxruntime-genai>/examples/python/model-mm.py \
-    -m <path-to-builtin>/cpu_and_mobile/models \
-    -up "Are these two images the same?" \
-    --image_paths image1.jpeg image2.jpeg \
-    --non_interactive
+python optimize.py --config-dir cuda --device gpu
 ```
+
+`cuda/config.json` preserves the previous target intent:
+
+| Build | Pipeline |
+|---|---|
+| `decoder` | INT4 RTN |
+| `vision_encoder` | Mobius FP16, Olive resave |
+| `embedding` | Mobius FP16, Olive resave |
+
+Both flows have two stages:
+
+1. Olive runs `MobiusBuilder` once and saves the complete package under
+   `<config-dir>/mobius_base/`.
+2. Olive runs the target's single `config.json`; its `builds` select and
+   optimize the three Mobius components into `<config-dir>/models/`.
+
+To reuse an existing Mobius export while rerunning the three component builds:
+
+```bash
+python optimize.py --config-dir cpu_and_mobile --device cpu --skip-export
+```
+
+The final ORT GenAI package uses Mobius's native component layout:
+
+```text
+cpu_and_mobile/models/
+  decoder/model.onnx
+  vision_encoder/model.onnx
+  embedding/model.onnx
+  genai_config.json
+  processor_config.json
+  tokenizer.json
+  tokenizer_config.json
+```
+
+## Inference
+
+```bash
+# Text only
+python inference.py \
+  --model_path cpu_and_mobile/models \
+  --prompt "What is the capital of France?"
+
+# Image + text
+python inference.py \
+  --model_path cpu_and_mobile/models \
+  --image cat.jpeg \
+  --prompt "Describe this image."
+
+# CUDA package
+python inference.py \
+  --model_path cuda/models \
+  --image cat.jpeg \
+  --prompt "Describe this image."
+```
+
+ORT GenAI executes the vision encoder only when images are present, fuses its
+features in the embedding component, and runs autoregressive generation through
+the decoder.
 
 ## Evaluation
 
-`eval.py` measures model quality on [AI2D](https://huggingface.co/datasets/lmms-lab/ai2d) — a multiple-choice visual QA benchmark on scientific diagrams. It supports side-by-side comparison of the quantized ONNX model against the PyTorch FP32 baseline.
+`eval.py` evaluates the final package on AI2D:
 
 ```bash
-# ONNX only (fastest)
-python eval.py --num_samples 100
-
-# ONNX + PyTorch comparison
-python eval.py --num_samples 100 --pytorch_model Qwen/Qwen2.5-VL-3B-Instruct
-
-# Evaluate CUDA models
-python eval.py --model_path cuda/models --num_samples 100
+python eval.py --model_path cpu_and_mobile/models --num_samples 100
+python eval.py \
+  --model_path cpu_and_mobile/models \
+  --num_samples 100 \
+  --pytorch_model Qwen/Qwen2.5-VL-3B-Instruct
 ```
 
-### Results (AI2D, 100 samples)
+Re-run evaluation when changing Mobius, quantization settings, or runtime
+versions; results from the previous custom export graph are not comparable.
 
-| Model | Accuracy | Avg latency |
-|-------|----------|-------------|
-| PyTorch FP32 (baseline) | 81.00% | 11.87 s/sample |
-| **ONNX INT4 (CPU)** | **82.00%** | **9.52 s/sample** |
-| **ONNX FP16 (CUDA)** | **85.00%** | **0.31 s/sample** |
-| Random chance | 25.00% | — |
+## Directory structure
 
-- **CPU INT4 accuracy delta: −1 pp** (81% → 82%)
-- **CUDA FP16 accuracy delta: +4 pp** (81% → 85%)
-- **CPU speedup: 1.25×** vs PyTorch FP32
-
-> Results measured with `--num_samples 100` from the AI2D test split.
-
-## Directory Structure
-
-```
-Qwen-Qwen2.5-VL-3B-Instruct/
-├── LICENSE
-└── builtin/
-    ├── optimize.py                # End-to-end Olive pipeline + GenAI config generation
-    ├── user_script.py             # Olive callbacks: model loading, dummy inputs, IO configs
-    ├── eval.py                    # AI2D accuracy evaluation (ONNX vs PyTorch)
-    ├── inference.py               # ONNX Runtime GenAI inference
-    ├── cat.jpeg                   # Sample test image
-    ├── codes/                     # Custom Qwen2.5-VL PyTorch model adapted for ONNX export
-    ├── cpu_and_mobile/
-    │   ├── embedding.json         # Olive config: export → optimize → INT4
-    │   ├── vision.json            # Olive config: Dynamo export → graph surgeries → INT4
-    │   ├── text.json              # Olive config: ModelBuilder INT4
-    │   └── models/                # Exported ONNX models (generated)
-    └── cuda/
-        ├── embedding.json         # Olive config with FP16 + INT4 + CUDA EP
-        ├── vision.json            # Olive config with FP16 + INT4 + CUDA EP
-        ├── text.json              # ModelBuilder INT4 with CUDA EP
-        └── models/                # Exported CUDA ONNX models (generated)
+```text
+builtin/
+  optimize.py
+  inference.py
+  eval.py
+  cat.jpeg
+  cpu_and_mobile/
+    config.json
+  cuda/
+    config.json
 ```

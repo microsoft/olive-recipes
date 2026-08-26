@@ -1,0 +1,77 @@
+{
+    "input_model": {
+        "type": "CompositeModel",
+        "config": {
+            "model_path": "cuda/mobius_base"
+        }
+    },
+    "systems": {
+        "local_gpu": {
+            "type": "LocalSystem",
+            "accelerators": [
+                {
+                    "device": "gpu",
+                    "execution_providers": [
+                        "CUDAExecutionProvider"
+                    ]
+                }
+            ]
+        }
+    },
+    "passes": {
+        "int4": {
+            "type": "OnnxBlockWiseRtnQuantization",
+            "block_size": 128,
+            "is_symmetric": true,
+            "accuracy_level": 4,
+            "save_as_external_data": true,
+            "external_data_name": "model.onnx.data"
+        },
+        "resave": {
+            "type": "OnnxPeepholeOptimizer",
+            "onnxscript_optimize": false,
+            "onnxoptimizer_optimize": false,
+            "fuse_reshape_operations": false,
+            "fix_com_microsoft_opset": false,
+            "cast_chain_elimination": false,
+            "save_as_external_data": true,
+            "external_data_name": "model.onnx.data"
+        }
+    },
+    "engine": {
+        "host": "local_gpu",
+        "target": "local_gpu",
+        "evaluate_input_model": false,
+        "cache_dir": "cuda/cache"
+    },
+    "max_concurrent_builds": 1,
+    "builds": {
+        "_default": {
+            "output_dir": "cuda/models"
+        },
+        "decoder": {
+            "components": [
+                "decoder"
+            ],
+            "pipeline": [
+                "int4"
+            ]
+        },
+        "vision_encoder": {
+            "components": [
+                "vision_encoder"
+            ],
+            "pipeline": [
+                "resave"
+            ]
+        },
+        "embedding": {
+            "components": [
+                "embedding"
+            ],
+            "pipeline": [
+                "resave"
+            ]
+        }
+    }
+}

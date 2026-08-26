@@ -1,0 +1,67 @@
+{
+    "input_model": {
+        "type": "CompositeModel",
+        "config": {
+            "model_path": "cpu_and_mobile/mobius_base"
+        }
+    },
+    "systems": {
+        "local_cpu": {
+            "type": "LocalSystem",
+            "accelerators": [
+                {
+                    "device": "cpu",
+                    "execution_providers": [
+                        "CPUExecutionProvider"
+                    ]
+                }
+            ]
+        }
+    },
+    "passes": {
+        "int4": {
+            "type": "OnnxBlockWiseRtnQuantization",
+            "block_size": 128,
+            "is_symmetric": true,
+            "accuracy_level": 4,
+            "save_as_external_data": true,
+            "external_data_name": "model.onnx.data"
+        }
+    },
+    "engine": {
+        "host": "local_cpu",
+        "target": "local_cpu",
+        "evaluate_input_model": false,
+        "cache_dir": "cpu_and_mobile/cache"
+    },
+    "max_concurrent_builds": 1,
+    "builds": {
+        "_default": {
+            "output_dir": "cpu_and_mobile/models"
+        },
+        "decoder": {
+            "components": [
+                "decoder"
+            ],
+            "pipeline": [
+                "int4"
+            ]
+        },
+        "vision_encoder": {
+            "components": [
+                "vision_encoder"
+            ],
+            "pipeline": [
+                "int4"
+            ]
+        },
+        "embedding": {
+            "components": [
+                "embedding"
+            ],
+            "pipeline": [
+                "int4"
+            ]
+        }
+    }
+}
