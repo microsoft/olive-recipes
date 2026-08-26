@@ -21,7 +21,7 @@ published releases, install the tested source revisions and runtime
 dependencies:
 
 ```bash
-pip install "git+https://github.com/microsoft/Olive.git@faa15641"
+pip install "git+https://github.com/microsoft/Olive.git@6e2fe601"
 pip install "git+https://github.com/onnxruntime/mobius.git@d048028"
 pip install transformers torch onnxruntime-genai requests
 ```
