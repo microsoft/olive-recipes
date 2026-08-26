@@ -1,0 +1,11 @@
+# Generated Hugging Face and ONNX packages
+gemma4_decoder_int4_hf/
+exported_gemma4_int4_pkg/
+
+# Olive caches and generated dependency lists
+.olive-cache/
+cache/
+olive_requirements.txt
+
+# Local run logs
+*.log

@@ -38,8 +38,20 @@ def format_chat_prompt(tokenizer, prompt: str, system_prompt: str | None = None)
         messages.append({"role": "system", "content": system_prompt})
     messages.append({"role": "user", "content": prompt})
 
-    # ORT GenAI tokenizer expects the messages as a JSON string
-    return tokenizer.apply_chat_template(json.dumps(messages))
+    # ORT GenAI tokenizer expects the messages as a JSON string. Older
+    # releases cannot execute Gemma 4's newer Jinja template, so fall back to
+    # the equivalent canonical turn markers for simple text generation.
+    try:
+        return tokenizer.apply_chat_template(json.dumps(messages))
+    except RuntimeError as exc:
+        if "Invalid or unsupported chat template" not in str(exc):
+            raise
+
+    turns = ["<bos>"]
+    if system_prompt:
+        turns.append(f"<|turn>system\n{system_prompt.strip()}<turn|>\n")
+    turns.append(f"<|turn>user\n{prompt.strip()}<turn|>\n<|turn>model\n")
+    return "".join(turns)
 
 
 def generate(

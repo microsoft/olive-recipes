@@ -1,0 +1,35 @@
+{
+    "input_model": {
+        "type": "HfModel",
+        "config": {
+            "model_path": "google/gemma-4-E2B-it",
+            "task": "image-text-to-text",
+            "load_kwargs": { "torch_dtype": "float16", "trust_remote_code": true }
+        }
+    },
+    "systems": {
+        "local_cpu": {
+            "type": "LocalSystem",
+            "accelerators": [ { "device": "cpu", "execution_providers": [ "CPUExecutionProvider" ] } ]
+        }
+    },
+    "passes": {
+        "decoder_rtn": {
+            "type": "Rtn",
+            "bits": 4,
+            "group_size": 128,
+            "sym": true,
+            "lm_head": false,
+            "embeds": false,
+            "modules_to_not_convert": [ "per_layer_input_gate", "per_layer_projection" ]
+        }
+    },
+    "engine": { "host": "local_cpu", "target": "local_cpu", "evaluate_input_model": false, "cache_dir": "cache" },
+    "builds": {
+        "decoder_int4": {
+            "components": [ "decoder" ],
+            "pipeline": [ "decoder_rtn" ],
+            "output_dir": "gemma4_decoder_int4_hf"
+        }
+    }
+}

@@ -1,0 +1,15 @@
+keywords:
+  - olive-ai
+  - gemma4
+  - multimodal
+  - multi-component
+  - rtn
+  - int4
+  - mobius
+recipes:
+  - name: gemma4-e2b-decoder-rtn-then-mobius
+    file: gemma4_quantize_then_export.json
+    eps:
+      - CPUExecutionProvider
+    devices:
+      - cpu
