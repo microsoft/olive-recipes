@@ -14,22 +14,23 @@
         }
     },
     "passes": {
-        "decoder_rtn": {
+        "decoder_vision_rtn": {
             "type": "Rtn",
             "bits": 4,
             "group_size": 128,
             "sym": true,
             "lm_head": false,
             "embeds": false,
+            "quantize_vision": true,
             "modules_to_not_convert": [ "per_layer_input_gate", "per_layer_projection" ]
         }
     },
     "engine": { "host": "local_cpu", "target": "local_cpu", "evaluate_input_model": false, "cache_dir": "cache" },
     "builds": {
-        "decoder_int4": {
-            "components": [ "decoder" ],
-            "pipeline": [ "decoder_rtn" ],
-            "output_dir": "gemma4_decoder_int4_hf"
+        "decoder_vision_int4": {
+            "components": [ "decoder", "vision_encoder" ],
+            "pipeline": [ "decoder_vision_rtn" ],
+            "output_dir": "gemma4_decoder_vision_int4_hf"
         }
     }
 }

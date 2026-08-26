@@ -7,7 +7,7 @@ keywords:
   - int4
   - mobius
 recipes:
-  - name: gemma4-e2b-decoder-rtn-then-mobius
+  - name: gemma4-e2b-decoder-vision-rtn-then-mobius
     file: gemma4_quantize_then_export.json
     eps:
       - CPUExecutionProvider

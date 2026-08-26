@@ -44,9 +44,9 @@ K-Quant (Q4_K_M) is significantly faster with GPU acceleration —
 install `cupy-cuda12x` for a 19–51× speedup during quantization.
 
 For a Torch-stage quantize-then-export flow, see
-[`multi_comp/README.md`](multi_comp/README.md). It applies INT4 RTN only to
-the decoder, saves a complete Hugging Face checkpoint, and then exports all
-four components with Mobius.
+[`multi_comp/README.md`](multi_comp/README.md). It applies INT4 RTN to the
+decoder and vision encoder in one multi-component build, saves a complete
+Hugging Face checkpoint, and then exports all four components with Mobius.
 
 ## Build
 
