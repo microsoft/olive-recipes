@@ -21,8 +21,8 @@
     },
     "target": "local_system",
     "passes": {
-        "kquant": {
-            "type": "KQuant",
+        "rtn": {
+            "type": "Rtn",
             "bits": 4,
             "group_size": 128,
             "sym": true,
@@ -32,8 +32,9 @@
         },
         "mobius": {
             "type": "MobiusBuilder",
-            "precision": "fp16"
+            "precision": "fp16",
+            "text_only": true
         }
     },
-    "output_dir": "cuda/kquant_fp16/models"
+    "output_dir": "cuda/text/rtn_fp16/models"
 }
