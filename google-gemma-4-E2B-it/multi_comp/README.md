@@ -65,11 +65,6 @@ gemma4_mixed_hf/
     model-*.safetensors
 ```
 
-The root is a standard HF checkpoint. Its `component_quantization` mapping
-records the independent decoder and vision layouts. The LM head, embeddings,
-audio encoder, and Gemma 4 `per_layer_input_gate` /
-`per_layer_projection` modules remain floating point.
-
 ## Step 2 — Export with Mobius
 
 ```bash
@@ -93,11 +88,6 @@ exported_gemma4_mixed_pkg/
   tokenizer.json
   processor and audio feature-extraction files
 ```
-
-The exported decoder contains 205 asymmetric group-32 `MatMulNBits` nodes. The
-vision encoder contains 114 symmetric group-128 `MatMulNBits` nodes. Audio and
-embedding remain floating point, and all 70 runtime-specific per-layer
-gate/projection operations remain ordinary `MatMul`.
 
 ## Step 3 — Inference
 
