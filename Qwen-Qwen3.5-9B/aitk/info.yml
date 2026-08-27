@@ -2,18 +2,18 @@ keywords:
     aitk
 arch: qwen3_5_text
 recipes:
-    - file: "Qwen3.5-0.8B_NvTensorRtRtx.json"
+    - file: "Qwen3.5-9B_NvTensorRtRtx.json"
       device: gpu
       ep: NvTensorRTRTXExecutionProvider
       aitk:
-        oliveFile: "NvTensorRtRtx/Qwen3.5-0.8B_model_builder_int4.json"
+        oliveFile: "NvTensorRtRtx/Qwen3.5-9B_model_builder_int4.json"
         executeRuntimeFeatures:
           - genai
         evaluationRuntimeFeatures:
           - genai
 aitk:
     modelInfo:
-        id: "huggingface/Qwen/Qwen3.5-0.8B"
+        id: "huggingface/Qwen/Qwen3.5-9B"
         version: 1
         groupId: "huggingface/Qwen/Qwen3.5-4B"
-        groupItemName: "0.8B"
+        groupItemName: "9B"
