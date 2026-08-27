@@ -1,8 +1,12 @@
 # Generated Hugging Face and ONNX packages
 gemma4_decoder_int4_hf/
 gemma4_decoder_vision_int4_hf/
+gemma4_decoder_kquant_vision_rtn_hf/
+gemma4_mixed_hf/
 exported_gemma4_int4_pkg/
 exported_gemma4_decoder_vision_int4_pkg/
+exported_gemma4_decoder_kquant_vision_rtn_pkg/
+exported_gemma4_mixed_pkg/
 
 # Olive caches and generated dependency lists
 .olive-cache/

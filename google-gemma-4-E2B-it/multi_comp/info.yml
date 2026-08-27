@@ -3,11 +3,12 @@ keywords:
   - gemma4
   - multimodal
   - multi-component
+  - kquant
   - rtn
   - int4
   - mobius
 recipes:
-  - name: gemma4-e2b-decoder-vision-rtn-then-mobius
+  - name: gemma4-e2b-decoder-kquant-vision-rtn
     file: gemma4_quantize_then_export.json
     eps:
       - CPUExecutionProvider

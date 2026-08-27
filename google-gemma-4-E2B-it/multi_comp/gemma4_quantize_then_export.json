@@ -14,7 +14,17 @@
         }
     },
     "passes": {
-        "decoder_vision_rtn": {
+        "decoder_kquant": {
+            "type": "KQuant",
+            "bits": 4,
+            "group_size": 32,
+            "sym": false,
+            "lm_head": false,
+            "embeds": false,
+            "quantize_vision": false,
+            "modules_to_not_convert": [ "per_layer_input_gate", "per_layer_projection" ]
+        },
+        "vision_rtn": {
             "type": "Rtn",
             "bits": 4,
             "group_size": 128,
@@ -27,10 +37,16 @@
     },
     "engine": { "host": "local_cpu", "target": "local_cpu", "evaluate_input_model": false, "cache_dir": "cache" },
     "builds": {
-        "decoder_vision_int4": {
-            "components": [ "decoder", "vision_encoder" ],
-            "pipeline": [ "decoder_vision_rtn" ],
-            "output_dir": "gemma4_decoder_vision_int4_hf"
+        "_default": {
+            "output_dir": "gemma4_mixed_hf"
+        },
+        "decoder": {
+            "components": [ "decoder" ],
+            "pipeline": [ "decoder_kquant" ]
+        },
+        "vision": {
+            "components": [ "vision_encoder" ],
+            "pipeline": [ "vision_rtn" ]
         }
     }
 }
