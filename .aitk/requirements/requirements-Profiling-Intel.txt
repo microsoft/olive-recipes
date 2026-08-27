@@ -1,2 +1,2 @@
-# TODO temp solution before we update
+# TODO: Temporary ORT WinML pin for Intel op-level profiling; remove once the base profiling runtime is updated past ORT 1.26.
 onnxruntime-windowsml==1.27.1.202607110137
