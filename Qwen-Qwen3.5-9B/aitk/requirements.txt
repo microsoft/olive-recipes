@@ -1,0 +1,2 @@
+# This file will be installed together with Foundry Toolkit runtime requirements
+# For the full requirements, see Foundry Toolkit
