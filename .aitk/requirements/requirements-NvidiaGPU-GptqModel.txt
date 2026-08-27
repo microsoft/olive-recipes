@@ -10,11 +10,11 @@ logbar==0.0.4
 maturin==1.9.3
 numpy==2.2.6
 packaging==24.2
-pillow==12.2.0
-protobuf==6.33.5
+pillow==12.3.0
+protobuf==7.36.0
 random_word==1.0.13
 safetensors==0.6.2
 threadpoolctl==3.6.0
 tokenicer==0.0.5
-transformers==4.56.0
+transformers==5.5.0
 wheel==0.46.2
