@@ -9,7 +9,7 @@
             "precision": "int4",
             "accuracy_level": 4,
             "algo_config": "k_quant",
-            "matmul_mixed_precision": "linear_attn:int8",
+            "matmul_mixed_precision": "last_matmul:int8,linear_attn:int8",
             "extra_options": {
                 "filename": "text.onnx",
                 "prune_lm_head": true
