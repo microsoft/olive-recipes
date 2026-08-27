@@ -19,7 +19,8 @@
             "type": "ModelBuilder",
             "precision": "int4",
             "accuracy_level": 4,
-            "algo_config": "k_quant_mixed",
+            "algo_config": "k_quant",
+            "matmul_mixed_precision": "last_matmul:int8,mixed_layers:int8",
             "block_size": 32,
             "extra_options": {
                 "filename": "text.onnx",
