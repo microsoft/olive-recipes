@@ -1,0 +1,6 @@
+git+https://github.com/microsoft/Olive.git@74a029ee
+git+https://github.com/onnxruntime/mobius.git@459fc68
+onnxruntime-genai
+requests
+torch>=2.10.0
+transformers>=4.57.0,<6.0

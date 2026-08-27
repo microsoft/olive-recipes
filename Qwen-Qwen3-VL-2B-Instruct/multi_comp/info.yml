@@ -1,13 +1,13 @@
 keywords:
   - olive-ai
 recipes:
-  - name: qwen3vl-2B-Instruct
-    file: vlm_optimize_components.json
+  - name: qwen3vl-2B-Instruct-components
+    file: optimize.py
     eps:
       - CPUExecutionProvider
     devices:
       - cpu
-  - name: qwen3vl-2B-Instruct
+  - name: qwen3vl-2B-Instruct-gptq
     file: vlm_quantize_then_export.json
     eps:
       - CUDAExecutionProvider

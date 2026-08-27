@@ -13,9 +13,21 @@ Usage:
 """
 
 import argparse
+import json
 import os
 
 import onnxruntime_genai as og
+
+
+def format_prompt(tokenizer, prompt: str, has_image: bool = False) -> str:
+    content = (
+        [{"type": "image"}, {"type": "text", "text": prompt}] if has_image else prompt
+    )
+    messages = [{"role": "user", "content": content}]
+    return tokenizer.apply_chat_template(
+        json.dumps(messages),
+        add_generation_prompt=True,
+    )
 
 
 def generate_text(model_dir: str, prompt: str, max_new_tokens: int = 128) -> str:
@@ -23,7 +35,7 @@ def generate_text(model_dir: str, prompt: str, max_new_tokens: int = 128) -> str
     model = og.Model(model_dir)
     tokenizer = og.Tokenizer(model)
 
-    input_ids = tokenizer.encode(prompt)
+    input_ids = tokenizer.encode(format_prompt(tokenizer, prompt))
     params = og.GeneratorParams(model)
     params.set_search_options(max_length=len(input_ids) + max_new_tokens)
 
@@ -45,14 +57,16 @@ def generate_text(model_dir: str, prompt: str, max_new_tokens: int = 128) -> str
     return tokenizer.decode(generated)
 
 
-def generate_with_image(model_dir: str, prompt: str, image_path: str, max_new_tokens: int = 128) -> str:
+def generate_with_image(
+    model_dir: str, prompt: str, image_path: str, max_new_tokens: int = 128
+) -> str:
     """Run multimodal generation with image input."""
     model = og.Model(model_dir)
     tokenizer = og.Tokenizer(model)
     processor = model.create_multimodal_processor()
 
     images = og.Images.open(image_path)
-    inputs = processor(prompt, images=images)
+    inputs = processor(format_prompt(tokenizer, prompt, has_image=True), images=images)
 
     params = og.GeneratorParams(model)
     params.set_search_options(max_length=4096)
@@ -78,9 +92,11 @@ def generate_with_image(model_dir: str, prompt: str, image_path: str, max_new_to
 def main():
     parser = argparse.ArgumentParser(description="VLM inference with ORT GenAI")
     parser.add_argument("--prompt", default="The capital of France is")
-    parser.add_argument("--image", default=None, help="Path to an image file for vision input")
+    parser.add_argument(
+        "--image", default=None, help="Path to an image file for vision input"
+    )
     parser.add_argument("--max_new_tokens", type=int, default=128)
-    parser.add_argument("--model_dir", default="exported_vlm_pkg")
+    parser.add_argument("--model_dir", default="optimized_vlm_pkg")
     args = parser.parse_args()
 
     genai_config = os.path.join(args.model_dir, "genai_config.json")
@@ -101,7 +117,9 @@ def main():
     print("-" * 50)
 
     if args.image:
-        output = generate_with_image(args.model_dir, args.prompt, args.image, args.max_new_tokens)
+        output = generate_with_image(
+            args.model_dir, args.prompt, args.image, args.max_new_tokens
+        )
     else:
         output = generate_text(args.model_dir, args.prompt, args.max_new_tokens)
 

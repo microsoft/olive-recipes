@@ -6,15 +6,18 @@
             "accelerators": [ { "device": "cpu", "execution_providers": [ "CPUExecutionProvider" ] } ]
         }
     },
-    "passes": { "to_fp16": { "type": "OnnxFloatToFloat16" }, "dynamic_quant": { "type": "OnnxDynamicQuantization" } },
+    "passes": {
+        "to_fp16": { "type": "OnnxFloatToFloat16", "keep_io_types": true },
+        "dynamic_quant": { "type": "OnnxDynamicQuantization" }
+    },
     "engine": { "host": "local_system", "target": "local_system", "evaluate_input_model": false, "cache_dir": "cache" },
     "builds": {
-        "decoder": { "components": [ "decoder" ], "pipeline": [ "dynamic_quant" ], "output_dir": "out/decoder" },
+        "_default": { "output_dir": "optimized_vlm_pkg" },
+        "decoder": { "components": [ "decoder" ], "pipeline": [ "dynamic_quant" ] },
         "vision_encoder": {
             "components": [ "vision_encoder" ],
-            "pipeline": [ "to_fp16" ],
-            "output_dir": "out/vision_encoder"
+            "pipeline": [ "to_fp16" ]
         },
-        "embedding": { "components": [ "embedding" ], "pipeline": [ "to_fp16" ], "output_dir": "out/embedding" }
+        "embedding": { "components": [ "embedding" ], "pipeline": [ "to_fp16" ] }
     }
 }

@@ -16,9 +16,8 @@ names**, so there is no need to memorize component names.
 
 ## Prerequisites
 
-```
-pip install olive-ai
-pip install mobius-ai
+```bash
+pip install -r requirements.txt
 ```
 
 Exporting also needs `transformers` and access to the model on Hugging Face.
@@ -30,7 +29,11 @@ Exporting also needs `transformers` and access to the model on Hugging Face.
 ### Step 1 — Export
 
 ```
-olive capture-onnx-graph --model_name_or_path Qwen/Qwen3-VL-2B-Instruct --use_mobius_builder --output_path exported_vlm_pkg
+olive capture-onnx-graph \
+  --model_name_or_path Qwen/Qwen3-VL-2B-Instruct \
+  --use_mobius_builder \
+  --precision fp32 \
+  --output_path exported_vlm_pkg
 ```
 
 Mobius exports this model as three components, each in its own subfolder:
@@ -45,14 +48,19 @@ exported_vlm_pkg/
 ### Step 2 — Optimize
 
 ```
-olive run --config vlm_optimize_components.json
+python optimize.py
 ```
 
 | component        | pipeline        | intent                              |
 |------------------|-----------------|-------------------------------------|
 | `decoder`        | `dynamic_quant` | INT8-quantize the language decoder  |
-| `vision_encoder` | `to_fp16`       | keep the vision tower in FP16       |
-| `embedding`      | `to_fp16`       | keep the embedding in FP16          |
+| `vision_encoder` | `to_fp16`       | convert the vision tower to FP16    |
+| `embedding`      | `to_fp16`       | convert the embedding to FP16       |
+
+The FP16 builds preserve FP32 model inputs and outputs so the embedding output
+remains compatible with the dynamically quantized FP32 decoder. `optimize.py`
+copies Mobius's tokenizer, processor, and `genai_config.json` artifacts into
+`optimized_vlm_pkg/`, producing a directly loadable ORT GenAI package.
 
 > The three component names (`decoder`, `vision_encoder`, `embedding`) are exactly what Mobius
 > produces for `Qwen/Qwen3-VL-2B-Instruct`. For a different VLM, adjust the component names in the
@@ -64,13 +72,13 @@ Run text generation with the exported ONNX models using **onnxruntime-genai**:
 
 ```bash
 # Text-only
-python vlm_inference.py --prompt "The capital of France is"
+python vlm_inference.py --prompt "What is the capital of France? Answer in one sentence."
 
 # With image input
 python vlm_inference.py --prompt "Describe this image." --image photo.jpg
 
 # Custom settings
-python vlm_inference.py --model_dir exported_vlm_pkg --max_new_tokens 256
+python vlm_inference.py --model_dir optimized_vlm_pkg --max_new_tokens 256
 ```
 
 The inference script (`vlm_inference.py`) uses ORT GenAI which handles:
@@ -84,7 +92,7 @@ Options:
 --prompt TEXT           Text prompt
 --image PATH            Optional image file for multimodal input
 --max_new_tokens N      Maximum tokens to generate (default: 128)
---model_dir DIR         Path to exported model directory (default: exported_vlm_pkg)
+--model_dir DIR         Path to optimized model directory (default: optimized_vlm_pkg)
 ```
 
 #### Setup requirements
@@ -92,27 +100,18 @@ Options:
 The export directory needs these files alongside the ONNX models:
 
 ```
-exported_vlm_pkg/
+optimized_vlm_pkg/
   genai_config.json          # Model type, I/O mappings, search config
   tokenizer.json             # HF tokenizer
   tokenizer_config.json
-  vision_processor.json      # Vision preprocessing config
+  processor_config.json      # Vision preprocessing config
   decoder/model.onnx
   vision_encoder/model.onnx
   embedding/model.onnx
 ```
 
-To create the tokenizer files after export:
-
-```python
-from transformers import AutoTokenizer
-tokenizer = AutoTokenizer.from_pretrained("Qwen/Qwen3-VL-2B-Instruct", trust_remote_code=True)
-tokenizer.save_pretrained("exported_vlm_pkg")
-```
-
-For the `genai_config.json` structure, see the
-[Mobius ORT GenAI examples](https://github.com/microsoft/mobius/tree/main/examples) which write the
-config automatically.
+Mobius writes the tokenizer, processor, and `genai_config.json` during Step 1;
+`optimize.py` carries them into the optimized package.
 
 > **Note.** Install `onnxruntime-genai` (`pip install onnxruntime-genai`) to use this script.
 
