@@ -5,7 +5,7 @@ This folder contains an Olive recipe for exporting the text-only component of `Q
 
 ## INT4 weight-only quantization
 
-The `Qwen3.5-0.8B_NvTensorRtRtx.json` recipe uses the ONNX Runtime GenAI `ModelBuilder` to:
+The `Qwen3.5-4B_NvTensorRtRtx.json` recipe uses the ONNX Runtime GenAI `ModelBuilder` to:
 
 1. Export a standalone text model by including the token embedding layer (`exclude_embeds=false`).
 2. Apply symmetric INT4 RTN weight-only quantization with a block size of 32.

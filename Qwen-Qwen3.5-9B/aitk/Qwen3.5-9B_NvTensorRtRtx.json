@@ -1,7 +1,7 @@
 {
     "input_model": {
         "type": "HfModel",
-        "model_path": "Qwen/Qwen3.5-0.8B",
+        "model_path": "Qwen/Qwen3.5-9B",
         "task": "text-classification"
     },
     "systems": {
@@ -38,7 +38,7 @@
         }
     },
     "log_severity_level": 0,
-    "output_dir": "model/Qwen3.5-0.8B",
+    "output_dir": "model/Qwen3.5-9B",
     "cache_dir": "cache",
     "evaluate_input_model": false
 }
