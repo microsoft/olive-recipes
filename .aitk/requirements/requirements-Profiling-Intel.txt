@@ -1,0 +1,2 @@
+# TODO temp solution before we update
+onnxruntime-windowsml==1.27.1.202607110137
