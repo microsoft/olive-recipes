@@ -27,7 +27,7 @@
         "quantization": {
             "type": "NVModelOptQuantization",
             "algorithm": "rtn",
-            "int4_block_size": 32,
+            "block_size": 32,
             "tokenizer_dir": "microsoft/Phi-3-mini-128k-instruct",
             "calibration_method": "rtn_dq",
             "calibration_params": {

@@ -30,8 +30,8 @@
         "mb": {
             "type": "ModelBuilder",
             "precision": "int4",
-            "int4_block_size": 32,
-            "int4_is_symmetric": true,
+            "block_size": 32,
+            "is_symmetric": true,
             "enable_cuda_graph": true
         },
         "mq": {
