@@ -20,7 +20,7 @@
     "passes": {
         "s": {
             "type": "SelectiveMixedPrecision",
-            "algorithm": "k_quant_down"
+            "algorithm": "high_precision_mlp"
         },
         "g": {
             "type": "gptq",
