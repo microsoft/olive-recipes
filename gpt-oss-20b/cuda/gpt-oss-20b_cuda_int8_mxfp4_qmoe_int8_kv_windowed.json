@@ -12,22 +12,25 @@
             "accelerators": [
                 {
                     "device": "gpu",
-                    "execution_providers": ["WebGpuExecutionProvider"]
+                    "execution_providers": [
+                        "CUDAExecutionProvider"
+                    ]
                 }
             ]
         }
     },
     "passes": {
-        "m": {
+        "builder_int8_mxfp4_qmoe_int8_kv_windowed": {
             "type": "ModelBuilder",
-            "precision": "int4",
+            "precision": "int8",
             "extra_options": {
-                "algo_config": "k_quant",
+                "algo_config": "default",
                 "block_size": 32,
                 "op_types_to_quantize": [
-                    "MatMul",
-                    "Gather"
+                    "MatMul"
                 ],
+                "moe_quant_type": "mxfp4",
+                "matmulnbits_weights_prepacked": 1,
                 "nodes_to_exclude": [
                     "/model/layers.0/moe/router/MatMul",
                     "/model/layers.1/moe/router/MatMul",
@@ -54,18 +57,17 @@
                     "/model/layers.22/moe/router/MatMul",
                     "/model/layers.23/moe/router/MatMul"
                 ],
-                "moe_quant_type": "int4",
-                "qmoe_block_size": 32,
-                "matmul_mixed_precision": "last_matmul:int8,mixed_layers:int8",
-                "matmulnbits_weights_prepacked": 0,
-                "qmoe_weights_prepacked": -1,
-                "fuse_qk_norm_gqa": true
+                "fuse_qk_norm_gqa": true,
+                "windowed_kv_cache": true,
+                "enable_cuda_graph": true,
+                "kv_cache_quant_scheme": "int8_per_channel",
+                "kv_cache_scale_file": "kv_scales_int8_per_channel.json"
             }
         }
     },
     "target": "local_system",
     "log_severity_level": 0,
-    "output_dir": "model_int4_int4_qmoe_k_quant_mixed",
+    "output_dir": "model_int8_mxfp4_qmoe_int8_kv_windowed",
     "cache_dir": "cache",
     "no_artifacts": true
 }

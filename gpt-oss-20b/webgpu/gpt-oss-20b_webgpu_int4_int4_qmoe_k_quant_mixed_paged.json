@@ -59,13 +59,18 @@
                 "matmul_mixed_precision": "last_matmul:int8,mixed_layers:int8",
                 "matmulnbits_weights_prepacked": 0,
                 "qmoe_weights_prepacked": -1,
-                "fuse_qk_norm_gqa": true
+                "fuse_qk_norm_gqa": true,
+                "use_paged_attention": true,
+                "paged_block_size": 256,
+                "paged_chunk_size": 256,
+                "num_blocks": 1024,
+                "windowed_kv_cache": true
             }
         }
     },
     "target": "local_system",
     "log_severity_level": 0,
-    "output_dir": "model_int4_int4_qmoe_k_quant_mixed",
+    "output_dir": "model_int4_int4_qmoe_k_quant_mixed_paged",
     "cache_dir": "cache",
     "no_artifacts": true
 }
