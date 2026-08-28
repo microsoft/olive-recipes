@@ -62,7 +62,7 @@
                 "fuse_qk_norm_gqa": true,
                 "windowed_kv_cache": true,
                 "enable_cuda_graph": true,
-                "kv_cache_quant_type": "int8_per_channel",
+                "kv_cache_quant_scheme": "int8_per_channel",
                 "kv_cache_scale_file": "kv_scales_int8_per_channel.json"
             }
         }
