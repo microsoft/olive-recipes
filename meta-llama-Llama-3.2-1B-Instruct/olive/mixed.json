@@ -23,7 +23,7 @@
         },
         "s": {
             "type": "SelectiveMixedPrecision",
-            "algorithm": "high_precision_mlp"
+            "algorithm": "high_precision_mlp_down"
         },
         "g": {
             "type": "gptq",
