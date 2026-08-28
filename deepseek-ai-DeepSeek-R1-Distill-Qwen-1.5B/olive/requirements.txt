@@ -1,4 +1,4 @@
 lm_eval
-olive-ai
+git+https://github.com/microsoft/Olive
 onnxruntime-genai-cuda
 tabulate
