@@ -1,5 +1,8 @@
-onnx==1.16.1
+onnx==1.19.1
 onnxruntime==1.23.2
 protobuf==5.28.2
-torch<2.9
+torch==2.8.0
+torchvision==0.23.0
 transformers==4.57.1
+accelerate
+datasets

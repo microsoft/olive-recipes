@@ -29,7 +29,7 @@ Other configurations may work but have not been validated.
 ```bash
 pip install olive-ai[qairt]
 pip list | grep qairt-dev  # Ensure the proper qairt-dev version was installed
-pip install qairt-dev[onnx]==0.9.0  # Install the proper qairt-dev version, if not installed
+pip install qairt-dev[pipeline,onnx]==0.9.0  # Install the proper qairt-dev version, if not installed
 ```
 
 2. (Optional) Use qairt-vm to install a non-default version of QAIRT and set QAIRT_SDK_ROOT
