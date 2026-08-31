@@ -75,7 +75,7 @@ option, so that option is intentionally not present in the GPTQ configuration.
 KQuant and RTN do not require calibration data. GPTQ exactly follows the
 comparison recipe's WikiText-2 policy: it loads
 `Salesforce/wikitext` / `wikitext-2-raw-v1` `train`, joins text without adding
-special tokens, and uses up to 128 samples of 2048 tokens with dataloader batch
+special tokens, and uses up to 512 samples of 2048 tokens with dataloader batch
 size 1. The dataset is pinned to revision
 `b08601e04326c79dfdd32d625aee71d232d685c3`. GPTQ quality depends on
 calibration coverage. Experts that receive insufficient routed calibration
@@ -299,7 +299,8 @@ benchmark:
 | RTN INT4 | 256 | 3.19 s | 78.25 tokens/s |
 | GPTQ INT4 | 256 | 3.09 s | 78.36 tokens/s |
 
-GPTQ calibration used WikiText-2 revision `b08601e` (dataset fingerprint
+The GPTQ row above is the original 128-sample baseline. Its calibration used
+WikiText-2 revision `b08601e` (dataset fingerprint
 `5d4fb603254a7a5b`) and routed 262,144 tokens through each of the 40 MoE
 layers. Across 10,240 layer-experts, 4,872 were starved and 3 were unseen.
 Those 4,875 gate/up expert blocks used the RTN fallback instead of GPTQ. The
@@ -307,6 +308,33 @@ lower-dimensional down projections had sufficient coverage more often, with
 2,212 of 10,240 expert blocks using the fallback. These fallback counts are
 expected from the configured coverage thresholds and are part of the measured
 GPTQ result rather than export failures.
+
+The checked-in GPTQ recipe now uses 512 samples following a bounded
+128→256→512 scaling study with identical model, quantization, preprocessing,
+and MMLU settings. Every generation smoke test produced `391`. MMLU changes
+are smaller than the combined standard errors, while gate/up fallback coverage
+improves materially at both steps:
+
+| Calibration blocks | Input tokens | Gate/up fallback | Down fallback | MMLU accuracy | Export pass duration |
+|---:|---:|---:|---:|---:|---:|
+| 128 | 262,144 | 4,875/10,240 (47.61%) | 2,212/10,240 (21.60%) | 84.33% ± 0.36% | 2 h 38 min 11 s |
+| 256 | 524,288 | 2,847/10,240 (27.80%) | 2,024/10,240 (19.77%) | 84.69% ± 0.36% | 3 h 28 min 20 s |
+| 512 | 1,048,576 | 2,059/10,240 (20.11%) | 2,059/10,240 (20.11%) | 84.58% ± 0.36% | 4 h 29 min 31 s |
+
+The 512 result is selected because it passes the smoke and MMLU quality gates
+and reduces gate/up fallback by another 7.70 percentage points from 256. The
+paired per-example comparison over the same 9,183 MMLU examples found no
+statistically significant accuracy difference:
+
+| Comparison | Accuracy delta | Paired 95% confidence interval |
+|---|---:|---:|
+| 128 → 256 | +0.36 pp | [-0.07, +0.79] pp |
+| 256 → 512 | -0.11 pp | [-0.56, +0.34] pp |
+
+The selection therefore maximizes measured calibration coverage under the
+bounded study; it does not establish 512 samples as a unique MMLU optimum. The
+current ORT GenAI lm-eval adapter does not implement rolling loglikelihood, so
+comparable WikiText test perplexity was unavailable and no proxy was used.
 
 ## References
 

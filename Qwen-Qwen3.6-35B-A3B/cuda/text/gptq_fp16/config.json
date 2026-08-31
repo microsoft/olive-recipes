@@ -33,7 +33,7 @@
             "pre_process_data_config": {
                 "strategy": "join",
                 "add_special_tokens": false,
-                "max_samples": 128,
+                "max_samples": 512,
                 "max_seq_len": 2048
             },
             "dataloader_config": {
