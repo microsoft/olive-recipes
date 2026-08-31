@@ -31,10 +31,11 @@ precision.
 
 `KQuant` and `Rtn` do not require calibration data. `Gptq` loads the WikiText-2
 `train` split, joins its leading rows into a token stream, and uses the first
-128 non-overlapping blocks of 2048 tokens. GPTQ quality is
+512 non-overlapping blocks of 2048 tokens. The dataset is pinned to revision
+`b08601e04326c79dfdd32d625aee71d232d685c3`. GPTQ quality is
 calibration-dependent; use the same calibration policy when comparing runs.
-Experts with insufficient routed calibration tokens automatically fall back to
-RTN, so retain the fallback count from the GPTQ log with benchmark results.
+Experts with insufficient routed calibration tokens automatically fall back
+to RTN, so retain the fallback count from the GPTQ log with benchmark results.
 
 ## Setup and export
 
@@ -187,7 +188,10 @@ directories using the methodology now encoded in `eval/mmlu_cuda.json`: limit
 (9,183 effective samples out of 57 MMLU subtasks; subtasks with fewer than 200
 test examples were run to completion rather than padded.)
 
-Accuracy degrades in the expected direction (FP16 > GPTQ > KQuant > RTN), and
+The GPTQ row above is the original 128-sample baseline. A pinned replication
+produced identical external tensor data and the same rounded accuracy and
+fallback counts. Accuracy degrades in the expected direction (FP16 > GPTQ >
+KQuant > RTN), and
 all three quantized variants stay within ~1.6 points of the unquantized
 baseline at 4-bit weights. GPTQ improves over plain RTN by 0.64 points despite
 a substantial calibration-coverage shortfall: across the 48 MoE layers (6,144
@@ -201,6 +205,33 @@ improve GPTQ's result. GPTQ's ~2 hour calibration/quantization time (vs. a few
 minutes for KQuant/RTN) is the dominant cost of producing all four variants;
 eval itself takes ~5-6 minutes per quantized variant and ~75 minutes for the
 uncompressed FP16 baseline (memory-bandwidth bound, not compute bound).
+
+The checked-in GPTQ recipe now uses 512 samples following a bounded
+128→256→512 scaling study with the dataset revision above and otherwise
+identical quantization, preprocessing, and MMLU settings. Every generation
+smoke test produced `391`. MMLU changes are much smaller than the combined
+standard errors, while gate/up fallback coverage improves materially:
+
+| Calibration blocks | Input tokens | Gate/up fallback | Down fallback | MMLU accuracy | Export pass duration |
+|---:|---:|---:|---:|---:|---:|
+| 128 | 262,144 | 2,438/6,144 (39.68%) | 1,821/6,144 (29.64%) | 79.82% ± 0.40% | 1 h 54 min 43 s |
+| 256 | 524,288 | 1,878/6,144 (30.57%) | 1,640/6,144 (26.69%) | 79.60% ± 0.40% | 2 h 11 min 6 s |
+| 512 | 1,048,576 | 1,657/6,144 (26.97%) | 1,657/6,144 (26.97%) | 79.61% ± 0.40% | 2 h 57 min 7 s |
+
+The 512 result is selected because it passes the smoke and MMLU quality gates
+and reduces gate/up fallback by another 3.60 percentage points from 256. The
+paired per-example comparison over the same 9,183 MMLU examples found no
+statistically significant accuracy difference:
+
+| Comparison | Accuracy delta | Paired 95% confidence interval |
+|---|---:|---:|
+| 128 → 256 | -0.22 pp | [-0.67, +0.23] pp |
+| 256 → 512 | +0.01 pp | [-0.45, +0.47] pp |
+
+The selection therefore maximizes measured calibration coverage under the
+bounded study; it does not establish 512 samples as a unique MMLU optimum. The
+current ORT GenAI lm-eval adapter does not implement rolling loglikelihood, so
+comparable WikiText test perplexity was unavailable and no proxy was used.
 
 ## KQuant validation status
 

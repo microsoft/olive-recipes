@@ -27,12 +27,13 @@
             "load_dataset_config": {
                 "data_name": "Salesforce/wikitext",
                 "subset": "wikitext-2-raw-v1",
-                "split": "train"
+                "split": "train",
+                "revision": "b08601e04326c79dfdd32d625aee71d232d685c3"
             },
             "pre_process_data_config": {
                 "strategy": "join",
                 "add_special_tokens": false,
-                "max_samples": 128,
+                "max_samples": 512,
                 "max_seq_len": 2048
             },
             "dataloader_config": {
