@@ -18,7 +18,7 @@
       "module_name": "\\w*model_embed_tokens_Gather",
       "exceptions": {
         "param_exceptions": {
-          "bitwidth": 16,
+          "bitwidth": 8,
           "asymmetric": true
         },
         "input_exceptions": null,
