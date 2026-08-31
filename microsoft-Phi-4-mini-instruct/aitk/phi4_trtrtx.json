@@ -16,7 +16,7 @@
         "quantization": {
             "type": "NVModelOptQuantization",
             "algorithm": "awq",
-            "block_size": 32,
+            "int4_block_size": 32,
             "tokenizer_dir": "microsoft/Phi-4-mini-instruct",
             "calibration_method": "awq_lite",
             "calibration_providers": ["NvTensorRtRtx"],
