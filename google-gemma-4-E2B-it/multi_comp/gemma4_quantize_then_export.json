@@ -29,6 +29,7 @@
             "modules_to_not_convert": [ "per_layer_input_gate", "per_layer_projection" ]
         }
     },
+    "assemble_components": true,
     "builds": {
         "_default": {
             "output_dir": "gemma4_mixed_hf"
