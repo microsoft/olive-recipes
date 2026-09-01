@@ -52,9 +52,9 @@
         "mb": {
             "type": "ModelBuilder",
             "precision": "int4",
-            "int4_block_size": 32,
-            "int4_accuracy_level": 4,
-            "int4_op_types_to_quantize": [ "MatMul", "Gather" ]
+            "block_size": 32,
+            "accuracy_level": 4,
+            "op_types_to_quantize": [ "MatMul", "Gather" ]
         },
         "mq": {
             "type": "MatMulNBitsToQDQ",
