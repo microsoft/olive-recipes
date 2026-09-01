@@ -18,12 +18,21 @@ from __future__ import annotations
 
 import argparse
 import os
+import sys
+from pathlib import Path
 
 import onnx
 import torch
 from torch.export import Dim
 
-import moonshine_model_load as mml
+# Make the recipe root importable so this standalone exporter uses the same
+# ``cpu.moonshine_model_load`` package path as optimize.py and the Olive JSON
+# configs' ``model_script`` entries.
+_RECIPE_ROOT = Path(__file__).resolve().parent.parent
+if str(_RECIPE_ROOT) not in sys.path:
+    sys.path.insert(0, str(_RECIPE_ROOT))
+
+import cpu.moonshine_model_load as mml  # noqa: E402
 
 AUTO = Dim.AUTO
 

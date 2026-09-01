@@ -350,12 +350,6 @@ def decoder_kv_model_loader(model_name):
 # --------------------------------------------------------------------------- #
 # Dummy inputs (used both for tracing/export and Olive dummy_inputs_func)      #
 # --------------------------------------------------------------------------- #
-def _dims_from_module(module):
-    """Recover the dims needed for dummy inputs from a wrapper instance."""
-    full = _MODEL_CACHE[next(iter(_MODEL_CACHE))]
-    return model_dims(full)
-
-
 def frontend_dummy_inputs(model):
     d = model_dims(_any_full())
     return {

@@ -1,9 +1,15 @@
 # Moonshine Streaming (CPU EP)
 
-This recipe exports **usefulsensors/moonshine-streaming-tiny** (default) or
-**usefulsensors/moonshine-streaming-small** to ONNX and produces CPU-ready
+This recipe exports **usefulsensors/moonshine-streaming-tiny** (the
+`cpu/optimize.py` default) or **usefulsensors/moonshine-streaming-small** to
+ONNX and produces CPU-ready
 ONNX Runtime GenAI artifacts for streaming ASR. Pick the variant with
 `--model-name` (see [Run](#run)).
+
+> **Note:** `--model-name` only affects `cpu/optimize.py`. The bundled
+> per-component JSON configs (`moonshine_*_cpu.json`, used when you run a single
+> component via `python -m olive run --config ...`) pin the same
+> **moonshine-streaming-tiny** default; edit their `model_path` to export small.
 
 The streaming model is exported as **five FP32 ONNX components**, each handled
 through Olive's declarative `OnnxConversion` pass (dynamo exporter, opset 20)

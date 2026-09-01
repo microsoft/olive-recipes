@@ -1,7 +1,7 @@
 {
     "input_model": {
         "type": "PyTorchModel",
-        "model_path": "usefulsensors/moonshine-streaming-small",
+        "model_path": "usefulsensors/moonshine-streaming-tiny",
         "model_loader": "adapter_model_loader",
         "model_script": "cpu/moonshine_model_load.py",
         "io_config": {
