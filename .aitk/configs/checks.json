@@ -14,6 +14,6 @@
     "pathCheck": 1500,
     "requirementsCheck": 49,
     "templateCheck": 3,
-    "venvRequirementsCheck": 28,
+    "venvRequirementsCheck": 27,
     "winmlCopyCheck": 43
 }
