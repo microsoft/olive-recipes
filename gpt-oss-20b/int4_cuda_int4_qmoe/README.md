@@ -19,7 +19,7 @@ olive capture-onnx-graph                                        \
   --conversion_device gpu                                       \
   --use_model_builder                                           \
   --use_ort_genai                                               \
-  --extra_mb_options int4_op_types_to_quantize=MatMul/Gather    \
+  --extra_mb_options op_types_to_quantize=MatMul/Gather    \
   -o int4_cuda_int4_qmoe
 ```
 

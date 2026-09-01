@@ -76,22 +76,14 @@
                 },
                 {
                     "surgeon": "AttentionMaskToSequenceLengths"
-                },
-                {
-                    "surgeon": "SimplifiedLayerNormToRMSNorm"
                 }
             ],
-            "save_as_external_data": true
-        },
-        "fp16": {
-            "type": "OnnxFloatToFloat16",
             "save_as_external_data": true
         },
         "st": {
             "type": "StaticLLM",
             "batch_size": 1,
-            "context_length": 128,
-            "update_genai_config": true
+            "context_length": 1
         }
     },
     "target": "target_system",

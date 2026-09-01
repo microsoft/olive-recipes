@@ -18,7 +18,7 @@
             "architecture": "Transformer",
             "status": "Ready",
             "relativePath": "microsoft-Phi-3.5-mini-instruct/aitk",
-            "version": 10,
+            "version": 9,
             "p0": true,
             "pipeline_tags": [
                 "text-generation"
@@ -193,7 +193,7 @@
             "architecture": "Transformer",
             "status": "Ready",
             "relativePath": "meta-llama-Llama-3.2-1B-Instruct/aitk",
-            "version": 10,
+            "version": 9,
             "p0": true,
             "pipeline_tags": [
                 "text-generation"
@@ -269,7 +269,7 @@
             "architecture": "Transformer",
             "status": "Ready",
             "relativePath": "Qwen-Qwen2.5-1.5B-Instruct/aitk",
-            "version": 9,
+            "version": 8,
             "p0": true,
             "pipeline_tags": [
                 "text-generation"
@@ -525,7 +525,7 @@
             "architecture": "Transformer",
             "status": "Ready",
             "relativePath": "meta-llama-Llama-3.1-8B-Instruct/aitk",
-            "version": 8,
+            "version": 7,
             "p0": false,
             "pipeline_tags": [
                 "text-generation"
@@ -861,12 +861,50 @@
             "icon": "qwen",
             "modelLink": "https://huggingface.co/Qwen/Qwen3.5-0.8B",
             "id": "huggingface/Qwen/Qwen3.5-0.8B",
+            "groupId": "huggingface/Qwen/Qwen3.5-4B",
+            "groupItemName": "0.8B",
             "runtimes": [
                 "NvidiaTRTRTX"
             ],
             "architecture": "Transformer",
             "status": "Ready",
             "relativePath": "Qwen-Qwen3.5-0.8B/aitk",
+            "version": 1,
+            "pipeline_tags": [
+                "image-text-to-text"
+            ]
+        },
+        {
+            "displayName": "Qwen/Qwen3.5-4B",
+            "icon": "qwen",
+            "modelLink": "https://huggingface.co/Qwen/Qwen3.5-4B",
+            "id": "huggingface/Qwen/Qwen3.5-4B",
+            "groupId": "huggingface/Qwen/Qwen3.5-4B",
+            "groupItemName": "4B",
+            "runtimes": [
+                "NvidiaTRTRTX"
+            ],
+            "architecture": "Transformer",
+            "status": "Ready",
+            "relativePath": "Qwen-Qwen3.5-4B/aitk",
+            "version": 1,
+            "pipeline_tags": [
+                "image-text-to-text"
+            ]
+        },
+        {
+            "displayName": "Qwen/Qwen3.5-9B",
+            "icon": "qwen",
+            "modelLink": "https://huggingface.co/Qwen/Qwen3.5-9B",
+            "id": "huggingface/Qwen/Qwen3.5-9B",
+            "groupId": "huggingface/Qwen/Qwen3.5-4B",
+            "groupItemName": "9B",
+            "runtimes": [
+                "NvidiaTRTRTX"
+            ],
+            "architecture": "Transformer",
+            "status": "Ready",
+            "relativePath": "Qwen-Qwen3.5-9B/aitk",
             "version": 1,
             "pipeline_tags": [
                 "image-text-to-text"
