@@ -38,13 +38,10 @@ recipes:
         oliveFile: "QNN/config_gpu.json"
         isGPURequired: true
         requirements: General/CUDA_py3.12.9
-        executeRuntimeFeatures:
-          - olive
-          - AutoGptq
 aitk:
     modelInfo:
         id: "huggingface/Qwen/Qwen2.5-1.5B-Instruct"
-        version: 9
+        version: 8
         groupId: "huggingface/Qwen/Qwen2.5-1.5B-Instruct"
         groupItemName: "1.5B"
         p0: true
