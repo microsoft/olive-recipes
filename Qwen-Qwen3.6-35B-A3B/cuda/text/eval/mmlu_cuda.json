@@ -12,7 +12,7 @@
             "batch_size": 1,
             "max_length": 4096,
             "limit": 200,
-            "num_fewshot": null,
+            "num_fewshot": 0,
             "apply_chat_template": false
         }
     },

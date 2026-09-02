@@ -15,15 +15,15 @@ recipes:
     file: text/fp16/config.json
     devices: gpu
     eps: CUDAExecutionProvider
-  - name: Qwen3.6-35B-A3B_Text_KQuant_MoE_Mobius_FP16
+  - name: Qwen3.6-35B-A3B_Text_KQuant_INT4_MoE_Mobius_FP16
     file: text/kquant_fp16/config.json
     devices: gpu
     eps: CUDAExecutionProvider
-  - name: Qwen3.6-35B-A3B_Text_RTN_MoE_Mobius_FP16
+  - name: Qwen3.6-35B-A3B_Text_RTN_INT4_MoE_Mobius_FP16
     file: text/rtn_fp16/config.json
     devices: gpu
     eps: CUDAExecutionProvider
-  - name: Qwen3.6-35B-A3B_Text_GPTQ_MoE_Mobius_FP16
+  - name: Qwen3.6-35B-A3B_Text_GPTQ_INT4_MoE_Mobius_FP16
     file: text/gptq_fp16/config.json
     devices: gpu
     eps: CUDAExecutionProvider

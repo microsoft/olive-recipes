@@ -128,9 +128,9 @@ generated `runtime_compatibility.json` values (minimum 0.14.0 and tested
 0.15.2) are generic decoder ABI metadata and do not represent model-specific
 runtime validation.
 
-PR #588 remains a draft while Mobius PR #631 and a supported compatible
-runtime distribution remain blockers. Until both are available, the source
-revisions above are required to reproduce the validated KQuant runtime setup.
+This recipe remains blocked until Mobius PR #631 and a supported compatible
+runtime distribution are available. Until then, the source revisions above
+are required to reproduce the validated KQuant runtime setup.
 
 ## Text inference
 
