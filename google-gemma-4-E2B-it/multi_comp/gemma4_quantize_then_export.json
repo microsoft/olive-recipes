@@ -29,11 +29,10 @@
             "modules_to_not_convert": [ "per_layer_input_gate", "per_layer_projection" ]
         }
     },
-    "assemble_components": true,
+    "engine": {
+        "output_dir": "gemma4_mixed_hf"
+    },
     "builds": {
-        "_default": {
-            "output_dir": "gemma4_mixed_hf"
-        },
         "decoder": {
             "components": [ "decoder" ],
             "pipeline": [ "decoder_kquant" ]
