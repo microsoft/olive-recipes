@@ -18,8 +18,8 @@ This folder contains Olive recipes for optimizing Qwen-Qwen3-14B targeting the C
    - olive run --config Qwen-Qwen3-14B_cuda_int4.json
 
 Additional notes:
-- Pipeline: `SelectiveMixedPrecision` (high_precision_mlp_qkv) → `GPTQ` → `RTN` (8-bit lm_head/embeddings) → `ModelBuilder`
-- Uses `high_precision_mlp_qkv` instead of `kld_gradient` because gradient-based sensitivity
+- Pipeline: `SelectiveMixedPrecision` (high_precision_mlp_down_qkv) → `GPTQ` → `RTN` (8-bit lm_head/embeddings) → `ModelBuilder`
+- Uses `high_precision_mlp_down_qkv` instead of `kld_gradient` because gradient-based sensitivity
   estimation exceeds the 80 GB per-GPU memory limit for the 14B model.
 - GPTQ group size: 128
 - Requires NVIDIA GPU with CUDA support.

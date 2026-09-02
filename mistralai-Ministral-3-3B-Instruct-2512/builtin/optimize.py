@@ -5,7 +5,7 @@ dynamo-free ONNX construction), and Olive/ModelBuilder for text decoder
 export (GQA + INT4).
 
 Pipeline:
-    1. Text decoder: Olive/ModelBuilder (k_quant_mixed INT4)
+    1. Text decoder: Olive/ModelBuilder (k_quant mixed-precision INT4)
     2. Vision + embedding: Olive/MobiusBuilder (FP16 for cuda/webgpu, FP32 for cpu_and_mobile, via vision_embedding_export.json)
     3. Vision quantization: Olive (INT8 RTN, per vision.json)
 
