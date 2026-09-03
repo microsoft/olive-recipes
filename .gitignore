@@ -8,6 +8,7 @@ __pycache__/
 
 # Cache and models
 cache/
+model/
 models/
 .olive-cache/
 
