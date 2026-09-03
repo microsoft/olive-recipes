@@ -434,12 +434,6 @@ def update_genai_config(output_dir: str = MODELS_DIR, device: str = "cpu"):
                 },
                 {
                     "operation": {
-                        "name": "convert_to_rgb",
-                        "type": "ConvertRGB",
-                    }
-                },
-                {
-                    "operation": {
                         "name": "resize",
                         "type": "Resize",
                         "attrs": {
