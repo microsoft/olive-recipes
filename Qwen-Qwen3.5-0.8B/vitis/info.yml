@@ -7,6 +7,6 @@ keywords:
   - int4
 recipes:
   - name: Qwen3.5-0.8B Vitis decoder WikiText + vision RTN
-    file: optimize.py
+    file: config.json
     devices: npu
     eps: VitisAIExecutionProvider
