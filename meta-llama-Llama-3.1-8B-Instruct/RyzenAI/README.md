@@ -3,9 +3,14 @@
 This folder contains sample Olive configuration to optimize LLaMA 3 models for AMD NPU.
 
 ## ✅ Supported Models and Configs
-| Model Name (Hugging Face)                         | Config File Name                  |
-|:--------------------------------------------------|:----------------------------------|
-| `meta-llama/Llama-3.1-8B-Instruct`                | `Llama-3.1-8B-Instruct_quark_ryzenai_llm.json`  |
+
+| Model Name (Hugging Face)           | Config File Name                                             | Device                |
+| :---------------------------------- | :---------------------------------------------------------- | :-------------------- |
+| `meta-llama/Llama-3.1-8B-Instruct`  | `Llama-3.1-8B-Instruct_quark_ryzenai_llm.json`              | npu                   |
+| `meta-llama/Llama-3.1-8B-Instruct`  | `Llama-3.1-8B-Instruct_quark_ryzenai_llm_full_fusion.json` *| npu (higher throughput)|
+| `meta-llama/Llama-3.1-8B-Instruct`  | `Llama-3.1-8B-Instruct_quark_ryzenai_llm_hybrid.json` *     | npu + gpu hybrid       |
+
+> \* Same as the MLPerf submission recipe.
 
 ## **Run the Quantization Config**
 
@@ -49,8 +54,6 @@ cd olive-recipes/meta-llama-Llama-3.1-8B-Instruct/RyzenAI
 pip install --force-reinstall -r requirements_ryzenai_llm.txt
 ```
 
-
-
 #### **Install PyTorch**
 
 Make sure to install the correct version of PyTorch before running quantization:
@@ -79,19 +82,16 @@ python -c "import torch; print(torch.__version__)"  # Should print 2.7.0+cpu
 Follow the above setup instructions, then run the below command to generate the optimized LLM model for RyzenAI EP
 
 ```bash
-# Llama-3.2-1B-Instruct
-olive run --config Llama-3.2-1B-Instruct_quark_ryzenai_llm.json
+# Llama-3.1-8B-Instruct (token_fusion)
+olive run --config Llama-3.1-8B-Instruct_quark_ryzenai_llm.json
 
-# Llama-3.2-3B-Instruct
-olive run --config Llama-3.2-3B-Instruct_quark_ryzenai_llm.json
+# Llama-3.1-8B-Instruct (full_fusion) *MLPerf
+olive run --config Llama-3.1-8B-Instruct_quark_ryzenai_llm_full_fusion.json
 
-# Meta-Llama-3-8B
-olive run --config Meta-Llama-3-8B_quark_ryzenai_llm.json
-
-# Meta-Llama-3.1-8B
-olive run --config Meta-Llama-3.1-8B_quark_ryzenai_llm.json
+# Llama-3.1-8B-Instruct (hybrid) *MLPerf
+olive run --config Llama-3.1-8B-Instruct_quark_ryzenai_llm_hybrid.json
 ```
 
-✅ Optimized model saved in: `models/Meta-Llama-3-8B-rai/`
+✅ Optimized model saved in: `models/Llama-3.1-8B-Instruct-rai/` (and `-full_fusion-rai` / `-hybrid-rai` for the MLPerf recipes)
 
 > **Note:** Output model is saved in `output_dir` mentioned in the json files.

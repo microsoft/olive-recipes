@@ -86,7 +86,6 @@ hf download onnxruntime/gpt-oss-20b-onnx --include "cpu_and_mobile/cpu-int4-rtn-
 
 2. Run the Olive recipe:
 ```bash
-# Phi-4-mini-instruct
 olive run --config gpt-oss-20b_quark_ryzenai_llm.json
 ```
 

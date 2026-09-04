@@ -1,14 +1,13 @@
 # Model Optimization and Quantization for AMD NPU
-
-This folder contains sample Olive configuration to optimize Phi-4 models for AMD NPU.
+This folder contains sample Olive configuration to optimize Qwen models for AMD NPU.
 
 ## ✅ Supported Models and Configs
 
-| Model Name (Hugging Face)        | Config File Name                                            | Device                |
-| :------------------------------- | :--------------------------------------------------------- | :-------------------- |
-| `microsoft/Phi-4-mini-instruct`  | `Phi-4-mini-instruct_quark_ryzenai_llm.json`               | npu                   |
-| `microsoft/Phi-4-mini-instruct`  | `Phi-4-mini-instruct_quark_ryzenai_llm_full_fusion.json` * | npu (higher throughput)|
-| `microsoft/Phi-4-mini-instruct`  | `Phi-4-mini-instruct_quark_ryzenai_llm_hybrid.json` *      | npu + gpu hybrid       |
+| Model Name (Hugging Face) | Config File Name                                   | Device                |
+| :------------------------ | :------------------------------------------------- | :-------------------- |
+| `Qwen/Qwen3-8B`           | `Qwen3-8B_quark_ryzenai_llm.json`                  | npu                   |
+| `Qwen/Qwen3-8B`           | `Qwen3-8B_quark_ryzenai_llm_full_fusion.json` *    | npu (higher throughput)|
+| `Qwen/Qwen3-8B`           | `Qwen3-8B_quark_ryzenai_llm_hybrid.json` *         | npu + gpu hybrid       |
 
 > \* Same as the MLPerf submission recipe.
 
@@ -50,7 +49,7 @@ pip install -r requirements.txt
 #### **Install RyzenAI LLM dependencies**
 
 ```bash
-cd olive-recipes/microsoft-Phi-4-mini-instruct/RyzenAI
+cd olive-recipes/Qwen-Qwen3-8B/RyzenAI
 pip install --force-reinstall -r requirements_ryzenai_llm.txt
 ```
 
@@ -82,15 +81,16 @@ python -c "import torch; print(torch.__version__)"  # Should print 2.7.0+cpu
 Follow the above setup instructions, then run the below command to generate the optimized LLM model for RyzenAI EP
 
 ```bash
-# Phi-4-mini-instruct (token_fusion)
-olive run --config Phi-4-mini-instruct_quark_ryzenai_llm.json
+# Qwen3-8B (token_fusion)
+olive run --config Qwen3-8B_quark_ryzenai_llm.json
 
-# Phi-4-mini-instruct (full_fusion) *MLPerf
-olive run --config Phi-4-mini-instruct_quark_ryzenai_llm_full_fusion.json
+# Qwen3-8B (full_fusion) *MLPerf
+olive run --config Qwen3-8B_quark_ryzenai_llm_full_fusion.json
 
-# Phi-4-mini-instruct (hybrid) *MLPerf
-olive run --config Phi-4-mini-instruct_quark_ryzenai_llm_hybrid.json
+# Qwen3-8B (hybrid) *MLPerf
+olive run --config Qwen3-8B_quark_ryzenai_llm_hybrid.json
 ```
 
-✅ Optimized model saved in: `models/Phi-4-mini-instruct-rai/` (and `-full_fusion-rai` / `-hybrid-rai` for the MLPerf recipes)
+✅ Optimized model saved in: `models/Qwen3-8B-rai/` (and `-full_fusion-rai` / `-hybrid-rai` for the MLPerf recipes)
+
 > **Note:** Output model is saved in `output_dir` mentioned in the json files.
