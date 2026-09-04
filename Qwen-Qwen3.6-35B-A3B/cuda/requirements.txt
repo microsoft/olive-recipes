@@ -1,0 +1,5 @@
+lm-eval==0.4.12
+mobius-onnx @ git+https://github.com/onnxruntime/mobius.git@38ede626cd92bd6b1b0545b964ffbcf917255dd9
+olive-ai[gpu] @ git+https://github.com/microsoft/Olive.git@a4240b92fa4eb6c66e4bc5b09b2c0debb903ed29
+onnx-ir==1.0.0
+transformers==5.15.1

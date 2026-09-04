@@ -1,0 +1,27 @@
+keywords:
+  - olive-ai
+  - mobius
+  - moe
+  - int4
+  - kquant
+  - rtn
+  - gptq
+  - text-generation
+arch: qwen3_moe
+recipes:
+  - name: Qwen3-30B-A3B_Mobius_FP16
+    file: fp16/config.json
+    devices: gpu
+    eps: CUDAExecutionProvider
+  - name: Qwen3-30B-A3B_KQuant_MoE_Mobius_FP16
+    file: kquant_fp16/config.json
+    devices: gpu
+    eps: CUDAExecutionProvider
+  - name: Qwen3-30B-A3B_RTN_MoE_Mobius_FP16
+    file: rtn_fp16/config.json
+    devices: gpu
+    eps: CUDAExecutionProvider
+  - name: Qwen3-30B-A3B_GPTQ_MoE_Mobius_FP16
+    file: gptq_fp16/config.json
+    devices: gpu
+    eps: CUDAExecutionProvider
