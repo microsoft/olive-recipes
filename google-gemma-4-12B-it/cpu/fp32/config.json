@@ -1,0 +1,7 @@
+{
+    "input_model": { "type": "HfModel", "model_path": "google/gemma-4-12B-it" },
+    "passes": {
+        "mobius_build": { "type": "MobiusBuilder", "precision": "fp32" }
+    },
+    "output_dir": "cpu/fp32/models"
+}

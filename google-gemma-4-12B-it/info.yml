@@ -1,0 +1,38 @@
+keywords:
+  - gemma
+  - gemma4
+  - gemma4-unified
+  - multimodal
+  - encoder-free
+  - int4
+  - kquant
+  - mobius
+arch: gemma
+ep:
+  - CPUExecutionProvider
+  - CUDAExecutionProvider
+device:
+  - cpu
+  - gpu
+name: gemma4_12b
+recipes:
+  - name: gemma4-12b-fp32-cpu
+    file: cpu/fp32/config.json
+    devices:
+      - cpu
+    eps: CPUExecutionProvider
+  - name: gemma4-12b-int4-kquant-cpu
+    file: cpu/int4/config.json
+    devices:
+      - cpu
+    eps: CPUExecutionProvider
+  - name: gemma4-12b-fp16-cuda
+    file: cuda/fp16/config.json
+    devices:
+      - gpu
+    eps: CUDAExecutionProvider
+  - name: gemma4-12b-int4-kquant-cuda
+    file: cuda/int4/config.json
+    devices:
+      - gpu
+    eps: CUDAExecutionProvider
