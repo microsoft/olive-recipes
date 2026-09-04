@@ -1,0 +1,11 @@
+{
+    "input_model": { "type": "HfModel", "model_path": "tencent/Hy-MT2-1.8B" },
+    "passes": {
+        "mobius_build": { "type": "MobiusBuilder", "precision": "bf16" }
+    },
+    "target": {
+        "type": "LocalSystem",
+        "accelerators": [{ "device": "gpu", "execution_providers": ["CUDAExecutionProvider"] }]
+    },
+    "output_dir": "cuda/bf16/models"
+}
