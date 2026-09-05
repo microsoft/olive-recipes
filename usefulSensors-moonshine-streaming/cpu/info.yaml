@@ -1,0 +1,28 @@
+name: usefulSensors-moonshine-streaming
+provider: usefulsensors
+model_id: usefulsensors/moonshine-streaming-tiny
+# The recipe also supports usefulsensors/moonshine-streaming-small via
+# `--model-name usefulsensors/moonshine-streaming-small`.
+task: automatic-speech-recognition
+framework: ONNX Runtime
+execution_provider: CPUExecutionProvider
+summary: >
+  CPU recipe for exporting the Moonshine streaming ASR model to ONNX (FP32 or
+  INT8 k-quant) as five ONNX Runtime GenAI components (frontend, encoder,
+  adapter, cross-KV, decoder-KV) with the exact IO names the streaming runner
+  expects, plus the generated genai/streaming configs, tokenizer, and Silero
+  VAD.
+
+artifacts:
+  - cpu/moonshine_frontend_fp32_cpu.json
+  - cpu/moonshine_encoder_fp32_cpu.json
+  - cpu/moonshine_adapter_fp32_cpu.json
+  - cpu/moonshine_cross_kv_fp32_cpu.json
+  - cpu/moonshine_decoder_kv_fp32_cpu.json
+  - cpu/moonshine_encoder_kquant8_cpu.json
+  - cpu/moonshine_decoder_kv_kquant8_cpu.json
+
+scripts:
+  - cpu/optimize.py
+  - cpu/moonshine_model_load.py
+  - cpu/export_moonshine_streaming.py
