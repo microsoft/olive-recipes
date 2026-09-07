@@ -1,4 +1,4 @@
-# https://learn.microsoft.com/en-us/windows/ai/new-windows-ml/initialize-execution-providers?tabs=python#production-app-example
+# https://pypi.org/project/windowsml/
 
 
 def _get_ep_paths(ep: str | None = None) -> dict[str, str]:
@@ -16,32 +16,21 @@ def _get_ep_paths(ep: str | None = None) -> dict[str, str]:
     # Load the onnxruntime DLL because "C:\Windows\System32\onnxruntime.dll" may be exist and loaded first
     ctypes.WinDLL(str(ort_dll_path))
 
-    # remove the msvcp140.dll from the winrt-runtime package.
-    # So it does not cause issues with other libraries.
-    from importlib import metadata
-
-    site_packages_path = Path(str(metadata.distribution("winrt-runtime").locate_file("")))
-    dll_path = site_packages_path / "winrt" / "msvcp140.dll"
-    if dll_path.exists():
-        dll_path.unlink()
-
-    import winui3.microsoft.windows.ai.machinelearning as winml
-    from winui3.microsoft.windows.applicationmodel.dynamicdependency.bootstrap import InitializeOptions, initialize
+    from windowsml import EpCatalog, EpReadyState
 
     eps = {}
-    with initialize(options=InitializeOptions.ON_NO_MATCH_SHOW_UI):
-        catalog = winml.ExecutionProviderCatalog.get_default()
-        providers = catalog.find_all_providers()
-        for provider in providers:
+    with EpCatalog() as catalog:
+        for provider in catalog.find_all_providers():
             if ep is not None and provider.name != ep:
                 continue
-            result = provider.ensure_ready_async().get()
-            if result.status == winml.ExecutionProviderReadyResultState.SUCCESS:
+            try:
+                provider.ensure_ready()
+            except Exception as e:
+                print(f"Execution provider '{provider.name}' is unavailable. Error code: {e}")
+            if provider.ready_state == EpReadyState.Ready:
                 eps[provider.name] = provider.library_path
             else:
-                print(
-                    f"Execution provider '{provider.name}' is unavailable. Status: {result.status}; reason: {result.diagnostic_text}; error code: {result.extended_error.value}"
-                )
+                print(f"Execution provider '{provider.name}' is unavailable. Status: {provider.ready_state}")
     return eps
 
 

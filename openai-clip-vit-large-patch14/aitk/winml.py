@@ -1,6 +1,7 @@
 # https://pypi.org/project/windowsml/
 
-def register_execution_providers(ep: str | None = None):
+
+def _get_ep_paths(ep: str | None = None) -> dict[str, str]:
     import ctypes
     import importlib.util
     from pathlib import Path
@@ -13,21 +14,34 @@ def register_execution_providers(ep: str | None = None):
     ort_dll_path = ort_capi_dir / "onnxruntime.dll"
 
     # Load the onnxruntime DLL because "C:\Windows\System32\onnxruntime.dll" may be exist and loaded first
-    ctypes.WinDLL(ort_dll_path)
+    ctypes.WinDLL(str(ort_dll_path))
 
-    from windowsml import EpCatalog
-    import onnxruntime as ort
+    from windowsml import EpCatalog, EpReadyState
 
+    eps = {}
     with EpCatalog() as catalog:
         for provider in catalog.find_all_providers():
             if ep is not None and provider.name != ep:
                 continue
-            
             try:
                 provider.ensure_ready()
-                ort.register_execution_provider_library(provider.name, provider.library_path)
-                print(f"Successfully registered execution provider {provider.name} from {provider.library_path}")
             except Exception as e:
-                print(
-                    f"Execution provider '{provider.name}' is unavailable. Status: {provider.ready_state}; error code: {e}"
-                )
+                print(f"Execution provider '{provider.name}' is unavailable. Error code: {e}")
+            if provider.ready_state == EpReadyState.Ready:
+                eps[provider.name] = provider.library_path
+            else:
+                print(f"Execution provider '{provider.name}' is unavailable. Status: {provider.ready_state}")
+    return eps
+
+
+def register_execution_providers(ep: str | None = None):
+    paths = _get_ep_paths(ep)
+
+    import onnxruntime as ort
+
+    for item in paths.items():
+        try:
+            ort.register_execution_provider_library(item[0], item[1])
+            print(f"Successfully registered execution provider {item[0]} from {item[1]}")
+        except Exception as e:
+            print(f"Failed to register execution provider {item[0]} from {item[1]}: {e}")

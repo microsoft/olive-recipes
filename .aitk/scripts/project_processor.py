@@ -23,6 +23,7 @@ from sanitize.utils import (
     winml_copy_src_for,
 )
 
+
 def fetch_pipeline_tags(model_link: str) -> Optional[List[str]]:
     """Fetch pipeline_tag from HuggingFace API for a given model link.
 

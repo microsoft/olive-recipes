@@ -1,7 +1,7 @@
 # https://pypi.org/project/windowsml/
 
 
-def _get_ep_paths() -> dict[str, str]:
+def _get_ep_paths(ep: str | None = None) -> dict[str, str]:
     import ctypes
     import importlib.util
     from pathlib import Path
@@ -20,24 +20,23 @@ def _get_ep_paths() -> dict[str, str]:
 
     eps = {}
     with EpCatalog() as catalog:
-        for provider in catalog.find_all_providers():         
+        for provider in catalog.find_all_providers():
+            if ep is not None and provider.name != ep:
+                continue
             try:
                 provider.ensure_ready()
-                if provider.ready_state == EpReadyState.Ready:
-                    eps[provider.name] = provider.library_path
-                else:
-                    print(
-                        f"Execution provider '{provider.name}' is unavailable. Status: {provider.ready_state}"
-                    )
             except Exception as e:
-                print(
-                    f"Execution provider '{provider.name}' is unavailable. Status: {provider.ready_state}; error code: {e}"
-                )
+                print(f"Execution provider '{provider.name}' is unavailable. Error code: {e}")
+            if provider.ready_state == EpReadyState.Ready:
+                eps[provider.name] = provider.library_path
+            else:
+                print(f"Execution provider '{provider.name}' is unavailable. Status: {provider.ready_state}")
+
     return eps
 
 
-def register_execution_providers_to_onnxruntime():
-    paths = _get_ep_paths()
+def register_execution_providers_to_onnxruntime(ep: str | None = None):
+    paths = _get_ep_paths(ep)
 
     import onnxruntime as ort
 
@@ -49,8 +48,8 @@ def register_execution_providers_to_onnxruntime():
             print(f"Failed to register execution provider {item[0]} from {item[1]}: {e}")
 
 
-def register_execution_providers_to_onnxruntime_genai():
-    paths = _get_ep_paths()
+def register_execution_providers_to_onnxruntime_genai(ep: str | None = None):
+    paths = _get_ep_paths(ep)
 
     import onnxruntime_genai as og
 
