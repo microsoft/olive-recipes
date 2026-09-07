@@ -43,7 +43,7 @@ tzdata==2025.2
 # uvpip:uninstall wasdk-Microsoft.Windows.AI.MachineLearning;pre
 # uvpip:uninstall wasdk-Microsoft.Windows.ApplicationModel.DynamicDependency.Bootstrap;pre
 wcwidth==0.2.13
-windowsml==2.0.297rc0
+windowsml==2.3.42
 # uvpip:uninstall winrt-runtime;pre
 # uvpip:uninstall winrt-Windows.Foundation;pre
 # uvpip:uninstall winrt-Windows.Foundation.Collections;pre

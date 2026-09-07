@@ -20,7 +20,8 @@ def _get_ep_paths(ep: str | None = None) -> dict[str, str]:
 
     eps = {}
     with EpCatalog() as catalog:
-        for provider in catalog.find_all_providers():
+        providers = catalog.find_all_providers()
+        for provider in providers:
             if ep is not None and provider.name != ep:
                 continue
             try:
