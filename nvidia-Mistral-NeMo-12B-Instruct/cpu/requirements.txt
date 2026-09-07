@@ -1,0 +1,9 @@
+accelerate
+datasets
+git+https://github.com/microsoft/Olive.git@main
+lm-eval
+onnxruntime-genai
+sentencepiece
+tiktoken
+torch
+transformers==4.57.1

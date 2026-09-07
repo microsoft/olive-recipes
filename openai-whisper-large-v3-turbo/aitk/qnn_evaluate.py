@@ -1,28 +1,14 @@
 import argparse
 import json
-import os
-import numpy as np
-
-from qnn_app import HfWhisperAppWithSave, get_device_type
-from transformers import WhisperProcessor
 import logging
+import os
+
+import numpy as np
+from qnn_app import HfWhisperAppWithSave, get_device_type
 
 logger = logging.getLogger(os.path.basename(__file__))
 logging.basicConfig(level=logging.INFO)
 
-def register_execution_providers():
-    import subprocess
-    import sys
-    import onnxruntime as ort
-
-    worker_script = os.path.abspath('winml.py')
-    result = subprocess.check_output([sys.executable, worker_script], text=True)
-    paths = json.loads(result)
-    for item in paths.items():
-        try:
-            ort.register_execution_provider_library(item[0], item[1])
-        except Exception as e:
-            logger.warning(f"Failed to register execution provider {item[0]}: {e}")
 
 def main():
     parser = argparse.ArgumentParser(description="Evaluate Whisper")
@@ -70,8 +56,12 @@ def main():
     encoder_path = args.encoder
     decoder_path = args.decoder
 
-    register_execution_providers()
-    app = HfWhisperAppWithSave(encoder_path, decoder_path, args.model_id, args.execution_provider, get_device_type(args.device_str))
+    from winml import register_execution_providers_to_onnxruntime
+
+    register_execution_providers_to_onnxruntime()
+    app = HfWhisperAppWithSave(
+        encoder_path, decoder_path, args.model_id, args.execution_provider, get_device_type(args.device_str)
+    )
 
     encoder_latencies = []
     decoder_latencies = []
@@ -91,12 +81,9 @@ def main():
     encoder_latency_avg = round(sum(encoder_latencies) / len(encoder_latencies) * 1000, 5)
     decoder_latency_avg = round(sum(decoder_latencies) / len(decoder_latencies) * 1000, 5)
 
-    metrics = {
-        "encoder-latency-avg": encoder_latency_avg,
-        "decoder-latency-avg": decoder_latency_avg
-    }
+    metrics = {"encoder-latency-avg": encoder_latency_avg, "decoder-latency-avg": decoder_latency_avg}
     resultStr = json.dumps(metrics, indent=4)
-    with open(args.output_file, 'w') as file:
+    with open(args.output_file, "w") as file:
         file.write(resultStr)
     logger.info("Model lab succeeded for evaluation.\n%s", resultStr)
 

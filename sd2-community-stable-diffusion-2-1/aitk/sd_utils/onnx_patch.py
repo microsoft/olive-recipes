@@ -4,16 +4,15 @@
 # --------------------------------------------------------------------------
 
 import os
-import time
 import shutil
+import time
 from pathlib import Path
 from typing import Optional, Union
 
-from diffusers import OnnxRuntimeModel
-from diffusers.utils import ONNX_EXTERNAL_WEIGHTS_NAME, ONNX_WEIGHTS_NAME
-
 import numpy as np
 import onnxruntime as ort
+from diffusers import OnnxRuntimeModel
+from diffusers.utils import ONNX_EXTERNAL_WEIGHTS_NAME, ONNX_WEIGHTS_NAME
 
 
 class PatchedOnnxRuntimeModel(OnnxRuntimeModel):
@@ -77,7 +76,6 @@ class PatchedOnnxRuntimeModel(OnnxRuntimeModel):
         os.makedirs(save_directory, exist_ok=True)
 
         self._save_pretrained(save_directory, **kwargs)
-
 
     @classmethod
     def _from_pretrained(

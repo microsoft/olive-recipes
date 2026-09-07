@@ -1,0 +1,17 @@
+keywords:
+  - ryzenai
+eps:
+  - CPUExecutionProvider
+  - RyzenAIExecutionProvider
+devices:
+  - cpu
+  - npu
+recipes:
+  - name: flux2-klein-4b-text-encoder
+    file: config_text_encoder.json
+  - name: flux2-klein-4b-transformer
+    file: config_transformer.json
+  - name: flux2-klein-4b-vae-decoder
+    file: config_vae_decoder.json
+  - name: flux2-klein-4b-vae-encoder
+    file: config_vae_encoder.json

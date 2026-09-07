@@ -1,0 +1,7 @@
+accelerate
+datasets
+pillow
+sentencepiece
+torch>=2.10.0,<2.11.0
+torchvision
+transformers>=4.57.0

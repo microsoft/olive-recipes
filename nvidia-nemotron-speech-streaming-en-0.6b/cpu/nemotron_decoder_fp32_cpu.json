@@ -1,0 +1,43 @@
+{
+    "input_model": {
+        "type": "PyTorchModel",
+        "model_path": "nvidia/nemotron-speech-streaming-en-0.6b",
+        "model_loader": "decoder_model_loader",
+        "model_script": "cpu/nemotron_model_load.py",
+        "io_config": {
+            "input_names": ["targets", "h_in", "c_in"],
+            "output_names": ["decoder_output", "h_out", "c_out"],
+            "dynamic_axes": {
+                "targets": {"0": "batch", "1": "target_len"},
+                "h_in": {"1": "batch"},
+                "c_in": {"1": "batch"},
+                "decoder_output": {"0": "batch", "2": "target_len"},
+                "h_out": {"1": "batch"},
+                "c_out": {"1": "batch"}
+            }
+        },
+        "dummy_inputs_func": "decoder_dummy_inputs"
+    },
+    "systems": {
+        "local_system": {
+            "type": "LocalSystem",
+            "accelerators": [
+                {
+                    "device": "cpu",
+                    "execution_providers": ["CPUExecutionProvider"]
+                }
+            ]
+        }
+    },
+    "passes": {
+        "convert": {
+            "type": "OnnxConversion",
+            "target_opset": 21,
+            "save_as_external_data": true,
+            "external_data_name": "decoder.onnx.data"
+        }
+    },
+    "target": "local_system",
+    "output_dir": "build/onnx_models_int4/decoder.onnx",
+    "no_artifacts": true
+}

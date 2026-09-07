@@ -1,0 +1,11 @@
+# Generated model artifacts
+models/
+cpu/models/
+cuda/*/models/
+
+# Python bytecode
+__pycache__/
+*.pyc
+
+# Olive cache
+.olive-cache/

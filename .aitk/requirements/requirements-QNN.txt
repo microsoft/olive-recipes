@@ -1,5 +1,5 @@
 aiohappyeyeballs==2.6.1
-aiohttp==3.13.4
+aiohttp==3.14.0
 aiosignal==1.4.0
 alembic==1.16.5
 annotated-types==0.7.0
@@ -23,10 +23,10 @@ hf-xet==1.1.9
 # huggingface-hub[hf_xet]==0.34.4
 huggingface-hub[hf_xet]==0.34.4
 humanfriendly==10.0
-idna==3.10
+idna==3.17
 jinja2==3.1.6
 lightning-utilities==0.15.2
-mako==1.3.10
+mako==1.3.12
 markupsafe==3.0.2
 ml-dtypes==0.5.3
 mpmath==1.3.0
@@ -38,6 +38,8 @@ numpy==2.2.4
 git+https://github.com/microsoft/Olive.git@b9c975f5651a4446283d9183348add9dcd4ed45f#egg=olive_ai
 onnx==1.17.0
 onnx-ir==0.1.10
+# Uninstall onnxruntime from Qwen3 feature
+# uvpip:uninstall onnxruntime onnxruntime-qnn;pre
 # uvpip:install onnxruntime-qnn==1.23.2 --extra-index-url https://aiinfra.pkgs.visualstudio.com/PublicPackages/_packaging/ORT-Nightly/pypi/simple --no-deps;post
 onnxscript==0.5.3
 optuna==4.2.1
@@ -46,7 +48,7 @@ pandas==2.2.3
 pillow==12.2.0
 propcache==0.3.2
 protobuf==5.29.6
-pyarrow==19.0.1
+pyarrow==23.0.1
 pydantic==2.11.1
 pydantic-core==2.33.0
 pyreadline3==3.5.4
@@ -54,7 +56,7 @@ python-dateutil==2.9.0.post0
 pytz==2025.2
 pyyaml==6.0.2
 regex==2025.9.1
-requests==2.33.0
+requests==2.33.1
 safetensors==0.6.2
 setuptools==80.9.0
 six==1.17.0
@@ -72,6 +74,6 @@ transformers==4.51.3
 typing-extensions==4.15.0
 typing-inspection==0.4.1
 tzdata==2025.2
-urllib3==2.6.3
+urllib3==2.7.0
 xxhash==3.5.0
 yarl==1.20.1

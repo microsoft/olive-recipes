@@ -11,4 +11,23 @@ arch: llama3
 devices:
   - gpu
   - cpu
-name: meta-llama-Llama-3.2-1B-Instruct
+eps:
+  - CUDAExecutionProvider
+  - CPUExecutionProvider
+recipes:
+  - name: meta-llama-Llama-3.2-1B-Instruct-dora
+    file: dora.json
+  - name: meta-llama-Llama-3.2-1B-Instruct-hqq
+    file: hqq.json
+  - name: meta-llama-Llama-3.2-1B-Instruct-lmeval-onnx
+    file: lmeval_onnx.json
+  - name: meta-llama-Llama-3.2-1B-Instruct-lmeval
+    file: lmeval.json
+  - name: meta-llama-Llama-3.2-1B-Instruct-loha
+    file: loha.json
+  - name: meta-llama-Llama-3.2-1B-Instruct-lokr
+    file: lokr.json
+  - name: meta-llama-Llama-3.2-1B-Instruct-mixed
+    file: mixed.json
+  - name: meta-llama-Llama-3.2-1B-Instruct-qlora
+    file: qlora.json

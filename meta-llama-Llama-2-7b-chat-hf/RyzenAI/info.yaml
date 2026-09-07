@@ -1,0 +1,6 @@
+arch: llama
+recipes:
+  - name: Llama-2-7b-chat-hf_RyzenAI
+    file: Llama-2-7b-chat-hf_quark_ryzenai_llm.json
+    devices: npu
+    eps: RyzenAIExecutionProvider

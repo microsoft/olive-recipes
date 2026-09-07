@@ -18,7 +18,7 @@
             "architecture": "Transformer",
             "status": "Ready",
             "relativePath": "microsoft-Phi-3.5-mini-instruct/aitk",
-            "version": 7,
+            "version": 9,
             "p0": true,
             "pipeline_tags": [
                 "text-generation"
@@ -69,7 +69,7 @@
             "architecture": "Transformer",
             "status": "Ready",
             "relativePath": "deepseek-ai-DeepSeek-R1-Distill-Qwen-1.5B/aitk",
-            "version": 7,
+            "version": 8,
             "p0": true,
             "pipeline_tags": [
                 "text-generation"
@@ -193,7 +193,7 @@
             "architecture": "Transformer",
             "status": "Ready",
             "relativePath": "meta-llama-Llama-3.2-1B-Instruct/aitk",
-            "version": 7,
+            "version": 9,
             "p0": true,
             "pipeline_tags": [
                 "text-generation"
@@ -269,7 +269,7 @@
             "architecture": "Transformer",
             "status": "Ready",
             "relativePath": "Qwen-Qwen2.5-1.5B-Instruct/aitk",
-            "version": 7,
+            "version": 8,
             "p0": true,
             "pipeline_tags": [
                 "text-generation"
@@ -293,7 +293,7 @@
             "architecture": "Transformer",
             "status": "Ready",
             "relativePath": "microsoft-Phi-3-mini-128k-instruct/aitk",
-            "version": 4,
+            "version": 5,
             "pipeline_tags": [
                 "text-generation"
             ]
@@ -316,7 +316,7 @@
             "architecture": "Transformer",
             "status": "Ready",
             "relativePath": "microsoft-Phi-3-mini-4k-instruct/aitk",
-            "version": 4,
+            "version": 5,
             "pipeline_tags": [
                 "text-generation"
             ]
@@ -347,6 +347,7 @@
             "runtimes": [
                 "QNN",
                 "AMDNPU",
+                "NvidiaTRTRTX",
                 "IntelCPU",
                 "IntelGPU",
                 "IntelNPU"
@@ -354,7 +355,7 @@
             "architecture": "Transformer",
             "status": "Ready",
             "relativePath": "microsoft-Phi-4-mini-instruct/aitk",
-            "version": 4,
+            "version": 5,
             "pipeline_tags": [
                 "text-generation"
             ]
@@ -373,7 +374,7 @@
             "architecture": "Transformer",
             "status": "Ready",
             "relativePath": "microsoft-Phi-4-mini-reasoning/aitk",
-            "version": 4,
+            "version": 5,
             "pipeline_tags": [
                 "text-generation"
             ]
@@ -445,7 +446,7 @@
             "architecture": "Transformer",
             "status": "Ready",
             "relativePath": "deepseek-ai-DeepSeek-R1-Distill-Qwen-7B/aitk",
-            "version": 4,
+            "version": 5,
             "pipeline_tags": [
                 "text-generation"
             ]
@@ -480,11 +481,11 @@
                 "QNN"
             ],
             "architecture": "Transformer",
-            "status": "Hide",
+            "status": "Ready",
             "relativePath": "sam-vit-base/aitk",
             "version": 2,
             "pipeline_tags": [
-                "fill-mask"
+                "mask-generation"
             ]
         },
         {
@@ -493,14 +494,17 @@
             "modelLink": "https://huggingface.co/facebook/sam2.1-hiera-small",
             "id": "huggingface/facebook/sam2.1-hiera-small",
             "runtimes": [
-                "QNN"
+                "QNN",
+                "IntelCPU",
+                "IntelGPU",
+                "IntelNPU"
             ],
             "architecture": "Transformer",
-            "status": "Hide",
+            "status": "Ready",
             "relativePath": "sam2.1-hiera-small/aitk",
-            "version": 2,
+            "version": 3,
             "pipeline_tags": [
-                "fill-mask"
+                "mask-generation"
             ]
         },
         {
@@ -510,6 +514,7 @@
             "id": "huggingface/meta-llama/Llama-3.1-8B-Instruct",
             "runtimes": [
                 "QNN",
+                "QNNGPU",
                 "AMDNPU",
                 "NvidiaTRTRTX",
                 "IntelCPU",
@@ -520,7 +525,7 @@
             "architecture": "Transformer",
             "status": "Ready",
             "relativePath": "meta-llama-Llama-3.1-8B-Instruct/aitk",
-            "version": 5,
+            "version": 7,
             "p0": false,
             "pipeline_tags": [
                 "text-generation"
@@ -541,7 +546,7 @@
             "architecture": "Transformer",
             "status": "Ready",
             "relativePath": "mistralai-Mistral-7B-Instruct-v0.2/aitk",
-            "version": 3,
+            "version": 4,
             "pipeline_tags": [
                 "text-generation"
             ]
@@ -612,12 +617,15 @@
             "modelLink": "https://huggingface.co/openai/whisper-large-v3-turbo",
             "id": "huggingface/openai/whisper-large-v3-turbo",
             "runtimes": [
-                "QNN"
+                "QNN",
+                "IntelCPU",
+                "IntelGPU",
+                "IntelNPU"
             ],
             "architecture": "Transformer",
             "status": "Ready",
             "relativePath": "openai-whisper-large-v3-turbo/aitk",
-            "version": 2,
+            "version": 3,
             "pipeline_tags": [
                 "automatic-speech-recognition"
             ]
@@ -656,7 +664,7 @@
             "architecture": "Transformer",
             "status": "Ready",
             "relativePath": "Qwen-Qwen2.5-0.5B-Instruct/aitk",
-            "version": 4,
+            "version": 5,
             "pipeline_tags": [
                 "text-generation"
             ]
@@ -699,7 +707,7 @@
             "architecture": "Transformer",
             "status": "Ready",
             "relativePath": "Qwen-Qwen2.5-7B-Instruct/aitk",
-            "version": 4,
+            "version": 5,
             "pipeline_tags": [
                 "text-generation"
             ]
@@ -742,7 +750,7 @@
             "architecture": "Transformer",
             "status": "Ready",
             "relativePath": "Qwen-Qwen2.5-Coder-0.5B-Instruct/aitk",
-            "version": 4,
+            "version": 5,
             "pipeline_tags": [
                 "text-generation"
             ]
@@ -764,7 +772,7 @@
             "architecture": "Transformer",
             "status": "Ready",
             "relativePath": "Qwen-Qwen2.5-Coder-1.5B-Instruct/aitk",
-            "version": 4,
+            "version": 5,
             "pipeline_tags": [
                 "text-generation"
             ]
@@ -806,7 +814,7 @@
             "architecture": "Transformer",
             "status": "Ready",
             "relativePath": "Qwen-Qwen2.5-Coder-7B-Instruct/aitk",
-            "version": 4,
+            "version": 5,
             "pipeline_tags": [
                 "text-generation"
             ]
@@ -833,6 +841,92 @@
             ]
         },
         {
+            "displayName": "Qwen/Qwen3-0.6B",
+            "icon": "qwen",
+            "modelLink": "https://huggingface.co/Qwen/Qwen3-0.6B",
+            "id": "huggingface/Qwen/Qwen3-0.6B",
+            "runtimes": [
+                "QNN"
+            ],
+            "architecture": "Transformer",
+            "status": "Hide",
+            "relativePath": "Qwen-Qwen3-0.6B/aitk",
+            "version": 1,
+            "pipeline_tags": [
+                "text-generation"
+            ]
+        },
+        {
+            "displayName": "Qwen/Qwen3.5-0.8B",
+            "icon": "qwen",
+            "modelLink": "https://huggingface.co/Qwen/Qwen3.5-0.8B",
+            "id": "huggingface/Qwen/Qwen3.5-0.8B",
+            "groupId": "huggingface/Qwen/Qwen3.5-4B",
+            "groupItemName": "0.8B",
+            "runtimes": [
+                "NvidiaTRTRTX"
+            ],
+            "architecture": "Transformer",
+            "status": "Ready",
+            "relativePath": "Qwen-Qwen3.5-0.8B/aitk",
+            "version": 1,
+            "pipeline_tags": [
+                "image-text-to-text"
+            ]
+        },
+        {
+            "displayName": "Qwen/Qwen3.5-4B",
+            "icon": "qwen",
+            "modelLink": "https://huggingface.co/Qwen/Qwen3.5-4B",
+            "id": "huggingface/Qwen/Qwen3.5-4B",
+            "groupId": "huggingface/Qwen/Qwen3.5-4B",
+            "groupItemName": "4B",
+            "runtimes": [
+                "NvidiaTRTRTX"
+            ],
+            "architecture": "Transformer",
+            "status": "Ready",
+            "relativePath": "Qwen-Qwen3.5-4B/aitk",
+            "version": 1,
+            "pipeline_tags": [
+                "image-text-to-text"
+            ]
+        },
+        {
+            "displayName": "Qwen/Qwen3.5-9B",
+            "icon": "qwen",
+            "modelLink": "https://huggingface.co/Qwen/Qwen3.5-9B",
+            "id": "huggingface/Qwen/Qwen3.5-9B",
+            "groupId": "huggingface/Qwen/Qwen3.5-4B",
+            "groupItemName": "9B",
+            "runtimes": [
+                "NvidiaTRTRTX"
+            ],
+            "architecture": "Transformer",
+            "status": "Ready",
+            "relativePath": "Qwen-Qwen3.5-9B/aitk",
+            "version": 1,
+            "pipeline_tags": [
+                "image-text-to-text"
+            ]
+        },
+        {
+            "displayName": "Qwen/Qwen3.6-35B-A3B",
+            "icon": "qwen",
+            "modelLink": "https://huggingface.co/Qwen/Qwen3.6-35B-A3B",
+            "id": "huggingface/Qwen/Qwen3.6-35B-A3B",
+            "runtimes": [
+                "NvidiaTRTRTX"
+            ],
+            "architecture": "Transformer",
+            "status": "Ready",
+            "relativePath": "Qwen-Qwen3.6-35B-A3B/aitk",
+            "version": 1,
+            "pipeline_tags": [
+                "image-text-to-text"
+            ]
+        },
+        {
             "displayName": "sd2-community/stable-diffusion-2-1",
             "icon": "HuggingFace",
             "modelLink": "https://huggingface.co/sd2-community/stable-diffusion-2-1",
@@ -840,10 +934,11 @@
             "runtimes": [
                 "QNN",
                 "IntelCPU",
-                "IntelGPU"
+                "IntelGPU",
+                "IntelNPU"
             ],
             "architecture": "Transformer",
-            "status": "Hide",
+            "status": "Ready",
             "relativePath": "sd2-community-stable-diffusion-2-1/aitk",
             "version": 2,
             "pipeline_tags": [
@@ -858,7 +953,8 @@
             "runtimes": [
                 "QNN",
                 "IntelCPU",
-                "IntelGPU"
+                "IntelGPU",
+                "IntelNPU"
             ],
             "architecture": "Transformer",
             "status": "Ready",
@@ -1042,7 +1138,8 @@
             "bfloat16": "a:bf16"
         },
         "QuarkWeightType": {
-            "w_uint4_per_group_asym": "w:int4"
+            "w_uint4_per_group_asym": "w:uint4",
+            "uint4_wo_128": "w:uint4"
         }
     }
 }

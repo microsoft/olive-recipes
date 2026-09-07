@@ -1,9 +1,11 @@
 keywords:
-    olive-ai
-ep:
-    CPUExecutionProvider
-    CUDAExecutionProvider
-device:
-    cpu
-    gpu
-name: qwen3-vl
+  - olive-ai
+recipes:
+  - name: qwen3vl-4B-Instruct
+    file: optimize.py
+    eps:
+      - CPUExecutionProvider
+      - CUDAExecutionProvider
+    devices:
+      - cpu
+      - gpu

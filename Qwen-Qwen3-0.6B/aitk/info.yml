@@ -1,0 +1,20 @@
+keywords:
+    aitk
+arch: qwen3
+recipes:
+    - file: "qwen3_qnn_config.json"
+      device: npu
+      ep: QNNExecutionProvider
+      aitk:
+        oliveFile: "QNN/config.json"
+        isGPURequired: true
+        executeRuntimeFeatures:
+          - GptqModel
+          - Qwen3
+        pyEnvRuntimeFeatures:
+          - Qwen3
+aitk:
+    modelInfo:
+        id: "huggingface/Qwen/Qwen3-0.6B"
+        version: 1
+        status: Hide

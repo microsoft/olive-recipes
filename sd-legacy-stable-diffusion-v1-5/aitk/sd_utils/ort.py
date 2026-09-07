@@ -9,7 +9,6 @@ import sys
 from pathlib import Path
 
 import onnxruntime as ort
-
 from diffusers.pipelines.stable_diffusion.pipeline_onnx_stable_diffusion import OnnxStableDiffusionPipeline
 from olive.model import ONNXModelHandler
 from onnxruntime import __version__ as OrtVersion
@@ -103,7 +102,9 @@ def save_onnx_pipeline(
     from sd_utils.onnx_patch import PatchedOnnxRuntimeModel
 
     if has_safety_checker:
-        safety_checker = PatchedOnnxRuntimeModel.from_pretrained(model_info["safety_checker"]["unoptimized"]["path"].parent)
+        safety_checker = PatchedOnnxRuntimeModel.from_pretrained(
+            model_info["safety_checker"]["unoptimized"]["path"].parent
+        )
     else:
         safety_checker = None
 
@@ -112,7 +113,9 @@ def save_onnx_pipeline(
         vae_decoder=PatchedOnnxRuntimeModel.from_pretrained(model_info["vae_decoder"]["unoptimized"]["path"].parent),
         text_encoder=PatchedOnnxRuntimeModel.from_pretrained(model_info["text_encoder"]["unoptimized"]["path"].parent),
         tokenizer=pipeline.tokenizer,
-        unet=PatchedOnnxRuntimeModel.from_pretrained(model_info["unet"]["unoptimized"]["path"].parent, provider_options=[]),
+        unet=PatchedOnnxRuntimeModel.from_pretrained(
+            model_info["unet"]["unoptimized"]["path"].parent, provider_options=[]
+        ),
         scheduler=pipeline.scheduler,
         safety_checker=safety_checker,
         feature_extractor=pipeline.feature_extractor,

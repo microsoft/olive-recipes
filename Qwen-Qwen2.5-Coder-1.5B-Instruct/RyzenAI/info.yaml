@@ -1,0 +1,6 @@
+arch: qwen2
+recipes:
+  - name: Qwen2.5-Coder-1.5B-Instruct_RyzenAI
+    file: Qwen2.5-Coder-1.5B-Instruct_quark_ryzenai_llm.json
+    devices: npu
+    eps: RyzenAIExecutionProvider

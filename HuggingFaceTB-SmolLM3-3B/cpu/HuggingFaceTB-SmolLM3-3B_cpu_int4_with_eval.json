@@ -1,0 +1,86 @@
+{
+    "input_model": {
+        "type": "HfModel",
+        "model_path": "HuggingFaceTB/SmolLM3-3B",
+        "load_kwargs": {
+            "torch_dtype": "float16"
+        }
+    },
+    "systems": {
+        "local_system": {
+            "type": "LocalSystem",
+            "accelerators": [
+                {
+                    "device": "cpu",
+                    "execution_providers": [
+                        "CPUExecutionProvider"
+                    ]
+                }
+            ]
+        }
+    },
+    "passes": {
+        "s": {
+            "type": "SelectiveMixedPrecision",
+            "algorithm": "kld_gradient",
+            "bits": 4,
+            "high_bits": 8,
+            "ratio": 0.65,
+            "sym": false,
+            "group_size": 128
+        },
+        "g": {
+            "type": "gptq",
+            "bits": 4,
+            "sym": false,
+            "group_size": 128
+        },
+        "r": {
+            "type": "rtn",
+            "bits": 8,
+            "sym": false,
+            "group_size": 128,
+            "lm_head": true,
+            "embeds": true,
+            "overrides": {
+                "lm_head": {
+                    "bits": 8
+                },
+                "model.embed_tokens": {
+                    "bits": 8
+                }
+            }
+        },
+        "m": {
+            "type": "ModelBuilder",
+            "precision": "int4"
+        },
+        "t": {
+            "type": "GraphSurgeries",
+            "surgeries": [
+                {
+                    "surgeon": "TieWordEmbeddings"
+                }
+            ]
+        }
+    },
+    "target": "local_system",
+    "log_severity_level": 0,
+    "output_dir": "model_cpu_int4",
+    "cache_dir": "cache_cpu_int4",
+    "evaluators": {
+        "mmlu": {
+            "type": "LMEvaluator",
+            "tasks": [
+                "mmlu"
+            ],
+            "batch_size": 1,
+            "max_length": 2048,
+            "provider_options": {
+                "enable_skip_layer_norm_strict_mode": "1"
+            }
+        }
+    },
+    "evaluator": "mmlu",
+    "evaluate_input_model": false
+}

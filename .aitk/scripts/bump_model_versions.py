@@ -6,7 +6,6 @@ from typing import Optional
 
 from sanitize.utils import iter_aitk_info_yml
 
-
 VERSION_LINE_RE = re.compile(r"^(?P<indent>\s*)version:\s*(?P<value>\d+)\s*(?P<comment>#.*)?$")
 
 
@@ -72,7 +71,7 @@ def bump_file(yml_file: Path, yaml_object: dict, delta: int, dry_run: bool) -> O
         print(f"Skip {yml_file}: could not locate 'version: {old}' line under aitk.modelInfo")
         return None
     m = VERSION_LINE_RE.match(lines[idx].rstrip("\n"))
-    newline = lines[idx][len(lines[idx].rstrip("\r\n")):] or "\n"
+    newline = lines[idx][len(lines[idx].rstrip("\r\n")) :] or "\n"
     indent = m.group("indent")
     comment = m.group("comment")
     rebuilt = f"{indent}version: {new}"

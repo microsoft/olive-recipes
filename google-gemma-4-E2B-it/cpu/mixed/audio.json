@@ -1,0 +1,19 @@
+{
+    "input_model": {
+        "type": "ONNXModel",
+        "model_path": "cpu/mixed/models/audio_encoder/model.onnx"
+    },
+    "passes": {
+        "int8": {
+            "type": "OnnxBlockWiseRtnQuantization",
+            "bits": 8,
+            "block_size": 128,
+            "is_symmetric": true,
+            "accuracy_level": 4,
+            "save_as_external_data": true,
+            "external_data_name": "model.onnx.data"
+        }
+    },
+    "no_artifacts": true,
+    "output_dir": "cpu/mixed/models/audio_encoder"
+}

@@ -1,9 +1,0 @@
-keywords:
-  - whisper
-ep:
-  - CPUExecutionProvider
-  - CUDAExecutionProvider
-device:
-  - cpu
-  - gpu
-name: openai-whisper-large-v3

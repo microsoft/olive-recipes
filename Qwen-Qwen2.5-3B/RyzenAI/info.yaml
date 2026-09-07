@@ -1,0 +1,6 @@
+arch: qwen2
+recipes:
+  - name: Qwen2.5-3B_RyzenAI
+    file: Qwen2.5-3B_quark_ryzenai_llm.json
+    devices: npu
+    eps: RyzenAIExecutionProvider

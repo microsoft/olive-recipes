@@ -1,0 +1,19 @@
+keywords:
+  - vitisai
+eps:
+  - CPUExecutionProvider
+  - VitisAIExecutionProvider
+devices:
+  - cpu
+  - npu
+recipes:
+  - name: stable-diffusion-v1-5-safety-checker
+    file: config_safety_checker.json
+  - name: stable-diffusion-v1-5-text-encoder
+    file: config_text_encoder.json
+  - name: stable-diffusion-v1-5-unet
+    file: config_unet.json
+  - name: stable-diffusion-v1-5-vae-decoder
+    file: config_vae_decoder.json
+  - name: stable-diffusion-v1-5-vae-encoder
+    file: config_vae_encoder.json

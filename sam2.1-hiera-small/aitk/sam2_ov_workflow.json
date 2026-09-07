@@ -1,0 +1,31 @@
+{
+    "input_model": {
+        "model_path": "facebook/sam2.1-hiera-small"
+    },
+    "systems": {
+        "target_system": {
+            "type": "LocalSystem",
+            "accelerators": [
+                {
+                    "device": "npu",
+                    "execution_providers": [
+                        "OpenVINOExecutionProvider"
+                    ]
+                }
+            ]
+        }
+    },
+    "passes": {
+        "aitkpython": {
+            "type": "AitkPython",
+            "user_script": "sam2_ov_workflow.py",
+            "activation_type": "int8",
+            "precision": "int8"
+        }
+    },
+    "search_strategy": false,
+    "target": "target_system",
+    "evaluate_input_model": false,
+    "output_dir": "model/sam2_ov",
+    "cache_dir": "cache"
+}

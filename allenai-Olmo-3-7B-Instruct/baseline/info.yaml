@@ -1,0 +1,6 @@
+arch: olmo3
+recipes:
+  - name: allenai-Olmo-3-7B-Instruct_pytorch_with_eval
+    file: allenai-Olmo-3-7B-Instruct_pytorch_with_eval.json
+    devices: gpu
+    eps: PyTorch

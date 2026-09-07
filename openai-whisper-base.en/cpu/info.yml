@@ -1,0 +1,7 @@
+keywords:
+  - whisper
+recipes:
+  - name: openai-whisper-base.en-cpu-int8
+    file: whisper-base.en_cpu_int8.json
+    devices: cpu
+    eps: CPUExecutionProvider

@@ -1,7 +1,7 @@
 keywords:
-    olive-ci
-ep:
-    CUDAExecutionProvider
-device:
-    gpu
-name: mistral-7b
+  olive-ci
+recipes:
+  - name: mistral-7b
+    file: optimize.sh
+    ep: CUDAExecutionProvider
+    device: gpu

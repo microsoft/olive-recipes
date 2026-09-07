@@ -4,19 +4,16 @@
 # Example modified from: https://docs.openvino.ai/2023.3/notebooks/225-stable-diffusion-text-to-image-with-output.html
 # --------------------------------------------------------------------------
 import inspect
-import os
 from pathlib import Path
 from typing import Callable, Optional, Union
 
 import numpy as np
 import onnxruntime as ort
 import torch
-
 from diffusers import StableDiffusionPipeline
-from diffusers.pipelines.stable_diffusion.pipeline_onnx_stable_diffusion import OnnxStableDiffusionPipeline
 from diffusers.pipelines.onnx_utils import ORT_TO_NP_TYPE
 from diffusers.pipelines.stable_diffusion import StableDiffusionPipelineOutput
-
+from diffusers.pipelines.stable_diffusion.pipeline_onnx_stable_diffusion import OnnxStableDiffusionPipeline
 from sd_utils.onnx_patch import PatchedOnnxRuntimeModel
 
 
@@ -157,12 +154,16 @@ class OVStableDiffusionPipeline(OnnxStableDiffusionPipeline):
         return StableDiffusionPipelineOutput(images=image, nsfw_content_detected=has_nsfw_concept)
 
 
-def update_ov_config(config: dict):
+def update_ov_config(config: dict, static_shape: bool):
     config["passes"] = {
         "ov_convert": config["passes"]["ov_convert"],
         "ov_io_update": config["passes"]["ov_io_update"],
-        "ov_encapsulation": config["passes"]["ov_encapsulation"]
-        }
+        "ov_encapsulation": config["passes"]["ov_encapsulation"],
+    }
+
+    if static_shape == False:
+        config["passes"]["ov_io_update"]["static"] = False
+        del config["passes"]["ov_io_update"]["input_shapes"]
 
     config["search_strategy"] = False
     config["systems"]["local_system"]["accelerators"][0]["device"] = "cpu"
@@ -196,23 +197,12 @@ def add_ep_for_device(session_options, ep_name, device_type, ep_options=None):
             session_options.add_provider_for_devices([ep_device], {} if ep_options is None else ep_options)
             break
 
-def register_execution_providers():
-    import json
-    import subprocess
-    import sys
-
-    worker_script = os.path.abspath('winml.py')
-    result = subprocess.check_output([sys.executable, worker_script], text=True)
-    paths = json.loads(result)
-    for item in paths.items():
-        try:
-            ort.register_execution_provider_library(item[0], item[1])
-        except Exception as e:
-            print(f"Failed to register execution provider {item[0]}: {e}")
 
 def get_ov_pipeline(common_args, ov_args, optimized_model_dir):
     if common_args.test_unoptimized:
         return StableDiffusionPipeline.from_pretrained(common_args.model_id)
+
+    from winml import register_execution_providers
 
     register_execution_providers()
 

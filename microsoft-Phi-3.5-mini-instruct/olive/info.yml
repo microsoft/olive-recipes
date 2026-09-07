@@ -1,6 +1,8 @@
 keywords:
   - mixed-precision
 arch: phi3
-devices:
-  - gpu
-name: microsoft-Phi-3.5-mini-instruct
+recipes:
+  - name: microsoft-Phi-3.5-mini-instruct
+    file: mixed.json
+    device: gpu
+    ep: CUDAExecutionProvider

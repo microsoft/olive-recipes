@@ -1,6 +1,12 @@
 keywords:
   - mixed-precision
 arch: phi4
-devices:
-  - gpu
-name: microsoft-Phi-4-mini-instruct
+recipes:
+  - name: microsoft-Phi-4-mini-instruct-mixed
+    file: mixed.json
+    device: gpu
+    ep: CUDAExecutionProvider
+  - name: microsoft-Phi-4-mini-instruct-mixed-tied
+    file: mixed-tied.json
+    device: gpu
+    ep: CUDAExecutionProvider

@@ -5,9 +5,8 @@
 import datasets
 import numpy as np
 import torch
-from transformers import BertTokenizer
-
 from olive.data.registry import Registry
+from transformers import BertTokenizer
 
 # -------------------------------------------------------------------------
 # Common Dataset

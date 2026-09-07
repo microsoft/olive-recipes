@@ -1,0 +1,9 @@
+keywords:
+  - olive-ai
+recipes:
+  - name: videochat-flash-qwen2_5-7b-internvideo2-1b
+    file: optimize.py
+    eps:
+      - CPUExecutionProvider
+    devices:
+      - cpu

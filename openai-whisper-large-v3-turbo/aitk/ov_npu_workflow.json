@@ -1,0 +1,36 @@
+{
+    "input_model": {
+        "model_path": "openai/whisper-large-v3-turbo"
+    },
+    "systems": {
+        "target_system": {
+            "type": "LocalSystem",
+            "accelerators": [
+                {
+                    "device": "npu",
+                    "execution_providers": [
+                        "OpenVINOExecutionProvider"
+                    ]
+                }
+            ]
+        }
+    },
+    "evaluators": {
+        "common_evaluator": {
+        }
+    },
+    "passes": {
+        "aitkpython": {
+            "type": "AitkPython",
+            "weight_format": "fp16",
+            "enable_npu_ws": true,
+            "user_script": "ov_workflow.py"
+        }
+    },
+    "evaluator": "common_evaluator",
+    "evaluate_input_model": false,
+    "target": "target_system",
+    "clean_cache": false,
+    "output_dir": "model/whisper_ov_npu",
+    "cache_dir": "cache"
+}

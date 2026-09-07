@@ -1,4 +1,5 @@
-deepdiff
-pydantic
-pydash
-pyyaml
+deepdiff==9.1.0
+pydantic==2.13.4
+pydash==8.0.6
+pyyaml==6.0.3
+ruff==0.15.14

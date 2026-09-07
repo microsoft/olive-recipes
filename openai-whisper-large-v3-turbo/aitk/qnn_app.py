@@ -49,6 +49,7 @@ def add_ep_for_device(session_options, ep_name, device_type, ep_options=None):
             session_options.add_provider_for_devices([ep_device], {} if ep_options is None else ep_options)
             break
 
+
 def get_device_type(device_str):
     if device_str.lower() == "gpu":
         return ort.OrtHardwareDeviceType.GPU
@@ -74,12 +75,14 @@ class HfWhisperAppWithSave(HfWhisperApp):
         add_ep_for_device(options, execution_provider, device_type)
 
         self.encoder = ort.InferenceSession(
-            encoder, sess_options=options,
+            encoder,
+            sess_options=options,
         )
         self.encoder_latencies = []
 
         self.decoder = ort.InferenceSession(
-            decoder, sess_options=options,
+            decoder,
+            sess_options=options,
         )
         self.decoder_latencies = []
 

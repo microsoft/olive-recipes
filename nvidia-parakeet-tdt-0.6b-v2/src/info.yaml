@@ -1,0 +1,17 @@
+name: nvidia-parakeet-tdt-0.6b-v2
+provider: NVIDIA
+model_id: nvidia/parakeet-tdt-0.6b-v2
+task: automatic-speech-recognition
+framework: ONNX Runtime
+execution_provider:
+  - CPUExecutionProvider
+  - CUDAExecutionProvider
+summary: >
+  Exports Parakeet TDT 0.6B v2 to ONNX with an INT4-quantized encoder and
+  FP32 decoder/joint. A single set of ONNX graphs is produced; the target EP
+  only affects session_options written into genai_config.json (--device cpu|cuda).
+
+artifacts:
+  - src/parakeet_encoder_int4.json
+  - src/parakeet_decoder_fp32.json
+  - src/parakeet_joint_fp32.json

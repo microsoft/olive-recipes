@@ -1,0 +1,70 @@
+{
+    "input_model": {
+        "type": "OnnxModel",
+        "model_path": "build/whisper-large_cuda_int8"
+    },
+    "data_configs": [
+        {
+            "name": "librispeech_clean",
+            "type": "HuggingfaceContainer",
+            "load_dataset_config": {
+                "type": "huggingface_dataset",
+                "params": {
+                    "data_name": "hf-audio/esb-datasets-test-only-sorted",
+                    "subset": "librispeech",
+                    "split": "test.clean"
+                }
+            },
+            "pre_process_data_config": {
+                "type": "speech_transcription_pre_process",
+                "params": {
+                    "audio_col": "audio",
+                    "text_col": "text",
+                    "sample_rate": 16000,
+                    "max_samples": 64
+                }
+            }
+        }
+    ],
+    "metrics": [
+        {
+            "name": "speech_accuracy",
+            "type": "accuracy",
+            "data_config": "librispeech_clean",
+            "sub_types": [
+                {
+                    "name": "wer",
+                    "priority": 1,
+                    "higher_is_better": false
+                },
+                {
+                    "name": "rtfx",
+                    "priority": 2,
+                    "higher_is_better": true
+                }
+            ]
+        }
+    ],
+    "evaluators": {
+        "common_evaluator": {
+            "metrics": [
+                "speech_accuracy"
+            ]
+        }
+    },
+    "systems": {
+        "local_system": {
+            "type": "LocalSystem",
+            "accelerators": [
+                {
+                    "device": "gpu",
+                    "execution_providers": [
+                        "CUDAExecutionProvider"
+                    ]
+                }
+            ]
+        }
+    },
+    "host": "local_system",
+    "target": "local_system"
+}

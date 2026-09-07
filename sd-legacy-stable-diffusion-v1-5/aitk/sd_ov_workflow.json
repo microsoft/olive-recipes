@@ -22,7 +22,8 @@
     "passes": {
         "aitkpython": {
             "type": "AitkPython",
-            "model_precision": "fp32",
+            "model_precision": "fp16",
+            "static_shape": false,
             "user_script": "sd_ov_workflow.py"
         }
     },

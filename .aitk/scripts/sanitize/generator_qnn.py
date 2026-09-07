@@ -1,9 +1,9 @@
-from pathlib import Path
 import json
+from pathlib import Path
 
 from .constants import OlivePassNames, OlivePropertyNames
 from .generator_amd import generate_quantization_config
-from .generator_common import create_model_parameter, set_optimization_path
+from .generator_common import apply_runtime_feature_overrides, create_model_parameter, set_optimization_path
 from .model_info import ModelList
 from .model_parameter import ModelParameter
 from .utils import isLLM_by_id, open_ex
@@ -40,7 +40,7 @@ def generator_qnn(id: str, recipe, folder: Path, modelList: ModelList):
         return
 
     runtime_values: list[str] = recipe.get("devices", [recipe.get("device")])
-    name = f"Convert to Qualcomm {"/".join([runtime.upper() for runtime in runtime_values])}"
+    name = f"Convert to Qualcomm {'/'.join([runtime.upper() for runtime in runtime_values])}"
 
     parameter = create_model_parameter(aitk, name, configFile)
     if "npu" in runtime_values:
@@ -53,6 +53,7 @@ def generator_qnn(id: str, recipe, folder: Path, modelList: ModelList):
         parameter.sections.append(quantize)
 
     setup_features(content, parameter)
+    apply_runtime_feature_overrides(aitk, parameter)
 
     parameter.writeIfChanged()
     print(f"\tGenerated QNN configuration for {file}")

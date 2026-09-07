@@ -1,0 +1,29 @@
+{
+    "input_model": {
+        "type": "HfModel",
+        "model_path": "mistralai/Ministral-3-3B-Instruct-2512-BF16"
+    },
+    "passes": {
+        "export": {
+            "type": "MobiusBuilder",
+            "precision": "fp16",
+            "runtime": "none",
+            "components_to_export": ["vision_encoder", "embedding"]
+        }
+    },
+    "engine": {
+        "target": {
+            "type": "LocalSystem",
+            "accelerators": [
+                {
+                    "device": "gpu",
+                    "execution_providers": [
+                        "CUDAExecutionProvider"
+                    ]
+                }
+            ]
+        }
+    },
+    "no_artifacts": true,
+    "output_dir": "cuda/models"
+}
