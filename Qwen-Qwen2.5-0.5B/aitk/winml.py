@@ -28,6 +28,7 @@ def _get_ep_paths(ep: str | None = None) -> dict[str, str]:
                 provider.ensure_ready()
             except Exception as e:
                 print(f"Execution provider '{provider.name}' is unavailable. Error code: {e}")
+                continue
             if provider.ready_state == EpReadyState.Ready:
                 eps[provider.name] = provider.library_path
             else:

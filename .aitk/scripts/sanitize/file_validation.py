@@ -197,7 +197,7 @@ def readCheckIpynb(ipynbFile: str, modelItems: dict[str, ModelParameter]):
             allRuntimes.remove(EPNames.CPUExecutionProvider.value)
         foundTargetEP = False
         for runtime in allRuntimes:
-            targetStr = f'ExecutionProvider=\\"{runtime}\\"'
+            targetStr = f'ExecutionProvider = \\"{runtime}\\"'
             targetCount = ipynbContent.count(targetStr)
             if targetCount == 1:
                 if foundTargetEP:
