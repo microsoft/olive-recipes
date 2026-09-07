@@ -13,7 +13,7 @@ def _get_ep_paths(ep: str | None = None) -> dict[str, str]:
     ort_capi_dir = ort_package_path / "capi"
     ort_dll_path = ort_capi_dir / "onnxruntime.dll"
 
-    # Load the onnxruntime DLL because "C:\Windows\System32\onnxruntime.dll" may be exist and loaded first
+    # Load the onnxruntime DLL because "C:\Windows\System32\onnxruntime.dll" may exist and be loaded first
     ctypes.WinDLL(str(ort_dll_path))
 
     from windowsml import EpCatalog, EpReadyState
