@@ -21,7 +21,7 @@ numpy==2.2.4
 # onnx==1.20.1
 onnx==1.20.1
 onnxruntime-genai-winml==0.13.2
-onnxruntime-windowsml==1.24.5.202604171637
+onnxruntime-windowsml==1.27.1.202607110137
 packaging==24.2
 pandas==2.2.3
 parso==0.8.5

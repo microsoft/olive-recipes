@@ -59,7 +59,7 @@ olive-ai==0.10.1
 onnx==1.20.1
 onnx-ir==0.1.10
 onnxruntime-genai-winml==0.13.2
-onnxruntime-windowsml==1.24.5.202604171637
+onnxruntime-windowsml==1.27.1.202607110137
 onnxscript==0.5.3
 # optimum==1.26.1
 optimum==1.26.1
