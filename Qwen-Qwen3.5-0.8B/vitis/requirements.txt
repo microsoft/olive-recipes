@@ -1,5 +1,5 @@
 datasets
-git+https://github.com/microsoft/Olive.git@d4b9c1b6
+git+https://github.com/microsoft/Olive.git@main
 git+https://github.com/onnxruntime/mobius.git@459fc682
 onnxruntime>=1.28.0
 torch
