@@ -1,6 +1,6 @@
 ./auto_gptq-0.8.0.dev0+cu128-cp312-cp312-win_amd64.whl
 # download:auto_gptq-0.8.0.dev0+cu128-cp312-cp312-win_amd64.whl
-accelerate==1.6.0
+accelerate==1.14.0
 gekko==1.3.0
 peft==0.17.1
 rouge==1.0.1

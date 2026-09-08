@@ -2,7 +2,7 @@
 # uvpip:install git+https://github.com/CodeLinaro/GPTQModel.git@64231a266cc70c5597fe97f26e7ec5ccda660c37 --no-build-isolation;post;{"BUILD_CUDA_EXT":"0"}
 # download:fast_hadamard_transform-1.0.4.post1-cp312-cp312-win_amd64.whl
 ./fast_hadamard_transform-1.0.4.post1-cp312-cp312-win_amd64.whl
-accelerate==1.10.1
+accelerate==1.14.0
 device-smi==0.4.1
 hf_transfer==0.1.9
 huggingface_hub==0.34.4
@@ -16,5 +16,5 @@ random_word==1.0.13
 safetensors==0.6.2
 threadpoolctl==3.6.0
 tokenicer==0.0.5
-transformers==4.56.0
+transformers==5.10.1
 wheel==0.46.2
