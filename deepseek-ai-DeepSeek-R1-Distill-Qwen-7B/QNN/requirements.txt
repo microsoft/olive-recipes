@@ -21,7 +21,6 @@ filelock==3.32.2
 flatbuffers==25.12.19
 frozenlist==1.8.0
 fsspec==2026.6.0
-gptqmodel @ git+https://github.com/CodeLinaro/GPTQModel.git@64231a266cc70c5597fe97f26e7ec5ccda660c37
 greenlet==3.5.4
 h11==0.16.0
 hf-xet==1.6.0

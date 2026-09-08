@@ -7,9 +7,9 @@ This repository demonstrates the optimization of the [DeepSeek-R1-Distill-Qwen-7
 Quantization is resource-intensive and requires GPU acceleration. In an x64 Python environment, install the required packages:
 
 ```bash
-pip install -r requirements.txt
+pip install -r requirements.txt --no-deps
 
-# Disable CUDA extension build (not required)
+# Disable CUDA extension build 
 # Linux
 export BUILD_CUDA_EXT=0
 # Windows
