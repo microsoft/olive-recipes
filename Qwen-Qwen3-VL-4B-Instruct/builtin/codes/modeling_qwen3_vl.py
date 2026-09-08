@@ -1105,15 +1105,17 @@ class Qwen3VLModel(Qwen3VLPreTrainedModel):
             inputs_embeds = self.get_input_embeddings()(input_ids)
 
         if pixel_values is not None:
-            image_embeds = self.get_image_features(pixel_values, image_grid_thw)
-            image_embeds = torch.cat(image_embeds, dim=0).to(inputs_embeds.device, inputs_embeds.dtype)
+            # get_image_features returns (image_features, *deepstack_feats); the monolithic
+            # forward path only fuses the merged embedding, so take the first element.
+            image_embeds, *_ = self.get_image_features(pixel_values, image_grid_thw)
+            image_embeds = image_embeds.to(inputs_embeds.device, inputs_embeds.dtype)
             special_image_mask = input_ids == self.config.image_token_id
             special_image_mask = special_image_mask.unsqueeze(-1).expand_as(inputs_embeds).to(inputs_embeds.device)
             inputs_embeds = inputs_embeds.masked_scatter(special_image_mask, image_embeds)
 
         if pixel_values_videos is not None:
-            video_embeds = self.get_image_features(pixel_values_videos, video_grid_thw)
-            video_embeds = torch.cat(video_embeds, dim=0).to(inputs_embeds.device, inputs_embeds.dtype)
+            video_embeds, *_ = self.get_image_features(pixel_values_videos, video_grid_thw)
+            video_embeds = video_embeds.to(inputs_embeds.device, inputs_embeds.dtype)
             special_video_mask = input_ids == self.config.video_token_id
             special_video_mask = special_video_mask.unsqueeze(-1).expand_as(inputs_embeds).to(inputs_embeds.device)
             inputs_embeds = inputs_embeds.masked_scatter(special_video_mask, video_embeds)

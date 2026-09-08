@@ -31,6 +31,10 @@ def _load_base_model(model_path):
         model_dir = os.path.dirname(config_path)
     st_files = sorted(glob.glob(os.path.join(model_dir, '*.safetensors')))
 
+    # Build the model from the checkpoint's own config so a local variant/finetune
+    # loads consistently; fall back to the module-level Hub config for a bare repo id.
+    model_config = Qwen3VLConfig.from_pretrained(model_dir) if os.path.isdir(model_dir) else config
+
     # Load and strip 'model.' prefix, keeping native bfloat16 precision
     state_dict = {}
     for sf in st_files:
@@ -40,7 +44,7 @@ def _load_base_model(model_path):
                 state_dict[k[6:]] = v
 
     # Create custom model and load weights in bfloat16 (native dtype)
-    custom_model = Qwen3VLModel(config)
+    custom_model = Qwen3VLModel(model_config)
     result = custom_model.load_state_dict(state_dict, strict=False)
     if result.missing_keys:
         print(f"Warning: {len(result.missing_keys)} missing keys")
