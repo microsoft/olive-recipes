@@ -81,7 +81,7 @@ pycodestyle==2.14.0
 pydantic==2.13.4
 pydantic_core==2.46.4
 Pygments==2.20.0
-pytest==8.4.2
+pytest==9.0.3
 python-dateutil==2.9.0.post0
 PyYAML==6.0.3
 questionary==2.1.1
@@ -99,7 +99,7 @@ tokenizers==0.22.2
 torch==2.13.0
 torchmetrics==1.9.0
 tqdm==4.70.0
-transformers==4.57.3
+transformers==5.10.1
 triton==3.7.1
 typing-inspection==0.4.2
 typing_extensions==4.16.0
