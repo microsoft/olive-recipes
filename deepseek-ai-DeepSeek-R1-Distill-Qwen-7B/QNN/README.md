@@ -9,7 +9,7 @@ Quantization is resource-intensive and requires GPU acceleration. In an x64 Pyth
 ```bash
 pip install -r requirements.txt --no-deps
 
-# Disable CUDA extension build 
+# Disable CUDA extension build
 # Linux
 export BUILD_CUDA_EXT=0
 # Windows
