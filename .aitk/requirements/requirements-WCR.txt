@@ -110,7 +110,7 @@ transformers==4.51.3
 typing-extensions==4.15.0
 typing-inspection==0.4.1
 tzdata==2025.2
-urllib3==2.6.3
+urllib3==2.7.0
 wcwidth==0.2.13
 widgetsnbextension==4.0.13
 windowsml==2.3.42
