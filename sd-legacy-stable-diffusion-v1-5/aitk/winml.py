@@ -33,17 +33,31 @@ def _get_ep_paths(ep: str | None = None) -> dict[str, str]:
                 eps[provider.name] = provider.library_path
             else:
                 print(f"Execution provider '{provider.name}' is unavailable. Status: {provider.ready_state}")
+
     return eps
 
 
-def register_execution_providers(ep: str | None = None):
+def register_execution_providers_to_onnxruntime(ep: str | None = None):
     paths = _get_ep_paths(ep)
 
     import onnxruntime as ort
 
     for item in paths.items():
         try:
-            ort.register_execution_provider_library(item[0], item[1])
+            ort.register_execution_provider_library(item[0], item[1])  # pyright: ignore[reportAttributeAccessIssue]
+            print(f"Successfully registered execution provider {item[0]} from {item[1]}")
+        except Exception as e:
+            print(f"Failed to register execution provider {item[0]} from {item[1]}: {e}")
+
+
+def register_execution_providers_to_onnxruntime_genai(ep: str | None = None):
+    paths = _get_ep_paths(ep)
+
+    import onnxruntime_genai as og
+
+    for item in paths.items():
+        try:
+            og.register_execution_provider_library(item[0], item[1])  # pyright: ignore[reportAttributeAccessIssue]
             print(f"Successfully registered execution provider {item[0]} from {item[1]}")
         except Exception as e:
             print(f"Failed to register execution provider {item[0]} from {item[1]}: {e}")
