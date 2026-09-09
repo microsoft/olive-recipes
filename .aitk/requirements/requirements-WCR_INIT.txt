@@ -8,10 +8,5 @@ packaging==24.2
 protobuf==5.29.6
 pyreadline3==3.5.4
 sympy==1.14.0
-# uvpip:uninstall wasdk-Microsoft.Windows.AI.MachineLearning;pre
-# uvpip:uninstall wasdk-Microsoft.Windows.ApplicationModel.DynamicDependency.Bootstrap;pre
 windowsml==2.3.42
-# uvpip:uninstall winrt-runtime;pre
-# uvpip:uninstall winrt-Windows.Foundation;pre
-# uvpip:uninstall winrt-Windows.Foundation.Collections;pre
 # not in requires
