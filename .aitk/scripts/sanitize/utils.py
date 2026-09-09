@@ -242,27 +242,17 @@ def isLLM_by_id(id: str) -> bool:
 # Projects that are themselves canonical winml.py sources and should not have
 # a winml.py copy entry auto-added to their _copy.json.config.
 WINML_COPY_EXEMPT_IDS = {
-    "huggingface/Intel/bert-base-uncased-mrpc",
     "huggingface/deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B",
-    "huggingface/openai/whisper-large-v3-turbo",
 }
 
 
-# Canonical winml.py sources. Paths are relative to the project's aitk folder
+# Canonical winml.py source. The path is relative to the project's aitk folder
 # (matches the CopyConfig `src` format).
-WINML_SRC_LLM = "../../deepseek-ai-DeepSeek-R1-Distill-Qwen-1.5B/aitk/winml.py"
-WINML_SRC_NON_LLM = "../../intel-bert-base-uncased-mrpc/aitk/winml.py"
-WINML_SRC_BOTH = "../../openai-whisper-large-v3-turbo/aitk/winml.py"
+WINML_SRC = "../../deepseek-ai-DeepSeek-R1-Distill-Qwen-1.5B/aitk/winml.py"
 
 
-# Placeholder for future models
-WINML_COPY_BOTH_IDS = {}
-
-
-def winml_copy_src_for(model_id: str) -> str:
-    if model_id in WINML_COPY_BOTH_IDS:
-        return WINML_SRC_BOTH
-    return WINML_SRC_LLM if isLLM_by_id(model_id) else WINML_SRC_NON_LLM
+def winml_copy_src_for(_model_id: str) -> str:
+    return WINML_SRC
 
 
 # TODO align with Skylight\vscode\ai-mlstudio\src\model-lab\utilities\runtimeUtils.ts
