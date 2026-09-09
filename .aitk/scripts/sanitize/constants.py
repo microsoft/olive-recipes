@@ -122,7 +122,7 @@ class OlivePassNames:
     OpenVINOOptimumConversion = "openvinooptimumconversion"
     OpenVINOQuantization = "openvinoquantization"
     OrtTransformersOptimization = "orttransformersoptimization"
-    QuarkQuantization = "quarkquantization"
+    QuarkQuantizationVitisAI = "quarkquantizationvitisai"
 
 
 # Should sort by value

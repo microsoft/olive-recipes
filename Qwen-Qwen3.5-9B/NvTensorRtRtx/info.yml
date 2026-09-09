@@ -1,0 +1,6 @@
+arch: qwen3_5_text
+recipes:
+  - name: Qwen3.5-9B_Model_Builder_INT4
+    file: Qwen3.5-9B_model_builder_int4.json
+    devices: gpu
+    eps: NvTensorRTRTXExecutionProvider
