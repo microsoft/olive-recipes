@@ -22,7 +22,14 @@ from .constants import (
 )
 from .model_info import ModelInfo
 from .model_parameter import ModelParameter
-from .utils import GlobalVars, open_ex, printError, printProcess, printWarning
+from .utils import GlobalVars, isLLM_by_id, open_ex, printError, printProcess, printWarning
+
+
+WINML_IMPORT_GENAI = "from winml import register_execution_providers_to_onnxruntime_genai"
+WINML_IMPORT_ORT = "from winml import register_execution_providers_to_onnxruntime\\n"
+WINML_IMPORT_BOTH_IDS = {
+    "huggingface/openai/whisper-large-v3-turbo",
+}
 
 
 def check_case(path: Path) -> bool:
@@ -154,7 +161,7 @@ def readCheckOliveConfig(oliveJsonFile: str, model: ModelInfo):
     return oliveJson
 
 
-def readCheckIpynb(ipynbFile: str, modelItems: dict[str, ModelParameter]):
+def readCheckIpynb(ipynbFile: str, modelItems: dict[str, ModelParameter], modelId: str):
     """
     Note this return exists or not, not valid or not
     """
@@ -163,8 +170,14 @@ def readCheckIpynb(ipynbFile: str, modelItems: dict[str, ModelParameter]):
 
         with open_ex(ipynbFile, "r") as file:
             ipynbContent: str = file.read()
-        if "winml.py" in ipynbContent:
-            printError(f"{ipynbFile} should not reference 'winml.py'. It is old code")
+
+        if modelId in WINML_IMPORT_BOTH_IDS:
+            expectedWinmlImports = (WINML_IMPORT_GENAI, WINML_IMPORT_ORT)
+        else:
+            expectedWinmlImports = (WINML_IMPORT_GENAI if isLLM_by_id(modelId) else WINML_IMPORT_ORT,)
+        if not any(importStr in ipynbContent for importStr in expectedWinmlImports):
+            printError(f"{ipynbFile} does not have a required winml import for {modelId}")
+
         allRuntimes: set[str] = set()
         for name, modelParameter in modelItems.items():
             if modelParameter.runtime == None:
