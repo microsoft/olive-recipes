@@ -38,7 +38,7 @@ numpy==2.4.4
 olive-ai==0.12.1
 onnx==1.21.0
 onnx-ir==0.2.1
-# install it separatly with no deps as it will install onnxruntime to overwrite onnxruntime-webgpu
+# install it separately with no deps as it will install onnxruntime to overwrite onnxruntime-webgpu
 # uvpip:install onnxruntime-genai==0.12.2 --no-deps;post
 onnxoptimizer==0.4.2
 onnxruntime-webgpu==1.25.1
