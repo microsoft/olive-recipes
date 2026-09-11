@@ -4,3 +4,7 @@ recipes:
     file: Llama-3.2-1B-Instruct_model_builder_fp16.json
     devices: gpu
     eps: NvTensorRTRTXExecutionProvider
+  - name: Llama-3.2-1B-Instruct_NVMO_PTQ_Mixed_Precision_AWQ_Lite
+    file: Llama-3.2-1B-Instruct_nvmo_ptq_mixed_precision_awq_lite.json
+    devices: gpu
+    eps: NvTensorRTRTXExecutionProvider
