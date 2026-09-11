@@ -11,7 +11,7 @@ model-generate
 nltk
 numpy==1.26.4
 olive-ai[auto-opt]
-onnx==1.20.1
+onnx==1.22.0
 onnxruntime-directml==1.24.3
 optimum
 pandas==2.2.2
@@ -21,4 +21,4 @@ ryzenai-onnx-utils
 sentencepiece
 tabulate
 torch==2.7.0
-transformers==4.56.2
+transformers==5.5.0
