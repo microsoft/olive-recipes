@@ -1,0 +1,6 @@
+arch: SmolLM2
+recipes:
+  - name: SmolLM2-135M-Instruct CPU INT4
+    file: olive_config.json
+    devices: cpu
+    eps: CPUExecutionProvider
