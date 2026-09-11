@@ -1,0 +1,12 @@
+keywords:
+    aitk
+arch: detr
+recipes:
+    - file: "detr_resnet_50_ov_config.json"
+      devices:
+        - npu
+      ep: OpenVINOExecutionProvider
+aitk:
+    modelInfo:
+        id: "huggingface/facebook/detr-resnet-50"
+        version: 1
