@@ -1,0 +1,40 @@
+--- "model (1).py"	2025-11-21 20:34:23.711972000 -0800
++++ model.py	2025-11-21 20:34:23.750922000 -0800
+@@ -509,6 +509,11 @@
+         return convert_gptq_v2_to_v1_format(model, quantize_config, qlinear_kernel), True
+     else:
+         return model, False
++def get_dynamic_bits(name, global_bits, overrides):
++    for pattern, config in overrides.items():
++        if re.match(pattern.removeprefix("+:"), name):
++            return config.get("bits", global_bits)
++    return global_bits
+ 
+ def convert_gptq_v2_to_v1_format_module(
+     module: BaseQuantLinear,
+@@ -517,10 +522,10 @@
+     assert isinstance(module, BaseQuantLinear)
+ 
+     log.info.once("Format: Converting GPTQ v2 to v1")
+-
+-    if quantize_config.bits == 2:
++    bits = quantize_config.bits if quantize_config.dynamic is None else get_dynamic_bits(module.name, quantize_config.bits, quantize_config.dynamic)
++    if bits == 2:
+         module.qzeros.data -= 0b01010101010101010101010101010101
+-    elif quantize_config.bits == 3:
++    elif bits == 3:
+         module.qzeros.data[:, range(0, module.qzeros.data.shape[1], 3)] -= (
+             0b00100100100100100100100100100100
+         )
+@@ -530,9 +535,9 @@
+         module.qzeros.data[:, range(2, module.qzeros.data.shape[1], 3)] -= (
+             0b01001001001001001001001001001001
+         )
+-    elif quantize_config.bits == 4:
++    elif bits == 4:
+         module.qzeros.data -= 0b00010001000100010001000100010001
+-    elif quantize_config.bits == 8:
++    elif bits == 8:
+         module.qzeros.data -= 0b00000001000000010000000100000001
+     else:
+         raise NotImplementedError("Only 2,3,4,8 bits are supported.")
