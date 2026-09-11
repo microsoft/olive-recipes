@@ -1,0 +1,11 @@
+keywords:
+  - olive-ai
+recipes:
+  - name: qwen3.6-27B
+    file: optimize.py
+    eps:
+      - CPUExecutionProvider
+      - CUDAExecutionProvider
+    devices:
+      - cpu
+      - gpu
