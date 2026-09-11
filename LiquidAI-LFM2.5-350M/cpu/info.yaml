@@ -1,0 +1,12 @@
+arch: lfm2
+recipes:
+  - name: LiquidAI-LFM2.5-350M_cpu_int4
+    file: LiquidAI-LFM2.5-350M_cpu_int4.json
+    devices: cpu
+    eps: CPUExecutionProvider
+  - name: LiquidAI-LFM2.5-350M_cpu_int8
+    file: LiquidAI-LFM2.5-350M_cpu_int8.json
+    devices: cpu
+    eps: CPUExecutionProvider
+    devices: cpu
+    eps: CPUExecutionProvider

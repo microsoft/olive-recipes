@@ -1,0 +1,2 @@
+onnxruntime-genai-cuda
+transformers>=5.0.0

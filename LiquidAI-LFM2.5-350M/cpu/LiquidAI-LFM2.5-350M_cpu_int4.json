@@ -1,0 +1,25 @@
+{
+    "input_model": {
+        "type": "HfModel",
+        "model_path": "LiquidAI/LFM2.5-350M",
+        "load_kwargs": { "torch_dtype": "float16" }
+    },
+    "systems": {
+        "local_system": {
+            "type": "LocalSystem",
+            "accelerators": [{ "device": "cpu", "execution_providers": ["CPUExecutionProvider"] }]
+        }
+    },
+    "passes": {
+        "m": {
+            "type": "ModelBuilder",
+            "precision": "int4",
+            "extra_options": { "int4_algo_config": "k_quant_mixed" }
+        }
+    },
+    "target": "local_system",
+    "log_severity_level": 0,
+    "output_dir": "model",
+    "cache_dir": "cache",
+    "no_artifacts": true
+}

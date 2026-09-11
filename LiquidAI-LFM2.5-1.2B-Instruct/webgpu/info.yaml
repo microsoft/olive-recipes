@@ -1,0 +1,10 @@
+arch: lfm2
+recipes:
+  - name: LiquidAI-LFM2.5-1.2B-Instruct_webgpu_int4
+    file: LiquidAI-LFM2.5-1.2B-Instruct_webgpu_int4.json
+    devices: gpu
+    eps: WebGpuExecutionProvider
+  - name: LiquidAI-LFM2.5-1.2B-Instruct_webgpu_fp16_int4
+    file: LiquidAI-LFM2.5-1.2B-Instruct_webgpu_fp16_int4.json
+    devices: gpu
+    eps: WebGpuExecutionProvider
