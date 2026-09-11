@@ -21,4 +21,4 @@ ryzenai-onnx-utils
 sentencepiece
 tabulate
 torch==2.7.0
-transformers==4.56.2
+transformers==5.5.0

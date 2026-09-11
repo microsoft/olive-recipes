@@ -6,4 +6,4 @@ onnxruntime-genai
 sentencepiece
 tiktoken
 torch
-transformers==4.56.1
+transformers==5.5.0
