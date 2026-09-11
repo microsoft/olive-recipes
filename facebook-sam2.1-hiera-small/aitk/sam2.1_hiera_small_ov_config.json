@@ -1,0 +1,32 @@
+{
+    "input_model": { "type": "HfModel", "model_path": "facebook/sam2.1-hiera-small" },
+    "systems": {
+        "local_system": {
+            "type": "LocalSystem",
+            "accelerators": [ { "device":"npu","execution_providers": [ "OpenVINOExecutionProvider" ] } ]
+        }
+    },
+    "passes": {
+        "optimum_convert": {
+            "type": "OpenVINOOptimumConversion",
+            "extra_args": { "device": "npu", "task": "feature-extraction" },
+            "ov_quant_config": { "weight_format": "int8", "group_size": -1, "ratio": 1 }
+        },
+        "io_update": { "type": "OpenVINOIoUpdate", "static": false, "reuse_cache": true },
+        "encapsulation": {
+            "type": "OpenVINOEncapsulation",
+            "target_device": "npu",
+            "keep_ov_dynamic_dims": true,
+            "ov_version": "2025.1",
+            "reuse_cache": true,
+            "onnx_file_name": "sam2.1_hiera_small.onnx",
+            "output_dir": "model/sam2.1_hiera_small"
+        }
+    },
+    "search_strategy": false,
+    "target": "local_system",
+    "cache_dir": "cache",
+    "evaluate_input_model": false,
+    "output_dir": "model/sam2.1_hiera_small",
+    "clean_cache": false
+}
