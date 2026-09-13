@@ -1,12 +1,14 @@
 # Qwen3.8-27B CUDA optimization
 
-This folder contains an Olive recipe for Qwen3.8-27B targeting the CUDA EP with INT4 weights,
-an INT4 per-channel paged KV cache, and an INT4 DFlash 2 block drafter.
+This folder contains Olive recipes for Qwen3.8-27B targeting the CUDA EP with a per-channel
+quantized paged KV cache and an INT4 DFlash 2 block drafter. The target can use either
+blockwise INT4 weights or a prequantized mixed FP8/NVFP4 checkpoint, with INT4 or INT8 KV.
 
 ## What this folder is for
 
 - Execution Provider: CUDA EP
-- Precision: INT4 target/drafter weights with an INT4 per-channel quantized KV cache
+- Precision: INT4 or mixed FP8/NVFP4 target weights, INT4 drafter weights, and an INT4 or
+  INT8 per-channel quantized KV cache
 
 Qwen3.8-27B is a hybrid model: 64 layers with `full_attention_interval=4`, so only the 16
 full-attention layers (layer IDs 3, 7, ..., 63) carry a KV cache. The remaining 48 layers use
@@ -18,6 +20,15 @@ gated delta-net linear attention and are unaffected by these options.
   - INT4 block-32 target weights and INT4 per-channel paged KV.
   - INT4 block-32 DFlash 2 body and LM head with seven draft tokens.
   - Shared target/drafter embedding initializer.
+- `Qwen-Qwen3.8-27B_cuda_nvfp4_int4_per_channel_kv_paged_dflash2_int4.json`
+  - Preserves the target checkpoint's native FP8 projections and NVFP4 MLP weights.
+  - Uses BF16 for unquantized target tensors and model I/O.
+  - Uses the same INT4 per-channel paged KV and an INT4 DFlash 2 body. The drafter LM head
+    stays dense because the target's native FP8 head is not a shareable MatMulNBits weight.
+- `Qwen-Qwen3.8-27B_cuda_nvfp4_int8_per_channel_kv_paged_dflash2_int4.json`
+  - Uses the same mixed FP8/NVFP4 target and INT4 DFlash 2 configuration.
+  - Keeps the calibrated KV scales at their native INT8 `qmax=128` instead of rescaling them
+    for INT4, providing the higher-precision KV-cache variant.
 
 The recipe uses PagedAttention with 256-token blocks and CUDA graphs, so it must be driven
 through the ONNX Runtime GenAI `Engine` and `Request` APIs, not the `Generator` API. The
@@ -35,6 +46,10 @@ hf download incoai/Qwen3.8-27B-DFlash2 --local-dir Qwen3.8-27B-DFlash2
 
 The recipe uses the relative path `Qwen3.8-27B-DFlash2`, so run Olive from this folder or edit
 `dflash2_path` to an absolute path.
+
+The NVFP4 recipe reads `unsloth/Qwen3.8-27B-NVFP4` by default. Model Builder detects its
+compressed-tensors metadata and preserves the checkpoint's FP8/NVFP4 tensors instead of
+requantizing them. To use a local checkpoint, override `input_model.model_path` with its path.
 
 `aux_hidden_state_layers` must be each `target_layer_ids` entry **plus one**: the drafter taps
 layer outputs while the option names the residual stream entering a layer. This checkpoint has
@@ -58,6 +73,54 @@ Initializer sharing between the two graphs is automatic and has no option, but i
 initializer *name and bytes*. The verified artifact shares `model.embed_tokens.weight`, saving
 2,543 MB. The independently quantized target and drafter LM-head bytes did not match, so the
 exporter correctly retained a separate quantized copy.
+
+## Draft width
+
+`max_draft_tokens` is a separate, runtime-side cap. `dflash2_num_draft_tokens` fixes what the
+drafter *exports*; `max_draft_tokens` decides how many of those tokens the engine *verifies*
+each step, and lands in `genai_config.json` as `speculative.max_draft_tokens`. Leaving it unset
+applies the runtime default of 4, which wastes throughput: the drafter's block costs the same
+to run whether 4 or 7 of its tokens are verified, so the first few extra tokens are nearly free.
+
+Each recipe ships the measured optimum for its KV precision. Decode throughput on one H200
+(tokens/s, six samples per point, min/max ranges non-overlapping between the winner and its
+neighbours), for a 512-token single-stream prompt and for four concurrent streams:
+
+| KV | k=4 (default) | k=5 | k=6 | k=7 |
+| --- | --- | --- | --- | --- |
+| INT8, single stream | 210.8 | 233.8 | **241.7** | 231.4 |
+| INT8, four streams | 467.5 | 464.7 | **479.6** | 468.6 |
+| INT4, single stream | 167.5 | 167.9 | 178.3 | **187.5** |
+| INT4, four streams | 409.3 | 418.4 | **421.6** | 417.9 |
+
+KV precision does move the optimum. INT4 KV is lossier, so it accepts fewer drafted tokens per
+round than INT8 at the same width (2.34 vs 2.48 accepted at k=4), and its verification step is
+also more expensive. It therefore has to propose wider to recover the same accepted-token count
+and peaks at 7. INT8 KV saturates at 6, where the extra acceptance from a seventh token no
+longer pays for the wider verification step. Hence `max_draft_tokens=6` in the INT8 recipe and
+`7` in the INT4 ones. Only the two NVFP4 recipes were measured; the INT4-weight recipe inherits
+the INT4-KV setting.
+
+This option changes *how* tokens are produced, not *which*: speculative decoding verifies every
+drafted token against the target, and the generated token sequences were identical across every
+value of `k` above. Retuning it needs no re-export, only a config edit.
+
+## CUDA graphs
+
+`enable_cuda_graph=true` writes `enable_cuda_graph=1` into the decoder's CUDA provider options,
+and the engine then captures a graph per distinct decode shape. It needs a runtime whose paged
+decode path supports capture; without that support the flag is inert rather than harmful.
+Measured on the same H200 configuration:
+
+| Case | Eager | Graphs | Speedup |
+| --- | --- | --- | --- |
+| Single stream, 512-token prompt | 199.1 | 232.0 | 1.17x |
+| Single stream, 2048-token prompt | 148.2 | 170.7 | 1.15x |
+| Four concurrent streams | 442.2 | 468.0 | 1.06x |
+
+Peak device memory rises 2.8% (41.0 to 42.2 GiB) for the captured graph pool. The first few
+steps at each new shape pay the capture cost, so short runs see less benefit than the
+steady-state numbers above.
 
 ## Calibration scales
 
