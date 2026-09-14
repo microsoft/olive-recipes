@@ -11,12 +11,15 @@
         "decoder_kquant": {
             "type": "KQuant",
             "bits": 4,
-            "group_size": 32,
+            "group_size": 128,
             "sym": false,
-            "lm_head": false,
-            "embeds": false,
+            "lm_head": true,
+            "embeds": true,
             "quantize_vision": false,
-            "modules_to_not_convert": [ "per_layer_input_gate", "per_layer_projection" ]
+            "overrides": {
+                "lm_head": {"bits": 8},
+                "model.embed_tokens": {"bits": 8}
+            }
         },
         "vision_rtn": {
             "type": "Rtn",
@@ -25,8 +28,7 @@
             "sym": true,
             "lm_head": false,
             "embeds": false,
-            "quantize_vision": true,
-            "modules_to_not_convert": [ "per_layer_input_gate", "per_layer_projection" ]
+            "quantize_vision": true
         }
     },
     "engine": {
@@ -35,7 +37,7 @@
     "builds": {
         "decoder": {
             "components": [ "decoder" ],
-            "pipeline": [ "decoder_kquant" ]
+            "pipeline": [ "decoder_kquant", "decoder_rtn" ]
         },
         "vision": {
             "components": [ "vision_encoder" ],
