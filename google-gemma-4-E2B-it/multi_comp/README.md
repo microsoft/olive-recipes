@@ -71,15 +71,14 @@ gemma4_mixed_hf/
 olive capture-onnx-graph \
   --model_name_or_path gemma4_mixed_hf \
   --use_mobius_builder \
-  --trust_remote_code \
   --precision fp32 \
-  --output_path exported_gemma4_mixed_pkg
+  --output_path exported_gemma4_mixed_onnx
 ```
 
 Output:
 
 ```text
-exported_gemma4_mixed_pkg/
+exported_gemma4_mixed_onnx/
   decoder/model.onnx
   vision_encoder/model.onnx
   audio_encoder/model.onnx
@@ -95,7 +94,7 @@ Text:
 
 ```bash
 python ../inference.py \
-  --model-path exported_gemma4_mixed_pkg \
+  --model-path exported_gemma4_mixed_onnx \
   --prompt "What is the capital of France?" \
   --verbose
 ```
@@ -104,7 +103,7 @@ Image:
 
 ```bash
 python ../inference.py \
-  --model-path exported_gemma4_mixed_pkg \
+  --model-path exported_gemma4_mixed_onnx \
   --image path/to/image.jpg \
   --prompt "What animal is shown? Answer in one short sentence." \
   --verbose
