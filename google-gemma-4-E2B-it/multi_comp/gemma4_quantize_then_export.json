@@ -18,7 +18,7 @@
             "quantize_vision": false,
             "overrides": {
                 "lm_head": {"bits": 8},
-                "model.embed_tokens": {"bits": 8}
+                "model.language_model.embed_tokens": {"bits": 8}
             }
         },
         "vision_rtn": {
