@@ -31,10 +31,10 @@
             "quantize_vision": true
         }
     },
-    "engine": {
-        "output_dir": "gemma4_mixed_hf"
-    },
     "builds": {
+        "_default": {
+            "output_dir": "gemma4_mixed_hf"
+        },
         "decoder": {
             "components": [ "decoder" ],
             "pipeline": [ "decoder_kquant" ]
