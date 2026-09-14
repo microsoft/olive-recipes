@@ -37,7 +37,7 @@
     "builds": {
         "decoder": {
             "components": [ "decoder" ],
-            "pipeline": [ "decoder_kquant", "decoder_rtn" ]
+            "pipeline": [ "decoder_kquant" ]
         },
         "vision": {
             "components": [ "vision_encoder" ],
