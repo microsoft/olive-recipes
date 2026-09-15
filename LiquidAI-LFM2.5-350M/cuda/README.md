@@ -3,7 +3,7 @@
 ## Recipes
 
 ### `_cuda_int4.json` — Q4_K_M equivalent
-INT4 weights with k_quant_mixed (sensitive layers at INT8) and INT8 embedding/lm_head via RTN.
+INT4 weights with k_quant_mixed (sensitive layers at INT8).
 
 ```
 olive run --config LiquidAI-LFM2.5-350M_cuda_int4.json

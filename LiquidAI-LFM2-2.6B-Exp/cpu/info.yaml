@@ -8,5 +8,3 @@ recipes:
     file: LiquidAI-LFM2-2.6B-Exp_cpu_int8.json
     devices: cpu
     eps: CPUExecutionProvider
-    devices: cpu
-    eps: CPUExecutionProvider
