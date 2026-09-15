@@ -5,3 +5,5 @@ onnxruntime-gpu==1.26.0
 optimum
 # newer transformers might have incompatibility with gptq passes
 transformers==4.57.3
+
+# This recipe was last validated with the versions specified above.
