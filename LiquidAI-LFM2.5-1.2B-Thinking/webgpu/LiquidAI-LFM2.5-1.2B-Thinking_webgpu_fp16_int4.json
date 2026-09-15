@@ -2,19 +2,32 @@
     "input_model": {
         "type": "HfModel",
         "model_path": "LiquidAI/LFM2.5-1.2B-Thinking",
-        "load_kwargs": { "torch_dtype": "float16" }
+        "load_kwargs": {
+            "torch_dtype": "float16"
+        }
     },
     "systems": {
         "local_system": {
             "type": "LocalSystem",
-            "accelerators": [{ "device": "gpu", "execution_providers": ["WebGpuExecutionProvider"] }]
+            "accelerators": [
+                {
+                    "device": "gpu",
+                    "execution_providers": [
+                        "WebGpuExecutionProvider"
+                    ]
+                }
+            ]
         }
     },
     "passes": {
         "m": {
             "type": "ModelBuilder",
             "precision": "int4",
-            "int4_block_size": 32
+            "extra_options": {
+                "algo_config": "rtn",
+                "nodes_to_exclude": "/lm_head/MatMul",
+                "block_size": 32
+            }
         }
     },
     "target": "local_system",

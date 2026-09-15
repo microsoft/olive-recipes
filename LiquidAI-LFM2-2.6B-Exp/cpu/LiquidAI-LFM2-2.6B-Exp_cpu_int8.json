@@ -19,7 +19,7 @@
             "embeds": true,
             "lm_head": true
         },
-        "m": { "type": "ModelBuilder", "precision": "int4" }
+        "m": { "type": "ModelBuilder", "precision": "int8" }
     },
     "target": "local_system",
     "log_severity_level": 0,

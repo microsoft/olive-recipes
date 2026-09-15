@@ -14,7 +14,7 @@
         "m": {
             "type": "ModelBuilder",
             "precision": "int4",
-            "extra_options": { "int4_algo_config": "k_quant_mixed" }
+            "extra_options": { "algo_config": "k_quant_mixed" }
         }
     },
     "target": "local_system",
