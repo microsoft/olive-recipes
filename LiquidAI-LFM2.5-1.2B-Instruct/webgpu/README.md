@@ -3,8 +3,8 @@
 ## Recipes
 
 ### `_webgpu_int4.json` — Q4_K_M equivalent
-INT4 weights via k_quant_mixed: sensitive layers and the LM head are kept at INT8,
-and the embedding table stays FP16.
+INT4 weights via k_quant, with `matmul_mixed_precision` keeping the sensitive
+layers and the LM head at INT8. The embedding table stays FP16.
 
 ```
 olive run --config LiquidAI-LFM2.5-1.2B-Instruct_webgpu_int4.json

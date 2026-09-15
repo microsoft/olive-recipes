@@ -3,8 +3,8 @@
 ## Recipes
 
 ### `_cuda_int4.json` — Q4_K_M equivalent
-INT4 weights via k_quant_mixed: sensitive layers and the LM head are kept at INT8,
-and the embedding table is left unquantized.
+INT4 weights via k_quant, with `matmul_mixed_precision` keeping the sensitive
+layers and the LM head at INT8. The embedding table is left unquantized.
 
 ```
 olive run --config LiquidAI-LFM2.5-350M_cuda_int4.json
