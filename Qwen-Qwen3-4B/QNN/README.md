@@ -63,3 +63,5 @@ Optimized model saved in: `models/qwen3_4B/`
 > If optimization fails during context binary generation, rerun the command. The process will resume from the last completed step.
 
 > If the Static Quantization (SQ) pass fails with `Failed to allocate memory buffer of size...`, rerun the command without clearing the cache. Olive will resume from the last completed step and the pass will succeed.
+
+#### This recipe was last validated with the versions specified above.
