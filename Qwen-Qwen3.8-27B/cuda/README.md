@@ -105,6 +105,94 @@ This option changes *how* tokens are produced, not *which*: speculative decoding
 drafted token against the target, and the generated token sequences were identical across every
 value of `k` above. Retuning it needs no re-export, only a config edit.
 
+## Prefill chunking, and the single-stream optimum
+
+The recipes ship a concurrent-serving configuration: `max_batch_size=16`, `paged_chunk_size=256`
+and `max_scheduled_tokens=1024`. That is not the fastest setting for one request at a time, and
+the difference is large enough to be worth calling out.
+
+`max_scheduled_tokens` caps the tokens in one dynamically batched forward pass; `paged_chunk_size`
+becomes `search.chunk_size`, which caps how many prompt tokens a *single* request contributes to
+that pass. With several requests competing, the small per-request cap is what lets their prefills
+interleave instead of one request consuming the whole budget. At `max_batch_size=1` there is
+nobody to interleave with, so the two knobs collapse into one — the effective chunk is just their
+minimum — and a small chunk becomes a pure loss, because a 256-token forward pass cannot saturate
+the GPU.
+
+Measured on one H200 with the INT4-weight recipe, single stream, a 16,384-token prompt, three
+timed repetitions after a warmup. Peak memory is device-level usage from an idle baseline:
+
+| chunk = `max_scheduled_tokens` | TTFT (s) | Prefill tok/s | Decode tok/s | Peak MiB |
+| ---: | ---: | ---: | ---: | ---: |
+| 256 (recipe default) | 4.71 | 3,480 | 50.8 | 30,828 |
+| 1,024 | 3.01 | 5,451 | 50.3 | 31,486 |
+| 2,048 | 2.72 | 6,032 | 50.5 | — |
+| 4,096 | 2.58 | 6,357 | 49.9 | 36,542 |
+| 8,192 | 2.56 | 6,410 | 50.6 | 42,686 |
+
+Sweeping `paged_chunk_size` with a large `max_scheduled_tokens` and sweeping `max_scheduled_tokens`
+with a large `paged_chunk_size` produced the same curve to within 0.5%, which confirms that only
+the minimum of the two matters at this batch size. Decode is flat throughout: this knob buys
+prefill and nothing else.
+
+4,096 is the knee. It is worth **1.8x prefill throughput** over the shipped 256 for 5.7 GiB of
+extra peak memory, while 8,192 adds a further 6.1 GiB for under 1%. The memory is the prefill
+logits transient, `chunk x 248320 x 2` bytes, since these recipes do not set `prune_lm_head`.
+
+For a latency-sensitive single-stream deployment, override these four fields in the exported
+`genai_config.json` — all of them are runtime values, so **no re-export is needed**:
+
+```json
+{
+  "search": { "chunk_size": 4096 },
+  "engine": { "dynamic_batching": { "max_batch_size": 1, "max_scheduled_tokens": 4096 } }
+}
+```
+
+Do not carry this back into a serving deployment: at eight concurrent 2,048-token prompts the
+shipped `chunk_size=256` was worth +25% aggregate throughput and -25% worst-case TTFT against
+`1024`, for exactly the interleaving reason above.
+
+`paged_block_size` and `max_draft_tokens` do **not** change at `max_batch_size=1`; the shipped 256
+and 7 are already the single-stream optimum. See below for the block-size evidence.
+
+## Paged block size
+
+`paged_block_size=256` is baked into the exported KV-cache shapes, so unlike the knobs above it
+needs a re-export to change. ONNX Runtime's PagedAttention accepts any power of two of at least
+16; the recipes use 256.
+
+Smaller pages are often suggested for cutting KV-pool fragmentation, but on this model they do not
+pay. Measured on one H200 with the INT4-weight recipe, one candidate exported per block size, with
+`num_blocks` scaled inversely so every configuration holds the same 262,144-token pool, and with
+the drafter removed so the numbers describe the target alone:
+
+| `paged_block_size` | Prefill tok/s (1K / 4K / 16K prompt) | Decode tok/s (1K / 4K / 16K) |
+| ---: | ---: | ---: |
+| 32 | 3,995 / 3,960 / 3,714 | 63.9 / 48.2 / 22.8 |
+| 64 | 3,989 / 3,966 / 3,733 | 64.1 / 48.2 / 23.0 |
+| 128 | 3,986 / 3,960 / 3,710 | 70.9 / 72.1 / 68.4 |
+| 256 (recipe default) | 4,022 / 3,953 / 3,717 | 72.7 / 71.4 / 69.4 |
+| 512 | 4,014 / 3,950 / 3,735 | 72.2 / 71.2 / 70.2 |
+
+Prefill is flat: under 1% across a 16x range of block sizes, at every prompt length. The whole
+cost of a small page lands on decode, and it grows with context — 12% at 1K, 33% at 4K and 67% at
+16K — because a sequence spanning more pages costs more block-table indirection in the paged decode
+kernel. 128, 256 and 512 are equivalent within noise.
+
+One further constraint applies to the drafter. ONNX Runtime prefers its FlashAttention paged
+kernel, which requires the page to be a multiple of its tile: 128 for a head size of 128, 64 above
+that. The target here has `head_size=256`, but the DFlash 2 drafter has `head_size=128`, so the
+drafter is what puts a floor of 128 on this recipe. On ONNX Runtime releases before non-causal
+PagedAttention gained its non-FlashAttention backends, a page below that floor does not merely slow
+the drafter down, it fails its attention node outright and the engine silently continues with
+target-only decoding:
+
+```
+PagedAttention: is_causal=0 requires the FlashAttention backend
+(sm>=80, fp16/bf16, head_size 128, block_size 64).
+```
+
 ## CUDA graphs
 
 `enable_cuda_graph=true` writes `enable_cuda_graph=1` into the decoder's CUDA provider options,
@@ -174,6 +262,8 @@ Additional notes:
   A model built with `max_batch_size=1` fails any run at concurrency > 1 with
   `EngineEventFlags.CAPACITY_BLOCKED`. Raise or lower it, or override
   `engine.dynamic_batching.max_batch_size` in `genai_config.json`, to match your deployment.
+  Dropping to 1 also makes the shipped prefill chunk the wrong choice; see
+  [Prefill chunking, and the single-stream optimum](#prefill-chunking-and-the-single-stream-optimum).
 
 ## Validation results
 
