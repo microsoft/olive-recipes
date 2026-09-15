@@ -1,2 +1,2 @@
-onnxruntime-genai>=0.15.0
+onnxruntime-genai>=0.16.0
 transformers>=5.0.0

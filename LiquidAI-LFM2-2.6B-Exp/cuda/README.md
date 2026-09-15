@@ -17,10 +17,17 @@ Symmetric INT8 weights throughout, with the embedding table and LM head also at 
 olive run --config LiquidAI-LFM2-2.6B-Exp_cuda_int8.json
 ```
 
-## Requirements
+## Setup
 
-Needs Python 3.11+ and `onnxruntime-genai>=0.15.0`. LFM2 support landed in
-genai 0.14.0, and 0.15.0 renamed the quantization option this recipe uses
-(`int4_algo_config` to `algo_config`). genai stopped publishing cp310 wheels
-at 0.12, so on Python 3.10 pip silently resolves to 0.11.4 and the build
-fails with `The LiquidAI/... model is not currently supported`.
+Python 3.11+ is required: onnxruntime-genai stopped publishing cp310 wheels at 0.12.
+
+```
+pip install git+https://github.com/microsoft/olive.git
+pip install -r requirements.txt
+```
+
+These recipes need Olive from `main` together with `onnxruntime-genai-cuda>=0.16.0`.
+The released `olive-ai` package cannot drive genai 0.15+ (its ModelBuilder pass
+skips the `check_extra_options` step that `create_model` now requires), and Olive
+`main` imports the `onnxruntime_genai.models.loaders` package that only ships from
+genai 0.16.0. LFM2 support itself landed in genai 0.14.0.
