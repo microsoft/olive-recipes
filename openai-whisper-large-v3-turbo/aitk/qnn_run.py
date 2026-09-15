@@ -80,7 +80,7 @@ def main():
     if args.execution_provider != "CPUExecutionProvider":
         from winml import register_execution_providers_to_onnxruntime
 
-        register_execution_providers_to_onnxruntime()
+        register_execution_providers_to_onnxruntime(args.execution_provider)
     app = HfWhisperAppWithSave(
         encoder_path, decoder_path, args.model_id, args.execution_provider, get_device_type(args.device_str)
     )

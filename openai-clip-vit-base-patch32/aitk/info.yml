@@ -26,8 +26,11 @@ recipes:
     - file: "openai_clip_qnn_gpu.json"
       device: gpu
       ep: QNNExecutionProvider
+    - file: "openai_clip_webgpu.json"
+      device: gpu
+      ep: WebGpuExecutionProvider
 aitk:
     modelInfo:
         id: "huggingface/openai/clip-vit-base-patch32"
-        version: 6
+        version: 7
         p0: true

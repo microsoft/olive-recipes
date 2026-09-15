@@ -1,0 +1,11 @@
+keywords:
+    openvino
+recipes:
+    - name: llama3.1-8b-instruct-ov-gpu
+      file: "llama3_1_8b_ov_gpu_config.json"
+      devices: gpu
+      ep: OpenVINOExecutionProvider
+    - name: llama3.1-8b-instruct-ov-npu
+      file: "llama3_1_8b_ov_npu_config.json"
+      devices: npu
+      ep: OpenVINOExecutionProvider

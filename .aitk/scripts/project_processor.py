@@ -12,6 +12,7 @@ from sanitize.generator_dml import generator_dml
 from sanitize.generator_intel import generator_intel
 from sanitize.generator_qnn import generator_qnn
 from sanitize.generator_trtrtx import generator_trtrtx
+from sanitize.generator_webgpu import generator_webgpu
 from sanitize.model_info import ModelInfo, ModelList
 from sanitize.project_config import ModelInfoProject, ModelProjectConfig, WorkflowItem
 from sanitize.utils import (
@@ -190,6 +191,8 @@ def convert_yaml_to_project_config(
             generator_trtrtx(id, recipe, yml_file.parent, modelList)
         elif recipe.get("ep") == EPNames.DmlExecutionProvider.value:
             generator_dml(id, recipe, yml_file.parent, modelList)
+        elif recipe.get("ep") == EPNames.WebGpuExecutionProvider.value:
+            generator_webgpu(id, recipe, yml_file.parent, modelList)
         runtimes = get_runtime(recipe)
         for runtime in runtimes:
             modelSummary.recipes.setdefault(runtime, []).append(file)
@@ -223,7 +226,12 @@ def project_processor():
         # model info
         modelInfo = convert_yaml_to_model_info(root_dir, yml_file, yaml_object)
         if GlobalVars.fillPipelineTags:
-            modelInfo.pipeline_tags = fetch_pipeline_tags(modelInfo.modelLink)
+            fetched_tags = fetch_pipeline_tags(modelInfo.modelLink)
+            if fetched_tags is None:
+                modelInfo.pipeline_tags = existing_pipeline_tags.get(modelInfo.id)
+                print(f"Warning: Could not fetch pipeline tags for {modelInfo.id}, using existing")
+            else:
+                modelInfo.pipeline_tags = fetched_tags
         else:
             modelInfo.pipeline_tags = existing_pipeline_tags.get(modelInfo.id)
         if modelInfo.id.lower() in all_ids:
