@@ -1,0 +1,51 @@
+{
+    "input_model": {
+        "type": "HfModel",
+        "model_path": "unsloth/Qwen3.8-27B-NVFP4",
+        "load_kwargs": {
+            "torch_dtype": "bfloat16"
+        }
+    },
+    "systems": {
+        "local_system": {
+            "type": "LocalSystem",
+            "accelerators": [
+                {
+                    "device": "gpu",
+                    "execution_providers": [
+                        "CUDAExecutionProvider"
+                    ]
+                }
+            ]
+        }
+    },
+    "passes": {
+        "builder_nvfp4_int8_per_channel_kv_paged_dflash2_int4": {
+            "type": "ModelBuilder",
+            "precision": "bf16",
+            "extra_options": {
+                "use_device_allocator_for_initializers": true,
+                "enable_cuda_graph": true,
+                "use_paged_attention": true,
+                "paged_block_size": 256,
+                "max_batch_size": 16,
+                "max_scheduled_tokens": 1024,
+                "paged_chunk_size": 256,
+                "num_blocks": 1024,
+                "kv_cache_quant_scheme": "int8_per_channel",
+                "kv_cache_scale_file": "kv_scales_int8_per_channel.json",
+                "dflash2_path": "Qwen3.8-27B-DFlash2",
+                "dflash2_num_draft_tokens": 7,
+                "max_draft_tokens": 6,
+                "dflash2_precision": "int4",
+                "aux_hidden_state_layers": "6,20,34,48,62",
+                "state_update_capacity": 7
+            }
+        }
+    },
+    "target": "local_system",
+    "log_severity_level": 0,
+    "output_dir": "model_nvfp4_int8_per_channel_kv_paged_dflash2_int4",
+    "cache_dir": "cache",
+    "no_artifacts": false
+}
