@@ -119,8 +119,9 @@ nobody to interleave with, so the two knobs collapse into one — the effective 
 minimum — and a small chunk becomes a pure loss, because a 256-token forward pass cannot saturate
 the GPU.
 
-Measured on one H200 with the INT4-weight recipe, single stream, a 16,384-token prompt, three
-timed repetitions after a warmup. Peak memory is device-level usage from an idle baseline:
+Measured on one H200 with the NVFP4 target and INT4 per-channel KV, single stream, a 16,384-token
+prompt, three timed repetitions after a warmup. Peak memory is device-level usage from an idle
+baseline:
 
 | chunk = `max_scheduled_tokens` | TTFT (s) | Prefill tok/s | Decode tok/s | Peak MiB |
 | ---: | ---: | ---: | ---: | ---: |
@@ -163,7 +164,8 @@ needs a re-export to change. ONNX Runtime's PagedAttention accepts any power of 
 16; the recipes use 256.
 
 Smaller pages are often suggested for cutting KV-pool fragmentation, but on this model they do not
-pay. Measured on one H200 with the INT4-weight recipe, one candidate exported per block size, with
+pay. Measured on one H200 with the NVFP4 target and INT4 per-channel KV, one candidate exported
+per block size, with
 `num_blocks` scaled inversely so every configuration holds the same 262,144-token pool, and with
 the drafter removed so the numbers describe the target alone:
 
