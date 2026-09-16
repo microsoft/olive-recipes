@@ -34,7 +34,9 @@ Exports `vision_encoder/` and `embedding/` with Mobius (FP16) and quantizes
 both to INT8 (block-wise RTN; the embedding table becomes `GatherBlockQuantized`).
 Shared by both decoder variants. INT4 is not offered for the vision encoder: on
 LFM2.5-VL-450M it drops the per-token cosine similarity of the image features to
-~0.94, while INT8 keeps it above 0.99.
+~0.94, while INT8 keeps it above 0.99. `accuracy_level` is left at 0 for the same
+reason — INT8 compute (`accuracy_level: 4`) roughly doubles the feature error
+(per-token cosine 0.9902 vs 0.9971 at worst on LFM2.5-VL-450M).
 
 ```
 olive run --config LiquidAI-LFM2.5-VL-1.6B_webgpu_vision_int8.json
@@ -48,7 +50,7 @@ Hugging Face `processor_config.json`). Run it after a decoder recipe and the
 vision recipe; run it again whenever a decoder recipe rewrites `genai_config.json`.
 
 ```
-python finalize.py
+python ../finalize.py
 ```
 
 The result in `model/`:
@@ -98,12 +100,12 @@ Python 3.11+ is required: onnxruntime-genai stopped publishing cp310 wheels at 0
 
 ```
 pip install git+https://github.com/microsoft/olive.git
-pip install git+https://github.com/onnxruntime/mobius.git
 pip install -r requirements.txt
 ```
 
-These recipes need Olive from `main`, Mobius from `main` (the released
-`mobius-onnx` has neither LFM2-VL nor the `revision` argument Olive passes), and
+These recipes need Olive from `main`, Mobius from `main` (`requirements.txt` points
+at git: the released `mobius-onnx` has neither LFM2-VL nor the `revision` argument
+Olive passes), and
 an `onnxruntime-genai` build that includes LFM2-VL support
 ([microsoft/onnxruntime-genai#2571](https://github.com/microsoft/onnxruntime-genai/pull/2571)),
 both in the model builder and in the runtime. The released `olive-ai` package

@@ -15,7 +15,7 @@ from pathlib import Path
 
 from huggingface_hub import hf_hub_download
 
-MODEL_ID = "LiquidAI/LFM2.5-VL-450M"
+MODEL_ID = "LiquidAI/LFM2.5-VL-3B"
 
 VISION_FILENAME = "vision_encoder/model.onnx"
 EMBEDDING_FILENAME = "embedding/model.onnx"
@@ -40,12 +40,15 @@ def load_hf_json(filename: str) -> dict:
     return json.loads(Path(hf_hub_download(MODEL_ID, filename)).read_text())
 
 
-def make_processor_config(image_processor: dict) -> dict:
-    """Mirror the Hugging Face ``Lfm2VlImageProcessor`` without image splitting (tiling).
+def interpolation(resample: int) -> str:
+    try:
+        return INTERPOLATION[resample]
+    except KeyError:
+        raise SystemExit(f"unsupported resample {resample}: expected 2 (LINEAR) or 3 (CUBIC)") from None
 
-    Each image is smart-resized so its patch count lands between ``min_image_tokens`` and
-    ``max_image_tokens`` after the projector's pixel unshuffle, then rescaled and normalized.
-    """
+
+def make_processor_config(image_processor: dict) -> dict:
+    """Mirror the Hugging Face ``Lfm2VlImageProcessor``, minus image splitting (tiling)."""
     patch_size = image_processor["encoder_patch_size"]
     merge_size = image_processor["downsample_factor"]
     pixels_per_token = (patch_size * merge_size) ** 2
@@ -61,7 +64,7 @@ def make_processor_config(image_processor: dict) -> dict:
                         "attrs": {
                             "height": image_processor["size"]["height"],
                             "width": image_processor["size"]["width"],
-                            "interpolation": INTERPOLATION[image_processor["resample"]],
+                            "interpolation": interpolation(image_processor["resample"]),
                             "smart_resize": 1,
                             "min_pixels": image_processor["min_image_tokens"] * pixels_per_token,
                             "max_pixels": image_processor["max_image_tokens"] * pixels_per_token,
@@ -112,7 +115,7 @@ def main():
     args = parser.parse_args()
     model_dir = Path(args.model_dir)
 
-    for filename in ("genai_config.json", VISION_FILENAME, EMBEDDING_FILENAME):
+    for filename in ("genai_config.json", "config.json", VISION_FILENAME, EMBEDDING_FILENAME):
         if not (model_dir / filename).exists():
             raise SystemExit(f"{model_dir / filename} not found: run both the decoder and the vision recipe first")
 
@@ -122,7 +125,9 @@ def main():
     if model["type"] != "lfm2_vl":
         raise SystemExit(f'expected model type "lfm2_vl" in {genai_config_path}, got "{model["type"]}"')
 
-    hf_config = load_hf_json("config.json")
+    # config.json ships inside the package, so it always matches the weights that were built;
+    # only the image processor settings still have to come from the Hub.
+    hf_config = json.loads((model_dir / "config.json").read_text())
     image_processor = load_hf_json("processor_config.json")["image_processor"]
 
     # The vision and embedding sessions run on the same execution provider as the decoder.
@@ -132,7 +137,7 @@ def main():
     # Resize, which the WebGPU EP does not implement ("The antialias attribute of Resize operator
     # is NOT implemented"), so that one session falls back to CPU. Drop this override once the EP
     # supports it; the rest of the pipeline stays on WebGPU either way.
-    on_webgpu = any("webgpu" in option for option in provider_options)
+    on_webgpu = any(key.lower() == "webgpu" for option in provider_options for key in option)
     vision_session_options = {"log_id": "onnxruntime-genai", "provider_options": [] if on_webgpu else provider_options}
     model["embedding"] = {
         "filename": EMBEDDING_FILENAME,

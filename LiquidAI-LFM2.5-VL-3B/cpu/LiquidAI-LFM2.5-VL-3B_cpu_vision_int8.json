@@ -21,7 +21,7 @@
             "bits": 8,
             "block_size": 128,
             "is_symmetric": true,
-            "accuracy_level": 4,
+            "accuracy_level": 0,
             "save_as_external_data": true
         }
     },
