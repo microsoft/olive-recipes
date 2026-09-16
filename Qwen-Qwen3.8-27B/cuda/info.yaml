@@ -4,6 +4,14 @@ recipes:
     file: Qwen-Qwen3.8-27B_cuda_int4_int4_per_channel_kv_paged_dflash2_int4.json
     devices: gpu
     eps: CUDAExecutionProvider
+  - name: Qwen-Qwen3.8-27B_cuda_int4_int4_per_channel_kv_paged_dflash2_int4_24gb
+    file: Qwen-Qwen3.8-27B_cuda_int4_int4_per_channel_kv_paged_dflash2_int4_24gb.json
+    devices: gpu
+    eps: CUDAExecutionProvider
+  - name: Qwen-Qwen3.8-27B_cuda_int4_int8_embed_int4_per_channel_kv_paged_dflash2_int4_24gb
+    file: Qwen-Qwen3.8-27B_cuda_int4_int8_embed_int4_per_channel_kv_paged_dflash2_int4_24gb.json
+    devices: gpu
+    eps: CUDAExecutionProvider
   - name: Qwen-Qwen3.8-27B_cuda_nvfp4_int4_per_channel_kv_paged_dflash2_int4
     file: Qwen-Qwen3.8-27B_cuda_nvfp4_int4_per_channel_kv_paged_dflash2_int4.json
     devices: gpu

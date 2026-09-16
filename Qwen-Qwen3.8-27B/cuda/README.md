@@ -20,6 +20,19 @@ gated delta-net linear attention and are unaffected by these options.
   - INT4 block-32 target weights and INT4 per-channel paged KV.
   - INT4 block-32 DFlash 2 body and LM head with seven draft tokens.
   - Shared target/drafter embedding initializer.
+- `Qwen-Qwen3.8-27B_cuda_int4_int4_per_channel_kv_paged_dflash2_int4_24gb.json`
+  - The same INT4 target and INT4 DFlash 2 drafter, retuned to fit a 24 GB card.
+  - Adds `op_types_to_quantize=MatMul/Gather`, which quantizes the embedding table to INT4.
+  - Ships a single-stream runtime configuration rather than the concurrent-serving one.
+  - The longest-context 24 GB option: 114,688 tokens, at -1.75 pp MMLU-Pro.
+  - See [Fitting 24 GB](#fitting-24-gb).
+- `Qwen-Qwen3.8-27B_cuda_int4_int8_embed_int4_per_channel_kv_paged_dflash2_int4_24gb.json`
+  - The `_24gb` recipe with the embedding table at INT8 instead of INT4, via a per-node
+    `quant_config` override on `/model/embed_tokens/Gather`.
+  - Costs 606 MiB against the INT4 table, so `num_blocks` drops from 512 to 448 and the
+    longest prompt from 114,688 to 98,304 tokens.
+  - Scores as well as a dense FP16 table (83.000% vs 83.375%, *p* = 0.78), so this is the
+    better default unless the extra 16K of context is needed.
 - `Qwen-Qwen3.8-27B_cuda_nvfp4_int4_per_channel_kv_paged_dflash2_int4.json`
   - Preserves the target checkpoint's native FP8 projections and NVFP4 MLP weights.
   - Uses BF16 for unquantized target tensors and model I/O.
@@ -194,6 +207,118 @@ target-only decoding:
 PagedAttention: is_causal=0 requires the FlashAttention backend
 (sm>=80, fp16/bf16, head_size 128, block_size 64).
 ```
+
+## Fitting 24 GB
+
+The `_24gb` recipe targets a 24 GB consumer card (RTX 4090, 24,564 MiB total, so a working
+budget of 23,500 MiB). The default recipe does not fit: its weights alone occupy 19,372 MiB of
+device memory, which leaves too little for the KV pool to hold a useful context.
+
+Two export changes cut the weight side, measured as unique bytes across both graphs on one
+H200:
+
+| | `model.onnx.data` | `dflash2.onnx.data` | unique total |
+| --- | ---: | ---: | ---: |
+| default recipe | 16,272 | 2,045 | 18,317 |
+| + drafter adopts the target's LM head | 16,272 | 1,363 | 17,635 |
+| + `op_types_to_quantize=MatMul/Gather`, INT8 table | 15,136 | 1,363 | 16,498 |
+| + `op_types_to_quantize=MatMul/Gather`, INT4 table | 14,529 | 1,363 | **15,892** |
+
+The LM-head saving is automatic and has no option. The embedding saving is `Gather`, and it
+only pays if the drafter adopts the quantized table too: the two graphs share
+`model.embed_tokens.weight` by name, so a target that renames it to
+`model.embed_tokens.weight_Q4` (or `_Q8`) while the drafter keeps a dense `Gather` breaks the
+sharing and costs *more* than the target saved. Model Builder handles this; the point is that
+the drafter and the target must agree on the embedding format, exactly as they must on the LM
+head.
+
+On device that is 19,372 -> 16,718 MiB of graphs, and the freed 2,654 MiB goes to the KV pool.
+Measured peak and the longest prompt accepted, single stream, `chunk_size=512`,
+`max_scheduled_tokens=512`, `max_draft_tokens=7`:
+
+| recipe | `paged_block_size` | `num_blocks` | peak MiB | longest prompt |
+| --- | ---: | ---: | ---: | ---: |
+| default knobs | 128 | 256 | 22,446 | 28,672 |
+| `_24gb` | 256 | 384 | 21,228 | 65,536 |
+| `_24gb` | 256 | **512** | **22,764** | **114,688** |
+| `_24gb` | 256 | 640 | 23,788 | 147,456 |
+| `_int8_embed_..._24gb` | 256 | 384 | 22,250 | 65,536 |
+| `_int8_embed_..._24gb` | 256 | **448** | **22,762** | **98,304** |
+| `_int8_embed_..._24gb` | 256 | 512 | 23,788 | 114,688 |
+
+512 is the shipped value for `_24gb`: **4x the context of the default knobs at the same peak**,
+with 740 MiB of headroom against the 23,500 MiB budget. 640 fits 147,456 tokens but peaks 288
+MiB over budget, so it is only safe on a card with nothing else resident. The INT8-table recipe
+ships 448, which lands on the same peak as `_24gb` at 512 — the 606 MiB the wider table costs
+is very nearly one `num_blocks` step of 64.
+
+Two measurement traps are worth repeating. `num_blocks` is a **byte budget**, not a block
+count: the engine splits it between the target pool and the drafter's auxiliary ring, so usable
+context runs ~12% below `num_blocks * paged_block_size`. And the pool allocates lazily in ~1 GiB
+granules, so peak memory must be sampled during a full-length request — a short prompt
+under-reports it by up to a granule.
+
+### The embedding precision is the real knob
+
+`op_types_to_quantize=MatMul/Gather` is the one change here that is not free. Three builds
+differing in *only* how the embedding table is quantized, MMLU-Pro on the 800-sample
+stratified subset, thinking mode, greedy, all four shards matched:
+
+| embedding | MMLU-Pro | vs FP16 | McNemar p |
+| --- | ---: | ---: | ---: |
+| FP16 `Gather` | **83.375%** (667/800) | - | - |
+| INT8 `GatherBlockQuantized` | **83.000%** (664/800) | -0.375 pp | 0.775 |
+| INT4 `GatherBlockQuantized` | **81.625%** (653/800) | -1.750 pp | 0.065 |
+
+INT8 is indistinguishable from the dense table. INT4 is the only arm that separates, and its
+direction is consistent with draft acceptance, which is equal to 4K context but drops from
+0.999 to 0.929 at 16K.
+
+Calibrate those *p* values against the harness's own noise: the same INT8 model re-run with 8
+shards instead of 4 scored 82.250% rather than 83.000%, a 0.75 pp swing from batch composition
+alone. So the INT8-vs-INT4 gap (+1.375 pp) is about twice the noise floor and the
+INT8-vs-FP16 gap is inside it.
+
+Now the memory side, measured the same way as the table above:
+
+| embedding | unique weight MiB | engine MiB | `num_blocks` | peak MiB | longest prompt |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| FP16 | 17,635 | 24,444 | any | >=25,322 | **does not fit** |
+| INT8 | 16,498 | 21,372 | **448** | 22,762 | 98,304 |
+| INT4 | 15,892 | 21,372 | **512** | 22,764 | 114,688 |
+
+The FP16 row is an accuracy reference, not an option: its engine footprint is 24,444 MiB
+before the KV pool allocates anything, which exceeds a 4090's 24,564 MiB total at *any*
+`num_blocks`. Dropping `Gather` from `op_types_to_quantize` does not buy accuracy on this
+card; it buys a model that will not load.
+
+That leaves INT8 against INT4, at essentially the same peak: **1.375 pp of MMLU-Pro against
+16,384 tokens of context**. `_24gb` ships INT4 for the longest context;
+`_int8_embed_..._24gb` ships INT8 and is the better default if 98K tokens is enough, because
+it gives up nothing measurable against a dense table.
+
+INT8 is reached with a per-node override rather than a new flat option:
+
+```json
+"op_types_to_quantize": "MatMul/Gather",
+"quant_config": "[{\"match\": {\"name\": \"/model/embed_tokens/Gather\"}, \"type\": \"int8\"}]"
+```
+
+### What is *not* in this recipe
+
+`block_size=64` for the target's INT4 weights would save a further 745 MiB, but it does not
+load on a default ONNX Runtime build. `CheckFpAIntBEligibility` accepts prepacked MatMulNBits
+weights at `block_size=32` only when `USE_COMPACT_FPA_INTB_GEMM` is set, and the compact kernel
+set is the default (`onnxruntime_USE_FPA_INTB_GEMM_FULL` is off):
+
+```
+This compact fpA_intB build supports prepacked weights only for FP16 activations,
+INT4 or INT8 weights, block_size=32, ... Got bits=4, block_size=64, weight_prepacked=1
+```
+
+Unlocking it needs either a full-kernel-set ONNX Runtime build, or dropping
+`matmulnbits_weights_prepacked`, which gives up the fpA_intB GEMM and its decode throughput.
+Neither is a good default, so the recipe stays at `block_size=32`.
 
 ## CUDA graphs
 
