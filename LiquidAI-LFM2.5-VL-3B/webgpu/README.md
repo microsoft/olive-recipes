@@ -71,17 +71,24 @@ python model-mm.py -m model -e webgpu
 
 ## WebGPU status
 
-The vision encoder runs on CPU even in a WebGPU package: the SigLIP2 position embeddings are
-resized with an antialiased `Resize`, which the WebGPU EP does not implement ("The antialias
-attribute of Resize operator is NOT implemented"). `finalize.py` therefore leaves that one session
-on CPU; the decoder and the embedding model stay on WebGPU. Drop the override in `finalize.py`
-once the EP supports the op.
+Verified with `onnxruntime-web` 1.30 on an Apple M3 Max (WebGPU over Metal): the embedding model
+and the decoder run on WebGPU, prefill picks the same next token as the PyTorch model, and a greedy
+continuation matches it except for one word dropped by INT4 quantization.
 
-The decoder also needs an `onnxruntime` with WebGPU that is new enough to know the `state_window`
-attribute of `CausalConvWithState` (the LFM2 short-convolution op). The newest published WebGPU
-build at the time of writing, `onnxruntime-webgpu` 1.27, predates it and refuses to load the
-decoder; the same graph loads fine on CPU and CUDA with ORT 1.30. The embedding model was verified
-to run on the WebGPU EP.
+Two things to know:
+
+- **The vision encoder stays on CPU.** It resizes the SigLIP2 position embeddings with an
+  antialiased `Resize`, which the WebGPU EP does not implement ("The antialias attribute of Resize
+  operator is NOT implemented") — the same on Dawn/Metal and Dawn/Vulkan. `finalize.py` therefore
+  pins that one session to CPU; drop the override once the EP supports the op.
+- **ONNX Runtime 1.29 or newer is required.** Older builds do not know the `state_window` attribute
+  of `CausalConvWithState` (the LFM2 short-convolution op) and refuse to load the decoder. The
+  `onnxruntime-web` npm package is new enough; the standalone `onnxruntime-webgpu` Python wheel is
+  still at 1.27 and is not.
+
+WebGPU is required rather than merely faster: the wasm backend cannot run the decoder at all
+(`GroupQueryAttention` with q/k normalization is implemented only on the CUDA and WebGPU EPs) and
+cannot look up the quantized embedding table (no 8-bit `GatherBlockQuantized` kernel).
 
 LFM2.5-VL-3B ships a `tokenizer.json` whose pre-tokenizer pattern
 (`'(?i:[sdmt]|ll|ve|re)|...`) the tokenizer in onnxruntime-extensions cannot
