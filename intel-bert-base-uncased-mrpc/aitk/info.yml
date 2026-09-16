@@ -29,6 +29,9 @@ recipes:
     - file: "bert_qnn_gpu.json"
       device: gpu
       ep: QNNExecutionProvider
+    - file: "bert_webgpu.json"
+      device: gpu
+      ep: WebGpuExecutionProvider
 aitk:
     modelInfo:
         id: "huggingface/Intel/bert-base-uncased-mrpc"
