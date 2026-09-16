@@ -126,10 +126,14 @@ def main():
     image_processor = load_hf_json("processor_config.json")["image_processor"]
 
     # The vision and embedding sessions run on the same execution provider as the decoder.
-    session_options = {
-        "log_id": "onnxruntime-genai",
-        "provider_options": model["decoder"]["session_options"]["provider_options"],
-    }
+    provider_options = model["decoder"]["session_options"]["provider_options"]
+    session_options = {"log_id": "onnxruntime-genai", "provider_options": provider_options}
+    # Exception: the vision tower resizes the SigLIP2 position embeddings with an antialiased
+    # Resize, which the WebGPU EP does not implement ("The antialias attribute of Resize operator
+    # is NOT implemented"), so that one session falls back to CPU. Drop this override once the EP
+    # supports it; the rest of the pipeline stays on WebGPU either way.
+    on_webgpu = any("webgpu" in option for option in provider_options)
+    vision_session_options = {"log_id": "onnxruntime-genai", "provider_options": [] if on_webgpu else provider_options}
     model["embedding"] = {
         "filename": EMBEDDING_FILENAME,
         "inputs": {"input_ids": "input_ids", "image_features": "image_features"},
@@ -149,7 +153,7 @@ def main():
             "image_sizes": "spatial_shapes",
         },
         "outputs": {"image_features": "image_features"},
-        "session_options": session_options,
+        "session_options": vision_session_options,
     }
     genai_config_path.write_text(json.dumps(genai_config, indent=4) + "\n")
     print(f"Updated {genai_config_path}")

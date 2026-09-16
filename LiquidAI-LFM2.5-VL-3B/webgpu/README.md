@@ -69,6 +69,20 @@ Run it with `examples/python/model-mm.py` from onnxruntime-genai:
 python model-mm.py -m model -e webgpu
 ```
 
+## WebGPU status
+
+The vision encoder runs on CPU even in a WebGPU package: the SigLIP2 position embeddings are
+resized with an antialiased `Resize`, which the WebGPU EP does not implement ("The antialias
+attribute of Resize operator is NOT implemented"). `finalize.py` therefore leaves that one session
+on CPU; the decoder and the embedding model stay on WebGPU. Drop the override in `finalize.py`
+once the EP supports the op.
+
+The decoder also needs an `onnxruntime` with WebGPU that is new enough to know the `state_window`
+attribute of `CausalConvWithState` (the LFM2 short-convolution op). The newest published WebGPU
+build at the time of writing, `onnxruntime-webgpu` 1.27, predates it and refuses to load the
+decoder; the same graph loads fine on CPU and CUDA with ORT 1.30. The embedding model was verified
+to run on the WebGPU EP.
+
 LFM2.5-VL-3B ships a `tokenizer.json` whose pre-tokenizer pattern
 (`'(?i:[sdmt]|ll|ve|re)|...`) the tokenizer in onnxruntime-extensions cannot
 parse. `finalize.py` replaces it with the equivalent pattern the other LFM2.5
