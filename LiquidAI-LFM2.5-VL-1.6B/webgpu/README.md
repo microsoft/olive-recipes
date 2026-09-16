@@ -71,9 +71,11 @@ python model-mm.py -m model -e webgpu
 
 ## WebGPU status
 
-Verified with `onnxruntime-web` 1.30 on an Apple M3 Max (WebGPU over Metal): the embedding model
-and the decoder run on WebGPU, prefill picks the same next token as the PyTorch model, and a greedy
-continuation matches it except for one word dropped by INT4 quantization.
+Verified on two WebGPU stacks. With `onnxruntime-web` 1.30 on an Apple M3 Max (Dawn over Metal),
+the embedding model and the decoder run on WebGPU, prefill picks the same next token as the PyTorch
+model, and a greedy continuation matches it except for one word dropped by INT4 quantization. With
+an ONNX Runtime 1.31 build on an NVIDIA A10 (Dawn over Vulkan), the decoder and the embedding model
+of every package in this line run there as well.
 
 Two things to know:
 
