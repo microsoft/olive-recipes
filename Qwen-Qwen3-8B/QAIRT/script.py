@@ -1021,16 +1021,6 @@ valid_datasets["WIKITEXT"] = {
 
 
 
-if enable_lora:
-    from llm_utils.xlam_dataloader import xLAMDataset
-    # with event_marker("Instantiate xLAM Dataloders"):
-    xlam_train_dataloader, xlam_test_dataloader, xlam_dataset = xLAMDataset(tokenizer=tokenizer,
-                                                                                block_size=context_length,
-                                                                                batch_size=1).get_xlam_dataloader(path=get_config_value('QWEN3_XLAM_DATASET_PATH', ''))
-    valid_datasets["XLAM"] = {
-        "dataloader": xlam_train_dataloader,
-        "dataset": xlam_dataset
-    }
 
 base_calibration_key = get_config_value("QWEN3_BASE_CALIBRATION_DATASET", "WIKITEXT").upper()
 
