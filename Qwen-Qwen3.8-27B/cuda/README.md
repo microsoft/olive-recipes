@@ -33,6 +33,12 @@ gated delta-net linear attention and are unaffected by these options.
     longest prompt from 114,688 to 98,304 tokens.
   - Scores as well as a dense FP16 table (83.000% vs 83.375%, *p* = 0.78), so this is the
     better default unless the extra 16K of context is needed.
+- `Qwen-Qwen3.8-27B_cuda_int4_int8_embed_int4_per_channel_kv_paged_dflash2_int4_32gb.json`
+  - The same INT8-table build retuned for a 32 GB card (RTX 5090), where the memory that a
+    24 GB card spends on fitting at all can go to context and prefill instead.
+  - `num_blocks=1152` reaches the model's full **262,144-token** context; `max_scheduled_tokens`
+    and `paged_chunk_size` go to 2048, which is 26% faster prefill at full context.
+  - See [Targeting 32 GB](#targeting-32-gb).
 - `Qwen-Qwen3.8-27B_cuda_nvfp4_int4_per_channel_kv_paged_dflash2_int4.json`
   - Preserves the target checkpoint's native FP8 projections and NVFP4 MLP weights.
   - Uses BF16 for unquantized target tensors and model I/O.
@@ -319,6 +325,55 @@ INT4 or INT8 weights, block_size=32, ... Got bits=4, block_size=64, weight_prepa
 Unlocking it needs either a full-kernel-set ONNX Runtime build, or dropping
 `matmulnbits_weights_prepacked`, which gives up the fpA_intB GEMM and its decode throughput.
 Neither is a good default, so the recipe stays at `block_size=32`.
+
+## Targeting 32 GB
+
+On a 32 GB card (RTX 5090, 32,768 MiB total, so a working budget of 31,500 MiB) the INT8 table
+stops being a compromise. The memory a 24 GB card spends on merely fitting goes to context and
+prefill instead, and the model's full 262,144-token context becomes reachable.
+
+`num_blocks` first, single stream, `chunk_size` 512, `max_scheduled_tokens` 512:
+
+| `num_blocks` | peak MiB | longest prompt |
+| ---: | ---: | ---: |
+| 1,024 | - | refused at 262,112 |
+| **1,152** | **26,858** | **262,112 (full context)** |
+| 1,280 | 27,882 | 262,112 |
+| 1,408 | 28,908 | 262,112 |
+
+1,152 is the shipped value: the smallest that serves a full-context request. Above it the pool
+only adds blocks no single request can use, because `search.max_length` is already 262,144. A
+prompt of exactly 262,144 is always refused — the session has to leave room for at least one
+generated token, so "256K context" means prompt + generated.
+
+That leaves ~4.6 GB, which buys prefill. At `num_blocks=1152`, measuring TTFT directly:
+
+| `max_scheduled_tokens` = `paged_chunk_size` | peak MiB | TTFT @32K | TTFT @262K | Prefill tok/s @262K |
+| ---: | ---: | ---: | ---: | ---: |
+| 512 | 26,860 | 8.96 s | 125.4 s | 2,091 |
+| **2,048** | **29,100** | **7.90 s** | **99.1 s** | **2,644** |
+| 4,096 | 31,306 | 69.2 s | - | 473 |
+
+2,048 is the shipped value: **26% faster prefill at full context** for 2,240 MiB, leaving
+2,400 MiB of headroom. 4,096 is not a typo in that table — it is 8x *slower* and costs another
+2.2 GB, so the optimum is narrow and worth respecting.
+
+`max_batch_size=2` is nearly free on memory (29,098 vs 29,100 MiB at chunk 2,048) but is **not**
+shipped, because it trips an illegal memory access. The repro needs all three of
+`max_batch_size>=2`, `max_scheduled_tokens`/`paged_chunk_size` at 2,048, and a near-full-context
+request issued after a shorter one in the same engine:
+
+```
+CUDA failure 700: an illegal memory access was encountered
+  cuda_execution_provider.cc:534  expr=cudaStreamSynchronize(...)
+```
+
+Each condition alone is fine: `max_batch_size=2` at chunk 512 runs the same 32K-then-262K
+sequence to completion (peak 27,884), and chunk 2,048 at `max_batch_size=1` does too (peak
+29,100). Until that is fixed, a 32 GB deployment picks one of:
+
+- **`max_batch_size=1`, chunk 2,048** (shipped) — fastest prefill, single stream.
+- `max_batch_size=2`, chunk 512 — two streams, but prefill falls back to 2,083 tok/s at 262K.
 
 ## CUDA graphs
 
