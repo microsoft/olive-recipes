@@ -1,0 +1,14 @@
+arch: lfm2_vl
+recipes:
+  - name: LiquidAI-LFM2.5-VL-1.6B_cuda_int4
+    file:
+      - LiquidAI-LFM2.5-VL-1.6B_cuda_int4.json
+      - LiquidAI-LFM2.5-VL-1.6B_cuda_vision_int8.json
+    devices: gpu
+    eps: CUDAExecutionProvider
+  - name: LiquidAI-LFM2.5-VL-1.6B_cuda_int8
+    file:
+      - LiquidAI-LFM2.5-VL-1.6B_cuda_int8.json
+      - LiquidAI-LFM2.5-VL-1.6B_cuda_vision_int8.json
+    devices: gpu
+    eps: CUDAExecutionProvider

@@ -1,0 +1,33 @@
+{
+    "input_model": {
+        "type": "HfModel",
+        "model_path": "LiquidAI/LFM2.5-VL-1.6B",
+        "task": "image-text-to-text"
+    },
+    "systems": {
+        "local_system": {
+            "type": "LocalSystem",
+            "accelerators": [{ "device": "gpu", "execution_providers": ["CUDAExecutionProvider"] }]
+        }
+    },
+    "passes": {
+        "export": {
+            "type": "MobiusBuilder",
+            "precision": "fp16",
+            "components_to_export": ["vision_encoder", "embedding"]
+        },
+        "int8": {
+            "type": "OnnxBlockWiseRtnQuantization",
+            "bits": 8,
+            "block_size": 32,
+            "is_symmetric": true,
+            "accuracy_level": 4,
+            "save_as_external_data": true
+        }
+    },
+    "target": "local_system",
+    "log_severity_level": 0,
+    "output_dir": "model",
+    "cache_dir": "cache",
+    "no_artifacts": true
+}
