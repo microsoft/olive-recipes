@@ -56,5 +56,5 @@ recipes:
 aitk:
     modelInfo:
         id: "huggingface/meta-llama/Llama-3.1-8B-Instruct"
-        version: 8
+        version: 9
         p0: false

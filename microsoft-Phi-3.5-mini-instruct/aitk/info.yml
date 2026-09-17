@@ -55,5 +55,5 @@ recipes:
 aitk:
     modelInfo:
         id: "huggingface/microsoft/Phi-3.5-mini-instruct"
-        version: 10
+        version: 11
         p0: true
