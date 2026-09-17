@@ -76,8 +76,7 @@ threadpoolctl==3.6.0
 tokenizers==0.21.4
 # uvpip:install torch==2.7.0+cu128 --extra-index-url https://download.pytorch.org/whl/cu128 --no-deps;pre
 torchmetrics==1.7.0
-# torchvision==0.22.0+cu128
-torchvision==0.22.0+cu128
+# uvpip:install torchvision==0.22.0+cu128--extra-index-url https://download.pytorch.org/whl/cu128 --no-deps;pre
 tqdm==4.67.1
 transformers==4.51.3
 typing-extensions==4.15.0
