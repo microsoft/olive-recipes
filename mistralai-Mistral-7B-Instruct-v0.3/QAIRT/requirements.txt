@@ -153,10 +153,10 @@ tomli==2.4.1
 torch==2.1.0+cu121
 torchmetrics==1.9.0
 torchvision==0.16.0+cu121
-tornado==6.5.5
+tornado==6.5.8
 tqdm==4.67.2
 traitlets==5.14.3
-transformers==4.44.0
+transformers==5.10.1
 triton==2.1.0
 types-paramiko==3.5.0.20250516
 typing-inspection==0.4.2
