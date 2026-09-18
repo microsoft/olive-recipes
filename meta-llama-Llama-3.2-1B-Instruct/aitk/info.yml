@@ -39,8 +39,8 @@ recipes:
         isGPURequired: true
         requirements: General/CUDA_py3.12.9
         executeRuntimeFeatures:
-          - olive
           - AutoGptq
+          - olive
     - file: "llama3_2_webgpu.json"
       device: gpu
       ep: WebGpuExecutionProvider

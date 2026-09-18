@@ -1,4 +1,4 @@
-git+https://github.com/microsoft/Olive.git@0514124207622956ab5646f0fe455927d408834b#egg=olive_ai
+git+https://github.com/microsoft/Olive.git@551a0affa406e4a29daf59d7993d2fce74f8b7e7#egg=olive_ai
 opentelemetry-api==1.44.0
 opentelemetry-sdk==1.44.0
 opentelemetry-semantic-conventions==0.65b0
@@ -7,4 +7,6 @@ questionary==2.1.1
 wcwidth==0.8.2
 onnx-shape-inference==0.3.1
 onnx-ir==0.2.0
-# uvpip:install onnxruntime-genai==0.16.0 --no-deps;post
+onnxruntime-genai-winml==0.16.0
+transformers==5.14.1
+peft==0.18.0
