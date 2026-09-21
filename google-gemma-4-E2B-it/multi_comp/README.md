@@ -1,15 +1,7 @@
 # Gemma 4 E2B — Decoder KQuant + Vision RTN
 
-This recipe uses two independent Olive component builds for
+This recipe optimizes for
 [`google/gemma-4-E2B-it`](https://huggingface.co/google/gemma-4-E2B-it):
-
-- `decoder`: PyTorch KQuant, asymmetric INT4, group size 32
-- `vision_encoder`: PyTorch RTN, symmetric INT4, group size 128
-
-Olive automatically assembles the component-only artifacts with the unchanged
-audio and embedding weights into one standard Hugging Face checkpoint. Mobius
-then loads that checkpoint through the ordinary
-`olive capture-onnx-graph --use_mobius_builder` CLI.
 
 ## Prerequisites
 
@@ -25,7 +17,7 @@ Run the commands below from this `multi_comp` directory.
 ## Step 1 — Run and assemble both component builds
 
 ```bash
-olive run --config gemma4_quantize_then_export.json
+olive run --config gemma4_quantize.json
 ```
 
 The config contains two disjoint builds under one shared output parent:
@@ -33,16 +25,17 @@ The config contains two disjoint builds under one shared output parent:
 ```json
 {
     "builds": {
-        "_default": {
-            "output_dir": "gemma4_mixed_hf"
-        },
         "decoder": {
-            "components": ["decoder"],
-            "pipeline": ["decoder_kquant"]
+            "components": [ "decoder" ],
+            "pipeline": [ "decoder_kquant" ]
         },
         "vision": {
-            "components": ["vision_encoder"],
-            "pipeline": ["vision_rtn"]
+            "components": [ "vision_encoder" ],
+            "pipeline": [ "vision_rtn" ]
+        },
+        "embedding": {
+            "components": ["embedding"],
+            "pipeline": ["embedding_kquant"]
         }
     }
 }
@@ -52,7 +45,7 @@ Olive writes component-only shards for the optimized components and retains all
 unbuilt tensors from the source checkpoint:
 
 ```text
-gemma4_mixed_hf/
+gemma4_quantized_hf/
   config.json
   model.safetensors.index.json
   model-unoptimized-*.safetensors
@@ -68,17 +61,13 @@ gemma4_mixed_hf/
 ## Step 2 — Export with Mobius
 
 ```bash
-olive capture-onnx-graph \
-  --model_name_or_path gemma4_mixed_hf \
-  --use_mobius_builder \
-  --precision fp32 \
-  --output_path exported_gemma4_mixed_onnx
+olive capture-onnx-graph --model_name_or_path gemma4_quantized_hf --use_mobius_builder --precision fp32 --output_path gemma4_onnx
 ```
 
 Output:
 
 ```text
-exported_gemma4_mixed_onnx/
+gemma4_onnx/
   decoder/model.onnx
   vision_encoder/model.onnx
   audio_encoder/model.onnx
@@ -93,18 +82,11 @@ exported_gemma4_mixed_onnx/
 Text:
 
 ```bash
-python ../inference.py \
-  --model-path exported_gemma4_mixed_onnx \
-  --prompt "What is the capital of France?" \
-  --verbose
+python ../inference.py --model-path gemma4_onnx --prompt "What is the capital of France?" --verbose
 ```
 
 Image:
 
 ```bash
-python ../inference.py \
-  --model-path exported_gemma4_mixed_onnx \
-  --image path/to/image.jpg \
-  --prompt "What animal is shown? Answer in one short sentence." \
-  --verbose
+python ../inference.py --model-path gemma4_onnx --image ../cat.jpeg --prompt "What animal is shown? Answer in one short sentence." --verbose
 ```

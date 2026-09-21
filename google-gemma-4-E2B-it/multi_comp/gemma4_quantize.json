@@ -47,5 +47,6 @@
             "pipeline": ["embedding_kquant"]
         }
     },
-    "output_dir": "gemma4_mixed_hf"
+    "output_dir": "gemma4_quantized_hf",
+    "log_severity_level": 0
 }
