@@ -12,13 +12,10 @@
             "type": "KQuant",
             "bits": 4,
             "group_size": 128,
-            "sym": false,
+            "sym": true,
             "lm_head": true,
-            "embeds": true,
-            "quantize_vision": false,
             "overrides": {
-                "lm_head": {"bits": 8},
-                "model.language_model.embed_tokens": {"bits": 8}
+                "lm_head": {"bits": 8}
             }
         },
         "vision_rtn": {
@@ -26,15 +23,17 @@
             "bits": 4,
             "group_size": 128,
             "sym": true,
-            "lm_head": false,
-            "embeds": false,
             "quantize_vision": true
+        },
+        "embedding_kquant": {
+            "type": "KQuant",
+            "bits": 8,
+            "group_size": 128,
+            "sym": true,
+            "embeds": true
         }
     },
     "builds": {
-        "_default": {
-            "output_dir": "gemma4_mixed_hf"
-        },
         "decoder": {
             "components": [ "decoder" ],
             "pipeline": [ "decoder_kquant" ]
@@ -42,6 +41,11 @@
         "vision": {
             "components": [ "vision_encoder" ],
             "pipeline": [ "vision_rtn" ]
+        },
+        "embedding": {
+            "components": ["embedding"],
+            "pipeline": ["embedding_kquant"]
         }
-    }
+    },
+    "output_dir": "gemma4_mixed_hf"
 }

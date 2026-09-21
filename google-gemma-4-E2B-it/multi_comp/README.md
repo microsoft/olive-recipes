@@ -14,8 +14,8 @@ then loads that checkpoint through the ordinary
 ## Prerequisites
 
 ```bash
-pip install "git+https://github.com/microsoft/Olive.git@14bb7a6c"
-pip install "git+https://github.com/onnxruntime/mobius.git@459fc68"
+pip install "git+https://github.com/microsoft/Olive.git"
+pip install "git+https://github.com/onnxruntime/mobius.git"
 pip install transformers torch onnxruntime-genai requests
 hf auth login
 ```
