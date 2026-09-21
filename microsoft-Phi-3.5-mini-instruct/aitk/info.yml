@@ -38,9 +38,10 @@ recipes:
         oliveFile: "QNN/config_gpu.json"
         isGPURequired: true
         requirements: General/CUDA_py3.12.9
+        executePatchPy: phi3_5_qnn_gpu_config.py
         executeRuntimeFeatures:
-          - olive
           - AutoGptq
+          - olive
     - file: "phi3_5_webgpu.json"
       device: gpu
       ep: WebGpuExecutionProvider
