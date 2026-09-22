@@ -16,9 +16,9 @@ from config import ModelConfig
 from datasets import load_dataset
 from model_patches import (
     ModSamMaskBoxDecoder,
+    ModSamMaskdecoder,
     ModSamMaskPointDecoder,
     ModSamVisionEncoder,
-    ModSamMaskdecoder,
 )
 from olive.data.registry import Registry
 from transformers import SamModel, SamProcessor

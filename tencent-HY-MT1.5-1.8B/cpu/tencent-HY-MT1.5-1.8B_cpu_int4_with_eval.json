@@ -1,0 +1,121 @@
+{
+    "input_model": {
+        "type": "HfModel",
+        "model_path": "tencent/HY-MT1.5-1.8B",
+        "load_kwargs": {
+            "torch_dtype": "float16"
+        }
+    },
+    "systems": {
+        "local_system": {
+            "type": "LocalSystem",
+            "accelerators": [
+                {
+                    "device": "cpu",
+                    "execution_providers": [
+                        "CPUExecutionProvider"
+                    ]
+                }
+            ]
+        }
+    },
+    "passes": {
+        "g": {
+            "type": "gptq",
+            "bits": 4,
+            "sym": false,
+            "group_size": 32
+        },
+        "r": {
+            "type": "rtn",
+            "bits": 4,
+            "sym": false,
+            "group_size": 32,
+            "lm_head": true,
+            "embeds": true,
+            "overrides": {
+                "lm_head": {
+                    "bits": 4
+                },
+                "model.embed_tokens": {
+                    "bits": 4
+                }
+            }
+        },
+        "m": {
+            "type": "ModelBuilder",
+            "precision": "int4"
+        },
+        "t": {
+            "type": "GraphSurgeries",
+            "surgeries": [
+                {
+                    "surgeon": "TieWordEmbeddings"
+                }
+            ],
+            "save_as_external_data": true,
+            "all_tensors_to_one_file": true,
+            "external_data_name": "model.onnx.data"
+        }
+    },
+    "target": "local_system",
+    "log_severity_level": 0,
+    "output_dir": "model_cpu_int4",
+    "cache_dir": "cache_cpu_int4",
+    "evaluators": {
+        "zh_en_translation": {
+            "type": "LMEvaluator",
+            "tasks": [
+                {
+                    "task": "wmt18-zh-en",
+                    "dataset_path": "wmt/wmt18",
+                    "dataset_name": "zh-en",
+                    "output_type": "generate_until",
+                    "training_split": "train",
+                    "validation_split": "validation",
+                    "fewshot_split": "validation",
+                    "test_split": "test",
+                    "doc_to_text": "Translate the following segment into English, without additional explanation.\n\n{{translation[\"zh\"]}}\nEnglish translation:",
+                    "doc_to_target": "{{translation[\"en\"]}}",
+                    "metric_list": [
+                        {
+                            "metric": "bleu",
+                            "aggregation": "bleu",
+                            "higher_is_better": true
+                        },
+                        {
+                            "metric": "ter",
+                            "aggregation": "ter",
+                            "higher_is_better": false
+                        },
+                        {
+                            "metric": "chrf",
+                            "aggregation": "chrf",
+                            "higher_is_better": true
+                        }
+                    ],
+                    "generation_kwargs": {
+                        "until": [
+                            "\n"
+                        ],
+                        "do_sample": false,
+                        "temperature": 0.0
+                    },
+                    "repeats": 1,
+                    "metadata": {
+                        "version": 1.0
+                    }
+                }
+            ],
+            "model_class": "ortgenai",
+            "batch_size": 1,
+            "bootstrap_iters": 0,
+            "max_length": 2048,
+            "provider_options": {
+                "enable_skip_layer_norm_strict_mode": "1"
+            }
+        }
+    },
+    "evaluator": "zh_en_translation",
+    "evaluate_input_model": false
+}

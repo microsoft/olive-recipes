@@ -1,0 +1,25 @@
+{
+  "passes": [
+    {
+      "name": "init",
+      "plugin": "vaip-pass_init"
+    },
+    {
+      "name": "vaiml_partition",
+      "plugin": "vaip-pass_vaiml_partition",
+      "vaiml_config": {
+        "fe_experiment": "use-accurate-mode=LayerNorm2PassAdf"
+      }
+    }
+  ],
+  "target": "VAIML",
+  "targets": [
+    {
+      "name": "VAIML",
+      "pass": [
+        "init",
+        "vaiml_partition"
+      ]
+    }
+  ]
+}

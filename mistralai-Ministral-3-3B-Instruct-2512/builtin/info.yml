@@ -1,0 +1,12 @@
+keywords:
+  - olive-ai
+recipes:
+  - name: ministral_3_3b
+    file: optimize.py
+    eps:
+      - CPUExecutionProvider
+      - CUDAExecutionProvider
+      - WebGpuExecutionProvider
+    devices:
+      - cpu
+      - gpu

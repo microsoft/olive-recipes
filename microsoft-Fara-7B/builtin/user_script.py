@@ -1,0 +1,166 @@
+import os
+import sys
+
+# Fix Windows cp1252 encoding crash when PyTorch prints emoji in error messages
+if sys.stdout.encoding and sys.stdout.encoding.lower() != "utf-8":
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+if sys.stderr.encoding and sys.stderr.encoding.lower() != "utf-8":
+    sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+
+import torch
+
+from transformers import Qwen2_5_VLConfig
+
+# Add current directory to sys.path to import codes module
+_this_dir = os.path.dirname(os.path.abspath(__file__))
+if _this_dir not in sys.path:
+    sys.path.insert(0, _this_dir)
+
+# Import custom model from codes directory
+from codes.modeling_qwen2_5_vl import Qwen2_5_VLModel
+
+model_name = "microsoft/Fara-7B"
+config = Qwen2_5_VLConfig.from_pretrained(model_name)
+
+
+### Embedding
+# Dynamo export
+
+def get_embedding_model(model_path=None):
+    model = Qwen2_5_VLModel.from_pretrained(
+        model_path,
+        attn_implementation="sdpa",
+        trust_remote_code=True,
+        torch_dtype=torch.float32,
+    )
+
+    model.get_fused_input_embeddings, model.forward = (
+        model.forward,
+        model.get_fused_input_embeddings,
+    )
+    return model
+
+def get_embedding_io_config(model_path=None):
+    dynamic_axes = {
+        "input_ids": {0: "batch_size", 1: "sequence_length"},
+        "image_features": {0: "num_logical_patches"},
+        "inputs_embeds": {0: "batch_size", 1: "sequence_length"},
+    }
+    return {
+        "input_names": ["input_ids", "image_features"],
+        "output_names": ["inputs_embeds"],
+        "dynamic_axes": dynamic_axes,
+    }
+
+
+def get_embedding_dummy_inputs(model=None):
+    # assume 2 batches, each with 1 image input (3577 logical patches)
+    # out_hidden_size: 3584 for 7B
+    batch_size, sequence_length, patches_per_image, out_hidden_size = (
+        2,
+        3606,
+        3577,
+        3584,  # 7B model hidden_size
+    )
+    num_logical_patches = batch_size * patches_per_image
+
+    # Qwen2.5-VL special token IDs
+    vision_start_token_id = config.vision_start_token_id  # 151652
+    vision_end_token_id = config.vision_end_token_id  # 151653
+    image_token_id = config.image_token_id  # 151655
+
+    inputs = {
+        "input_ids": torch.randint(
+            low=0,
+            high=image_token_id,
+            size=(batch_size, sequence_length),
+            dtype=torch.int64,
+        ),
+        "image_features": torch.randn(
+            num_logical_patches,
+            out_hidden_size,
+            dtype=torch.float32,
+        ),
+    }
+
+    img_start_index = 3
+    img_end_index = img_start_index + patches_per_image  # 3 + 3577 = 3580
+
+    # Fill in with image token index
+    inputs["input_ids"][0][2] = vision_start_token_id  # <|vision_start|>
+    inputs["input_ids"][0][
+        img_start_index:img_end_index
+    ] = image_token_id  # <|image_pad|>
+    inputs["input_ids"][0][img_end_index] = vision_end_token_id  # <|vision_end|>
+
+    inputs["input_ids"][1][2] = vision_start_token_id  # <|vision_start|>
+    inputs["input_ids"][1][
+        img_start_index:img_end_index
+    ] = image_token_id  # <|image_pad|>
+    inputs["input_ids"][1][img_end_index] = vision_end_token_id  # <|vision_end|>
+
+    return {
+        "input_ids": inputs["input_ids"],  # input_ids: torch.LongTensor
+        "image_features": inputs["image_features"],  # image_features: Optional[torch.FloatTensor] = None,
+    }
+
+
+### Vision
+def _reinit_inv_freq(model):
+    """Recompute inv_freq buffers that are missing from the HF checkpoint.
+
+    The upstream Qwen code registers inv_freq with persistent=False, so
+    the buffer is never saved in the checkpoint.  Our local modeling code
+    uses persistent=True so that torch.export captures the buffer, but
+    from_pretrained's fast-init (meta device) leaves it uninitialized.
+    Re-derive the correct values from the same formula used in __init__.
+    """
+    rope = model.visual.rotary_pos_emb
+    dim = rope.inv_freq.shape[0] * 2          # original dim passed to __init__
+    theta = 10000.0
+    inv_freq = 1.0 / (theta ** (torch.arange(0, dim, 2, dtype=torch.float32) / dim))
+    rope.inv_freq.data.copy_(inv_freq)
+
+
+def get_vision_model(model_path=None):
+    model = Qwen2_5_VLModel.from_pretrained(
+        model_path,
+        attn_implementation="sdpa",
+        trust_remote_code=True,
+        torch_dtype=torch.float32,
+    )
+    _reinit_inv_freq(model)
+    model.forward, model.get_image_features = model.get_image_features, model.forward
+    return model
+
+def get_vision_io_config(model_path=None):
+    """Vision model IO config with dynamic shapes.
+
+    Both pixel_values and image_grid_thw have symbolic dim-0 so the model
+    accepts any number of patches (any image resolution) and any number of
+    images in a single call.  The RenameInputDims graph surgery in the Olive
+    config labels dim-0 of image_grid_thw as 'num_images' in the final ONNX.
+
+    Requires torch >= 2.10 for reliable dynamo export with dynamic_shapes.
+    """
+    return {
+        "input_names": ["pixel_values", "image_grid_thw"],
+        "output_names": ["image_features"],
+        "dynamic_shapes": {
+            "pixel_values": {0: "num_patches"},
+            "image_grid_thw": {0: "num_images"},
+        },
+    }
+
+
+def get_vision_dummy_inputs(model=None):
+    """Dummy inputs for vision model export.
+
+    Two images with the same 14x14 grid (196 patches each, 392 total)
+    to exercise the dynamic num_images dimension during torch.export tracing.
+    Qwen2.5-VL: patch_size=14, temporal_patch_size=2 → 1176 channels/patch.
+    """
+    pixel_values = torch.randn((2 * 196, 1176), dtype=torch.float32)
+    pixel_values = pixel_values * (0.95 - (-1)) + (-1)
+    grid_thw = torch.tensor([[1, 14, 14], [1, 14, 14]], dtype=torch.int64)
+    return {"pixel_values": pixel_values, "image_grid_thw": grid_thw}

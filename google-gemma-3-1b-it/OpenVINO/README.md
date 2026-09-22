@@ -34,6 +34,14 @@ python -m pip install olive-ai[openvino]
 python -m pip install -r requirements.txt
 ```
 
+**NOTE:**
+
+Access to the [google/gemma-3-1b-it](https://huggingface.co/google/gemma-3-1b-it) model is gated and therefore you will need to request access to it. Once you have access to the model, you'll need to log-in to Hugging Face with a [user access token](https://huggingface.co/docs/hub/security-tokens) so that Olive can download it.
+
+```bash
+huggingface-cli login
+```
+
 ### Run Olive config
 
 The optimization techniques to run are specified in the relevant config json file.

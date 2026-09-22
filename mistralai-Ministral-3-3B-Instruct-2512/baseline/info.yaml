@@ -1,0 +1,8 @@
+arch: mistral3
+recipes:
+  - name: mistralai-Ministral-3-3B-Instruct-2512_pytorch_with_eval
+    file: mistralai-Ministral-3-3B-Instruct-2512_pytorch_with_eval.py
+    devices:
+      - cpu
+      - gpu
+    eps: PyTorch

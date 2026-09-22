@@ -1,13 +1,15 @@
 import argparse
 import json
+import logging
 import os
-import olive.workflows
 import subprocess
 import sys
-import logging
+
+import olive.workflows
 
 logger = logging.getLogger(os.path.basename(__file__))
 logging.basicConfig(level=logging.INFO)
+
 
 def parse_arguments():
     parser = argparse.ArgumentParser()
@@ -16,15 +18,17 @@ def parse_arguments():
     parser.add_argument("--runtime", required=True, help="runtime")
     return parser.parse_args()
 
+
 def load_update_config(
-        config_path: str,
-        cache_dir: str,
-        output_dir: str,
-        activation_type: str | None = None,
-        precision: str | None = None,
-        data_path: str | None = None,
-        num_data: int | None = None) -> dict:
-    with open(config_path, 'r', encoding='utf-8') as file:
+    config_path: str,
+    cache_dir: str,
+    output_dir: str,
+    activation_type: str | None = None,
+    precision: str | None = None,
+    data_path: str | None = None,
+    num_data: int | None = None,
+) -> dict:
+    with open(config_path, "r", encoding="utf-8") as file:
         oliveJson = json.load(file)
 
     oliveJson["cache_dir"] = cache_dir
@@ -43,15 +47,16 @@ def load_update_config(
 
 
 def generate_model(
-        history_folder: str,
-        config_path: str,
-        cache_dir: str,
-        output_dir: str,
-        skip_existing: bool = True,
-        activation_type: str | None = None,
-        precision: str | None = None,
-        data_path: str | None = None,
-        num_data: int | None = None):
+    history_folder: str,
+    config_path: str,
+    cache_dir: str,
+    output_dir: str,
+    skip_existing: bool = True,
+    activation_type: str | None = None,
+    precision: str | None = None,
+    data_path: str | None = None,
+    num_data: int | None = None,
+):
     if skip_existing and os.path.exists(os.path.join(output_dir, "model.onnx")):
         logger.info(f"Output model {output_dir} already exists, skipping {config_path}.")
         return
@@ -60,7 +65,7 @@ def generate_model(
     # save updated config for record
     config_name = os.path.basename(config_path)
     os.makedirs(history_folder, exist_ok=True)
-    with open(os.path.join(history_folder, config_name), 'w', encoding='utf-8') as file:
+    with open(os.path.join(history_folder, config_name), "w", encoding="utf-8") as file:
         json.dump(oliveJson, file, indent=4)
     output = olive.workflows.run(oliveJson)
     if output is None or not output.has_output_model():
@@ -71,7 +76,7 @@ def generate_model(
 def main():
     args = parse_arguments()
 
-    with open(args.config, 'r', encoding='utf-8') as file:
+    with open(args.config, "r", encoding="utf-8") as file:
         oliveJson = json.load(file)
 
     # Get arguments
@@ -85,7 +90,7 @@ def main():
     num_data: int = config_pass["length"]
     # The cwd is model project folder
     audio_path: str = os.path.join("data", dataset_name.replace("/", "_"), dataset_split)
-    save_data_path: str = os.path.join("data",  "_data_" + dataset_name.replace("/", "_"), dataset_split)
+    save_data_path: str = os.path.join("data", "_data_" + dataset_name.replace("/", "_"), dataset_split)
     history_folder = os.path.dirname(args.config)
 
     # When we have model_config, we are in evaluation
@@ -99,14 +104,25 @@ def main():
         output_file = os.path.join(os.path.dirname(args.config), "metrics.json")
 
         # Run evaluator
-        subprocess.run([sys.executable, "qnn_evaluate.py",
-                        "--audio-path", audio_path,
-                        "--encoder", encoder_path,
-                        "--decoder", decoder_path,
-                        "--execution_provider", execution_provider,
-                        "--device_str", device_str,
-                        "--output_file", output_file],
-                        check=True)
+        subprocess.run(
+            [
+                sys.executable,
+                "qnn_evaluate.py",
+                "--audio-path",
+                audio_path,
+                "--encoder",
+                encoder_path,
+                "--decoder",
+                decoder_path,
+                "--execution_provider",
+                execution_provider,
+                "--device_str",
+                device_str,
+                "--output_file",
+                output_file,
+            ],
+            check=True,
+        )
         return
 
     # Generate original model
@@ -115,21 +131,51 @@ def main():
     original_decoder = os.path.join("data", "_decoder_fp32")
     generate_model("data", "whisper_large_v3_turbo_decoder_fp32.json", cache_dir, original_decoder)
     # Generate dataset
-    subprocess.run([sys.executable, "qnn_run.py",
-                    "--audio-path", audio_path,
-                    "--encoder", os.path.join(original_encoder, "model.onnx"),
-                    "--decoder", os.path.join(original_decoder, "model.onnx"),
-                    "--save_data", save_data_path,
-                    "--dataset_name", dataset_name,
-                    "--dataset_split", dataset_split,
-                    "--num_data", str(num_data)],
-                   check=True)
+    subprocess.run(
+        [
+            sys.executable,
+            "qnn_run.py",
+            "--audio-path",
+            audio_path,
+            "--encoder",
+            os.path.join(original_encoder, "model.onnx"),
+            "--decoder",
+            os.path.join(original_decoder, "model.onnx"),
+            "--save_data",
+            save_data_path,
+            "--dataset_name",
+            dataset_name,
+            "--dataset_split",
+            dataset_split,
+            "--num_data",
+            str(num_data),
+        ],
+        check=True,
+    )
     # Generate quantized model
-    generate_model(history_folder, "whisper_large_v3_turbo_encoder_qdq.json", cache_dir, os.path.join(output_dir, "encoder"),
-                   False, activation_type, precision, save_data_path, num_data)
+    generate_model(
+        history_folder,
+        "whisper_large_v3_turbo_encoder_qdq.json",
+        cache_dir,
+        os.path.join(output_dir, "encoder"),
+        False,
+        activation_type,
+        precision,
+        save_data_path,
+        num_data,
+    )
     # decoder has more data for 1 sample, to keep variants, multiply num_data by 10
-    generate_model(history_folder, "whisper_large_v3_turbo_decoder_qdq.json", cache_dir, os.path.join(output_dir, "decoder"),
-                   False, activation_type, precision, save_data_path, num_data * 10)
+    generate_model(
+        history_folder,
+        "whisper_large_v3_turbo_decoder_qdq.json",
+        cache_dir,
+        os.path.join(output_dir, "decoder"),
+        False,
+        activation_type,
+        precision,
+        save_data_path,
+        num_data * 10,
+    )
 
 
 if __name__ == "__main__":

@@ -219,7 +219,7 @@ def main():
 
     # Install
     print(f"Installing dependencies: {temp_req}")
-    result = subprocess.run(["uv", "pip", "install", "-r", temp_req, "-p", args.python], text=True)
+    subprocess.run(["uv", "pip", "install", "-r", temp_req, "-p", args.python], text=True)
 
     # Get freeze
     pip_freeze = subprocess.check_output(["uv", "pip", "freeze", "-p", args.python]).decode("utf-8").splitlines()

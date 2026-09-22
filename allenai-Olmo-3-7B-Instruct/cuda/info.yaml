@@ -1,0 +1,18 @@
+arch: olmo3
+recipes:
+  - name: allenai-Olmo-3-7B-Instruct_cuda_fp16
+    file: allenai-Olmo-3-7B-Instruct_cuda_fp16.json
+    devices: gpu
+    eps: CUDAExecutionProvider
+  - name: allenai-Olmo-3-7B-Instruct_cuda_fp16_with_eval
+    file: allenai-Olmo-3-7B-Instruct_cuda_fp16_with_eval.json
+    devices: gpu
+    eps: CUDAExecutionProvider
+  - name: allenai-Olmo-3-7B-Instruct_cuda_int4
+    file: allenai-Olmo-3-7B-Instruct_cuda_int4.json
+    devices: gpu
+    eps: CUDAExecutionProvider
+  - name: allenai-Olmo-3-7B-Instruct_cuda_int4_with_eval
+    file: allenai-Olmo-3-7B-Instruct_cuda_int4_with_eval.json
+    devices: gpu
+    eps: CUDAExecutionProvider

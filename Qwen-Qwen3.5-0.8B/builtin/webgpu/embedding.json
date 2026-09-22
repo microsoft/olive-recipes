@@ -7,6 +7,17 @@
         "io_config": "get_embedding_io_config",
         "dummy_inputs_func": "get_embedding_dummy_inputs"
     },
+    "systems": {
+        "local_system": {
+            "type": "LocalSystem",
+            "accelerators": [
+                {
+                    "device": "gpu",
+                    "execution_providers": ["WebGpuExecutionProvider"]
+                }
+            ]
+        }
+    },
     "passes": {
         "convert": {
             "type": "OnnxConversion",
@@ -40,6 +51,7 @@
             "external_data_name": "embedding.onnx.data"
         }
     },
+    "target": "local_system",
     "no_artifacts": true,
     "output_dir": "webgpu/models/embedding.onnx"
 }

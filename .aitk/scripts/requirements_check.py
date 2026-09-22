@@ -62,5 +62,6 @@ def requirements_check():
     req_is_subset(nvidia_autogptq, general_cuda_autogptq)
     req_is_subset(general_cuda_autogptq, nvidia_autogptq)
 
+
 if __name__ == "__main__":
     requirements_check()

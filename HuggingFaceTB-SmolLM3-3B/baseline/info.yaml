@@ -1,0 +1,6 @@
+arch: smollm3
+recipes:
+  - name: HuggingFaceTB-SmolLM3-3B_pytorch_with_eval
+    file: HuggingFaceTB-SmolLM3-3B_pytorch_with_eval.json
+    devices: gpu
+    eps: PyTorch

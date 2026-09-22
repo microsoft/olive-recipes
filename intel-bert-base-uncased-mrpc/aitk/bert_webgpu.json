@@ -1,0 +1,38 @@
+{
+    "input_model": {
+        "type": "HfModel",
+        "model_path": "Intel/bert-base-uncased-mrpc",
+        "task": "text-classification",
+        "load_kwargs": {
+            "attn_implementation": "eager"
+        }
+    },
+    "systems": {
+        "local_system": {
+            "type": "LocalSystem",
+            "accelerators": [
+                {
+                    "device": "gpu",
+                    "execution_providers": [
+                        "WebGpuExecutionProvider"
+                    ]
+                }
+            ]
+        }
+    },
+    "passes": {
+        "conversion": {
+            "type": "OnnxConversion",
+            "target_opset": 17,
+            "save_as_external_data": true
+        },
+        "peephole": {
+            "type": "OnnxPeepholeOptimizer",
+            "save_as_external_data": true
+        }
+    },
+    "target": "local_system",
+    "cache_dir": "cache",
+    "output_dir": "model/bert_webgpu",
+    "evaluate_input_model": false
+}

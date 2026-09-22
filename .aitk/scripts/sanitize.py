@@ -9,9 +9,9 @@ Auto-formats all Python scripts in the scripts directory on every run.
 import sys
 from pathlib import Path
 
-from auto_formatter import auto_format_scripts
 from project_processor import project_processor
 from requirements_check import requirements_check
+from ruff_check import ruff_check
 from sanitize.main import main
 from sanitize.utils import GlobalVars
 
@@ -54,9 +54,7 @@ if __name__ == "__main__":
     if "--fill_pipeline_tags" in sys.argv:
         GlobalVars.fillPipelineTags = True
 
-    # Auto-format scripts before running sanitize
-    if "--format_scripts" in sys.argv:
-        auto_format_scripts()
+    ruff_check(fix=True)
     requirements_check()
     project_processor()
     run_main()

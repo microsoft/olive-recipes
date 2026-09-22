@@ -1,31 +1,38 @@
 {
-    "input_model": {
-        "type": "HFModel",
-        "model_path": "meta-llama/Llama-3.1-8B-Instruct"
-    },
+    "input_model": { "type": "HFModel", "model_path": "meta-llama/Llama-3.1-8B-Instruct" },
     "passes": {
         "qp": {
             "type": "QairtPreparation",
             "script_path": "llama3_1_instruct_script.py",
-            "script_config": {
-                "PLATFORM_GEN": 2
-            }
+            "script_config": { "PLATFORM_GEN": 2 }
         },
         "qgab": {
             "type": "QairtGenAIBuilder",
             "log_level": "INFO",
             "backend": "HTP",
             "soc_details": "chipset:SC8380XP",
-            "hvx_threads": 4,
+            "vtcm_size_in_mb": 8,
+            "hvx_threads": 8,
             "extended_udma": false,
-	    "sequence_lengths": [32, 128],
+            "sequence_lengths": [ 32, 128 ],
             "native_kv": true,
             "multi_graph": true
         },
         "qe": {
             "type": "QairtEncapsulation",
             "log_level": "ERROR",
-            "run_checker": "true"
+            "run_checker": "true",
+            "engine_config_overrides": {
+                "n_threads": 3,
+                "htp": { "cpu_mask": "0xe0", "allow_async_init": false, "poll": false, "mmap_budget": 0 }
+            },
+            "backend_extensions_overrides": {
+                "graphs": null,
+                "devices": [ { "pd_session": "unsigned" } ],
+                "groupContext": { "share_resources": false },
+                "memory": { "mem_type": "shared_buffer" },
+                "context": [ { "weight_sharing_enabled": true, "reused_io_limit_mb": 100 } ]
+            }
         }
     },
     "log_severity_level": 1,

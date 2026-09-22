@@ -5,10 +5,9 @@
 import numpy as np
 import torch
 from datasets import load_dataset
+from olive.data.registry import Registry
 from torch.utils.data import Dataset
 from transformers import CLIPProcessor
-
-from olive.data.registry import Registry
 
 
 class CLIPDataset(Dataset):
