@@ -47,17 +47,17 @@ exported_onnx/
 olive run --config quantize_onnx.json
 ```
 
-| component        | pipeline        | intent                            |
-|------------------|-----------------|-----------------------------------|
-| `decoder`        | `dynamic_quant` | INT8-quantize the language decoder |
-| `vision_encoder` | `dynamic_quant` | INT8-quantize the vision encoder  |
-| `embedding`      | `dynamic_quant` | INT8-quantize the embedding model |
+| component        | pipeline        | intent                                      |
+|------------------|-----------------|---------------------------------------------|
+| `decoder`        | `dynamic_quant` | INT8-quantize MatMul weights                |
+| `vision_encoder` | `dynamic_quant` | INT8-quantize MatMul weights; keep Attention |
+| `embedding`      | copied unchanged | no supported MatMul weights                 |
 
-Dynamic quantization preserves the model input and output types, so the three
-component interfaces remain compatible. Olive automatically assembles the
-optimized components with Mobius's tokenizer, processor, and
-`genai_config.json` artifacts in `quantized_onnx/`, producing a directly
-loadable ORT GenAI package.
+Dynamic quantization is limited to `MatMul`; quantizing the vision
+`Attention` nodes would produce `QAttention` attributes unsupported by ORT
+GenAI. Olive automatically assembles the optimized components with the
+unchanged embedding model and Mobius's runtime artifacts in
+`quantized_model/`, producing a directly loadable ORT GenAI package.
 
 > The three component names (`decoder`, `vision_encoder`, `embedding`) are exactly what Mobius
 > produces for `Qwen/Qwen3-VL-2B-Instruct`. For a different VLM, adjust the component names in the
@@ -69,13 +69,13 @@ Run text generation with the exported ONNX models using **onnxruntime-genai**:
 
 ```bash
 # Text-only
-python inference.py --model_dir quantized_onnx --prompt "What is the capital of France? Answer in one sentence."
+python inference.py --model_dir quantized_model --prompt "What is the capital of France? Answer in one sentence."
 
 # With image input
-python inference.py --model_dir quantized_onnx --prompt "Describe this image." --image photo.jpg
+python inference.py --model_dir quantized_model --prompt "Describe this image." --image cat.jpeg
 
 # Custom settings
-python inference.py --model_dir quantized_onnx --max_new_tokens 256
+python inference.py --model_dir quantized_model --max_new_tokens 256
 ```
 
 The inference script (`inference.py`) uses ORT GenAI which handles:
@@ -107,11 +107,6 @@ quantized_model/
   embedding/model.onnx
 ```
 
-Mobius writes the tokenizer, processor, and `genai_config.json` during Step 1;
-Olive preserves them while assembling the optimized package.
-
-> **Note.** Install `onnxruntime-genai` (`pip install onnxruntime-genai`) to use this script.
-
 ---
 
 ## Recipe 2 — Torch decoder quantization, then Mobius export (`quantize_pytorch.json`)
@@ -125,27 +120,10 @@ complete HF directory with the Olive capture CLI using the Mobius builder.
 olive run --config quantize_pytorch.json
 ```
 
-The config uses `builds.components: ["decoder"]`, so Olive asks Mobius for the VLM component plan,
-scopes the Torch KQuant pass to the decoder submodule, and saves the original HF folder layout with
-the decoder quantized in place. This output is **not** a standalone decoder checkpoint; it is a
-complete HF model directory:
-
-```
-vlm_decoder_kquant_hf/
-```
-
-KQuant applies symmetric INT4 weight-only quantization with group size 128,
-including `lm_head`. It does not require calibration data.
-
 ### Step 2 — Export the quantized HF directory with the Mobius builder
 
 ```
-olive capture-onnx-graph \
-  --model_name_or_path quantized_pytorch \
-  --use_mobius_builder \
-  --trust_remote_code \
-  --precision fp16 \
-  --output_path quantized_model
+olive capture-onnx-graph --model_name_or_path quantized_pytorch --use_mobius_builder --trust_remote_code --precision fp32 --output_path quantized_model
 ```
 
 Output:
@@ -157,14 +135,3 @@ quantized_model/
   embedding/model.onnx
 ```
 ---
-
-## Notes
-
-- The `OnnxDynamicQuantization` pass in Recipe 1 is **illustrative** and runs
-  without calibration data. Swap in `OrtTransformersOptimization`,
-  `OnnxStaticQuantization` (with a `data_config`), or another ONNX pass for
-  production-quality optimization.
-- The ONNX component recipe runs on the EP declared in its `systems` section. The Torch KQuant recipe
-  targets CUDA to accelerate decoder quantization.
-- `builds.components` selects which exported components to optimize. Only the components with a build
-  are touched; the rest remain as exported.

@@ -3,7 +3,8 @@
     "passes": {
         "dynamic_quant": {
             "type": "OnnxDynamicQuantization",
-            "quant_preprocess": false
+            "quant_preprocess": false,
+            "op_types_to_quantize": [ "MatMul" ]
         }
     },
     "evaluate_input_model": false,
@@ -13,7 +14,6 @@
         "vision_encoder": {
             "components": [ "vision_encoder" ],
             "pipeline": [ "dynamic_quant" ]
-        },
-        "embedding": { "components": [ "embedding" ], "pipeline": [ "dynamic_quant" ] }
+        }
     }
 }

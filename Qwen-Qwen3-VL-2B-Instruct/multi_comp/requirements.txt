@@ -1,4 +1,4 @@
-git+https://github.com/microsoft/Olive.git@7bba3ef6c7d494175f5f5542edb695a9cf450d6f
+git+https://github.com/microsoft/Olive.git@d48f63a8b1be269c814431b24c70d6c1c1512637
 git+https://github.com/onnxruntime/mobius.git@459fc68
 onnxruntime-genai
 requests

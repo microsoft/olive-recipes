@@ -9,7 +9,7 @@ Usage:
     python inference.py --prompt "Describe this image." --image photo.jpg
 
     # Custom model directory
-    python inference.py --model_dir quantized_onnx --prompt "What is 2+2?"
+    python inference.py --model_dir quantized_model --prompt "What is 2+2?"
 """
 
 import argparse
@@ -34,13 +34,16 @@ def generate_text(model_dir: str, prompt: str, max_new_tokens: int = 128) -> str
     """Run text-only generation."""
     model = og.Model(model_dir)
     tokenizer = og.Tokenizer(model)
+    processor = model.create_multimodal_processor()
 
-    input_ids = tokenizer.encode(format_prompt(tokenizer, prompt))
+    full_prompt = format_prompt(tokenizer, prompt)
+    input_ids = tokenizer.encode(full_prompt)
+    inputs = processor(full_prompt, images=None)
     params = og.GeneratorParams(model)
     params.set_search_options(max_length=len(input_ids) + max_new_tokens)
 
     generator = og.Generator(model, params)
-    generator.append_tokens(input_ids)
+    generator.set_inputs(inputs)
 
     tokenizer_stream = tokenizer.create_stream()
     generated = []
@@ -117,14 +120,13 @@ def main():
     print("-" * 50)
 
     if args.image:
-        output = generate_with_image(
+        generate_with_image(
             args.model_dir, args.prompt, args.image, args.max_new_tokens
         )
     else:
-        output = generate_text(args.model_dir, args.prompt, args.max_new_tokens)
+        generate_text(args.model_dir, args.prompt, args.max_new_tokens)
 
     print("-" * 50)
-    print(f"Output: {output}")
 
 
 if __name__ == "__main__":
