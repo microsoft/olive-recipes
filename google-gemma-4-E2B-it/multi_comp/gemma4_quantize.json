@@ -4,7 +4,7 @@
         "config": {
             "model_path": "google/gemma-4-E2B-it",
             "task": "image-text-to-text",
-            "load_kwargs": { "torch_dtype": "float16", "trust_remote_code": true }
+            "load_kwargs": { "trust_remote_code": true }
         }
     },
     "passes": {
