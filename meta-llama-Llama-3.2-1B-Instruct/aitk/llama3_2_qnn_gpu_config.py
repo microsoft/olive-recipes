@@ -39,10 +39,16 @@ def pre_olive_run(ctx):
             # Treat no scaling as no entries during config initialization.
             config.rope_scaling = {}
             try:
-                return original(self, config)
+                result = original(self, config)
             finally:
                 config.rope_scaling = None
+        else:
+            result = original(self, config)
 
-        return original(self, config)
+        rope_parameters = getattr(config, "rope_parameters", None)
+        if isinstance(rope_parameters, dict) and "rope_type" not in rope_parameters and "type" in rope_parameters:
+            # Older Phi-3 configs use "type"; leave rope_scaling unchanged.
+            rope_parameters["rope_type"] = rope_parameters["type"]
+        return result
 
     builder.Model.make_config_init = make_config_init
