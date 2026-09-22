@@ -1,14 +1,14 @@
 keywords:
   - olive-ai
 recipes:
-  - name: qwen2.5-vl-3B-Instruct-cpu-int4
-    file: cpu_and_mobile/config.json
+  - name: qwen3vl-2B-Instruct-components
+    file: quantize_onnx.json
     eps:
       - CPUExecutionProvider
     devices:
       - cpu
-  - name: qwen2.5-vl-3B-Instruct-cuda-int4
-    file: cuda/config.json
+  - name: qwen3vl-2B-Instruct-kquant
+    file: quantize_pytorch.json
     eps:
       - CUDAExecutionProvider
     devices:

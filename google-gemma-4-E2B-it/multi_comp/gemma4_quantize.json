@@ -1,0 +1,52 @@
+{
+    "input_model": {
+        "type": "HfModel",
+        "config": {
+            "model_path": "google/gemma-4-E2B-it",
+            "task": "image-text-to-text",
+            "load_kwargs": { "trust_remote_code": true }
+        }
+    },
+    "passes": {
+        "decoder_kquant": {
+            "type": "KQuant",
+            "bits": 4,
+            "group_size": 128,
+            "sym": true,
+            "lm_head": true,
+            "overrides": {
+                "lm_head": {"bits": 8}
+            }
+        },
+        "vision_rtn": {
+            "type": "Rtn",
+            "bits": 4,
+            "group_size": 128,
+            "sym": true,
+            "quantize_vision": true
+        },
+        "embedding_kquant": {
+            "type": "KQuant",
+            "bits": 8,
+            "group_size": 128,
+            "sym": true,
+            "embeds": true
+        }
+    },
+    "builds": {
+        "decoder": {
+            "components": [ "decoder" ],
+            "pipeline": [ "decoder_kquant" ]
+        },
+        "vision": {
+            "components": [ "vision_encoder" ],
+            "pipeline": [ "vision_rtn" ]
+        },
+        "embedding": {
+            "components": ["embedding"],
+            "pipeline": ["embedding_kquant"]
+        }
+    },
+    "output_dir": "gemma4_quantized_hf",
+    "log_severity_level": 0
+}
