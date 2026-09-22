@@ -1,0 +1,40 @@
+{
+    "input_model": {
+        "type": "HfModel",
+        "model_path": "Qwen/Qwen3.6-27B"
+    },
+    "passes": {
+        "m": {
+            "type": "ModelBuilder",
+            "precision": "int4",
+            "int4_accuracy_level": 4,
+            "extra_options": {
+                "filename": "text.onnx",
+                "prune_lm_head": true
+            }
+        },
+        "t": {
+            "type": "GraphSurgeries",
+            "surgeries": [
+                {
+                    "surgeon": "TieWordEmbeddings"
+                }
+            ]
+        }
+    },
+    "engine": {
+        "target": {
+            "type": "LocalSystem",
+            "accelerators": [
+                {
+                    "device": "gpu",
+                    "execution_providers": [
+                        "CUDAExecutionProvider"
+                    ]
+                }
+            ]
+        }
+    },
+    "no_artifacts": true,
+    "output_dir": "cuda/models/text.onnx"
+}
