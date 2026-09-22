@@ -35,12 +35,7 @@ Run commands from this `builtin` directory.
 Export the complete FP32 package:
 
 ```bash
-olive capture-onnx-graph \
-  --model_name_or_path Qwen/Qwen2.5-VL-3B-Instruct \
-  --use_mobius_builder \
-  --trust_remote_code \
-  --precision fp32 \
-  --output_path cpu_and_mobile/mobius_base
+olive capture-onnx-graph --model_name_or_path Qwen/Qwen2.5-VL-3B-Instruct --use_mobius_builder --trust_remote_code --precision fp32 --output_path cpu_and_mobile/mobius_base
 ```
 
 Run all three component builds:
@@ -110,21 +105,13 @@ cpu_and_mobile/models/
 
 ```bash
 # Text only
-python inference.py \
-  --model_path cpu_and_mobile/models \
-  --prompt "What is the capital of France?"
+python inference.py --model_path cpu_and_mobile/models --prompt "What is the capital of France?"
 
 # Image + text
-python inference.py \
-  --model_path cpu_and_mobile/models \
-  --image cat.jpeg \
-  --prompt "Describe this image."
+python inference.py --model_path cpu_and_mobile/models --image cat.jpeg --prompt "Describe this image."
 
 # CUDA package
-python inference.py \
-  --model_path cuda/models \
-  --image cat.jpeg \
-  --prompt "Describe this image."
+python inference.py --model_path cuda/models --image cat.jpeg --prompt "Describe this image."
 ```
 
 ORT GenAI executes the vision encoder only when images are present, fuses its

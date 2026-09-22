@@ -59,6 +59,6 @@
     "evaluate_input_model": false,
     "cache_dir": "cpu_and_mobile/cache",
     "max_concurrent_builds": 1,
-    "log_severity_level": 0,
+    "log_severity_level": 1,
     "output_dir": "cpu_and_mobile/models"
 }

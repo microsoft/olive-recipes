@@ -58,7 +58,7 @@
     "target": "local_gpu",
     "evaluate_input_model": false,
     "cache_dir": "cuda/cache",
-    "log_severity_level": 0,
+    "log_severity_level": 1,
     "max_concurrent_builds": 1,
     "output_dir": "cuda/models"
 }
