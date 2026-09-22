@@ -3,13 +3,13 @@
 
 Usage:
     # Text-only
-    python vlm_inference.py --prompt "The capital of France is"
+    python inference.py --prompt "The capital of France is"
 
     # With image
-    python vlm_inference.py --prompt "Describe this image." --image photo.jpg
+    python inference.py --prompt "Describe this image." --image photo.jpg
 
     # Custom model directory
-    python vlm_inference.py --model_dir exported_vlm_pkg --prompt "What is 2+2?"
+    python inference.py --model_dir quantized_onnx --prompt "What is 2+2?"
 """
 
 import argparse
@@ -96,7 +96,7 @@ def main():
         "--image", default=None, help="Path to an image file for vision input"
     )
     parser.add_argument("--max_new_tokens", type=int, default=128)
-    parser.add_argument("--model_dir", default="optimized_vlm_pkg")
+    parser.add_argument("--model_dir", default="quantized_model")
     args = parser.parse_args()
 
     genai_config = os.path.join(args.model_dir, "genai_config.json")
@@ -105,9 +105,9 @@ def main():
         print("Run export first:")
         print(
             "  olive capture-onnx-graph --model_name_or_path Qwen/Qwen3-VL-2B-Instruct "
-            "--use_mobius_builder --output_path exported_vlm_pkg"
+            "--use_mobius_builder --output_path exported_onnx"
         )
-        print("Then create genai_config.json and save tokenizer (see README.md).")
+        print("Then run: olive run --config quantize_onnx.json")
         return
 
     print(f"Model: {args.model_dir}")

@@ -4,10 +4,10 @@ These recipes demonstrate two multi-component flows for
 [Qwen3-VL-2B-Instruct](https://huggingface.co/Qwen/Qwen3-VL-2B-Instruct):
 
 - **Flow A — export first, then per-component optimization**
-  (`vlm_optimize_components.json`): export the VLM to ONNX once with the Mobius builder, then run a
-  single Olive config whose `builds` apply a **different pipeline to each component**.
+  (`quantize_onnx.json`): export the VLM to ONNX once with the Mobius builder, then run a
+  single Olive config whose `builds` apply dynamic INT8 quantization to each component.
 - **Flow B — optimize a Torch component first, then export**
-  (`vlm_quantize_then_export.json`): run a Torch-stage KQuant pass on the decoder component while
+  (`quantize_pytorch.json`): run a Torch-stage KQuant pass on the decoder component while
   saving a complete HF directory, then export that directory with
   `olive capture-onnx-graph --use_mobius_builder`.
 
@@ -24,22 +24,18 @@ Exporting also needs `transformers` and access to the model on Hugging Face.
 
 ---
 
-## Recipe 1 — Export then per-component optimize (`vlm_optimize_components.json`)
+## Recipe 1 — Export then per-component optimize (`quantize_onnx.json`)
 
 ### Step 1 — Export
 
 ```
-olive capture-onnx-graph \
-  --model_name_or_path Qwen/Qwen3-VL-2B-Instruct \
-  --use_mobius_builder \
-  --precision fp32 \
-  --output_path exported_vlm_pkg
+olive capture-onnx-graph --model_name_or_path Qwen/Qwen3-VL-2B-Instruct --use_mobius_builder --precision fp32 --output_path exported_onnx
 ```
 
 Mobius exports this model as three components, each in its own subfolder:
 
 ```
-exported_vlm_pkg/
+exported_onnx/
   decoder/model.onnx
   vision_encoder/model.onnx
   embedding/model.onnx
@@ -48,20 +44,20 @@ exported_vlm_pkg/
 ### Step 2 — Optimize
 
 ```
-olive run --config vlm_optimize_components.json
+olive run --config quantize_onnx.json
 ```
 
-| component        | pipeline        | intent                              |
-|------------------|-----------------|-------------------------------------|
-| `decoder`        | `dynamic_quant` | INT8-quantize the language decoder  |
-| `vision_encoder` | `to_fp16`       | convert the vision tower to FP16    |
-| `embedding`      | `to_fp16`       | convert the embedding to FP16       |
+| component        | pipeline        | intent                            |
+|------------------|-----------------|-----------------------------------|
+| `decoder`        | `dynamic_quant` | INT8-quantize the language decoder |
+| `vision_encoder` | `dynamic_quant` | INT8-quantize the vision encoder  |
+| `embedding`      | `dynamic_quant` | INT8-quantize the embedding model |
 
-The FP16 builds preserve FP32 model inputs and outputs so the embedding output
-remains compatible with the dynamically quantized FP32 decoder. Olive
-automatically assembles the optimized components with Mobius's tokenizer,
-processor, and `genai_config.json` artifacts in `optimized_vlm_pkg/`, producing
-a directly loadable ORT GenAI package.
+Dynamic quantization preserves the model input and output types, so the three
+component interfaces remain compatible. Olive automatically assembles the
+optimized components with Mobius's tokenizer, processor, and
+`genai_config.json` artifacts in `quantized_onnx/`, producing a directly
+loadable ORT GenAI package.
 
 > The three component names (`decoder`, `vision_encoder`, `embedding`) are exactly what Mobius
 > produces for `Qwen/Qwen3-VL-2B-Instruct`. For a different VLM, adjust the component names in the
@@ -73,16 +69,16 @@ Run text generation with the exported ONNX models using **onnxruntime-genai**:
 
 ```bash
 # Text-only
-python vlm_inference.py --prompt "What is the capital of France? Answer in one sentence."
+python inference.py --model_dir quantized_onnx --prompt "What is the capital of France? Answer in one sentence."
 
 # With image input
-python vlm_inference.py --prompt "Describe this image." --image photo.jpg
+python inference.py --model_dir quantized_onnx --prompt "Describe this image." --image photo.jpg
 
 # Custom settings
-python vlm_inference.py --model_dir optimized_vlm_pkg --max_new_tokens 256
+python inference.py --model_dir quantized_onnx --max_new_tokens 256
 ```
 
-The inference script (`vlm_inference.py`) uses ORT GenAI which handles:
+The inference script (`inference.py`) uses ORT GenAI which handles:
 - **Tokenization**: built-in tokenizer from saved HF tokenizer files
 - **Embedding**: ONNX `embedding/model.onnx` (token embed + image feature mixing)
 - **Vision encoding**: ONNX `vision_encoder/model.onnx` (when `--image` is provided)
@@ -93,7 +89,7 @@ Options:
 --prompt TEXT           Text prompt
 --image PATH            Optional image file for multimodal input
 --max_new_tokens N      Maximum tokens to generate (default: 128)
---model_dir DIR         Path to optimized model directory (default: optimized_vlm_pkg)
+--model_dir DIR         Path to optimized model directory (default: quantized_model)
 ```
 
 #### Setup requirements
@@ -101,7 +97,7 @@ Options:
 The export directory needs these files alongside the ONNX models:
 
 ```
-optimized_vlm_pkg/
+quantized_model/
   genai_config.json          # Model type, I/O mappings, search config
   tokenizer.json             # HF tokenizer
   tokenizer_config.json
@@ -118,7 +114,7 @@ Olive preserves them while assembling the optimized package.
 
 ---
 
-## Recipe 2 — Torch decoder quantization, then Mobius export (`vlm_quantize_then_export.json`)
+## Recipe 2 — Torch decoder quantization, then Mobius export (`quantize_pytorch.json`)
 
 This is **Flow B**: quantize only the Torch decoder component first, then export the resulting
 complete HF directory with the Olive capture CLI using the Mobius builder.
@@ -126,7 +122,7 @@ complete HF directory with the Olive capture CLI using the Mobius builder.
 ### Step 1 — Quantize the decoder component
 
 ```
-olive run --config vlm_quantize_then_export.json
+olive run --config quantize_pytorch.json
 ```
 
 The config uses `builds.components: ["decoder"]`, so Olive asks Mobius for the VLM component plan,
@@ -138,40 +134,36 @@ complete HF model directory:
 vlm_decoder_kquant_hf/
 ```
 
-KQuant applies symmetric INT4 weight-only quantization with group size 128 and
-leaves `lm_head` in full precision. It does not require calibration data.
+KQuant applies symmetric INT4 weight-only quantization with group size 128,
+including `lm_head`. It does not require calibration data.
 
 ### Step 2 — Export the quantized HF directory with the Mobius builder
 
 ```
 olive capture-onnx-graph \
-  --model_name_or_path vlm_decoder_kquant_hf \
+  --model_name_or_path quantized_pytorch \
   --use_mobius_builder \
   --trust_remote_code \
   --precision fp16 \
-  --output_path exported_vlm_kquant_pkg
+  --output_path quantized_model
 ```
 
 Output:
 
 ```
-exported_vlm_kquant_pkg/
+quantized_model/
   decoder/model.onnx
   vision_encoder/model.onnx
   embedding/model.onnx
 ```
-
-> **Note.** The Torch KQuant pass saves Olive-packed weights (`quant_method="olive"`). Use this export
-> step with a Mobius builder version that supports Olive-packed quantized HF checkpoints.
-
 ---
 
 ## Notes
 
-- The passes in Recipe 1 (`OnnxFloatToFloat16`, `OnnxDynamicQuantization`) are **illustrative** and
-  chosen to run without calibration data. Swap in `OrtTransformersOptimization`,
-  `OnnxStaticQuantization` (with a `data_config`), or other ONNX passes for production-quality
-  optimization.
+- The `OnnxDynamicQuantization` pass in Recipe 1 is **illustrative** and runs
+  without calibration data. Swap in `OrtTransformersOptimization`,
+  `OnnxStaticQuantization` (with a `data_config`), or another ONNX pass for
+  production-quality optimization.
 - The ONNX component recipe runs on the EP declared in its `systems` section. The Torch KQuant recipe
   targets CUDA to accelerate decoder quantization.
 - `builds.components` selects which exported components to optimize. Only the components with a build

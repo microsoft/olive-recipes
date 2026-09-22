@@ -5,26 +5,17 @@
         "task": "image-text-to-text",
         "load_kwargs": { "trust_remote_code": true }
     },
-    "systems": {
-        "local_gpu": {
-            "type": "LocalSystem",
-            "accelerators": [ { "device": "gpu", "execution_providers": [ "CUDAExecutionProvider" ] } ]
-        }
-    },
     "passes": {
         "decoder_kquant": {
             "type": "KQuant",
             "bits": 4,
             "group_size": 128,
             "sym": true,
-            "lm_head": false
+            "lm_head": true
         }
     },
-    "host": "local_gpu",
-    "target": "local_gpu",
     "evaluate_input_model": false,
-    "cache_dir": "cache",
-    "output_dir": "vlm_decoder_kquant_hf",
+    "output_dir": "quantized_model",
     "builds": {
         "decoder_kquant": {
             "components": [ "decoder" ],

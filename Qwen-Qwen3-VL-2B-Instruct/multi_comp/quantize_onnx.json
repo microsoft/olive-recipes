@@ -1,0 +1,19 @@
+{
+    "input_model": { "type": "CompositeModel", "model_path": "exported_onnx" },
+    "passes": {
+        "dynamic_quant": {
+            "type": "OnnxDynamicQuantization",
+            "quant_preprocess": false
+        }
+    },
+    "evaluate_input_model": false,
+    "output_dir": "quantized_model",
+    "builds": {
+        "decoder": { "components": [ "decoder" ], "pipeline": [ "dynamic_quant" ] },
+        "vision_encoder": {
+            "components": [ "vision_encoder" ],
+            "pipeline": [ "dynamic_quant" ]
+        },
+        "embedding": { "components": [ "embedding" ], "pipeline": [ "dynamic_quant" ] }
+    }
+}
