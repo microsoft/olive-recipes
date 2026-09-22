@@ -4,3 +4,13 @@ recipes:
     file: Llama-3.1-8B-Instruct_quark_ryzenai_llm.json
     devices: npu
     eps: RyzenAIExecutionProvider
+
+  - name: Llama-3.1-8B-Instruct_RyzenAI (full_fusion)
+    file: Llama-3.1-8B-Instruct_quark_ryzenai_llm_full_fusion.json
+    devices: npu
+    eps: RyzenAIExecutionProvider
+
+  - name: Llama-3.1-8B-Instruct_RyzenAI (hybrid)
+    file: Llama-3.1-8B-Instruct_quark_ryzenai_llm_hybrid.json
+    devices: [npu, gpu]
+    eps: RyzenAIExecutionProvider
