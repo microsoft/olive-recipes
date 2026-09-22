@@ -1,9 +1,7 @@
 {
     "input_model": {
         "type": "CompositeModel",
-        "config": {
-            "model_path": "cpu_and_mobile/mobius_base"
-        }
+        "model_path": "cpu_and_mobile/mobius_base"
     },
     "systems": {
         "local_cpu": {

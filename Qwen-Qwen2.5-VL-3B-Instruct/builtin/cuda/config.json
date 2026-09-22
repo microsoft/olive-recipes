@@ -1,9 +1,7 @@
 {
     "input_model": {
         "type": "CompositeModel",
-        "config": {
-            "model_path": "cuda/mobius_base"
-        }
+        "model_path": "cuda/mobius_base"
     },
     "systems": {
         "local_gpu": {
