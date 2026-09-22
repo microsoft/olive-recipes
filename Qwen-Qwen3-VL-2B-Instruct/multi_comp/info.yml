@@ -7,7 +7,7 @@ recipes:
       - CPUExecutionProvider
     devices:
       - cpu
-  - name: qwen3vl-2B-Instruct-gptq
+  - name: qwen3vl-2B-Instruct-kquant
     file: vlm_quantize_then_export.json
     eps:
       - CUDAExecutionProvider

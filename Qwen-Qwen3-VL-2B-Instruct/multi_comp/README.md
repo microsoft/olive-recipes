@@ -7,7 +7,7 @@ These recipes demonstrate two multi-component flows for
   (`vlm_optimize_components.json`): export the VLM to ONNX once with the Mobius builder, then run a
   single Olive config whose `builds` apply a **different pipeline to each component**.
 - **Flow B — optimize a Torch component first, then export**
-  (`vlm_quantize_then_export.json`): run a Torch-stage GPTQ pass on the decoder component while
+  (`vlm_quantize_then_export.json`): run a Torch-stage KQuant pass on the decoder component while
   saving a complete HF directory, then export that directory with
   `olive capture-onnx-graph --use_mobius_builder`.
 
@@ -130,38 +130,38 @@ olive run --config vlm_quantize_then_export.json
 ```
 
 The config uses `builds.components: ["decoder"]`, so Olive asks Mobius for the VLM component plan,
-scopes the Torch GPTQ pass to the decoder submodule, and saves the original HF folder layout with
+scopes the Torch KQuant pass to the decoder submodule, and saves the original HF folder layout with
 the decoder quantized in place. This output is **not** a standalone decoder checkpoint; it is a
 complete HF model directory:
 
 ```
-out/vlm_decoder_gptq_hf/
+vlm_decoder_kquant_hf/
 ```
 
-The recipe uses the GPTQ pass defaults for calibration data (`Salesforce/wikitext`). For production,
-add a `data_config` to `decoder_gptq` with your own text or multimodal calibration set.
+KQuant applies symmetric INT4 weight-only quantization with group size 128 and
+leaves `lm_head` in full precision. It does not require calibration data.
 
 ### Step 2 — Export the quantized HF directory with the Mobius builder
 
 ```
 olive capture-onnx-graph \
-  --model_name_or_path vlm_decoder_gptq_hf \
+  --model_name_or_path vlm_decoder_kquant_hf \
   --use_mobius_builder \
   --trust_remote_code \
   --precision fp16 \
-  --output_path exported_vlm_gptq_pkg
+  --output_path exported_vlm_kquant_pkg
 ```
 
 Output:
 
 ```
-exported_vlm_gptq_pkg/
+exported_vlm_kquant_pkg/
   decoder/model.onnx
   vision_encoder/model.onnx
   embedding/model.onnx
 ```
 
-> **Note.** The Torch GPTQ pass saves Olive-packed weights (`quant_method="olive"`). Use this export
+> **Note.** The Torch KQuant pass saves Olive-packed weights (`quant_method="olive"`). Use this export
 > step with a Mobius builder version that supports Olive-packed quantized HF checkpoints.
 
 ---
@@ -172,7 +172,7 @@ exported_vlm_gptq_pkg/
   chosen to run without calibration data. Swap in `OrtTransformersOptimization`,
   `OnnxStaticQuantization` (with a `data_config`), or other ONNX passes for production-quality
   optimization.
-- The ONNX component recipe runs on the EP declared in its `systems` section. The Torch GPTQ recipe
-  targets CUDA because VLM decoder GPTQ is GPU-oriented.
+- The ONNX component recipe runs on the EP declared in its `systems` section. The Torch KQuant recipe
+  targets CUDA to accelerate decoder quantization.
 - `builds.components` selects which exported components to optimize. Only the components with a build
   are touched; the rest remain as exported.
