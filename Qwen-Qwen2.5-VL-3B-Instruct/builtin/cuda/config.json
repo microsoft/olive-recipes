@@ -26,29 +26,9 @@
             "accuracy_level": 4,
             "save_as_external_data": true,
             "external_data_name": "model.onnx.data"
-        },
-        "resave": {
-            "type": "OnnxPeepholeOptimizer",
-            "onnxscript_optimize": false,
-            "onnxoptimizer_optimize": false,
-            "fuse_reshape_operations": false,
-            "fix_com_microsoft_opset": false,
-            "cast_chain_elimination": false,
-            "save_as_external_data": true,
-            "external_data_name": "model.onnx.data"
         }
     },
-    "engine": {
-        "host": "local_gpu",
-        "target": "local_gpu",
-        "evaluate_input_model": false,
-        "cache_dir": "cuda/cache"
-    },
-    "max_concurrent_builds": 1,
     "builds": {
-        "_default": {
-            "output_dir": "cuda/models"
-        },
         "decoder": {
             "components": [
                 "decoder"
@@ -62,7 +42,7 @@
                 "vision_encoder"
             ],
             "pipeline": [
-                "resave"
+                "int4"
             ]
         },
         "embedding": {
@@ -70,8 +50,15 @@
                 "embedding"
             ],
             "pipeline": [
-                "resave"
+                "int4"
             ]
         }
-    }
+    },
+    "host": "local_gpu",
+    "target": "local_gpu",
+    "evaluate_input_model": false,
+    "cache_dir": "cuda/cache",
+    "log_severity_level": 0,
+    "max_concurrent_builds": 1,
+    "output_dir": "cuda/models"
 }

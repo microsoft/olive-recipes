@@ -10,8 +10,8 @@ Olive multi-build config:
 - `embedding`
 
 Mobius owns the model graph, weight mapping, ORT GenAI configuration, tokenizer,
-and image processor generation. The previous custom PyTorch model and three
-independent component configs are no longer required.
+and image processor generation. The target config loads the exported directory
+as a `CompositeModel` and applies the configured pipeline to each component.
 
 ## Prerequisites
 
@@ -32,14 +32,27 @@ Run commands from this `builtin` directory.
 
 ### CPU and mobile
 
+Export the complete FP32 package:
+
 ```bash
-python optimize.py --config-dir cpu_and_mobile --device cpu
+olive capture-onnx-graph \
+  --model_name_or_path Qwen/Qwen2.5-VL-3B-Instruct \
+  --use_mobius_builder \
+  --trust_remote_code \
+  --precision fp32 \
+  --output_path cpu_and_mobile/mobius_base
 ```
 
-`cpu_and_mobile/config.json` is one Olive config containing three named builds.
-All three components use block-wise INT4 RTN:
+Run all three component builds:
 
-| Build | Pipeline |
+```bash
+olive run --config cpu_and_mobile/config.json
+```
+
+`cpu_and_mobile/config.json` applies block-wise INT4 RTN to all three exported
+components:
+
+| Component | Pipeline |
 |---|---|
 | `decoder` | `OnnxBlockWiseRtnQuantization` |
 | `vision_encoder` | `OnnxBlockWiseRtnQuantization` |
@@ -47,30 +60,38 @@ All three components use block-wise INT4 RTN:
 
 ### CUDA
 
+Export the complete FP16 package:
+
 ```bash
-python optimize.py --config-dir cuda --device gpu
+olive capture-onnx-graph \
+  --model_name_or_path Qwen/Qwen2.5-VL-3B-Instruct \
+  --use_mobius_builder \
+  --trust_remote_code \
+  --precision fp16 \
+  --output_path cuda/mobius_base
 ```
 
-`cuda/config.json` preserves the previous target intent:
+Run all three component builds:
 
-| Build | Pipeline |
+```bash
+olive run --config cuda/config.json
+```
+
+`cuda/config.json` applies block-wise INT4 RTN to all three exported components:
+
+| Component | Pipeline |
 |---|---|
 | `decoder` | INT4 RTN |
-| `vision_encoder` | Mobius FP16, Olive resave |
-| `embedding` | Mobius FP16, Olive resave |
+| `vision_encoder` | INT4 RTN |
+| `embedding` | INT4 RTN |
 
-Both flows have two stages:
+Both targets use the same two-stage flow:
 
-1. Olive runs `MobiusBuilder` once and saves the complete package under
-   `<config-dir>/mobius_base/`.
-2. Olive runs the target's single `config.json`; its `builds` select and
-   optimize the three Mobius components into `<config-dir>/models/`.
-
-To reuse an existing Mobius export while rerunning the three component builds:
-
-```bash
-python optimize.py --config-dir cpu_and_mobile --device cpu --skip-export
-```
+1. `olive capture-onnx-graph` exports the complete three-component ORT GenAI
+   package to `<config-dir>/mobius_base/`.
+2. `olive run` executes the target's named component builds and automatically
+   assembles the complete package under `<config-dir>/models/`, preserving the
+   Mobius-generated runtime files and any components without a build.
 
 The final ORT GenAI package uses Mobius's native component layout:
 
@@ -129,7 +150,6 @@ versions; results from the previous custom export graph are not comparable.
 
 ```text
 builtin/
-  optimize.py
   inference.py
   eval.py
   cat.jpeg
