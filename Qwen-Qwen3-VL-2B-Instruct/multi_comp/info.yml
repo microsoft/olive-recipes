@@ -2,7 +2,7 @@ keywords:
   - olive-ai
 recipes:
   - name: qwen3vl-2B-Instruct-components
-    file: optimize.py
+    file: vlm_optimize_components.json
     eps:
       - CPUExecutionProvider
     devices:

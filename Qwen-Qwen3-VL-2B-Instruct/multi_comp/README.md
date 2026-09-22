@@ -48,7 +48,7 @@ exported_vlm_pkg/
 ### Step 2 — Optimize
 
 ```
-python optimize.py
+olive run --config vlm_optimize_components.json
 ```
 
 | component        | pipeline        | intent                              |
@@ -58,9 +58,10 @@ python optimize.py
 | `embedding`      | `to_fp16`       | convert the embedding to FP16       |
 
 The FP16 builds preserve FP32 model inputs and outputs so the embedding output
-remains compatible with the dynamically quantized FP32 decoder. `optimize.py`
-copies Mobius's tokenizer, processor, and `genai_config.json` artifacts into
-`optimized_vlm_pkg/`, producing a directly loadable ORT GenAI package.
+remains compatible with the dynamically quantized FP32 decoder. Olive
+automatically assembles the optimized components with Mobius's tokenizer,
+processor, and `genai_config.json` artifacts in `optimized_vlm_pkg/`, producing
+a directly loadable ORT GenAI package.
 
 > The three component names (`decoder`, `vision_encoder`, `embedding`) are exactly what Mobius
 > produces for `Qwen/Qwen3-VL-2B-Instruct`. For a different VLM, adjust the component names in the
@@ -111,7 +112,7 @@ optimized_vlm_pkg/
 ```
 
 Mobius writes the tokenizer, processor, and `genai_config.json` during Step 1;
-`optimize.py` carries them into the optimized package.
+Olive preserves them while assembling the optimized package.
 
 > **Note.** Install `onnxruntime-genai` (`pip install onnxruntime-genai`) to use this script.
 
