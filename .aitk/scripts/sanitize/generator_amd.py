@@ -3,7 +3,7 @@ from pathlib import Path
 from typing import Optional
 
 from .constants import EPNames, OlivePassNames, OlivePropertyNames, PhaseTypeEnum
-from .generator_common import create_model_parameter, set_optimization_path
+from .generator_common import apply_runtime_feature_overrides, create_model_parameter, set_optimization_path
 from .model_info import ModelList
 from .model_parameter import ModelParameter, OptimizationPath, Section
 from .parameters import Parameter
@@ -164,7 +164,7 @@ def generate_amd_quantization_config(
         content = json.load(f)
     parameters = []
     for k, v in content[OlivePropertyNames.Passes].items():
-        if v[OlivePropertyNames.Type].lower() == OlivePassNames.QuarkQuantization:
+        if v[OlivePropertyNames.Type].lower() == OlivePassNames.QuarkQuantizationVitisAI:
             # https://github.com/amd/Quark/blob/0a542692aa39181b7ab0ae77246cb537a0f97791/examples/onnx/accuracy_improvement/quarot/data_preparation.py#L78
             data_name = v.get(OlivePropertyNames.Dataset)
             if data_name:
@@ -249,6 +249,8 @@ def generator_amd(id: str, recipe, folder: Path, modelList: ModelList):
         quantize = generate_quantization_config(configFile, modelList, parameter)
     if quantize:
         parameter.sections.append(quantize)
+
+    apply_runtime_feature_overrides(aitk, parameter)
 
     parameter.writeIfChanged()
     print(f"\tGenerated AMD configuration for {file}")

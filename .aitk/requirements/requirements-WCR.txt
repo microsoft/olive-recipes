@@ -59,7 +59,7 @@ olive-ai==0.10.1
 onnx==1.20.1
 onnx-ir==0.1.10
 onnxruntime-genai-winml==0.13.2
-onnxruntime-windowsml==1.24.5.202604171637
+onnxruntime-windowsml==1.27.1.202607110137
 onnxscript==0.5.3
 # optimum==1.26.1
 optimum==1.26.1
@@ -111,15 +111,8 @@ typing-extensions==4.15.0
 typing-inspection==0.4.1
 tzdata==2025.2
 urllib3==2.7.0
-# uvpip:install wasdk-Microsoft.Windows.AI.MachineLearning==2.0.1 --no-deps;post
-wasdk-Microsoft.Windows.ApplicationModel.DynamicDependency.Bootstrap==2.0.1
 wcwidth==0.2.13
 widgetsnbextension==4.0.13
-# winrt-runtime==3.2.1
-winrt-runtime==3.2.1
-# winrt-Windows.Foundation==3.2.1
-winrt-Windows.Foundation==3.2.1
-# winrt-Windows.Foundation.Collections==3.2.1
-winrt-Windows.Foundation.Collections==3.2.1
+windowsml==2.3.42
 xxhash==3.5.0
 yarl==1.20.1

@@ -3,17 +3,10 @@ flatbuffers==25.2.10
 humanfriendly==10.0
 mpmath==1.3.0
 numpy==2.2.4
-onnxruntime-windowsml==1.24.5.202604171637
+onnxruntime-windowsml==1.27.1.202607110137
 packaging==24.2
 protobuf==5.29.6
 pyreadline3==3.5.4
 sympy==1.14.0
-# uvpip:install wasdk-Microsoft.Windows.AI.MachineLearning==2.0.1 --no-deps;post
-wasdk-Microsoft.Windows.ApplicationModel.DynamicDependency.Bootstrap==2.0.1
-# winrt-runtime==3.2.1
-winrt-runtime==3.2.1
-# winrt-Windows.Foundation==3.2.1
-winrt-Windows.Foundation==3.2.1
-# winrt-Windows.Foundation.Collections==3.2.1
-winrt-Windows.Foundation.Collections==3.2.1
+windowsml==2.3.42
 # not in requires

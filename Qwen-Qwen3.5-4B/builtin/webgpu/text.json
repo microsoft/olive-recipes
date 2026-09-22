@@ -18,9 +18,9 @@
         "m": {
             "type": "ModelBuilder",
             "precision": "int4",
-            "int4_accuracy_level": 4,
-            "int4_block_size": 32,
-            "int4_algo_config": "rtn",
+            "accuracy_level": 4,
+            "block_size": 32,
+            "algo_config": "rtn",
             "extra_options": {
                 "filename": "text.onnx",
                 "prune_lm_head": true

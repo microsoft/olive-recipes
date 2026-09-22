@@ -21,7 +21,7 @@ numpy==2.2.4
 # onnx==1.20.1
 onnx==1.20.1
 onnxruntime-genai-winml==0.13.2
-onnxruntime-windowsml==1.24.5.202604171637
+onnxruntime-windowsml==1.27.1.202607110137
 packaging==24.2
 pandas==2.2.3
 parso==0.8.5
@@ -40,13 +40,6 @@ sympy==1.14.0
 tornado==6.5.5
 traitlets==5.14.3
 tzdata==2025.2
-# uvpip:install wasdk-Microsoft.Windows.AI.MachineLearning==2.0.1 --no-deps;post
-wasdk-Microsoft.Windows.ApplicationModel.DynamicDependency.Bootstrap==2.0.1
 wcwidth==0.2.13
-# winrt-runtime==3.2.1
-winrt-runtime==3.2.1
-# winrt-Windows.Foundation==3.2.1
-winrt-Windows.Foundation==3.2.1
-# winrt-Windows.Foundation.Collections==3.2.1
-winrt-Windows.Foundation.Collections==3.2.1
+windowsml==2.3.42
 # not in requires
