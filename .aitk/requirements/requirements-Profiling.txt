@@ -20,7 +20,7 @@ nest-asyncio==1.6.0
 numpy==2.2.4
 # onnx==1.20.1
 onnx==1.20.1
-onnxruntime-genai-winml==0.13.2
+onnxruntime-genai-winml==0.16.0
 onnxruntime-windowsml==1.27.1.202607110137
 packaging==24.2
 pandas==2.2.3
