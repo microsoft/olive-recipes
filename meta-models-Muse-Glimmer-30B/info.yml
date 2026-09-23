@@ -1,0 +1,18 @@
+keywords:
+  - muse
+  - muse-glimmer
+  - multimodal
+  - vision-language
+  - int4
+  - kquant
+  - mobius
+arch: muse_glimmer
+ep: CUDAExecutionProvider
+device: gpu
+name: muse_glimmer_30b
+recipes:
+  - name: muse-glimmer-30b-int4-kquant-cuda
+    file: cuda/int4/config.json
+    devices:
+      - gpu
+    eps: CUDAExecutionProvider
