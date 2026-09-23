@@ -1,0 +1,11 @@
+{
+    "input_model": { "type": "HfModel", "model_path": "google/gemma-4-12B-it" },
+    "passes": {
+        "mobius_build": { "type": "MobiusBuilder", "precision": "fp16" }
+    },
+    "target": {
+        "type": "LocalSystem",
+        "accelerators": [{ "device": "gpu", "execution_providers": ["CUDAExecutionProvider"] }]
+    },
+    "output_dir": "cuda/fp16/models"
+}
