@@ -11,7 +11,7 @@ GenAI configuration.
 
 ## Quantization
 
-All three quantized recipes use symmetric 4-bit weights with group size 128:
+The original three quantized recipes use symmetric 4-bit weights with group size 128:
 
 ```json
 {
@@ -37,6 +37,60 @@ calibration-dependent; use the same calibration policy when comparing runs.
 Experts with insufficient routed calibration tokens automatically fall back
 to RTN, so retain the fallback count from the GPTQ log with benchmark results.
 
+### Manual, llama.cpp-inspired RTN layout
+
+`rtn_manual_fp16` is a separate example built on the uniform RTN recipe. It
+keeps symmetric INT4/group-128 as the default, then uses explicit `Rtn.overrides`
+instead of a `SelectiveMixedPrecision` pass:
+
+- Attention Q, K, V, and fused expert `down_proj` use INT8 in layers 0-5, 8,
+  11, 14, 17, 20, 23, 26, 29, 32, 35, 38, 41, and 42-47; the remaining
+  projections use INT4. The selected layers follow llama.cpp's
+  first/last-eighth and every-third-middle-layer `use_more_bits` rule for
+  this pinned 48-layer model.
+- Routers, embeddings, norms, and the LM head retain the floating-point
+  treatment of the uniform RTN recipe.
+
+This copies a *selection policy*, not GGUF `Q4_K_M` storage: its selected
+`attn_v`/`ffn_down` `Q6_K` choices are approximated by Olive INT8. Olive also
+promotes Q and K alongside V in those layers so Mobius can fuse QKV; llama.cpp
+does not require this. Neither file size nor accuracy is expected to match a
+GGUF. The selected layers export mixed `(FC1, FC2) = (4, 8)` fused experts;
+other layers export `(4, 4)`. Check the effective per-projection quantization
+and actual output size before comparing quality with the uniform RTN baseline.
+
+Unlike the four workflows in the benchmark table below, this example has not
+undergone a comparable quality evaluation. Mixed-width QMoE export requires a
+Mobius build with projection-specific expert widths (currently
+[onnxruntime/mobius#744](https://github.com/onnxruntime/mobius/pull/744)), and
+CUDA execution requires a newer ONNX Runtime build with mixed-width dense
+fallback; the ORT 1.30.0 build used for the published results below is not
+sufficient. In a separate environment, install
+`cuda/rtn_manual_fp16/requirements.txt` instead of the baseline requirements
+file: it pins the experimental Mobius branch without changing the dependencies
+of the validated workflows. Install a compatible custom ORT CUDA wheel
+**after** the GenAI dependency, and verify that it provides the intended CUDA
+execution provider.
+
+On September 25, 2026, the pinned 30B checkpoint was quantized with Olive
+`18bf0b7f` and exported with Mobius `3e07e4ce`. The resulting ONNX package
+occupies about 18 GB and contains 48 QMoE layers: 24 with INT4/INT8
+`(FC1, FC2)` and 24 with INT4/INT4. A CUDA build of ONNX Runtime from
+`50b8fcb695ed` (an earlier revision of the mixed-width QMoE work) and ORT
+GenAI 0.16.0-dev generated `391` for "What is 17 * 23? Answer with the number
+only. /no_think". A bounded MMLU smoke test (`--limit 1`, one question per
+subject, 57 questions total) completed with 46/57 correct. This small sample
+is **not comparable** with the 200-per-subtask benchmark below. Full-logit
+parity, the previously observed `(4,8)` numerical tolerance issue, larger
+quality evaluation, and the newer ORT prepack fix remain unverified here.
+
+This ORT build's mixed-width dense fallback requires 1,207,959,552 bytes of
+dequantized expert-weight scratch for a selected layer, exceeding its default
+1 GiB safety limit. For a bounded CUDA correctness run on a GPU with enough
+free memory, set `ORT_QMOE_INT_DEQUANT_MAX_SCRATCH_BYTES=2147483648` on the
+inference or evaluation command. This is not a performance optimization or
+a general recommendation to raise the scratch limit for arbitrary models.
+
 ## Setup and export
 
 Run from the `Qwen-Qwen3-30B-A3B/` directory:
@@ -50,6 +104,19 @@ olive run --config cuda/kquant_fp16/config.json
 olive run --config cuda/rtn_fp16/config.json
 olive run --config cuda/gptq_fp16/config.json
 ```
+
+For the experimental manual variant, use a separate environment and an ORT
+CUDA build with mixed-width QMoE fallback:
+
+```bash
+pip install -r cuda/rtn_manual_fp16/requirements.txt
+# Install the compatible custom ORT CUDA wheel here, after the GenAI dependency.
+olive run --config cuda/rtn_manual_fp16/config.json
+```
+
+When using the locally cached pinned checkpoint without Hub access, append
+`--model_name_or_path /path/to/ad44e777bcd18fa416d9da3bd8f70d33ebb85d39`
+to `olive run`; otherwise Olive looks up the model's repository metadata.
 
 > `cuda/requirements.txt` leaves `onnxruntime-genai-cuda` unpinned. As of this
 > writing, neither the ONNX Runtime 1.30.0 nor the ONNX Runtime GenAI
@@ -73,6 +140,7 @@ Each workflow writes to its own directory:
 | FP16 baseline (~61 GB) | `cuda/fp16/config.json` | `cuda/fp16/models/` |
 | KQuant | `cuda/kquant_fp16/config.json` | `cuda/kquant_fp16/models/` |
 | RTN | `cuda/rtn_fp16/config.json` | `cuda/rtn_fp16/models/` |
+| Manual mixed RTN (limited validation) | `cuda/rtn_manual_fp16/config.json` | `cuda/rtn_manual_fp16/models/` |
 | GPTQ | `cuda/gptq_fp16/config.json` | `cuda/gptq_fp16/models/` |
 
 ## Inference
@@ -107,6 +175,18 @@ traces can be long, so include Qwen3's `/no_think` switch directly in a prompt
 when a short answer is enough. Change `--model_path` to any other output path
 in the table above to test that variant.
 
+For a bounded manual mixed-RTN CUDA smoke test with the compatible custom
+ORT build, use the explicit scratch limit:
+
+```bash
+ORT_QMOE_INT_DEQUANT_MAX_SCRATCH_BYTES=2147483648 \
+  python /path/to/onnxruntime-genai/examples/python/model-qa.py \
+    --model_path cuda/rtn_manual_fp16/models \
+    --execution_provider cuda \
+    --user_prompt "What is 17 * 23? Answer with the number only. /no_think" \
+    --non_interactive --max_length 192 --timings
+```
+
 This is a standalone decoder-only text package, so ORT GenAI uses its text-only
 runtime path; no vision encoder, image processor, or multimodal pipeline is
 involved.
@@ -138,6 +218,17 @@ do
   olive run --config eval/mmlu_cuda.json \
     --model_name_or_path "$model_path"
 done
+```
+
+To smoke-test the manual mixed-RTN package without claiming a comparable MMLU
+score, use the same `ortgenai` backend with one question per subtask:
+
+```bash
+ORT_QMOE_INT_DEQUANT_MAX_SCRATCH_BYTES=2147483648 \
+  olive benchmark \
+    --model_name_or_path cuda/rtn_manual_fp16/models \
+    --tasks mmlu --backend ortgenai --device gpu \
+    --batch_size 1 --max_length 4096 --limit 1
 ```
 
 For an ad-hoc run without the checked-in config, Olive's benchmark command has
