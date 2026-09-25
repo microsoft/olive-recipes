@@ -75,5 +75,9 @@ The released `olive-ai` package cannot drive genai 0.15+ (its ModelBuilder pass
 skips the `check_extra_options` step that `create_model` now requires), and Olive
 `main` imports the `onnxruntime_genai.models.loaders` package that only ships from
 genai 0.16.0. LFM2-MoE support itself comes from
-[microsoft/onnxruntime-genai#2575](https://github.com/microsoft/onnxruntime-genai/pull/2575);
-until that is released, build the wheel from a branch that contains it.
+[microsoft/onnxruntime-genai#2575](https://github.com/microsoft/onnxruntime-genai/pull/2575),
+which landed after 0.16.0 and changes the runtime as well as the model builder. Until a
+release includes it, build onnxruntime-genai from `main` and install that wheel after the
+requirements with `pip install --no-deps --force-reinstall`: a `main` build is versioned
+`0.16.0.dev0`, which sorts below `0.16.0`, so installing the requirements afterwards would
+replace it with the release.
