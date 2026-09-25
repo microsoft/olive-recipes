@@ -1,0 +1,179 @@
+{
+    "input_model": {
+        "type": "HfModel",
+        "model_path": "Qwen/Qwen3.8-27B",
+        "load_kwargs": {
+            "torch_dtype": "float16"
+        }
+    },
+    "systems": {
+        "local_system": {
+            "type": "LocalSystem",
+            "accelerators": [
+                {
+                    "device": "gpu",
+                    "execution_providers": [
+                        "CUDAExecutionProvider"
+                    ]
+                }
+            ]
+        }
+    },
+    "passes": {
+        "builder_int4_int4_per_channel_kv_paged_cpu_embed_dflash2_int4_24gib": {
+            "type": "ModelBuilder",
+            "precision": "int4",
+            "builder_config_version": 2,
+            "split_cpu_embedding": true,
+            "extra_options": {
+                "prune_lm_head": true,
+                "hf_token": false
+            },
+            "target_options": {
+                "quant_config": {
+                    "io_dtype": "fp16",
+                    "weights": {
+                        "type": "int4",
+                        "block_size": 32,
+                        "method": "default",
+                        "symmetric": true,
+                        "op_types": [
+                            "MatMul"
+                        ]
+                    },
+                    "format": {
+                        "use_qdq": false,
+                        "matmulnbits_weights_prepacked": 1
+                    }
+                },
+                "attention": {
+                    "implementation": "paged",
+                    "paged": {
+                        "block_size": 256
+                    },
+                    "kv_cache": {
+                        "scheme": "int4_per_channel",
+                        "scale_file": "kv_scales_int8_per_channel.json"
+                    }
+                },
+                "optimizations": {
+                    "fuse_mlp_gate_up": true
+                }
+            },
+            "drafter_options": {
+                "drafter_type": "dflash2",
+                "path": "Qwen3.8-27B-DFlash2",
+                "num_draft_tokens": 7,
+                "shared_weights": {
+                    "embedding": "required",
+                    "lm_head": "required"
+                },
+                "quant_config": {
+                    "io_dtype": "bf16",
+                    "checkpoint_policy": "preserve",
+                    "weights": {
+                        "type": "int4",
+                        "block_size": 32,
+                        "method": "default",
+                        "symmetric": true
+                    },
+                    "format": {
+                        "use_qdq": false,
+                        "matmulnbits_weights_prepacked": 1
+                    }
+                },
+                "optimizations": {
+                    "fuse_mlp_gate_up": true
+                }
+            },
+            "speculative_options": {
+                "aux_hidden_state_layers": [
+                    6,
+                    20,
+                    34,
+                    48,
+                    62
+                ],
+                "state_update_capacity": 7
+            },
+            "runtime_config": {
+                "model": {
+                    "decoder": {
+                        "session_options": {
+                            "session.use_device_allocator_for_initializers": "1",
+                            "provider_options": [
+                                {
+                                    "cuda": {
+                                        "enable_cuda_graph": "1"
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "dflash2": {
+                        "session_options": {
+                            "session.use_device_allocator_for_initializers": "1",
+                            "provider_options": [
+                                {
+                                    "cuda": {
+                                        "enable_cuda_graph": "1"
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                },
+                "engine": {
+                    "dynamic_batching": {
+                        "max_batch_size": 1,
+                        "max_scheduled_tokens": 512,
+                        "num_blocks": 800
+                    }
+                },
+                "search": {
+                    "chunk_size": 512,
+                    "max_length": 200001
+                },
+                "speculative": {
+                    "max_draft_tokens": 7
+                }
+            }
+        },
+        "runtime_profiles": {
+            "type": "GenAIModelRuntimeProfiles",
+            "runtime_profiles": [
+                {
+                    "id": "32gib",
+                    "kv_cache": {
+                        "scheme": "int8_per_channel",
+                        "scale_file": "kv_scales_int8_per_channel.json"
+                    },
+                    "eligibility": {
+                        "minimum_total_device_memory_bytes": 34359738368
+                    },
+                    "overlay": {
+                        "engine": {
+                            "dynamic_batching": {
+                                "max_batch_size": 8,
+                                "max_scheduled_tokens": 512,
+                                "num_blocks": 928
+                            }
+                        },
+                        "search": {
+                            "chunk_size": 512,
+                            "max_length": 65536
+                        },
+                        "speculative": {
+                            "max_draft_tokens": 6
+                        }
+                    }
+                }
+            ]
+        }
+    },
+    "target": "local_system",
+    "log_severity_level": 0,
+    "output_dir": "model_int4_int4_int8_per_channel_kv_paged_cpu_embed_dflash2_int4_24gib_32gib",
+    "cache_dir": "cache_combined_24gib_32gib",
+    "no_artifacts": false
+}
