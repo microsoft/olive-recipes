@@ -15,7 +15,7 @@ token is sent to.
 ### `_cuda_int8.json` — closest to the original
 Symmetric INT8 weights and INT8 experts, straight from the model builder. This is the
 recommended recipe when the model fits: it is indistinguishable from FP16 in our
-measurements, at 56% of FP16's size and 1.4x its decode speed.
+measurements, at 55% of FP16's size and 1.6x its decode speed.
 
 ```
 olive run --config LiquidAI-LFM2.5-8B-A1B_cuda_int8.json
@@ -36,13 +36,14 @@ olive run --config LiquidAI-LFM2.5-8B-A1B_cuda_int4.json
 Logits compared against the Hugging Face FP32 model over 819 scored positions (8 chat
 prompts: prose, code, arithmetic, history, documentation, data structures, translation,
 systems), on an A10. `top-1` is agreement with the FP32 argmax; `KL` is KL(fp32 || onnx)
-averaged per position. Decode is single-token steps through an ONNX Runtime session.
+averaged per position. Decode is greedy generation through onnxruntime-genai, with the
+`onnxruntime-ep-cuda12` plugin on an ONNX Runtime 1.31 nightly.
 
 | recipe   | size     | top-1 | KL     | decode  |
 | -------- | -------- | ----- | ------ | ------- |
-| (fp16)   | 15.8 GiB | 0.959 | 0.0224 | 115 t/s |
-| int8     |  8.9 GiB | 0.955 | 0.0175 | 164 t/s |
-| int4     |  5.1 GiB | 0.880 | 0.0983 | 202 t/s |
+| (fp16)   | 16.3 GiB | 0.959 | 0.0224 | 115 t/s |
+| int8     |  8.9 GiB | 0.955 | 0.0175 | 180 t/s |
+| int4     |  5.1 GiB | 0.880 | 0.0983 | 219 t/s |
 
 INT8 is statistically indistinguishable from FP16 here: paired McNemar on top-1 gives
 p = 0.65, and the paired bootstrap CI for the KL difference spans zero.
