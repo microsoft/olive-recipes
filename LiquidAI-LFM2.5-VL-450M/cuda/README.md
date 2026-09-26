@@ -11,7 +11,7 @@ LFM2.5 text recipes; the vision encoder and the embedding model are exported by
 
 ### Decoder
 
-#### `_cuda_int4.json` — Q4_K_M equivalent
+#### `_cuda_int4.json` — INT4 weights
 INT4 weights via k_quant, with `matmul_mixed_precision` keeping the sensitive
 layers and the LM head at INT8.
 
@@ -19,7 +19,7 @@ layers and the LM head at INT8.
 olive run --config LiquidAI-LFM2.5-VL-450M_cuda_int4.json
 ```
 
-#### `_cuda_int8.json` — Q8_0 equivalent
+#### `_cuda_int8.json` — INT8 weights
 Symmetric INT8 weights throughout, including the LM head.
 
 ```
@@ -30,12 +30,12 @@ olive run --config LiquidAI-LFM2.5-VL-450M_cuda_int8.json
 
 #### `_cuda_vision_int8.json`
 Exports `vision_encoder/` and `embedding/` with Mobius (FP16) and quantizes
-both to INT8 (block-wise RTN; the embedding table becomes `GatherBlockQuantized`).
-Shared by both decoder variants. INT4 is not offered for the vision encoder: on
-LFM2.5-VL-450M it drops the per-token cosine similarity of the image features to
-~0.94, while INT8 keeps it above 0.99. `accuracy_level` is left at 0 for the same
-reason — INT8 compute (`accuracy_level: 4`) roughly doubles the feature error
-(per-token cosine 0.9902 vs 0.9971 at worst on LFM2.5-VL-450M).
+both to INT8 (block-wise RTN in blocks of 32; the embedding table becomes
+`GatherBlockQuantized`). Shared by both decoder variants. On LFM2.5-VL-450M, the
+per-token cosine similarity of the image features to the FP32 export on a test
+photo (worst token / mean, CPU EP) is 0.9921 / 0.9997. INT4 is not offered for
+the vision encoder: it drops to 0.67 / 0.94. `accuracy_level` is left at 0 for
+the same reason: INT8 compute (`accuracy_level: 4`) drops to 0.9233 / 0.9989.
 
 ```
 olive run --config LiquidAI-LFM2.5-VL-450M_cuda_vision_int8.json
@@ -70,6 +70,37 @@ Run it with `examples/python/model-mm.py` from onnxruntime-genai:
 python model-mm.py -m model -e cuda
 ```
 
+## Measured quality
+
+Scored against the Hugging Face model in FP32 on wikitext-2 (test split, 64 chunks of 512 tokens,
+second half of each chunk scored): `KLD` is the mean KL divergence of the next-token distribution
+from FP32 (lower is better) and `same top` is how often the most likely next token matches FP32. The
+llama.cpp rows are LiquidAI's official GGUFs, scored the same way with `llama-perplexity
+--kl-divergence`; each range spans its Metal backend and its CPU backend, which quantizes
+activations to 8 bits as ONNX Runtime's CPU kernels do. The ONNX rows were measured on an NVIDIA
+A10. Sizes count the decoder plus the embedding model; the vision encoder is not scored.
+
+| recipe | size | KLD | same top |
+| --- | --- | --- | --- |
+| `_cuda_int4.json` | 0.33 GiB | 0.063 | 86.4% |
+| `_cuda_int8.json` | 0.43 GiB | 0.0006 | 98.6% |
+| llama.cpp Q4_K_M | 0.21 GiB | 0.062-0.067 | 86.2-86.7% |
+| llama.cpp Q8_0 | 0.35 GiB | 0.0006-0.0013 | 97.9-98.7% |
+
+INT8 matches Q8_0 (0.0006 against 0.0013).
+
+INT4 matches Q4_K_M's quality (0.063 against 0.067 on llama.cpp's CPU backend), at 1.6x its size.
+The size comes from two places: the LM head and the embedding model each hold an INT8 copy of the
+token table, where Q4_K_M keeps one 6-bit copy, and MatMulNBits stores an FP16 scale for every block
+of 32 weights, where Q4_K packs 6-bit scales into 256-weight super-blocks.
+
+Where INT4 trails, the cause is ONNX Runtime's `k_quant` rather than the recipe: it fits each
+block's scale and minimum the way llama.cpp does, then rounds the minimum to an integer zero point
+without refitting, which leaves its 4-bit weights with about 1.3x the rounding error of Q4_K. The
+recipe's INT8 LM head and INT8 sensitive layers (the same layers Q4_K_M promotes to 6 bits) make up
+for part of that. [microsoft/onnxruntime#32814](https://github.com/microsoft/onnxruntime/pull/32814)
+fixes the rounding.
+
 ## Setup
 
 Python 3.11+ is required: onnxruntime-genai stopped publishing cp310 wheels at 0.12.
@@ -79,15 +110,17 @@ pip install git+https://github.com/microsoft/olive.git
 pip install -r requirements.txt
 ```
 
-These recipes need Olive from `main`, Mobius from `main` (`requirements.txt` points
-at git: the released `mobius-onnx` has neither LFM2-VL nor the `revision` argument
-Olive passes), and
-an `onnxruntime-genai-cuda` build that includes LFM2-VL support
-([microsoft/onnxruntime-genai#2571](https://github.com/microsoft/onnxruntime-genai/pull/2571)),
-both in the model builder and in the runtime. The released `olive-ai` package
-cannot drive genai 0.15+ (its ModelBuilder pass skips the `check_extra_options`
-step that `create_model` now requires), and Olive `main` imports the
-`onnxruntime_genai.models.loaders` package that only ships from genai 0.16.0.
+These recipes need Olive from `main`, Mobius from git (`requirements.txt` pins the
+commit they were verified with: the released `mobius-onnx` has neither LFM2-VL nor
+the `revision` argument Olive passes), and `onnxruntime-genai-cuda>=0.17.0`, the
+first release with LFM2-VL support
+([microsoft/onnxruntime-genai#2571](https://github.com/microsoft/onnxruntime-genai/pull/2571))
+in both the model builder and the runtime. The released `olive-ai` package cannot
+drive genai 0.15+ (its ModelBuilder pass skips the `check_extra_options` step that
+`create_model` now requires).
+
+The `onnxruntime-genai-cuda` 0.17.0 and `onnxruntime-gpu` 1.30 wheels on PyPI are
+CUDA 13 builds, so they need NVIDIA driver 580 or newer.
 
 Image splitting (tiling) is not implemented in ONNX Runtime GenAI: every image is
 resized once to at most `max_image_tokens` tokens, as the Hugging Face processor

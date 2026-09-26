@@ -1,3 +1,5 @@
-mobius-onnx @ git+https://github.com/onnxruntime/mobius.git
-onnxruntime-genai-cuda>=0.16.0
+mobius-onnx @ git+https://github.com/onnxruntime/mobius.git@783e03b50f31010fdfab345d00b0a918ef95d8e3
+onnxruntime-genai-cuda>=0.17.0
+# Olive imports requests without declaring it (microsoft/Olive#2676)
+requests
 transformers>=5.0.0

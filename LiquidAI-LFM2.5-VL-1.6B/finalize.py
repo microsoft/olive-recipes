@@ -4,9 +4,6 @@ The decoder recipe writes ``model.onnx``, ``genai_config.json`` and the tokenize
 output directory; the vision recipe adds ``vision_encoder/`` and ``embedding/`` next to them.
 This script adds the ``embedding`` and ``vision`` sections to ``genai_config.json`` and writes the
 ``processor_config.json`` that drives image preprocessing in ONNX Runtime GenAI.
-
-Usage:
-    python finalize.py [model_dir]
 """
 
 import argparse
@@ -22,6 +19,10 @@ EMBEDDING_FILENAME = "embedding/model.onnx"
 
 # PIL resampling codes used by the Hugging Face image processor -> onnxruntime-extensions names.
 INTERPOLATION = {2: "LINEAR", 3: "CUBIC"}
+
+# Graph capture replays one recorded run, so it must stay on the decoder: the vision and embedding
+# sessions see new input shapes with every prompt.
+GRAPH_CAPTURE_OPTIONS = {"enable_cuda_graph", "enableGraphCapture"}
 
 # LFM2.5-VL-3B pre-tokenizes with a Llama-3 style pattern whose leading `'(?i:...)` group the
 # tokenizer in onnxruntime-extensions rejects ("Invalid '(?...)' zero-width assertion"). The
@@ -47,10 +48,8 @@ def interpolation(resample: int) -> str:
         raise SystemExit(f"unsupported resample {resample}: expected 2 (LINEAR) or 3 (CUBIC)") from None
 
 
-def make_processor_config(image_processor: dict) -> dict:
+def make_processor_config(image_processor: dict, patch_size: int, merge_size: int) -> dict:
     """Mirror the Hugging Face ``Lfm2VlImageProcessor``, minus image splitting (tiling)."""
-    patch_size = image_processor["encoder_patch_size"]
-    merge_size = image_processor["downsample_factor"]
     pixels_per_token = (patch_size * merge_size) ** 2
     return {
         "processor": {
@@ -129,15 +128,20 @@ def main():
     # only the image processor settings still have to come from the Hub.
     hf_config = json.loads((model_dir / "config.json").read_text())
     image_processor = load_hf_json("processor_config.json")["image_processor"]
+    patch_size = hf_config["encoder_patch_size"]
+    merge_size = hf_config["downsample_factor"]
+    processor_config = make_processor_config(image_processor, patch_size, merge_size)
 
-    # The vision and embedding sessions run on the same execution provider as the decoder.
-    provider_options = model["decoder"]["session_options"]["provider_options"]
+    # The vision and embedding sessions follow the decoder's EP, except that the vision encoder stays on
+    # CPU under WebGPU: the EP does not implement its antialiased Resize. Image prompts in that layout
+    # need microsoft/onnxruntime-genai#2605. Drop the override once the EP supports the op.
+    provider_options = [
+        {name: {key: value for key, value in options.items() if key not in GRAPH_CAPTURE_OPTIONS}}
+        for provider in model["decoder"]["session_options"]["provider_options"]
+        for name, options in provider.items()
+    ]
     session_options = {"log_id": "onnxruntime-genai", "provider_options": provider_options}
-    # Exception: the vision tower resizes the SigLIP2 position embeddings with an antialiased
-    # Resize, which the WebGPU EP does not implement ("The antialias attribute of Resize operator
-    # is NOT implemented"), so that one session falls back to CPU. Drop this override once the EP
-    # supports it; the rest of the pipeline stays on WebGPU either way.
-    on_webgpu = any(key.lower() == "webgpu" for option in provider_options for key in option)
+    on_webgpu = any(name.lower() == "webgpu" for provider in provider_options for name in provider)
     vision_session_options = {"log_id": "onnxruntime-genai", "provider_options": [] if on_webgpu else provider_options}
     model["embedding"] = {
         "filename": EMBEDDING_FILENAME,
@@ -148,8 +152,8 @@ def main():
     model["vision"] = {
         "filename": VISION_FILENAME,
         "config_filename": "processor_config.json",
-        "patch_size": hf_config["encoder_patch_size"],
-        "spatial_merge_size": hf_config["downsample_factor"],
+        "patch_size": patch_size,
+        "spatial_merge_size": merge_size,
         # Sequence length every image is padded to so several images can share one vision run.
         "max_num_patches": image_processor["max_num_patches"],
         "inputs": {
@@ -164,7 +168,7 @@ def main():
     print(f"Updated {genai_config_path}")
 
     processor_config_path = model_dir / "processor_config.json"
-    processor_config_path.write_text(json.dumps(make_processor_config(image_processor), indent=4) + "\n")
+    processor_config_path.write_text(json.dumps(processor_config, indent=4) + "\n")
     print(f"Wrote {processor_config_path}")
 
     tokenizer_path = model_dir / "tokenizer.json"
