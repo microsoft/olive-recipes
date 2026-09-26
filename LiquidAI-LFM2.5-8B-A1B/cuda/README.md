@@ -21,7 +21,7 @@ measurements, at 55% of FP16's size and 1.6x its decode speed.
 olive run --config LiquidAI-LFM2.5-8B-A1B_cuda_int8.json
 ```
 
-### `_cuda_int4.json` — Q4_K_M equivalent
+### `_cuda_int4.json` — smallest
 INT4 weights via k_quant, with `matmul_mixed_precision` keeping the sensitive
 layers and the LM head at INT8. The embedding table is left unquantized.
 The experts are INT4 with a block size of 32. Use this when 5 GiB matters more than the
@@ -61,6 +61,17 @@ recipes, so leave them alone unless you re-measure:
 `moe_quant_type=int8` (INT8 experts with INT4 dense weights) was also measured and is
 dominated: 8.6 GiB for top-1 0.926, worse than plain INT8 on every metric at nearly the
 same size. It is deliberately not a recipe here.
+
+Against llama.cpp on wikitext-2 (KL divergence from the FP32 model over 16,320 tokens;
+LiquidAI's GGUFs scored with `llama-perplexity --kl-divergence` on its Metal and CPU
+backends, ONNX on the A10): INT8 scores 0.027 against Q8_0's 0.020-0.029, and INT4 0.202
+against Q4_K_M's 0.175-0.179, at 5.1 GiB against 4.8 GiB. INT4 differs from Q4_K_M in two
+ways: the model builder quantizes the experts, which hold most of the weights, with
+symmetric block-wise rounding (no zero point) where Q4_K fits a scale and a minimum per
+block, and the dense MatMuls go through ONNX Runtime's `k_quant`, whose rounding
+[microsoft/onnxruntime#32814](https://github.com/microsoft/onnxruntime/pull/32814) fixes. On
+this MoE model even llama.cpp's BF16 GGUF sits at 0.009 from the PyTorch FP32 model: small
+numeric differences flip the router's expert choices.
 
 ## Setup
 

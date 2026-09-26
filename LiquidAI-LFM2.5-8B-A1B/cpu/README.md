@@ -28,7 +28,7 @@ quantizes the experts and the LM head. The embedding table stays in floating poi
 builder only packs the embedding `Gather` at 4 bits, which is also why the export logs a
 harmless `Gather only supports 4 bits quantization` error.
 
-### `_cpu_int4.json` — Q4_K_M equivalent
+### `_cpu_int4.json` — smallest
 INT4 weights via k_quant, with `matmul_mixed_precision` keeping the sensitive
 layers and the LM head at INT8. The embedding table is left unquantized.
 The experts are INT4 with a block size of 32.
@@ -61,6 +61,18 @@ The INT4 recipe's `matmul_mixed_precision` settings earn their extra 1 GiB: agai
 INT4 they improve top-1 by 3.3 points (paired McNemar p = 0.005) and KL by 35% (paired
 bootstrap CI excludes zero). `qmoe_block_size: 32` is likewise measured, not assumed — see
 the CUDA README for the block-size comparison.
+
+Against llama.cpp on wikitext-2 (KL divergence from the FP32 model over 16,320 tokens;
+LiquidAI's GGUFs scored with `llama-perplexity --kl-divergence` on its Metal and CPU
+backends, ONNX on an Apple M3 Ultra with ONNX Runtime 1.30.0): INT8 scores 0.024 against
+Q8_0's 0.020-0.029, and INT4 0.207 against Q4_K_M's 0.175-0.179, at 6.1 GiB against 4.8 GiB.
+INT4 differs from Q4_K_M in two ways: the model builder quantizes the experts, which hold
+most of the weights, with symmetric block-wise rounding (no zero point) where Q4_K fits a
+scale and a minimum per block, and the dense MatMuls go through ONNX Runtime's `k_quant`,
+whose rounding
+[microsoft/onnxruntime#32814](https://github.com/microsoft/onnxruntime/pull/32814) fixes. On
+this MoE model even llama.cpp's BF16 GGUF sits at 0.009 from the PyTorch FP32 model: small
+numeric differences flip the router's expert choices.
 
 ## Decode speed needs a current ONNX Runtime
 

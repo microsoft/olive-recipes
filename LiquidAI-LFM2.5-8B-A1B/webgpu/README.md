@@ -12,7 +12,7 @@ token is sent to.
 
 ## Recipes
 
-### `_webgpu_int4.json` — Q4_K_M equivalent
+### `_webgpu_int4.json` — smallest
 INT4 weights via k_quant, with `matmul_mixed_precision` keeping the sensitive
 layers and the LM head at INT8. The embedding table stays FP16.
 The experts are INT4 with a block size of 32.
@@ -59,6 +59,17 @@ in FP16) was measured too and is dominated: it is larger than `_webgpu_int4.json
 better on top-1 (p = 0.53), and worse on KL (paired bootstrap CI excludes zero). With 22 of
 24 MLPs in `QMoE`, the k_quant and `matmul_mixed_precision` treatment of the remaining dense
 MatMuls matters more than an FP16 LM head, so it is deliberately not a recipe here.
+
+Against llama.cpp on wikitext-2 (KL divergence from the FP32 model over 16,320 tokens;
+LiquidAI's GGUFs scored with `llama-perplexity --kl-divergence` on its Metal and CPU
+backends, ONNX on an Apple M3 Ultra (Metal)): INT8 scores 0.040 against Q8_0's 0.020-0.029,
+and INT4 0.210 against Q4_K_M's 0.175-0.179, at 5.1 GiB against 4.8 GiB. INT4 differs from
+Q4_K_M in two ways: the model builder quantizes the experts, which hold most of the weights,
+with symmetric block-wise rounding (no zero point) where Q4_K fits a scale and a minimum per
+block, and the dense MatMuls go through ONNX Runtime's `k_quant`, whose rounding
+[microsoft/onnxruntime#32814](https://github.com/microsoft/onnxruntime/pull/32814) fixes. On
+this MoE model even llama.cpp's BF16 GGUF sits at 0.009 from the PyTorch FP32 model: small
+numeric differences flip the router's expert choices.
 
 ## Running on WebGPU
 
