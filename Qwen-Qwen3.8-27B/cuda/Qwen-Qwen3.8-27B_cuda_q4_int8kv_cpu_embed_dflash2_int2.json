@@ -20,7 +20,7 @@
         }
     },
     "passes": {
-        "builder_int4_int4_per_channel_kv_paged_cpu_embed_dflash2_int4_24gib": {
+        "builder_int4_int8kv_cpu_embed_dflash2_int2": {
             "type": "ModelBuilder",
             "precision": "int4",
             "builder_config_version": 2,
@@ -52,7 +52,7 @@
                         "block_size": 256
                     },
                     "kv_cache": {
-                        "scheme": "int4_per_channel",
+                        "scheme": "int8_per_channel",
                         "scale_file": "kv_scales_int8_per_channel.json"
                     }
                 },
@@ -72,8 +72,8 @@
                     "io_dtype": "bf16",
                     "checkpoint_policy": "preserve",
                     "weights": {
-                        "type": "int4",
-                        "block_size": 32,
+                        "type": "int2",
+                        "block_size": 64,
                         "method": "default",
                         "symmetric": true
                     },
@@ -101,6 +101,7 @@
                     "decoder": {
                         "session_options": {
                             "session.use_device_allocator_for_initializers": "1",
+                            "ep.cuda.matmul_nbits_m_chunk_size": "512",
                             "provider_options": [
                                 {
                                     "cuda": {
@@ -113,6 +114,7 @@
                     "dflash2": {
                         "session_options": {
                             "session.use_device_allocator_for_initializers": "1",
+                            "ep.cuda.matmul_nbits_m_chunk_size": "512",
                             "provider_options": [
                                 {
                                     "cuda": {
@@ -125,14 +127,14 @@
                 },
                 "engine": {
                     "dynamic_batching": {
+                        "num_blocks": 407,
                         "max_batch_size": 1,
-                        "max_scheduled_tokens": 512,
-                        "num_blocks": 800
-                    }
+                        "max_scheduled_tokens": 512
+                        }
                 },
                 "search": {
                     "chunk_size": 512,
-                    "max_length": 200001
+                    "max_length": 262144
                 },
                 "speculative": {
                     "max_draft_tokens": 7
@@ -143,28 +145,77 @@
             "type": "GenAIModelRuntimeProfiles",
             "runtime_profiles": [
                 {
-                    "id": "32gib",
-                    "kv_cache": {
-                        "scheme": "int8_per_channel",
-                        "scale_file": "kv_scales_int8_per_channel.json"
-                    },
+                    "id": "32-to-less-than-40-gib",
                     "eligibility": {
-                        "minimum_total_device_memory_bytes": 34359738368
+                        "minimum_total_device_memory_bytes": 34359738368,
+                        "maximum_total_device_memory_bytes": 42949672959
                     },
                     "overlay": {
                         "engine": {
                             "dynamic_batching": {
-                                "max_batch_size": 8,
-                                "max_scheduled_tokens": 512,
-                                "num_blocks": 928
+                                "num_blocks": 1031,
+                                "max_batch_size": 1,
+                                "max_scheduled_tokens": 1024
                             }
                         },
                         "search": {
-                            "chunk_size": 512,
-                            "max_length": 65536
+                            "chunk_size": 1024
+                        }
+                    }
+                },
+                {
+                    "id": "40-to-less-than-60-gib",
+                    "eligibility": {
+                        "minimum_total_device_memory_bytes": 42949672960,
+                        "maximum_total_device_memory_bytes": 64424509439
+                    },
+                    "overlay": {
+                        "engine": {
+                            "dynamic_batching": {
+                                "num_blocks": 2061,
+                                "max_batch_size": 2,
+                                "max_scheduled_tokens": 1024
+                            }
                         },
-                        "speculative": {
-                            "max_draft_tokens": 6
+                        "search": {
+                            "chunk_size": 1024
+                        }
+                    }
+                },
+                {
+                    "id": "60-to-less-than-70-gib",
+                    "eligibility": {
+                        "minimum_total_device_memory_bytes": 64424509440,
+                        "maximum_total_device_memory_bytes": 75161927679
+                    },
+                    "overlay": {
+                        "engine": {
+                            "dynamic_batching": {
+                                "num_blocks": 3091,
+                                "max_batch_size": 3,
+                                "max_scheduled_tokens": 1024
+                            }
+                        },
+                        "search": {
+                            "chunk_size": 1024
+                        }
+                    }
+                },
+                {
+                    "id": "70-gib-or-more",
+                    "eligibility": {
+                        "minimum_total_device_memory_bytes": 75161927680
+                    },
+                    "overlay": {
+                        "engine": {
+                            "dynamic_batching": {
+                                "num_blocks": 4122,
+                                "max_batch_size": 4,
+                                "max_scheduled_tokens": 1024
+                            }
+                        },
+                        "search": {
+                            "chunk_size": 1024
                         }
                     }
                 }
@@ -173,7 +224,7 @@
     },
     "target": "local_system",
     "log_severity_level": 0,
-    "output_dir": "model_int4_int4_int8_per_channel_kv_paged_cpu_embed_dflash2_int4_24gib_32gib",
-    "cache_dir": "cache_combined_24gib_32gib",
+    "output_dir": "qwen_3.8_27b_int4_int8kv_cpu_embed_dflash2_int2",
+    "cache_dir": "cache_combined_int8_kv_cpu_embed_dflash2_int2",
     "no_artifacts": false
 }
