@@ -10,6 +10,9 @@ MXFP4 experts to symmetric mixed-width QMoE weights:
 The generated model targets the CUDA execution provider. ONNX Runtime performs
 the final expert-weight prepacking when the model is loaded.
 
+The recipe uses the structured mixed-width QMoE configuration introduced by
+[ONNX Runtime GenAI #2624](https://github.com/microsoft/onnxruntime-genai/pull/2624).
+
 ## Prerequisites
 
 Install the latest Olive and ONNX Runtime GenAI CUDA packages:
@@ -26,7 +29,7 @@ Until the changes are available in nightly packages, build from the branches in:
 ## Export
 
 ```bash
-./gpt-oss-20b.sh
+bash gpt-oss-20b.sh
 ```
 
 The exported model is saved in `int4_cuda_int2_int4_qmoe`.
