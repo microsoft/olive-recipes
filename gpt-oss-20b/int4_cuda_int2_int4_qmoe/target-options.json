@@ -1,0 +1,17 @@
+{
+  "quant_config": {
+    "weights": {
+      "type": "int4",
+      "op_types": [
+        "MatMul",
+        "Gather"
+      ]
+    },
+    "moe": {
+      "type": "int4",
+      "fc1_type": "int2",
+      "fc2_type": "int4",
+      "block_size": 64
+    }
+  }
+}
