@@ -59,15 +59,13 @@ GGUF. The selected layers export mixed `(FC1, FC2) = (4, 8)` fused experts;
 other layers export `(4, 4)`. Check the effective per-projection quantization
 and actual output size before comparing quality with the uniform RTN baseline.
 
-Unlike the four workflows in the benchmark table below, this example has not
-undergone a comparable quality evaluation. Mixed-width QMoE export requires a
-Mobius build with projection-specific expert widths (currently
-[onnxruntime/mobius#744](https://github.com/onnxruntime/mobius/pull/744)), and
-CUDA execution requires a newer ONNX Runtime build with mixed-width dense
-fallback; the ORT 1.30.0 build used for the published results below is not
-sufficient. In a separate environment, install
+Mixed-width QMoE export requires Mobius with projection-specific expert widths
+([onnxruntime/mobius#744](https://github.com/onnxruntime/mobius/pull/744),
+merged into `main` at `88fd6a1f`). CUDA execution requires an ONNX Runtime
+build with mixed-width dense fallback; the ORT 1.30.0 build used for the
+original results below is not sufficient. In a separate environment, install
 `cuda/rtn_manual_fp16/requirements.txt` instead of the baseline requirements
-file: it pins the experimental Mobius branch without changing the dependencies
+file: it pins the merged Mobius commit without changing the dependencies
 of the validated workflows. Install a compatible custom ORT CUDA wheel
 **after** the GenAI dependency, and verify that it provides the intended CUDA
 execution provider.
@@ -81,8 +79,20 @@ GenAI 0.16.0-dev generated `391` for "What is 17 * 23? Answer with the number
 only. /no_think". A bounded MMLU smoke test (`--limit 1`, one question per
 subject, 57 questions total) completed with 46/57 correct. This small sample
 is **not comparable** with the 200-per-subtask benchmark below. Full-logit
-parity, the previously observed `(4,8)` numerical tolerance issue, larger
-quality evaluation, and the newer ORT prepack fix remain unverified here.
+parity, the previously observed `(4,8)` numerical tolerance issue, and the
+newer ORT prepack fix were not validated in that smoke test.
+
+On September 28, the same cached Olive RTN checkpoint was re-exported with
+merged Mobius `main` at `88fd6a1f`. The ONNX graph matched the earlier export
+byte-for-byte, with the same 24 `(4,8)` and 24 `(4,4)` QMoE layers; CUDA greedy
+generation again produced `391`. A full `--limit 200` MMLU run against the
+re-exported package scored **0.79756 over 9,183 examples**. Its evaluator
+settings match the four original variants; see the benchmark table below.
+This run still used the locally built ORT `50b8fcb695ed`, not the final merged
+revision of [microsoft/onnxruntime#32761](https://github.com/microsoft/onnxruntime/pull/32761).
+Full-logit parity and the previously observed `(4,8)` numerical tolerance
+issue remain unverified for this recipe. The full MMLU score is a quality
+comparison, not a production CUDA performance or numerical-parity qualification.
 
 This ORT build's mixed-width dense fallback requires 1,207,959,552 bytes of
 dequantized expert-weight scratch for a selected layer, exceeding its default
@@ -140,7 +150,7 @@ Each workflow writes to its own directory:
 | FP16 baseline (~61 GB) | `cuda/fp16/config.json` | `cuda/fp16/models/` |
 | KQuant | `cuda/kquant_fp16/config.json` | `cuda/kquant_fp16/models/` |
 | RTN | `cuda/rtn_fp16/config.json` | `cuda/rtn_fp16/models/` |
-| Manual mixed RTN (limited validation) | `cuda/rtn_manual_fp16/config.json` | `cuda/rtn_manual_fp16/models/` |
+| Manual mixed RTN (custom ORT required) | `cuda/rtn_manual_fp16/config.json` | `cuda/rtn_manual_fp16/models/` |
 | GPTQ | `cuda/gptq_fp16/config.json` | `cuda/gptq_fp16/models/` |
 
 ## Inference
@@ -220,8 +230,8 @@ do
 done
 ```
 
-To smoke-test the manual mixed-RTN package without claiming a comparable MMLU
-score, use the same `ortgenai` backend with one question per subtask:
+To smoke-test the manual mixed-RTN package with one question per subtask, use
+the same `ortgenai` backend:
 
 ```bash
 ORT_QMOE_INT_DEQUANT_MAX_SCRATCH_BYTES=2147483648 \
@@ -230,6 +240,10 @@ ORT_QMOE_INT_DEQUANT_MAX_SCRATCH_BYTES=2147483648 \
     --tasks mmlu --backend ortgenai --device gpu \
     --batch_size 1 --max_length 4096 --limit 1
 ```
+
+For a comparable 200-per-subtask run, replace `--limit 1` with `--limit 200`,
+keeping the scratch setting and other evaluator options. The September 28
+result below uses this command against the merged-Mobius export.
 
 For an ad-hoc run without the checked-in config, Olive's benchmark command has
 equivalent defaults for task-selected few-shot behavior and chat wrapping:
@@ -262,8 +276,8 @@ identical when comparing variants. This is a text `lm-eval` path, not the
 
 ## Benchmark results
 
-All four variants were exported and evaluated end to end on a single NVIDIA
-A100 80 GB GPU (CUDA execution provider) with ONNX Runtime 1.30.0 and ONNX
+The original four variants were exported and evaluated end to end on a single
+NVIDIA A100 80 GB GPU (CUDA execution provider) with ONNX Runtime 1.30.0 and ONNX
 Runtime GenAI 0.16.0-dev. MMLU was run identically across all four model
 directories using the methodology now encoded in `eval/mmlu_cuda.json`: limit
 200 per subtask, task-default few-shot setting, batch size 1, maximum length
@@ -273,18 +287,26 @@ directories using the methodology now encoded in `eval/mmlu_cuda.json`: limit
 |---|---|---|---|---|
 | FP16 (baseline, unquantized) | 0.8077 | 0.0039 | — | ~16 min |
 | GPTQ | 0.7982 | 0.0040 | -0.95 pt | ~2 h |
+| Manual mixed RTN | 0.7976 | — | -1.01 pt | ~5 min RTN + ~46 s export |
 | KQuant | 0.7963 | 0.0040 | -1.14 pt | few min |
 | RTN | 0.7918 | 0.0040 | -1.59 pt | ~6 min |
 
-(9,183 effective samples out of 57 MMLU subtasks; subtasks with fewer than 200
-test examples were run to completion rather than padded.)
+(9,183 effective samples out of 57 MMLU subtasks for each variant; subtasks
+with fewer than 200 test examples were run to completion rather than padded.)
+The manual mixed-RTN row used merged Mobius `88fd6a1f` and the custom ORT
+`50b8fcb695ed` rather than ORT 1.30.0; the same benchmark settings make the
+scores comparable, but runtime-version differences remain. Its Olive CLI
+reported aggregate accuracy, not `acc_stderr`, so no uncertainty estimate is
+claimed for that row. The small differences between quantized variants are
+not by themselves evidence of a statistically significant improvement.
 
 The GPTQ row above is the original 128-sample baseline. A pinned replication
 produced identical external tensor data and the same rounded accuracy and
-fallback counts. Accuracy degrades in the expected direction (FP16 > GPTQ >
-KQuant > RTN), and
-all three quantized variants stay within ~1.6 points of the unquantized
-baseline at 4-bit weights. GPTQ improves over plain RTN by 0.64 points despite
+fallback counts. The original variants ranked FP16 > GPTQ > KQuant > RTN; the
+mixed-RTN result falls between GPTQ and KQuant, about 0.58 points above uniform
+RTN. All four quantized variants stay within ~1.6 points of the unquantized
+baseline, with INT4 as their default weight precision. GPTQ improves over
+plain RTN by 0.64 points despite
 a substantial calibration-coverage shortfall: across the 48 MoE layers (6,144
 routed experts total), **2,344 experts (38.2%) were "starved"** of calibration
 tokens and **94 (1.5%) were entirely unseen**, so roughly 40% of all experts in
