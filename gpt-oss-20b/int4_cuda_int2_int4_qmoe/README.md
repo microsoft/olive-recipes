@@ -23,14 +23,28 @@ Install the latest Olive and ONNX Runtime GenAI CUDA packages:
 python -m pip install -r ../requirements.txt
 ```
 
+The `accelerate` and `kernels` packages in the shared requirements are needed
+to load the official GPT-OSS MXFP4 checkpoint through Transformers during
+export. They are not dependencies of the exported ONNX model.
+
 Both changes have been merged. Use package versions that include them. Exporting
 the official GPT-OSS checkpoint also requires an ONNX Runtime GenAI build that
 loads expert tensors from the checkpoint's `model.layers.*.mlp.experts` keys.
 
 ## Export
 
+Run the command from this recipe directory:
+
 ```bash
-bash gpt-oss-20b.sh
+olive capture-onnx-graph \
+	--model_name_or_path openai/gpt-oss-20b \
+	--trust_remote_code \
+	--execution_provider CUDAExecutionProvider \
+	--precision int4 \
+	--use_model_builder \
+	--use_ort_genai \
+	--extra_mb_options "builder_config_version=2,target_options=target-options.json" \
+	-o int4_cuda_int2_int4_qmoe
 ```
 
 The exported model is saved in `int4_cuda_int2_int4_qmoe`.
