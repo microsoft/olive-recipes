@@ -1,0 +1,9 @@
+keywords:
+  - olive-ai
+recipes:
+  - name: gpt-oss-20b
+    file: README.md
+    eps:
+      - CUDAExecutionProvider
+    device:
+      - gpu
