@@ -57,7 +57,8 @@
                     }
                 },
                 "optimizations": {
-                    "fuse_mlp_gate_up": true
+                    "fuse_mlp_gate_up": true,
+                    "fuse_qkv": true
                 }
             },
             "drafter_options": {
@@ -65,7 +66,6 @@
                 "path": "Qwen3.8-27B-DFlash2",
                 "num_draft_tokens": 7,
                 "shared_weights": {
-                    "embedding": "required",
                     "lm_head": "required"
                 },
                 "quant_config": {
@@ -83,7 +83,8 @@
                     }
                 },
                 "optimizations": {
-                    "fuse_mlp_gate_up": true
+                    "fuse_mlp_gate_up": true,
+                    "fuse_qkv": true
                 }
             },
             "speculative_options": {
@@ -98,10 +99,16 @@
             },
             "runtime_config": {
                 "model": {
+                    "embedding": {
+                        "session_options": {
+                            "prefault": true
+                        }
+                    },
                     "decoder": {
                         "session_options": {
                             "session.use_device_allocator_for_initializers": "1",
                             "ep.cuda.matmul_nbits_m_chunk_size": "512",
+                            "ep.cuda.enable_gemm_auto_tune": "1",
                             "provider_options": [
                                 {
                                     "cuda": {
@@ -115,6 +122,7 @@
                         "session_options": {
                             "session.use_device_allocator_for_initializers": "1",
                             "ep.cuda.matmul_nbits_m_chunk_size": "512",
+                            "ep.cuda.enable_gemm_auto_tune": "1",
                             "provider_options": [
                                 {
                                     "cuda": {
