@@ -120,6 +120,37 @@ free memory, set `ORT_QMOE_INT_DEQUANT_MAX_SCRATCH_BYTES=2147483648` on the
 inference or evaluation command. This is not a performance optimization or
 a general recommendation to raise the scratch limit for arbitrary models.
 
+### V-only and INT8 output-head experiment
+
+`rtn_vonly_head_fp16` is a separate variant of the validated manual recipe.
+It requires Olive's opt-in `independent_qkv` support
+([microsoft/Olive#2697](https://github.com/microsoft/Olive/pull/2697)) and
+does not modify `rtn_manual_fp16`. It leaves all attention Q/K projections
+at INT4, raises only V and expert `down_proj` in the selected 24 layers to
+INT8, keeps token embeddings at INT4, and quantizes the untied LM head at
+INT8. Routers and norms remain floating point.
+
+This is closer to the official GGUF `Q4_K_M` tensor *allocation*, where
+selected V/down and the head use `Q6_K`, but Olive INT8 is not GGUF `Q6_K`.
+The same mixed-width QMoE CUDA scratch limit applies. Use the variant's
+separate requirements file to pin Olive with `independent_qkv` support;
+neither `Rtn.overrides` alone nor the original pinned Olive revision can
+produce this V-only layout.
+
+On September 29, the full pinned 30B checkpoint was quantized with Olive
+`086627b1` and exported with Mobius `88fd6a1f`. The graph has separate INT4
+Q/K and INT8 V projections in all 24 selected layers, a single INT8 LM head,
+one quantized embedding, and 24 `(FC1, FC2) = (4, 8)` plus 24 `(4, 4)` QMoE
+layers. The external ONNX data is 18,356,830,208 bytes, 419,495,936 fewer
+than the earlier INT4-embedding/float-head manual export. The custom ORT CUDA
+build `50b8fcb695ed` generated `391` for `17 * 23` with the 2 GiB scratch
+override. Full MMLU at `--limit 200` scored **0.794729 over 9,183 examples**,
+versus 0.797996 for the earlier recipe, a decrease of 0.327 percentage
+points. This combined test cannot attribute the difference separately to
+V-only or head quantization. Small accuracy differences are not evidence of
+statistical significance, and neither full-logit parity nor the final merged
+ORT revision is qualified by this result.
+
 ## Setup and export
 
 Run from the `Qwen-Qwen3-30B-A3B/` directory:
@@ -141,6 +172,15 @@ CUDA build with mixed-width QMoE fallback:
 pip install -r cuda/rtn_manual_fp16/requirements.txt
 # Install the compatible custom ORT CUDA wheel here, after the GenAI dependency.
 olive run --config cuda/rtn_manual_fp16/config.json
+```
+
+For the V-only/head experiment, use its separate environment and the same
+compatible custom ORT CUDA build:
+
+```bash
+pip install -r cuda/rtn_vonly_head_fp16/requirements.txt
+# Install the compatible custom ORT CUDA wheel after GenAI dependencies.
+olive run --config cuda/rtn_vonly_head_fp16/config.json
 ```
 
 When using the locally cached pinned checkpoint without Hub access, append
@@ -170,6 +210,7 @@ Each workflow writes to its own directory:
 | KQuant | `cuda/kquant_fp16/config.json` | `cuda/kquant_fp16/models/` |
 | RTN | `cuda/rtn_fp16/config.json` | `cuda/rtn_fp16/models/` |
 | Manual mixed RTN (custom ORT required) | `cuda/rtn_manual_fp16/config.json` | `cuda/rtn_manual_fp16/models/` |
+| V-only + INT8 head RTN (custom ORT required) | `cuda/rtn_vonly_head_fp16/config.json` | `cuda/rtn_vonly_head_fp16/models/` |
 | GPTQ | `cuda/gptq_fp16/config.json` | `cuda/gptq_fp16/models/` |
 
 ## Inference
@@ -309,13 +350,15 @@ directories using the methodology now encoded in `eval/mmlu_cuda.json`: limit
 | Manual mixed RTN (INT4 embedding) | 0.7980 | — | -0.97 pt | ~5 min 51 s RTN + ~46 s export |
 | Manual mixed RTN (prior, float embedding) | 0.7976 | — | -1.01 pt | ~5 min RTN + ~46 s export |
 | KQuant | 0.7963 | 0.0040 | -1.14 pt | few min |
+| V-only + INT8 head RTN | 0.7947 | — | -1.30 pt | ~5 min RTN + ~26 s export |
 | RTN | 0.7918 | 0.0040 | -1.59 pt | ~6 min |
 
 (9,183 effective samples out of 57 MMLU subtasks for each variant; subtasks
 with fewer than 200 test examples were run to completion rather than padded.)
-Both manual mixed-RTN rows used merged Mobius `88fd6a1f` and the custom ORT
+The three manual RTN rows used merged Mobius `88fd6a1f` and the custom ORT
 `50b8fcb695ed` rather than ORT 1.30.0; the same benchmark settings make the
-scores comparable, but runtime-version differences remain. Olive's CLI
+scores comparable, but runtime-version differences remain. The V-only variant
+uses Olive `086627b1`, whereas the other two use `18bf0b7f`. Olive's CLI
 reported aggregate accuracy, not `acc_stderr`, so no uncertainty estimate is
 claimed for these rows. The small differences between quantized variants are
 not by themselves evidence of a statistically significant improvement.
@@ -323,7 +366,8 @@ not by themselves evidence of a statistically significant improvement.
 The GPTQ row above is the original 128-sample baseline. A pinned replication
 produced identical external tensor data and the same rounded accuracy and
 fallback counts. The original variants ranked FP16 > GPTQ > KQuant > RTN; the
-mixed-RTN results fall between GPTQ and KQuant, about 0.6 points above uniform
+two QKV-shared manual variants fall between GPTQ and KQuant, about 0.6 points
+above uniform RTN. The V-only/head variant falls between KQuant and uniform
 RTN. All listed quantized variants stay within ~1.6 points of the unquantized
 baseline, with INT4 as their default weight precision. GPTQ improves over
 plain RTN by 0.64 points despite
