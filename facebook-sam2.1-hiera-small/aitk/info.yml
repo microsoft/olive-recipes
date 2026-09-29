@@ -1,0 +1,12 @@
+keywords:
+    aitk
+arch: convnext
+recipes:
+    - file: "sam2.1_hiera_small_ov_config.json"
+      devices:
+        - npu
+      ep: OpenVINOExecutionProvider
+aitk:
+    modelInfo:
+        id: "huggingface/facebook/sam2.1-hiera-small"
+        version: 1
