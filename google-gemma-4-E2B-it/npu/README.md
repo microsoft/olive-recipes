@@ -6,9 +6,10 @@ This recipe consumes the vision encoder from the ONNX export of
 
 Use one environment with local Olive, mobius, and onnxruntime-genai. Olive
 must have `SplitVisionPooler` and the graph surgeries used below; mobius
-must be at `223b438e8f6637c40ac883607f321a5ff4fbe863` with the local
-tied-quantized `lm_head` compatibility patch (the unpatched commit cannot
-export this checkpoint). Image inference requires the local ORT GenAI build
+must be at `223b438e8f6637c40ac883607f321a5ff4fbe863` with upstream
+commit `6bd398de480c80042d57f37b40181b2a71ade5ad` cherry-picked
+(the base commit alone cannot export the tied quantized `lm_head`).
+Image inference requires the local ORT GenAI build
 with two-stage Gemma 4 vision support.
 
 The vision workflow consumes
