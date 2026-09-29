@@ -8,3 +8,4 @@ wcwidth==0.8.2
 onnx-shape-inference==0.3.1
 onnx-ir==0.2.0
 onnxruntime-genai-winml==0.16.0
+onnxruntime-windowsml==1.24.6.202605042033
