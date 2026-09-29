@@ -27,7 +27,7 @@
             "group_size": 128,
             "sym": true,
             "moe": true,
-            "embeds": false,
+            "embeds": true,
             "lm_head": false,
             "overrides": {
                 "re:model\\.layers\\.(?:[0-5]|8|11|14|17|20|23|26|29|32|35|38|41|4[2-7])\\.self_attn\\.(?:q_proj|k_proj|v_proj)": {

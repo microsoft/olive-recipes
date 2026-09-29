@@ -20,12 +20,17 @@ def _quantization_config():
         symmetric=config["sym"],
         group_size=config["group_size"],
         moe=config["moe"],
+        embeds=config["embeds"],
+        lm_head=config["lm_head"],
         overrides=config["overrides"],
     )
 
 
 def test_manual_overrides_match_layer_schedule():
     config = _quantization_config()
+    assert config.embeds is True
+    assert config.lm_head is False
+    assert config.get_qlinear_init_args("model.embed_tokens")["bits"] == 4
     higher_precision = set()
     for layer in range(48):
         selected = layer < 6 or layer >= 42 or (layer - 6) % 3 == 2
@@ -79,9 +84,14 @@ def test_manual_overrides_target_real_qwen3_moe_parameters():
     names = {
         name
         for _, _, name in iter_quant_targets(
-            model, quantize_lm_head=False, quantize_embeds=False, quantize_moe=True
+            model,
+            quantize_lm_head=False,
+            quantize_embeds=_quantization_config().embeds,
+            quantize_moe=True,
         )
     }
+    assert "model.embed_tokens" in names
+    assert "lm_head" not in names
     for layer in range(2):
         assert {
             f"model.layers.{layer}.self_attn.{projection}"
@@ -128,7 +138,12 @@ def test_manual_rtn_quantizes_selected_fused_experts(tmp_path):
     output = quantizer.run(
         HfModelHandler(model_path=str(model_dir)), str(tmp_path / "rtn")
     )
-    layers = output.load_model().model.layers
+    quantized_model = output.load_model()
+    embedding = quantized_model.model.embed_tokens.weight.data
+    assert isinstance(embedding, QuantTensor)
+    assert embedding.bits == 4
+    assert not isinstance(quantized_model.lm_head.weight.data, QuantTensor)
+    layers = quantized_model.model.layers
 
     for layer, bits in ((layers[0], 8), (layers[6], 4)):
         assert isinstance(layer.mlp.experts.gate_up_proj.data, QuantTensor)

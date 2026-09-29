@@ -48,14 +48,17 @@ instead of a `SelectiveMixedPrecision` pass:
   projections use INT4. The selected layers follow llama.cpp's
   first/last-eighth and every-third-middle-layer `use_more_bits` rule for
   this pinned 48-layer model.
-- Routers, embeddings, norms, and the LM head retain the floating-point
-  treatment of the uniform RTN recipe.
+- Token embeddings use symmetric INT4/group-128; routers, norms, and the
+  LM head retain the floating-point treatment of the uniform RTN recipe.
 
 This copies a *selection policy*, not GGUF `Q4_K_M` storage: its selected
 `attn_v`/`ffn_down` `Q6_K` choices are approximated by Olive INT8. Olive also
-promotes Q and K alongside V in those layers so Mobius can fuse QKV; llama.cpp
-does not require this. Neither file size nor accuracy is expected to match a
-GGUF. The selected layers export mixed `(FC1, FC2) = (4, 8)` fused experts;
+promotes Q and K alongside V because its quantizer normalizes Q/K/V for
+exporters that fuse their weights. Mobius keeps Qwen3's quantized Q/K/V
+projections separate, so this promotion is not an attention-runtime
+requirement. The token embedding's INT4 is likewise not GGUF
+`Q4_K` encoding. Neither file size nor accuracy is expected to match a GGUF.
+The selected layers export mixed `(FC1, FC2) = (4, 8)` fused experts;
 other layers export `(4, 4)`. Check the effective per-projection quantization
 and actual output size before comparing quality with the uniform RTN baseline.
 
@@ -69,6 +72,10 @@ file: it pins the merged Mobius commit without changing the dependencies
 of the validated workflows. Install a compatible custom ORT CUDA wheel
 **after** the GenAI dependency, and verify that it provides the intended CUDA
 execution provider.
+
+The September 25 and 28 results below used the earlier manual recipe with
+floating-point token embeddings; they are not measurements of the current
+embedding-quantized configuration.
 
 On September 25, 2026, the pinned 30B checkpoint was quantized with Olive
 `18bf0b7f` and exported with Mobius `3e07e4ce`. The resulting ONNX package
@@ -93,6 +100,18 @@ revision of [microsoft/onnxruntime#32761](https://github.com/microsoft/onnxrunti
 Full-logit parity and the previously observed `(4,8)` numerical tolerance
 issue remain unverified for this recipe. The full MMLU score is a quality
 comparison, not a production CUDA performance or numerical-parity qualification.
+
+On September 29, token embeddings were enabled at INT4/group-128 with the
+same pinned Hugging Face checkpoint, Olive `18bf0b7f`, and Mobius `88fd6a1f`.
+The saved checkpoint has `model.embed_tokens.weight_qweight` (uint8,
+`[151936, 1024]`) and `weight_scales` (bf16, `[151936, 16]`); the ONNX graph
+uses one `GatherBlockQuantized` and retains all 48 QMoE layers and a
+floating-point LM head. `model.onnx.data` decreased from 19,238,158,336 to 18,776,326,144
+bytes. The same custom ORT CUDA build generated `391`. MMLU with the
+same `--limit 200` settings scored **0.797996 over 9,183 examples**, versus
+0.797561 before embedding quantization: a 0.044 percentage-point difference,
+not evidence of improved quality. This does not resolve the older full-logit
+parity gate or validate the final merged ORT revision.
 
 This ORT build's mixed-width dense fallback requires 1,207,959,552 bytes of
 dequantized expert-weight scratch for a selected layer, exceeding its default
@@ -287,24 +306,25 @@ directories using the methodology now encoded in `eval/mmlu_cuda.json`: limit
 |---|---|---|---|---|
 | FP16 (baseline, unquantized) | 0.8077 | 0.0039 | — | ~16 min |
 | GPTQ | 0.7982 | 0.0040 | -0.95 pt | ~2 h |
-| Manual mixed RTN | 0.7976 | — | -1.01 pt | ~5 min RTN + ~46 s export |
+| Manual mixed RTN (INT4 embedding) | 0.7980 | — | -0.97 pt | ~5 min 51 s RTN + ~46 s export |
+| Manual mixed RTN (prior, float embedding) | 0.7976 | — | -1.01 pt | ~5 min RTN + ~46 s export |
 | KQuant | 0.7963 | 0.0040 | -1.14 pt | few min |
 | RTN | 0.7918 | 0.0040 | -1.59 pt | ~6 min |
 
 (9,183 effective samples out of 57 MMLU subtasks for each variant; subtasks
 with fewer than 200 test examples were run to completion rather than padded.)
-The manual mixed-RTN row used merged Mobius `88fd6a1f` and the custom ORT
+Both manual mixed-RTN rows used merged Mobius `88fd6a1f` and the custom ORT
 `50b8fcb695ed` rather than ORT 1.30.0; the same benchmark settings make the
-scores comparable, but runtime-version differences remain. Its Olive CLI
+scores comparable, but runtime-version differences remain. Olive's CLI
 reported aggregate accuracy, not `acc_stderr`, so no uncertainty estimate is
-claimed for that row. The small differences between quantized variants are
+claimed for these rows. The small differences between quantized variants are
 not by themselves evidence of a statistically significant improvement.
 
 The GPTQ row above is the original 128-sample baseline. A pinned replication
 produced identical external tensor data and the same rounded accuracy and
 fallback counts. The original variants ranked FP16 > GPTQ > KQuant > RTN; the
-mixed-RTN result falls between GPTQ and KQuant, about 0.58 points above uniform
-RTN. All four quantized variants stay within ~1.6 points of the unquantized
+mixed-RTN results fall between GPTQ and KQuant, about 0.6 points above uniform
+RTN. All listed quantized variants stay within ~1.6 points of the unquantized
 baseline, with INT4 as their default weight precision. GPTQ improves over
 plain RTN by 0.64 points despite
 a substantial calibration-coverage shortfall: across the 48 MoE layers (6,144
