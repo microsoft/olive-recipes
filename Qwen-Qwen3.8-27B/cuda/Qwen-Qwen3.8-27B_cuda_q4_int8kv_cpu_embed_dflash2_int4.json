@@ -27,7 +27,8 @@
             "split_cpu_embedding": true,
             "extra_options": {
                 "prune_lm_head": true,
-                "hf_token": false
+                "hf_token": false,
+                "disable_qkv_fusion": false
             },
             "target_options": {
                 "quant_config": {
@@ -57,8 +58,7 @@
                     }
                 },
                 "optimizations": {
-                    "fuse_mlp_gate_up": true,
-                    "fuse_qkv": true
+                    "fuse_mlp_gate_up": true
                 }
             },
             "drafter_options": {
@@ -66,6 +66,7 @@
                 "path": "Qwen3.8-27B-DFlash2",
                 "num_draft_tokens": 7,
                 "shared_weights": {
+                    "embedding": "required",
                     "lm_head": "required"
                 },
                 "quant_config": {
@@ -100,9 +101,7 @@
             "runtime_config": {
                 "model": {
                     "embedding": {
-                        "session_options": {
-                            "prefault": true
-                        }
+                        "prefault": true
                     },
                     "decoder": {
                         "session_options": {
