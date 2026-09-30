@@ -98,13 +98,17 @@
         },
         "split_vision_pooler": {
             "type": "SplitVisionPooler",
+            "source_package_dir": "../multi_comp/gemma4_onnx",
+            "provider_options": {
+                "htp_performance_mode": "burst"
+            },
             "save_as_external_data": true
         }
     },
     "host": "local_system",
     "target": "target_system",
     "cache_dir": "cache",
-    "output_dir": "models/vision_qdq",
+    "output_dir": "models/final",
     "no_artifacts": true,
     "log_severity_level": 0
 }

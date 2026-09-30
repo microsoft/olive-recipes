@@ -2,7 +2,8 @@
 
 This recipe consumes the vision encoder from the ONNX export of
 `multi_comp/gemma4_quantize.json`. It modifies only the vision component;
-`assemble_model.py` copies the other ONNX components unchanged.
+the final pass copies the full Mobius export into a new package and updates
+its vision pipeline. The original Mobius export remains unchanged.
 
 Use one environment with local Olive, mobius, and onnxruntime-genai. Olive
 must have `SplitVisionPooler` and the graph surgeries used below; mobius
@@ -22,7 +23,8 @@ The vision workflow consumes
    and MinMax calibration
 4. `DynamicToFixedShape` with `num_patches = 2520`
 5. `SplitVisionPooler` to split the fixed-shape encoder from the spatial
-   pooler/projector, which produces a variable number of image features
+   pooler/projector, which produces a variable number of image features,
+   and package them alongside the original Mobius components
 
 The calibration set contains 128 images sampled evenly and deterministically
 from eight `HuggingFaceM4/the_cauldron` subsets:
@@ -44,8 +46,11 @@ that tensor `vision_features`, and keeps any positional-input shape logic
 needed by both components. The result is a composite model with `encoder.onnx`
 (inputs `pixel_values`, `pixel_position_ids`; output `vision_features`) and
 `pooler_projector.onnx` (inputs `pixel_position_ids`, `vision_features`;
-output `image_features`) under `models/vision_qdq`. Each component gets its own
-external weight data. Removing the fixed-shape pass leaves the encoder dynamic.
+output `image_features`) in the Olive cache. The completed Mobius-format package
+is written under `models/final`, with the split graphs named
+`vision_encoder/model_encoder.onnx` and
+`vision_encoder/model_pooler_projector.onnx`. Each gets its own external weight
+data. Removing the fixed-shape pass leaves the encoder dynamic.
 
 By default, the loader takes the first 16 usable images from each streamed
 subset (`shuffle_buffer_size = 0`) to avoid filling a large remote shuffle
@@ -64,23 +69,25 @@ olive run --config gemma4_quantize.json
 olive capture-onnx-graph --model_name_or_path gemma4_quantized_hf --use_mobius_builder --precision fp32 --output_path gemma4_onnx
 cd ../npu
 olive run --config vision_config.json
-python assemble_model.py
 ```
 
 The model must be accessible through Hugging Face for the first workflow, and
 vision calibration streams 128 images from `HuggingFaceM4/the_cauldron`.
-The assembly script refuses to overwrite an existing `models/final` directory.
+Olive writes the final package to `models/final`.
 
-The split quantized vision models are written under `models/vision_qdq`.
 Olive caches downloaded data and intermediate pass output under `cache`.
 
 `models/final` copies the decoder, embedding, audio encoder, and package
-sidecars unchanged from `multi_comp/gemma4_onnx`, adding only
+sidecars unchanged from `multi_comp/gemma4_onnx`, adding
 `vision_encoder/model_encoder.onnx` and
 `vision_encoder/model_pooler_projector.onnx` with their external weights. Its
 `genai_config.json` routes vision through the two stages in order, passing
-`vision_features` and `pixel_position_ids` to the projector. Absolute artifact
-paths in `model_config.json` are rebased to the final directory.
+`vision_features` and `pixel_position_ids` to the CPU projector. The vision
+session provider is selected from the Olive target EP (QNN, OpenVINO, or
+VitisAI), while provider-specific options such as `htp_performance_mode` are
+specified in `vision_config.json`. Other roles retain their original session
+options. Absolute artifact paths in `model_config.json` are rebased to the
+final directory.
 The unsplit `vision_encoder/model.onnx` remains for compatibility with tooling
 that reads the package metadata; released ORT GenAI wheels may parse the
 pipeline without running its projector stage. The fixed-shape
