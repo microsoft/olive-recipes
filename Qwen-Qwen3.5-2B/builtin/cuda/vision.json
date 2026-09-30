@@ -65,6 +65,9 @@
             "surgeries": [
                 {
                     "surgeon": "DeduplicateNodes"
+                },
+                {
+                    "surgeon": "RemoveMemcpy"
                 }
             ],
             "save_as_external_data": true,

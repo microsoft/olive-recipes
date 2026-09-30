@@ -9,7 +9,7 @@ The `Qwen3.5-4B_model_builder_int4.json` recipe uses the ONNX Runtime GenAI `Mod
 
 1. Export a standalone text model by including the token embedding layer (`exclude_embeds=false`).
 2. Apply symmetric INT4 RTN weight-only quantization with a block size of 32.
-3. Export quantized matrix multiplications directly in INT4 QDQ format (`use_qdq=true`).
+3. Convert any resulting `MatMulNBits` nodes to signed INT4 QDQ with the explicit `MatMulNBitsToQDQ` pass.
 
 The vision encoder is not exported.
 

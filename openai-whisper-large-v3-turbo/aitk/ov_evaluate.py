@@ -52,7 +52,9 @@ def test_transcript(model_path, audio_path, num_beams=0, execution_provider="Ope
 
 def main():
     parser = argparse.ArgumentParser(description="Test Whisper ONNX GenAI models.")
-    parser.add_argument("--execution_provider", type=str, default="CPUExecutionProvider", help="ORT Execution provider")
+    parser.add_argument(
+        "--execution_provider", type=str, default="OpenVINOExecutionProvider", help="ORT Execution provider"
+    )
     parser.add_argument("--device_str", type=str, default="cpu")
     parser.add_argument("--output_file", type=str, required=True)
     parser.add_argument("--model_path", required=True, help="Path to Whisper ONNX GenAI model")
@@ -73,7 +75,7 @@ def main():
 
     from winml import register_execution_providers_to_onnxruntime_genai
 
-    register_execution_providers_to_onnxruntime_genai()
+    register_execution_providers_to_onnxruntime_genai(args.execution_provider)
 
     num_beams = 1
     latencies = test_transcript(model_path, test_audio_name, num_beams, "OpenVINO", args.device_str.upper())

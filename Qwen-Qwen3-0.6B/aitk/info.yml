@@ -16,5 +16,5 @@ recipes:
 aitk:
     modelInfo:
         id: "huggingface/Qwen/Qwen3-0.6B"
-        version: 1
+        version: 2
         status: Hide
