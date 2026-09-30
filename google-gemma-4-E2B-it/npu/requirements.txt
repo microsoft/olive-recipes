@@ -1,0 +1,16 @@
+# NPU (QNN) recipes run on Windows ARM64, so they need a separate requirement
+# set from the CPU/CUDA recipes in ../requirements.txt.
+olive-ai
+onnx
+onnxruntime-qnn
+
+# Calibration data loading.
+#
+# The text recipe deliberately does not use `datasets`. `datasets` pulls in
+# `pyarrow`, which publishes no Windows ARM64 wheel, so it cannot be installed
+# on the target machines for these recipes. `npu/text/user_script.py` therefore
+# downloads the parquet shard directly with `huggingface_hub` and reads it with
+# `fastparquet`, which is pure Python plus numpy and installs cleanly on ARM64.
+fastparquet
+huggingface_hub
+pandas
