@@ -1,9 +1,3 @@
-# NPU (QNN) recipes run on Windows ARM64, so they need a separate requirement
-# set from the CPU/CUDA recipes in ../requirements.txt.
-olive-ai
-onnx
-onnxruntime-qnn
-
 # Calibration data loading.
 #
 # The text recipe deliberately does not use `datasets`. `datasets` pulls in
@@ -13,4 +7,12 @@ onnxruntime-qnn
 # `fastparquet`, which is pure Python plus numpy and installs cleanly on ARM64.
 fastparquet
 huggingface_hub
+
+# NPU (QNN) recipes run on Windows ARM64, so they need a separate requirement
+# set from the CPU/CUDA recipes in ../requirements.txt.
+olive-ai
+onnx
+onnxruntime-qnn
+
+# Used by user_script.py to shape the calibration batches.
 pandas
