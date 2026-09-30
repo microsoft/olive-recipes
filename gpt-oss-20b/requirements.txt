@@ -1,3 +1,5 @@
 --extra-index-url https://aiinfra.pkgs.visualstudio.com/PublicPackages/_packaging/ORT-Nightly/pypi/simple
+accelerate
+kernels>=0.16,<0.17
 olive-ai
 onnxruntime-genai-cuda
