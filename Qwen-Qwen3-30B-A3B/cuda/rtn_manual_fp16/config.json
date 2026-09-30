@@ -28,12 +28,16 @@
             "sym": true,
             "moe": true,
             "embeds": true,
-            "lm_head": false,
+            "lm_head": true,
+            "independent_qkv": true,
             "overrides": {
-                "re:model\\.layers\\.(?:[0-5]|8|11|14|17|20|23|26|29|32|35|38|41|4[2-7])\\.self_attn\\.(?:q_proj|k_proj|v_proj)": {
+                "re:model\\.layers\\.(?:[0-5]|8|11|14|17|20|23|26|29|32|35|38|41|4[2-7])\\.self_attn\\.v_proj": {
                     "bits": 8
                 },
                 "re:model\\.layers\\.(?:[0-5]|8|11|14|17|20|23|26|29|32|35|38|41|4[2-7])\\.mlp\\.experts\\.down_proj": {
+                    "bits": 8
+                },
+                "lm_head": {
                     "bits": 8
                 }
             }
