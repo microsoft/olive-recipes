@@ -54,10 +54,10 @@ instead of a `SelectiveMixedPrecision` pass:
 This copies a *selection policy*, not GGUF `Q4_K_M` storage: the selected
 `attn_v`/`ffn_down` and LM head use Olive INT8 as an approximation of GGUF
 `Q6_K`, while token embeddings use INT4 instead of GGUF `Q4_K`. The encodings
-are not equivalent. Olive's `independent_qkv: true` opt-in preserves INT4 Q/K
-and INT8 V instead of normalizing all three projections for packed-QKV
-exporters. Mobius keeps this model's quantized Q/K/V projections separate;
-the opt-in does not make mixed-width packed-QKV export compatible.
+are not equivalent. Olive applies the per-projection overrides without
+normalizing Q/K/V to the same precision. Mobius keeps this model's
+mixed-width quantized Q/K/V projections separate; they cannot be packed
+into one `MatMulNBits` without changing the selected precision.
 Neither file size nor accuracy is expected to match a GGUF.
 The selected layers export mixed `(FC1, FC2) = (4, 8)` fused experts;
 other layers export `(4, 4)`. Check the effective per-projection quantization
@@ -70,8 +70,8 @@ build with mixed-width dense fallback; the ORT 1.30.0 build used for the
 original results below is not sufficient. In a separate environment, install
 `cuda/rtn_manual_fp16/requirements.txt` instead of the baseline requirements
 file: it pins Mobius `88fd6a1f` and the upstream Olive revision
-`5e62fef4` from [microsoft/Olive#2700](https://github.com/microsoft/Olive/pull/2700)
-with opt-in independent QKV support. Install a compatible custom ORT CUDA wheel
+`3822dd26` from [microsoft/Olive#2700](https://github.com/microsoft/Olive/pull/2700)
+with per-projection QKV quantization. Install a compatible custom ORT CUDA wheel
 **after** the GenAI dependency, and verify that it provides the intended CUDA
 execution provider.
 
@@ -129,6 +129,16 @@ Full MMLU at `--limit 200` scored **0.794729 over 9,183 examples**, a
 test cannot attribute the difference to V-only or head quantization alone;
 the small difference is not evidence of statistical significance. Neither
 full-logit parity nor the final merged ORT runtime is qualified by this result.
+
+On September 30, both the V-only `(4,4,8)` model and a separate
+`(8,8,8)` QKV export were evaluated on the same A100 with the same
+custom ORT 1.31.0 CUDA / GenAI 0.16.0-dev environment and `--limit 200`
+MMLU settings. Scores were **0.794185** and **0.797452**, respectively,
+over 9,183 examples each (about 0.327 percentage points apart). Short-prompt
+decode medians were **30.918** and **30.876 tokens/s**, respectively.
+Both graphs retain separate Q/K/V `MatMulNBits` operators; these measurements
+do **not** estimate the speedup from packing QKV, and the MMLU difference
+should not be interpreted as statistically significant.
 
 This ORT build's mixed-width dense fallback requires 1,207,959,552 bytes of
 dequantized expert-weight scratch for a selected layer, exceeding its default

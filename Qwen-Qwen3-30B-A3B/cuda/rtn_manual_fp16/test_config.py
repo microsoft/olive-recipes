@@ -34,7 +34,7 @@ def test_manual_overrides_match_layer_schedule():
     pass_config = json.loads(Path(__file__).with_name("config.json").read_text())[
         "passes"
     ]["rtn"]
-    assert pass_config["independent_qkv"] is True
+    assert "independent_qkv" not in pass_config
     assert config.embeds is True
     assert config.lm_head is True
     assert config.get_qlinear_init_args("model.embed_tokens")["bits"] == 4
