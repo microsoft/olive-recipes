@@ -1,0 +1,6 @@
+arch: qwen3.5
+recipes:
+  - name: jaredpalmer-kev-4b_mobius_mixed
+    file: export.py
+    devices: gpu
+    eps: CUDAExecutionProvider

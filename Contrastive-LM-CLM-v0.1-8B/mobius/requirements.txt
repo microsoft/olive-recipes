@@ -1,0 +1,11 @@
+torch
+transformers
+peft
+huggingface_hub
+safetensors
+onnx
+onnx-ir
+onnxruntime
+sentencepiece
+numpy
+git+https://github.com/onnxruntime/mobius.git@asonawane/non-generative-export

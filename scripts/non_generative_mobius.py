@@ -1,0 +1,416 @@
+"""Shared Mobius exporter for CLM and KEV Olive recipes."""
+
+from __future__ import annotations
+
+import dataclasses
+import gc
+import json
+import re
+import shutil
+import tempfile
+from dataclasses import dataclass
+from pathlib import Path
+from typing import Literal
+
+import onnx
+import onnx_ir as ir
+import torch
+from onnxruntime.quantization.matmul_nbits_quantizer import (
+    MatMulNBitsQuantizer,
+    QuantFormat,
+)
+from peft import PeftModel
+from transformers import AutoConfig, AutoModelForCausalLM, AutoTokenizer
+
+from mobius import ArchitectureConfig, build_clm_package, build_kev_package
+
+ModelName = Literal["clm", "kev"]
+Precision = Literal["fp32", "mixed", "both"]
+
+
+@dataclass(frozen=True)
+class Recipe:
+    """Immutable model identity and package policy."""
+
+    name: ModelName
+    base: str
+    base_revision: str
+    artifact_revision: str
+    fp32_directory: str
+    mixed_directory: str
+    fp16_directory: str
+    component: str
+    mixed_model_id: str
+
+
+RECIPES = {
+    "clm": Recipe(
+        name="clm",
+        base="Qwen/Qwen3-8B",
+        base_revision="b968826d9c46dd6066d109eabc6255188de91218",
+        artifact_revision="e939398d4556fcd9400c76fa8c5a513202f42b0a",
+        fp32_directory="clm-v0.1-8b-fp32",
+        mixed_directory="clm-v0.1-8b-mixed-middle-mlp",
+        fp16_directory="clm-v0.1-8b-fp16-backbone",
+        component="encoder",
+        mixed_model_id="clm-v0.1-8b-mixed-cuda:1",
+    ),
+    "kev": Recipe(
+        name="kev",
+        base="Qwen/Qwen3.5-4B-Base",
+        base_revision="1001bb4d826a52d1f399e183466143f4da7b741b",
+        artifact_revision="139fdd94f1b6a6ad80cc15e08fcb99cac885a101",
+        fp32_directory="kev-4b-fp32",
+        mixed_directory="kev-4b-mixed-middle-mlp",
+        fp16_directory="kev-4b-fp16-backbone",
+        component="backbone",
+        mixed_model_id="kev-4b-mixed-cuda:1",
+    ),
+}
+
+
+def write_json(path: Path, value: dict) -> None:
+    """Write stable human-readable JSON."""
+    path.write_text(f"{json.dumps(value, indent=2)}\n", encoding="utf-8")
+
+
+def architecture_config(recipe: Recipe, dtype: ir.DataType) -> ArchitectureConfig:
+    """Load a pinned base architecture in the requested graph dtype."""
+    parent = AutoConfig.from_pretrained(
+        recipe.base,
+        revision=recipe.base_revision,
+    )
+    primary = getattr(parent, "text_config", parent)
+    config = ArchitectureConfig.from_transformers(
+        primary,
+        parent_config=parent if primary is not parent else None,
+    )
+    return dataclasses.replace(config, dtype=dtype)
+
+
+def component_names(recipe: Recipe) -> tuple[str, ...]:
+    """Return the expected Mobius FP32 component set."""
+    if recipe.name == "clm":
+        return ("encoder", "state_head", "action_head", "scorer")
+    return ("backbone", "pointer_head")
+
+
+def reusable_package(path: Path, recipe: Recipe) -> bool:
+    """Return whether an FP32 package can be reused after an interrupted run."""
+    required = (
+        path / "component_manifest.json",
+        path / "inference_model.json",
+        path / "tokenizer.json",
+        path / "tokenizer_config.json",
+        *(path / name / "model.onnx" for name in component_names(recipe)),
+    )
+    return all(item.is_file() for item in required)
+
+
+def load_clm_head(artifact: Path):
+    """Load the released CLM head checkpoint."""
+    return torch.load(
+        artifact / "CLM_v0.1-8B.pt",
+        map_location="cpu",
+        weights_only=True,
+    )
+
+
+def load_kev(recipe: Recipe, artifact: Path, dtype: torch.dtype):
+    """Load the pinned KEV base, merge its adapter, and return dense weights."""
+    checkpoint = torch.load(
+        artifact / "head.pt",
+        map_location="cpu",
+        weights_only=True,
+    )
+    container = AutoModelForCausalLM.from_pretrained(
+        recipe.base,
+        revision=recipe.base_revision,
+        dtype=dtype,
+        low_cpu_mem_usage=True,
+    )
+    adapted = PeftModel.from_pretrained(container.model, artifact)
+    merged = adapted.merge_and_unload()
+    weights = {
+        f"model.{name}": value for name, value in merged.state_dict().items()
+    }
+    return checkpoint, container, adapted, merged, weights
+
+
+def manifest(recipe: Recipe) -> dict:
+    """Create the runtime component manifest."""
+    if recipe.name == "clm":
+        components = {
+            "encoder": {"role": "backbone", "filename": "encoder/model.onnx"},
+            "state_head": {"role": "head", "filename": "state_head/model.onnx"},
+            "action_head": {"role": "head", "filename": "action_head/model.onnx"},
+            "scorer": {"role": "scorer", "filename": "scorer/model.onnx"},
+        }
+        model_type = "clm-v0.1-8b"
+    else:
+        components = {
+            "backbone": {
+                "role": "backbone",
+                "filename": "backbone/model.onnx",
+            },
+            "pointer_head": {
+                "role": "head",
+                "filename": "pointer_head/model.onnx",
+            },
+        }
+        model_type = "kev-4b"
+    return {
+        "schema_version": 1,
+        "model_type": model_type,
+        "components": components,
+    }
+
+
+def inference_metadata(recipe: Recipe, *, mixed: bool) -> dict:
+    """Create Foundry metadata for one exported package."""
+    if recipe.name == "clm":
+        source = "Contrastive-LM/CLM-v0.1-8B"
+        alias = "clm"
+        task = "text-ranking"
+        capabilities = ["structured-input", "candidate-ranking", "action-cache"]
+        fp32_id = "clm-v0.1-8b-generic-cpu:1"
+    else:
+        source = "jaredpalmer/kev-4b"
+        alias = "kev"
+        task = "typed-decision"
+        capabilities = ["structured-input", "noul", "choice", "score"]
+        fp32_id = "kev-4b-generic-cpu:1"
+    return {
+        "Name": recipe.mixed_model_id if mixed else fp32_id,
+        "Alias": alias,
+        "Task": task,
+        "ComponentManifest": "component_manifest.json",
+        "License": "Apache-2.0",
+        "Provenance": {
+            "source": source,
+            "artifact_revision": recipe.artifact_revision,
+            "base_model": recipe.base,
+            "base_revision": recipe.base_revision,
+        },
+        "Provider": {
+            "execution_provider": "cuda" if mixed else "cpu",
+            "variant": "fp16-int4-middle-mlp-edge4" if mixed else "fp32",
+        },
+        "Capabilities": capabilities,
+    }
+
+
+def save_package_metadata(recipe: Recipe, output: Path, *, mixed: bool) -> None:
+    """Write runtime and Foundry manifests."""
+    write_json(output / "component_manifest.json", manifest(recipe))
+    write_json(
+        output / "inference_model.json",
+        inference_metadata(recipe, mixed=mixed),
+    )
+
+
+def export_fp32(recipe: Recipe, artifact: Path, output_root: Path) -> None:
+    """Export one complete FP32 Mobius package."""
+    output = output_root / recipe.fp32_directory
+    if output.exists():
+        raise FileExistsError(output)
+    config = architecture_config(recipe, ir.DataType.FLOAT)
+    if recipe.name == "clm":
+        checkpoint = load_clm_head(artifact)
+        base = AutoModelForCausalLM.from_pretrained(
+            recipe.base,
+            revision=recipe.base_revision,
+            dtype=torch.float32,
+            low_cpu_mem_usage=True,
+        )
+        package = build_clm_package(
+            config,
+            base_weights=base.state_dict(),
+            head_checkpoint=checkpoint,
+            base_revision=recipe.base_revision,
+        )
+        owners = (package, base, checkpoint)
+    else:
+        checkpoint, container, adapted, merged, weights = load_kev(
+            recipe,
+            artifact,
+            torch.float32,
+        )
+        package = build_kev_package(
+            config,
+            head_checkpoint=checkpoint,
+            merged_base_weights=weights,
+        )
+        owners = (package, weights, merged, adapted, container, checkpoint)
+    package.save(output, external_data="onnx", max_workers=1)
+    AutoTokenizer.from_pretrained(
+        recipe.base,
+        revision=recipe.base_revision,
+    ).save_pretrained(output)
+    save_package_metadata(recipe, output, mixed=False)
+    del package, owners
+    gc.collect()
+
+
+def combine_fp16(
+    recipe: Recipe,
+    source: Path,
+    temporary: Path,
+    output: Path,
+) -> None:
+    """Copy FP32 heads and replace only the backbone with its FP16 graph."""
+    if output.exists():
+        raise FileExistsError(output)
+    output.mkdir(parents=True)
+    for child in source.iterdir():
+        if child.name == recipe.component:
+            continue
+        destination = output / child.name
+        if child.is_dir():
+            shutil.copytree(child, destination)
+        else:
+            shutil.copy2(child, destination)
+    saved = temporary / recipe.component
+    if not saved.is_dir():
+        saved = temporary
+    target = output / recipe.component
+    target.mkdir()
+    for child in saved.iterdir():
+        if child.name.startswith("model.onnx"):
+            shutil.copy2(child, target / child.name)
+
+
+def export_fp16_backbone(
+    recipe: Recipe,
+    artifact: Path,
+    output_root: Path,
+) -> None:
+    """Export an FP16 backbone while preserving FP32 decision heads."""
+    config = architecture_config(recipe, ir.DataType.FLOAT16)
+    if recipe.name == "clm":
+        checkpoint = load_clm_head(artifact)
+        base = AutoModelForCausalLM.from_pretrained(
+            recipe.base,
+            revision=recipe.base_revision,
+            dtype=torch.float16,
+            low_cpu_mem_usage=True,
+        )
+        package = build_clm_package(
+            config,
+            base_weights=base.state_dict(),
+            head_checkpoint=checkpoint,
+            base_revision=recipe.base_revision,
+        )
+        owners = (package, base, checkpoint)
+    else:
+        checkpoint, container, adapted, merged, weights = load_kev(
+            recipe,
+            artifact,
+            torch.float16,
+        )
+        package = build_kev_package(
+            config,
+            head_checkpoint=checkpoint,
+            merged_base_weights=weights,
+        )
+        owners = (package, weights, merged, adapted, container, checkpoint)
+    with tempfile.TemporaryDirectory(prefix=f"{recipe.name}-fp16-") as directory:
+        temporary = Path(directory)
+        package.save(
+            temporary,
+            external_data="onnx",
+            max_workers=1,
+            components=lambda name: name == recipe.component,
+        )
+        combine_fp16(
+            recipe,
+            output_root / recipe.fp32_directory,
+            temporary,
+            output_root / recipe.fp16_directory,
+        )
+    del package, owners
+    gc.collect()
+
+
+def quantize_mixed(recipe: Recipe, output_root: Path) -> None:
+    """Apply the selected middle-MLP INT4 block-128 policy."""
+    source = output_root / recipe.fp16_directory
+    output = output_root / recipe.mixed_directory
+    if output.exists():
+        raise FileExistsError(output)
+    output.mkdir(parents=True)
+    for child in source.iterdir():
+        if child.name == recipe.component:
+            continue
+        destination = output / child.name
+        if child.is_dir():
+            shutil.copytree(child, destination)
+        else:
+            shutil.copy2(child, destination)
+    source_model = source / recipe.component / "model.onnx"
+    output_model = output / recipe.component / "model.onnx"
+    output_model.parent.mkdir(parents=True)
+    model = onnx.load(source_model, load_external_data=False)
+    matmuls = [node for node in model.graph.node if node.op_type == "MatMul"]
+    layers = [
+        int(match.group(1))
+        for node in matmuls
+        if (match := re.search(r"/layers\.(\d+)/", node.name))
+    ]
+    last_layer = max(layers)
+    excluded = []
+    for node in matmuls:
+        match = re.search(r"/layers\.(\d+)/", node.name)
+        layer = int(match.group(1)) if match else -1
+        if not (4 <= layer <= last_layer - 4 and "/mlp/" in node.name):
+            excluded.append(node.name)
+    quantizer = MatMulNBitsQuantizer(
+        str(source_model),
+        bits=4,
+        block_size=128,
+        is_symmetric=True,
+        accuracy_level=4,
+        quant_format=QuantFormat.QOperator,
+        op_types_to_quantize=("MatMul",),
+        nodes_to_exclude=excluded,
+    )
+    quantizer.process()
+    quantizer.model.save_model_to_file(
+        str(output_model),
+        use_external_data_format=True,
+    )
+    quantized = onnx.load(output_model, load_external_data=False)
+    count = sum(
+        node.domain == "com.microsoft" and node.op_type == "MatMulNBits"
+        for node in quantized.graph.node
+    )
+    if count == 0:
+        raise RuntimeError("mixed graph contains no MatMulNBits nodes")
+    onnx.checker.check_model(str(output_model))
+    save_package_metadata(recipe, output, mixed=True)
+
+
+def run_recipe(
+    model: ModelName,
+    artifact: Path,
+    output_root: Path,
+    precision: Precision,
+) -> None:
+    """Run one model-specific recipe."""
+    recipe = RECIPES[model]
+    output_root = output_root.resolve()
+    artifact = artifact.resolve()
+    output_root.mkdir(parents=True, exist_ok=True)
+    fp32 = output_root / recipe.fp32_directory
+    if fp32.exists() and precision in {"mixed", "both"}:
+        if not reusable_package(fp32, recipe):
+            raise RuntimeError(f"incomplete FP32 package: {fp32}")
+        print(f"reusing existing FP32 intermediate: {fp32}")
+    else:
+        export_fp32(recipe, artifact, output_root)
+    if precision in {"mixed", "both"}:
+        export_fp16_backbone(recipe, artifact, output_root)
+        quantize_mixed(recipe, output_root)
+        shutil.rmtree(output_root / recipe.fp16_directory)
+        if precision == "mixed":
+            shutil.rmtree(fp32)
