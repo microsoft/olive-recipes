@@ -135,9 +135,7 @@ def load_kev(recipe: Recipe, artifact: Path, dtype: torch.dtype):
     )
     adapted = PeftModel.from_pretrained(container.model, artifact)
     merged = adapted.merge_and_unload()
-    weights = {
-        f"model.{name}": value for name, value in merged.state_dict().items()
-    }
+    weights = {f"model.{name}": value for name, value in merged.state_dict().items()}
     return checkpoint, container, adapted, merged, weights
 
 
