@@ -60,9 +60,6 @@
             "calibrate_method": "MinMax",
             "quant_preprocess": false,
             "prepare_qdq_config": true,
-            "op_types_to_exclude": [
-                "SkipSimplifiedLayerNormalization"
-            ],
             "extra_options": {
                 "DedicatedQDQPair": true
             },
@@ -96,6 +93,6 @@
             "pipeline": ["embedding_kquant", "matmul_nbits_to_qdq"]
         }
     },
-    "output_dir": "gemma4_onnx_quantized",
+    "output_dir": "gemma4_quantized_onnx",
     "log_severity_level": 0
 }
