@@ -1,0 +1,6 @@
+arch: qwen3_5_text
+recipes:
+  - name: kev-4b_cpu_mobius_fp32
+    file: export.py
+    devices: cpu
+    eps: CPUExecutionProvider

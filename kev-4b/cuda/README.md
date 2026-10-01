@@ -1,4 +1,4 @@
-# KEV-4B model Mobius export
+# KEV-4B CUDA Mobius export
 
 This recipe exports `jaredpalmer/kev-4b` as a multi-component
 non-generative package for Foundry Local.
@@ -10,7 +10,7 @@ From the `olive-recipes` repository root:
 ```bash
 python -m venv .venv
 source .venv/bin/activate
-python -m pip install -r kev-4b/mobius/requirements.txt
+python -m pip install -r kev-4b/cuda/requirements.txt
 ```
 
 Download the pinned adapter and head:
@@ -29,14 +29,13 @@ hf download jaredpalmer/kev-4b \
 Selected mixed package:
 
 ```bash
-python kev-4b/mobius/export.py \
+python kev-4b/cuda/export.py \
   --artifact artifacts/kev \
-  --output-dir build/kev \
-  --precision mixed
+  --output-dir build/kev
 ```
 
-Other choices are `--precision fp32` and `--precision both`. A complete FP32
-intermediate is reused after an interrupted mixed export.
+Pass `--keep-fp32` to retain the FP32 package. A complete FP32 intermediate is
+reused after an interrupted mixed export.
 
 ## Output
 

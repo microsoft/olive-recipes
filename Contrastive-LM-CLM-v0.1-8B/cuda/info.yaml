@@ -1,6 +1,6 @@
-arch: qwen3.5
+arch: qwen3
 recipes:
-  - name: kev-4b_mobius_mixed
+  - name: Contrastive-LM-CLM-v0.1-8B_cuda_mobius_mixed
     file: export.py
     devices: gpu
     eps: CUDAExecutionProvider

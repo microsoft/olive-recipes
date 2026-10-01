@@ -1,4 +1,4 @@
-# CLM-v0.1-8B Mobius export
+# CLM-v0.1-8B CUDA Mobius export
 
 This recipe exports `Contrastive-LM/CLM-v0.1-8B` as a multi-component
 non-generative package for Foundry Local.
@@ -10,7 +10,7 @@ From the `olive-recipes` repository root:
 ```bash
 python -m venv .venv
 source .venv/bin/activate
-python -m pip install -r Contrastive-LM-CLM-v0.1-8B/mobius/requirements.txt
+python -m pip install -r Contrastive-LM-CLM-v0.1-8B/cuda/requirements.txt
 ```
 
 Download the pinned CLM head:
@@ -27,14 +27,13 @@ hf download Contrastive-LM/CLM-v0.1-8B \
 Selected mixed package:
 
 ```bash
-python Contrastive-LM-CLM-v0.1-8B/mobius/export.py \
+python Contrastive-LM-CLM-v0.1-8B/cuda/export.py \
   --artifact artifacts/clm \
-  --output-dir build/clm \
-  --precision mixed
+  --output-dir build/clm
 ```
 
-Other choices are `--precision fp32` and `--precision both`. A complete FP32
-intermediate is reused after an interrupted mixed export.
+Pass `--keep-fp32` to retain the FP32 package. A complete FP32 intermediate is
+reused after an interrupted mixed export.
 
 ## Output
 
