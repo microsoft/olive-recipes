@@ -8,7 +8,7 @@ This recipe optimizes for
 ```bash
 pip install "git+https://github.com/microsoft/Olive.git"
 pip install "git+https://github.com/onnxruntime/mobius.git"
-pip install transformers torch onnxruntime-genai requests
+pip install onnxruntime-genai requests
 hf auth login
 ```
 
