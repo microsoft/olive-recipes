@@ -1,0 +1,12 @@
+git+https://github.com/microsoft/Olive.git@c5be263167f252da65d51e15a1a3cd3556ae0c91
+git+https://github.com/onnxruntime/mobius.git@55c576a0d4c9474fb8102873ac88be34de08d7c9
+huggingface_hub
+numpy
+onnx
+onnx-ir
+onnxruntime
+peft
+safetensors
+sentencepiece
+torch
+transformers
