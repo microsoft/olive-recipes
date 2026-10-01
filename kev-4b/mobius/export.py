@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Export KEV-4B with Mobius."""
+"""Export the KEV-4B model with Mobius."""
 
 from __future__ import annotations
 
