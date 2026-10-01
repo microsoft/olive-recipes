@@ -70,7 +70,7 @@ build with mixed-width dense fallback; the ORT 1.30.0 build used for the
 original results below is not sufficient. In a separate environment, install
 `cuda/rtn_manual_fp16/requirements.txt` instead of the baseline requirements
 file: it pins Mobius `88fd6a1f` and the upstream Olive revision
-`3822dd26` from [microsoft/Olive#2700](https://github.com/microsoft/Olive/pull/2700)
+`e6bb0870` from [microsoft/Olive#2700](https://github.com/microsoft/Olive/pull/2700)
 with per-projection QKV quantization. Install a compatible custom ORT CUDA wheel
 **after** the GenAI dependency, and verify that it provides the intended CUDA
 execution provider.
