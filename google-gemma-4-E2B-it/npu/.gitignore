@@ -1,0 +1,5 @@
+# Local-only inputs and build artifacts. Nothing here belongs in the repo.
+models/
+cache/
+text/output/
+text/__pycache__/
