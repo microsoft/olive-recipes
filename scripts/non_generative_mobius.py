@@ -103,6 +103,7 @@ def reusable_package(path: Path, recipe: Recipe) -> bool:
         path / "tokenizer.json",
         path / "tokenizer_config.json",
         *(path / name / "model.onnx" for name in component_names(recipe)),
+        *(path / name / "model.onnx.data" for name in component_names(recipe)),
     )
     return all(item.is_file() for item in required)
 
@@ -402,16 +403,32 @@ def run_recipe(
     artifact = artifact.resolve()
     output_root.mkdir(parents=True, exist_ok=True)
     fp32 = output_root / recipe.fp32_directory
+    mixed = output_root / recipe.mixed_directory
+    mixed_ready = False
+    if precision in {"mixed", "both"} and mixed.exists():
+        if reusable_package(mixed, recipe):
+            mixed_ready = True
+            print(f"reusing existing mixed package: {mixed}")
+        else:
+            print(f"removing incomplete mixed package: {mixed}")
+            shutil.rmtree(mixed)
+    if mixed_ready and precision == "mixed":
+        return
     if fp32.exists() and precision in {"mixed", "both"}:
         if not reusable_package(fp32, recipe):
             raise RuntimeError(f"incomplete FP32 package: {fp32}")
         print(f"reusing existing FP32 intermediate: {fp32}")
     else:
         export_fp32(recipe, artifact, output_root)
-    if precision in {"mixed", "both"}:
+    if precision in {"mixed", "both"} and not mixed_ready:
+        fp16 = output_root / recipe.fp16_directory
+        if fp16.exists():
+            print(f"removing incomplete FP16 package: {fp16}")
+            shutil.rmtree(fp16)
         export_fp16_backbone(recipe, artifact, output_root)
         quantize_mixed(recipe, output_root)
-        shutil.rmtree(output_root / recipe.fp16_directory)
+        shutil.rmtree(fp16)
+    if precision in {"mixed", "both"}:
         if precision == "mixed":
             shutil.rmtree(fp32)
 
