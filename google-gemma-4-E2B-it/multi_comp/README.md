@@ -31,11 +31,11 @@ olive run --config gemma4_quantization.json
 Text:
 
 ```bash
-python ../inference.py --model-path gemma4_onnx --prompt "What is the capital of France?" --verbose
+python ../inference.py --model-path gemma4_quantized_onnx --prompt "What is the capital of France?" --verbose
 ```
 
 Image:
 
 ```bash
-python ../inference.py --model-path gemma4_onnx --image ../cat.jpeg --prompt "What animal is shown? Answer in one short sentence." --verbose
+python ../inference.py --model-path gemma4_quantized_onnx --image ../cat.jpeg --prompt "What animal is shown? Answer in one short sentence." --verbose
 ```
