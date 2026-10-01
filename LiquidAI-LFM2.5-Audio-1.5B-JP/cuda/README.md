@@ -37,8 +37,9 @@ olive run --config LiquidAI-LFM2.5-Audio-1.5B-JP_cuda_int4.json
 
 #### `_cuda_int8.json` — Q8_0 equivalent
 INT8 weights (symmetric, block size 32) throughout, including the LM head. This recipe leaves
-`algo_config` unset on purpose: with `precision: int8`, `algo_config: rtn` makes the model builder
-emit 4-bit weights.
+`algo_config` unset: up to onnxruntime-genai 0.16.0, `algo_config: rtn` or `k_quant` with
+`precision: int8` emits 4-bit weights (fixed by
+[microsoft/onnxruntime-genai#2627](https://github.com/microsoft/onnxruntime-genai/pull/2627)).
 
 ```
 olive run --config LiquidAI-LFM2.5-Audio-1.5B-JP_cuda_int8.json
@@ -128,9 +129,11 @@ japanese.` and `Respond with interleaved text and audio.`; `--system` replaces t
 
 ## Running on CUDA
 
-Every graph runs on CUDA, the speech encoder included; its convolutions need cuDNN. The decoder
-takes float16 `inputs_embeds`, and the runtime writes the embedding model's output straight into
-that buffer, so `finalize.py` casts the embedding model's output to float16.
+Every graph ONNX Runtime GenAI loads runs on CUDA, the speech encoder included; its convolutions
+need cuDNN. The audio detokenizer is not part of that package: `inference.py` runs it on CPU once
+per answer, to turn the finished audio codes into a waveform. The decoder takes float16
+`inputs_embeds`, and the runtime writes the embedding model's output straight into that buffer, so
+`finalize.py` casts the embedding model's output to float16.
 
 ## Measured quality and speed
 

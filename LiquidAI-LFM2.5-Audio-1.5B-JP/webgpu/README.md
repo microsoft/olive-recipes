@@ -37,8 +37,9 @@ olive run --config LiquidAI-LFM2.5-Audio-1.5B-JP_webgpu_int4.json
 
 #### `_webgpu_int8.json` — Q8_0 equivalent
 INT8 weights (symmetric, block size 32) throughout, including the LM head. This recipe leaves
-`algo_config` unset on purpose: with `precision: int8`, `algo_config: rtn` makes the model builder
-emit 4-bit weights.
+`algo_config` unset: up to onnxruntime-genai 0.16.0, `algo_config: rtn` or `k_quant` with
+`precision: int8` emits 4-bit weights (fixed by
+[microsoft/onnxruntime-genai#2627](https://github.com/microsoft/onnxruntime-genai/pull/2627)).
 
 ```
 olive run --config LiquidAI-LFM2.5-Audio-1.5B-JP_webgpu_int8.json
