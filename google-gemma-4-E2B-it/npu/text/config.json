@@ -142,8 +142,8 @@
                 "component.decoder.kv_sequence_length"
             ],
             "dim_value": [
-                256,
-                256
+                1024,
+                1024
             ]
         },
         "st": {
