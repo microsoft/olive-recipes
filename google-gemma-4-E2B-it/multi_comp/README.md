@@ -14,54 +14,16 @@ hf auth login
 
 Run the commands below from this `multi_comp` directory.
 
-## Step 1 — Run and assemble both component builds
+## Step 1 — Export with Mobius
 
 ```bash
-olive run --config gemma4_quantize.json
+olive capture-onnx-graph --model_name_or_path google/gemma-4-E2B-it --use_mobius_builder --precision fp32 --output_path gemma4_onnx
 ```
 
-The config contains two disjoint builds under one shared output parent:
-
-```json
-{
-    "builds": {
-        "decoder": {
-            "components": [ "decoder" ],
-            "pipeline": [ "decoder_kquant" ]
-        },
-        "vision": {
-            "components": [ "vision_encoder" ],
-            "pipeline": [ "vision_rtn" ]
-        },
-        "embedding": {
-            "components": ["embedding"],
-            "pipeline": ["embedding_kquant"]
-        }
-    }
-}
-```
-
-Olive writes component-only shards for the optimized components and retains all
-unbuilt tensors from the source checkpoint:
-
-```text
-gemma4_quantized_hf/
-  config.json
-  model.safetensors.index.json
-  model-unoptimized-*.safetensors
-  model_config.json
-  decoder/
-    component.json
-    model-*.safetensors
-  vision/
-    component.json
-    model-*.safetensors
-```
-
-## Step 2 — Export with Mobius
+## Step 2 — Quantization
 
 ```bash
-olive capture-onnx-graph --model_name_or_path gemma4_quantized_hf --use_mobius_builder --precision fp32 --output_path gemma4_onnx
+olive run --config gemma4_quantization.json
 ```
 
 Output:
