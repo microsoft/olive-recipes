@@ -414,3 +414,41 @@ def run_recipe(
         shutil.rmtree(output_root / recipe.fp16_directory)
         if precision == "mixed":
             shutil.rmtree(fp32)
+
+
+def olive_export(
+    *,
+    model_name: ModelName,
+    output_dir: Path,
+    exporter_config: dict,
+) -> dict[str, list[str]]:
+    """Export one recipe into an Olive-owned output directory."""
+    recipe = RECIPES[model_name]
+    artifact_value = exporter_config.get("artifact_path")
+    if not isinstance(artifact_value, str) or not artifact_value:
+        raise ValueError("exporter_config.artifact_path is required")
+    precision = exporter_config.get("recipe_precision", "fp32")
+    if precision not in {"fp32", "mixed", "both"}:
+        raise ValueError("recipe_precision must be fp32, mixed, or both")
+
+    output_dir = Path(output_dir)
+    if any(output_dir.iterdir()):
+        raise ValueError(f"Olive output directory must be empty: {output_dir}")
+    with tempfile.TemporaryDirectory(
+        prefix=f"{model_name}-olive-",
+        dir=output_dir.parent,
+    ) as temporary:
+        staging = Path(temporary)
+        run_recipe(model_name, Path(artifact_value), staging, precision)
+        selected = (
+            staging / recipe.mixed_directory
+            if precision == "mixed"
+            else staging / recipe.fp32_directory
+        )
+        for child in selected.iterdir():
+            destination = output_dir / child.name
+            if child.is_dir():
+                shutil.copytree(child, destination)
+            else:
+                shutil.copy2(child, destination)
+    return {"components": list(component_names(recipe))}

@@ -1,3 +1,4 @@
+git+https://github.com/microsoft/Olive.git@asonawane/mobius-custom-export
 git+https://github.com/onnxruntime/mobius.git@asonawane/non-generative-export
 huggingface_hub
 numpy

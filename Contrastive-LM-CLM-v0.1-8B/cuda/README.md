@@ -26,21 +26,21 @@ hf download Contrastive-LM/CLM-v0.1-8B \
 
 Selected mixed package:
 
+From this recipe directory:
+
 ```bash
-python Contrastive-LM-CLM-v0.1-8B/cuda/export.py \
-  --artifact artifacts/clm \
-  --output-dir build/clm
+olive run --config CLM-v0.1-8B_cuda_mixed.json
 ```
 
-Pass `--keep-fp32` to retain the FP32 package. A complete FP32 intermediate is
-reused after an interrupted mixed export.
+Download the artifact under `artifacts/clm/` in this directory. A complete
+FP32 intermediate is reused after an interrupted mixed export.
 
 ## Output
 
 The selected package is:
 
 ```text
-build/clm/clm-v0.1-8b-mixed-middle-mlp/
+build/
 ```
 
 It contains an FP16 Qwen3 backbone with middle-layer MLP projections quantized

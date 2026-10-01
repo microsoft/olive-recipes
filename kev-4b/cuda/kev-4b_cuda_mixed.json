@@ -1,0 +1,38 @@
+{
+  "input_model": {
+    "type": "HfModel",
+    "model_path": "Qwen/Qwen3.5-4B-Base",
+    "load_kwargs": {
+      "revision": "1001bb4d826a52d1f399e183466143f4da7b741b",
+      "torch_dtype": "float16"
+    }
+  },
+  "systems": {
+    "local_system": {
+      "type": "LocalSystem",
+      "accelerators": [
+        {
+          "device": "gpu",
+          "execution_providers": ["CUDAExecutionProvider"]
+        }
+      ]
+    }
+  },
+  "passes": {
+    "m": {
+      "type": "MobiusBuilder",
+      "precision": "fp16",
+      "exporter_func": "export_kev_package",
+      "exporter_config": {
+        "artifact_path": "artifacts/kev",
+        "recipe_precision": "mixed"
+      },
+      "user_script": "../user_script.py",
+      "script_dir": "../.."
+    }
+  },
+  "target": "local_system",
+  "output_dir": "build",
+  "cache_dir": "cache",
+  "no_artifacts": true
+}

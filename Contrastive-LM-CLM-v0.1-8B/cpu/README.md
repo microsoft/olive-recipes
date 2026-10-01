@@ -24,14 +24,15 @@ hf download Contrastive-LM/CLM-v0.1-8B \
 
 ## Export
 
+From this recipe directory:
+
 ```bash
-python Contrastive-LM-CLM-v0.1-8B/cpu/export.py \
-  --artifact artifacts/clm \
-  --output-dir build/clm
+olive run --config CLM-v0.1-8B_cpu_fp32.json
 ```
 
-The package is written to:
+Download the artifact under `artifacts/clm/` in this directory. The package is
+written to Olive's `build/` output.
 
 ```text
-build/clm/clm-v0.1-8b-fp32/
+build/
 ```

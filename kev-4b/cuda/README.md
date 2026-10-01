@@ -28,21 +28,21 @@ hf download jaredpalmer/kev-4b \
 
 Selected mixed package:
 
+From this recipe directory:
+
 ```bash
-python kev-4b/cuda/export.py \
-  --artifact artifacts/kev \
-  --output-dir build/kev
+olive run --config kev-4b_cuda_mixed.json
 ```
 
-Pass `--keep-fp32` to retain the FP32 package. A complete FP32 intermediate is
-reused after an interrupted mixed export.
+Download the artifact under `artifacts/kev/` in this directory. A complete
+FP32 intermediate is reused after an interrupted mixed export.
 
 ## Output
 
 The selected package is:
 
 ```text
-build/kev/kev-4b-mixed-middle-mlp/
+build/
 ```
 
 It contains the merged KEV adapter in an FP16 Qwen3.5 backbone with

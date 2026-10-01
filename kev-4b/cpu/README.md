@@ -26,14 +26,15 @@ hf download jaredpalmer/kev-4b \
 
 ## Export
 
+From this recipe directory:
+
 ```bash
-python kev-4b/cpu/export.py \
-  --artifact artifacts/kev \
-  --output-dir build/kev
+olive run --config kev-4b_cpu_fp32.json
 ```
 
-The package is written to:
+Download the artifact under `artifacts/kev/` in this directory. The package is
+written to Olive's `build/` output.
 
 ```text
-build/kev/kev-4b-fp32/
+build/
 ```

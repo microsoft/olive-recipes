@@ -1,6 +1,6 @@
 arch: qwen3_5_text
 recipes:
   - name: kev-4b_cuda_mobius_mixed
-    file: export.py
+    file: kev-4b_cuda_mixed.json
     devices: gpu
     eps: CUDAExecutionProvider
