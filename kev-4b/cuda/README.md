@@ -50,4 +50,6 @@ build/
 It contains the merged KEV adapter in an FP16 Qwen3.5 backbone with
 middle-layer MLP projections quantized to symmetric INT4 block-128, the FP32
 pointer head, base tokenizer files, `component_manifest.json`, and
-`inference_model.json`.
+`inference_model.json`. The INT4 projections use `MatMulNBits` accuracy level 3
+for BF16 accumulation; this preserves the qualified development-suite accuracy
+while reducing CUDA latency relative to level 4.

@@ -41,6 +41,7 @@ class Recipe:
     fp16_directory: str
     component: str
     mixed_model_id: str
+    int4_accuracy_level: int
 
 
 RECIPES = {
@@ -54,6 +55,7 @@ RECIPES = {
         fp16_directory="clm-v0.1-8b-fp16-backbone",
         component="encoder",
         mixed_model_id="clm-v0.1-8b-mixed-cuda:1",
+        int4_accuracy_level=4,
     ),
     "kev": Recipe(
         name="kev",
@@ -65,6 +67,7 @@ RECIPES = {
         fp16_directory="kev-4b-fp16-backbone",
         component="backbone",
         mixed_model_id="kev-4b-mixed-cuda:1",
+        int4_accuracy_level=3,
     ),
 }
 
@@ -370,7 +373,7 @@ def quantize_mixed(recipe: Recipe, output_root: Path) -> None:
         bits=4,
         block_size=128,
         is_symmetric=True,
-        accuracy_level=4,
+        accuracy_level=recipe.int4_accuracy_level,
         quant_format=QuantFormat.QOperator,
         op_types_to_quantize=("MatMul",),
         nodes_to_exclude=excluded,
