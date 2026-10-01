@@ -26,19 +26,6 @@ olive capture-onnx-graph --model_name_or_path google/gemma-4-E2B-it --use_mobius
 olive run --config gemma4_quantization.json
 ```
 
-Output:
-
-```text
-gemma4_onnx/
-  decoder/model.onnx
-  vision_encoder/model.onnx
-  audio_encoder/model.onnx
-  embedding/model.onnx
-  genai_config.json
-  tokenizer.json
-  processor and audio feature-extraction files
-```
-
 ## Step 3 — Inference
 
 Text:
