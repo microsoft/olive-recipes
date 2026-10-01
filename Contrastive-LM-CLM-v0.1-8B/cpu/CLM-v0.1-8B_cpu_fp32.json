@@ -25,7 +25,8 @@
       "exporter_func": "export_clm_package",
       "exporter_config": {
         "artifact_path": "artifacts/clm",
-        "recipe_precision": "fp32"
+        "recipe_precision": "fp32",
+        "staging_path": "cache/mobius-export"
       },
       "user_script": "../user_script.py",
       "script_dir": "../.."

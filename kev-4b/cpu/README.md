@@ -21,7 +21,7 @@ hf download jaredpalmer/kev-4b \
   --include adapter_config.json \
   --include adapter_model.safetensors \
   --include head.pt \
-  --local-dir artifacts/kev
+  --local-dir kev-4b/cpu/artifacts/kev
 ```
 
 ## Export
@@ -33,7 +33,8 @@ olive run --config kev-4b_cpu_fp32.json
 ```
 
 Download the artifact under `artifacts/kev/` in this directory. The package is
-written to Olive's `build/` output.
+staged under `cache/mobius-export/`, so a complete FP32 export is reused on a
+rerun. Olive atomically publishes the selected package to its `build/` output.
 
 ```text
 build/

@@ -25,7 +25,8 @@
       "exporter_func": "export_clm_package",
       "exporter_config": {
         "artifact_path": "artifacts/clm",
-        "recipe_precision": "mixed"
+        "recipe_precision": "mixed",
+        "staging_path": "cache/mobius-export"
       },
       "user_script": "../user_script.py",
       "script_dir": "../.."

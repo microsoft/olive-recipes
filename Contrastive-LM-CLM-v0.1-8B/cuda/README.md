@@ -19,7 +19,7 @@ Download the pinned CLM head:
 hf download Contrastive-LM/CLM-v0.1-8B \
   --revision e939398d4556fcd9400c76fa8c5a513202f42b0a \
   --include CLM_v0.1-8B.pt \
-  --local-dir artifacts/clm
+  --local-dir Contrastive-LM-CLM-v0.1-8B/cuda/artifacts/clm
 ```
 
 ## Export
@@ -32,8 +32,10 @@ From this recipe directory:
 olive run --config CLM-v0.1-8B_cuda_mixed.json
 ```
 
-Download the artifact under `artifacts/clm/` in this directory. A complete
-FP32 intermediate is reused after an interrupted mixed export.
+Download the artifact under `artifacts/clm/` in this directory. Intermediate
+packages are retained under `cache/mobius-export/`, so a rerun can reuse a
+complete FP32 export after an interrupted mixed export. Olive atomically
+publishes the selected package to its `build/` output.
 
 ## Output
 

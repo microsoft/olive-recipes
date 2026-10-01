@@ -21,7 +21,7 @@ hf download jaredpalmer/kev-4b \
   --include adapter_config.json \
   --include adapter_model.safetensors \
   --include head.pt \
-  --local-dir artifacts/kev
+  --local-dir kev-4b/cuda/artifacts/kev
 ```
 
 ## Export
@@ -34,8 +34,10 @@ From this recipe directory:
 olive run --config kev-4b_cuda_mixed.json
 ```
 
-Download the artifact under `artifacts/kev/` in this directory. A complete
-FP32 intermediate is reused after an interrupted mixed export.
+Download the artifact under `artifacts/kev/` in this directory. Intermediate
+packages are retained under `cache/mobius-export/`, so a rerun can reuse a
+complete FP32 export after an interrupted mixed export. Olive atomically
+publishes the selected package to its `build/` output.
 
 ## Output
 

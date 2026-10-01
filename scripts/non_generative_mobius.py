@@ -96,7 +96,7 @@ def component_names(recipe: Recipe) -> tuple[str, ...]:
 
 
 def reusable_package(path: Path, recipe: Recipe) -> bool:
-    """Return whether an FP32 package can be reused after an interrupted run."""
+    """Return whether a package can be reused after an interrupted run."""
     required = (
         path / "component_manifest.json",
         path / "inference_model.json",
@@ -404,7 +404,15 @@ def run_recipe(
     output_root.mkdir(parents=True, exist_ok=True)
     fp32 = output_root / recipe.fp32_directory
     mixed = output_root / recipe.mixed_directory
+    fp32_ready = False
     mixed_ready = False
+    if fp32.exists():
+        if reusable_package(fp32, recipe):
+            fp32_ready = True
+            print(f"reusing existing FP32 package: {fp32}")
+        else:
+            print(f"removing incomplete FP32 package: {fp32}")
+            shutil.rmtree(fp32)
     if precision in {"mixed", "both"} and mixed.exists():
         if reusable_package(mixed, recipe):
             mixed_ready = True
@@ -414,11 +422,7 @@ def run_recipe(
             shutil.rmtree(mixed)
     if mixed_ready and precision == "mixed":
         return
-    if fp32.exists() and precision in {"mixed", "both"}:
-        if not reusable_package(fp32, recipe):
-            raise RuntimeError(f"incomplete FP32 package: {fp32}")
-        print(f"reusing existing FP32 intermediate: {fp32}")
-    else:
+    if not fp32_ready:
         export_fp32(recipe, artifact, output_root)
     if precision in {"mixed", "both"} and not mixed_ready:
         fp16 = output_root / recipe.fp16_directory
@@ -445,27 +449,26 @@ def olive_export(
     if not isinstance(artifact_value, str) or not artifact_value:
         raise ValueError("exporter_config.artifact_path is required")
     precision = exporter_config.get("recipe_precision", "fp32")
-    if precision not in {"fp32", "mixed", "both"}:
-        raise ValueError("recipe_precision must be fp32, mixed, or both")
+    if precision not in {"fp32", "mixed"}:
+        raise ValueError("recipe_precision must be fp32 or mixed")
+    staging_value = exporter_config.get("staging_path")
+    if not isinstance(staging_value, str) or not staging_value:
+        raise ValueError("exporter_config.staging_path is required")
 
     output_dir = Path(output_dir)
     if any(output_dir.iterdir()):
         raise ValueError(f"Olive output directory must be empty: {output_dir}")
-    with tempfile.TemporaryDirectory(
-        prefix=f"{model_name}-olive-",
-        dir=output_dir.parent,
-    ) as temporary:
-        staging = Path(temporary)
-        run_recipe(model_name, Path(artifact_value), staging, precision)
-        selected = (
-            staging / recipe.mixed_directory
-            if precision == "mixed"
-            else staging / recipe.fp32_directory
-        )
-        for child in selected.iterdir():
-            destination = output_dir / child.name
-            if child.is_dir():
-                shutil.copytree(child, destination)
-            else:
-                shutil.copy2(child, destination)
+    staging = Path(staging_value)
+    run_recipe(model_name, Path(artifact_value), staging, precision)
+    selected = (
+        staging / recipe.mixed_directory
+        if precision == "mixed"
+        else staging / recipe.fp32_directory
+    )
+    publishing = output_dir.with_name(f".{output_dir.name}.publishing")
+    if publishing.exists():
+        shutil.rmtree(publishing)
+    shutil.copytree(selected, publishing)
+    output_dir.rmdir()
+    publishing.replace(output_dir)
     return {"components": list(component_names(recipe))}
