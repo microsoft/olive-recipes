@@ -91,6 +91,12 @@
             "surgeries": [
                 {
                     "surgeon": "DeduplicateNodes"
+                },
+                {
+                    "surgeon": "RemoveUnusedNodeOutputs",
+                    "op_types": [
+                        "SkipSimplifiedLayerNormalization"
+                    ]
                 }
             ],
             "save_as_external_data": true
