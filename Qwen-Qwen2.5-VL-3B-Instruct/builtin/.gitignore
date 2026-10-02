@@ -1,5 +1,6 @@
 # Generated model artifacts
 models/
+mobius_base/
 
 # Python bytecode
 __pycache__/
@@ -7,6 +8,8 @@ __pycache__/
 
 # Olive cache
 .olive-cache/
+cache/
+mobius_cache/
 
 # Temp and log files
 *.temp

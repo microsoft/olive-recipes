@@ -1,0 +1,137 @@
+# Qwen3-VL-2B-Instruct — Multi-Component Optimization
+
+These recipes demonstrate two multi-component flows for
+[Qwen3-VL-2B-Instruct](https://huggingface.co/Qwen/Qwen3-VL-2B-Instruct):
+
+- **Flow A — export first, then per-component optimization**
+  (`quantize_onnx.json`): export the VLM to ONNX once with the Mobius builder, then run a
+  single Olive config whose `builds` apply dynamic INT8 quantization to each component.
+- **Flow B — optimize a Torch component first, then export**
+  (`quantize_pytorch.json`): run a Torch-stage KQuant pass on the decoder component while
+  saving a complete HF directory, then export that directory with
+  `olive capture-onnx-graph --use_mobius_builder`.
+
+Olive loads an exported directory as a `CompositeModel` whose **component names are the subfolder
+names**, so there is no need to memorize component names.
+
+## Prerequisites
+
+```bash
+pip install -r requirements.txt
+```
+
+Exporting also needs `transformers` and access to the model on Hugging Face.
+
+---
+
+## Recipe 1 — Export then per-component optimize (`quantize_onnx.json`)
+
+### Step 1 — Export
+
+```
+olive capture-onnx-graph --model_name_or_path Qwen/Qwen3-VL-2B-Instruct --use_mobius_builder --precision fp32 --output_path exported_onnx
+```
+
+Mobius exports this model as three components, each in its own subfolder:
+
+```
+exported_onnx/
+  decoder/model.onnx
+  vision_encoder/model.onnx
+  embedding/model.onnx
+```
+
+### Step 2 — Optimize
+
+```
+olive run --config quantize_onnx.json
+```
+
+| component        | pipeline        | intent                                      |
+|------------------|-----------------|---------------------------------------------|
+| `decoder`        | `dynamic_quant` | INT8-quantize MatMul weights                |
+| `vision_encoder` | `dynamic_quant` | INT8-quantize MatMul weights; keep Attention |
+| `embedding`      | copied unchanged | no supported MatMul weights                 |
+
+Dynamic quantization is limited to `MatMul`; quantizing the vision
+`Attention` nodes would produce `QAttention` attributes unsupported by ORT
+GenAI. Olive automatically assembles the optimized components with the
+unchanged embedding model and Mobius's runtime artifacts in
+`quantized_model/`, producing a directly loadable ORT GenAI package.
+
+> The three component names (`decoder`, `vision_encoder`, `embedding`) are exactly what Mobius
+> produces for `Qwen/Qwen3-VL-2B-Instruct`. For a different VLM, adjust the component names in the
+> config to match the subfolder names your export actually produced.
+
+### Step 3 — Inference with ORT GenAI
+
+Run text generation with the exported ONNX models using **onnxruntime-genai**:
+
+```bash
+# Text-only
+python inference.py --model_dir quantized_model --prompt "What is the capital of France? Answer in one sentence."
+
+# With image input
+python inference.py --model_dir quantized_model --prompt "Describe this image." --image cat.jpeg
+
+# Custom settings
+python inference.py --model_dir quantized_model --max_new_tokens 256
+```
+
+The inference script (`inference.py`) uses ORT GenAI which handles:
+- **Tokenization**: built-in tokenizer from saved HF tokenizer files
+- **Embedding**: ONNX `embedding/model.onnx` (token embed + image feature mixing)
+- **Vision encoding**: ONNX `vision_encoder/model.onnx` (when `--image` is provided)
+- **Decoding**: ONNX `decoder/model.onnx` with KV cache (autoregressive generation)
+
+Options:
+```
+--prompt TEXT           Text prompt
+--image PATH            Optional image file for multimodal input
+--max_new_tokens N      Maximum tokens to generate (default: 128)
+--model_dir DIR         Path to optimized model directory (default: quantized_model)
+```
+
+#### Setup requirements
+
+The export directory needs these files alongside the ONNX models:
+
+```
+quantized_model/
+  genai_config.json          # Model type, I/O mappings, search config
+  tokenizer.json             # HF tokenizer
+  tokenizer_config.json
+  processor_config.json      # Vision preprocessing config
+  decoder/model.onnx
+  vision_encoder/model.onnx
+  embedding/model.onnx
+```
+
+---
+
+## Recipe 2 — Torch decoder quantization, then Mobius export (`quantize_pytorch.json`)
+
+This is **Flow B**: quantize only the Torch decoder component first, then export the resulting
+complete HF directory with the Olive capture CLI using the Mobius builder.
+
+### Step 1 — Quantize the decoder component
+
+```
+olive run --config quantize_pytorch.json
+```
+
+### Step 2 — Export the quantized HF directory with the Mobius builder
+
+```
+olive capture-onnx-graph --model_name_or_path quantized_pytorch --use_mobius_builder --trust_remote_code --precision fp32 --output_path quantized_model
+```
+
+Output:
+
+```
+quantized_model/
+  decoder/model.onnx
+  vision_encoder/model.onnx
+  embedding/model.onnx
+```
+---
