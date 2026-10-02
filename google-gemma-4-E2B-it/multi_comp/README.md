@@ -73,16 +73,43 @@ gemma4_onnx/
   processor and audio feature-extraction files
 ```
 
-## Step 3 — Inference
+## Step 3 — Optimize for the target execution provider
+
+OpenVINO:
+
+```bash
+olive run --config ov.json
+```
+
+QNN:
+
+```bash
+olive run --config qnn.json
+```
+
+## Run all three steps
+
+Use `optimize.py` to run quantization, Mobius export, and target-specific optimization in sequence:
+
+```bash
+python optimize.py --ep OpenVINOExecutionProvider
+python optimize.py --ep QNNExecutionProvider
+```
+
+The shorter `ov` and `qnn` aliases are also accepted.
+
+## Inference
+
+Use `gemma4_quantized_onnx` for OpenVINO and `gemma4_qnn` for QNN.
 
 Text:
 
 ```bash
-python ../inference.py --model-path gemma4_onnx --prompt "What is the capital of France?" --verbose
+python ../inference.py --model-path <output-dir> --prompt "What is the capital of France?" --verbose
 ```
 
 Image:
 
 ```bash
-python ../inference.py --model-path gemma4_onnx --image ../cat.jpeg --prompt "What animal is shown? Answer in one short sentence." --verbose
+python ../inference.py --model-path <output-dir> --image ../cat.jpeg --prompt "What animal is shown? Answer in one short sentence." --verbose
 ```
