@@ -21,7 +21,6 @@ python optimize.py --ep ov
 python optimize.py --ep qnn
 ```
 
-The full `OpenVINOExecutionProvider` and `QNNExecutionProvider` names are also accepted.
 The script runs component quantization, Mobius ONNX export, and the selected
 execution-provider optimization in sequence.
 
