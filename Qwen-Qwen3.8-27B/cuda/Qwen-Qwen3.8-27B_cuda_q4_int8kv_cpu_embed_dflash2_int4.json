@@ -137,7 +137,7 @@
                         "num_blocks": 407,
                         "max_batch_size": 1,
                         "max_scheduled_tokens": 512
-                        }
+                    }
                 },
                 "search": {
                     "chunk_size": 512,
