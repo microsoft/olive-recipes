@@ -11,7 +11,7 @@ GenAI configuration.
 
 ## Quantization
 
-All three quantized recipes use symmetric 4-bit weights with group size 128:
+The KQuant, RTN, and GPTQ recipes use symmetric 4-bit weights with group size 128:
 
 ```json
 {
@@ -36,6 +36,13 @@ precision.
 calibration-dependent; use the same calibration policy when comparing runs.
 Experts with insufficient routed calibration tokens automatically fall back
 to RTN, so retain the fallback count from the GPTQ log with benchmark results.
+
+The separate [mixed INT2/INT4 RTN recipe](rtn_mixed_int2_fp16/README.md)
+uses block size 128, INT2 expert gate/up weights in 24 layers, INT4 attention
+and remaining expert weights, INT4 embeddings, and an INT8 head. Its README
+includes export instructions and a measured model-size comparison. CUDA
+inference requires a runtime supporting mixed-width INT2/INT4 QMoE;
+inference and accuracy have not been validated for that export.
 
 ## Setup and export
 
@@ -74,6 +81,7 @@ Each workflow writes to its own directory:
 | KQuant | `cuda/kquant_fp16/config.json` | `cuda/kquant_fp16/models/` |
 | RTN | `cuda/rtn_fp16/config.json` | `cuda/rtn_fp16/models/` |
 | GPTQ | `cuda/gptq_fp16/config.json` | `cuda/gptq_fp16/models/` |
+| Mixed INT2/INT4 RTN (custom runtime required) | `cuda/rtn_mixed_int2_fp16/config.json` | `cuda/rtn_mixed_int2_fp16/models/` |
 
 ## Inference
 
