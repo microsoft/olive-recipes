@@ -22,7 +22,7 @@ Layer indices are zero-based. The INT2 gate/up layers are:
 
 Token embeddings are INT4 and the language-model head is INT8.
 All quantized components use symmetric quantization with group/block size
-**128**, including the INT2 overrides. Floating-point tensors and activations
+**64**, including the INT2 overrides. Floating-point tensors and activations
 are exported at FP16. The `(2,4)` shorthand denotes gate/up versus down;
 the actual QMoE FC1/FC2/FC3 attribute tuple is `(2,4,2)`.
 
@@ -40,18 +40,20 @@ The requirements pin the clean Olive and Mobius source revisions used for
 the measured export. The model revision is
 `ad44e777bcd18fa416d9da3bd8f70d33ebb85d39`.
 
-CUDA inference requires an ONNX Runtime build supporting INT2 MatMulNBits
-and mixed-width INT2/INT4 QMoE, with compatible ONNX Runtime GenAI libraries.
+CUDA inference requires an ONNX Runtime build supporting mixed-width INT2/INT4
+QMoE, with compatible ONNX Runtime GenAI libraries.
 The unpinned `onnxruntime-genai-cuda` dependency alone does not guarantee
 that support. Install a compatible custom runtime after the requirements
-when necessary. Runtime execution and accuracy have not been validated
-for this export; the measurements below do not establish inference support.
+when necessary. Direct-ORT execution and performance were validated with
+ONNX Runtime `main@62ac19abcf`, including the packed prefill implementation
+from PR #33005. Group size 64 is required by that packed prefill path;
+group size 128 does not select it. GenAI execution and accuracy were not tested.
 
 ## Model Size Comparison
 
 Measured on October 4, 2026, using actual exported file lengths. Both exports
 use FP16 graph precision, symmetric quantization, INT4 attention/embeddings,
-and an INT8 head. Both exports use **group size 128**. The quantization
+and an INT8 head. Both exports use **group size 64**. The quantization
 configuration differs only in the selected expert gate/up bit widths.
 To reproduce the baseline, remove the gate/up override from this config,
 retain the INT8 head override, and choose a separate `output_dir`.
@@ -60,33 +62,43 @@ retain the INT8 head override, and choose a separate `output_dir`.
 |---|---|---|
 | Selected expert gate/up weights | INT2 | INT4 |
 | Other expert weights | INT4 | INT4 |
-| Global group/block size | 128 | 128 |
+| Global group/block size | 64 | 64 |
 | Attention / embeddings / head | INT4 / INT4 / INT8 | INT4 / INT4 / INT8 |
 
 | Files | Mixed INT2/INT4 | INT4 Baseline |
 |---|---:|---:|
-| `model.onnx` | 902,958 bytes | 900,146 bytes |
-| `model.onnx.data` | 13,512,409,088 bytes | 15,928,328,192 bytes |
-| ONNX + external weights | 13,513,312,046 bytes | 15,929,228,338 bytes |
-| ONNX + external weights (GB) | 13.5133 | 15.9292 |
-| ONNX + external weights (GiB) | 12.5853 | 14.8352 |
-| Entire export directory (bytes) | 13,524,758,664 | 15,940,674,010 |
-| Entire export directory (GB) | 13.5248 | 15.9407 |
+| `model.onnx` | 902,868 bytes | 900,056 bytes |
+| `model.onnx.data` | 13,989,249,024 bytes | 16,405,168,128 bytes |
+| ONNX + external weights | 13,990,151,892 bytes | 16,406,068,184 bytes |
+| ONNX + external weights (GB) | 13.9902 | 16.4061 |
+| ONNX + external weights (GiB) | 13.0293 | 15.2793 |
+| Entire export directory (bytes) | 14,001,598,532 | 16,417,513,922 |
+| Entire export directory (GB) | 14.0016 | 16.4175 |
 
 GB is decimal (`10^9` bytes); GiB is binary (`2^30` bytes). Directory totals
 include tokenizer and pipeline metadata and can vary between runs.
 
 The mixed model saves **2,415,916,292 bytes**, or **2.4159 GB / 2.2500 GiB**,
-for the ONNX graph and external weights: a **15.17% reduction** versus
-the block-128 INT4 baseline. These are disk sizes, not GPU memory measurements.
+for the ONNX graph and external weights: a **14.73% reduction** versus
+the block-64 INT4 baseline. These are disk sizes, not GPU memory measurements.
+
+## Performance
+
+See [the performance analysis](PERFORMANCE.md) for the same-block64 direct-ORT
+comparison, measurement boundaries, dispatch validation, and limitations.
+Mixed prefill throughput was 6.16%-11.38% higher; decode ranged from 0.33%
+higher to 1.84% lower in this synthetic run. Sampled process peak residency
+was 4.22-5.27 GiB lower. No accuracy preservation is claimed.
 
 ## Validation
 
 The actual exported graph was checked for 48 QMoE nodes, the selected
-24 `(2,4,2)` nodes and remaining 24 `(4,4,4)` nodes, block size 128,
+24 `(2,4,2)` nodes and remaining 24 `(4,4,4)` nodes, block size 64,
 192 INT4 attention MatMulNBits nodes (including all 48 V projections),
 and an INT8 head. External weight file bounds and GenAI config JSON were
-also checked. No inference, accuracy, or performance results are claimed.
+also checked. Separate 512/4096-token execution checks confirmed packed
+prefill and decode dispatch; the full benchmark completed 40 measured
+requests per model. Accuracy was not evaluated.
 
 Run the configuration schedule test with:
 

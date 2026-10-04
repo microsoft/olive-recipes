@@ -29,15 +29,15 @@ def test_mixed_int2_layer_schedule():
             )
             expected_bits = 2 if layer in selected and projection != "down_proj" else 4
             assert args["bits"] == expected_bits
-            assert args["group_size"] == 128
+            assert args["group_size"] == 64
         for projection in ("q_proj", "k_proj", "v_proj", "o_proj"):
             args = config.get_qlinear_init_args(
                 f"model.layers.{layer}.self_attn.{projection}"
             )
             assert args["bits"] == 4
-            assert args["group_size"] == 128
+            assert args["group_size"] == 64
     for name, bits in (("model.embed_tokens", 4), ("lm_head", 8)):
         args = config.get_qlinear_init_args(name)
         assert args["bits"] == bits
-        assert args["group_size"] == 128
+        assert args["group_size"] == 64
     assert not Path(recipe["output_dir"]).is_absolute()
