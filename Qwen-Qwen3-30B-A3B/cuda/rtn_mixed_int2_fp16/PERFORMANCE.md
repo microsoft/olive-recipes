@@ -118,7 +118,9 @@ GPT-OSS comparison in PR #33005. However, different greedy continuations can
 change MoE routing, and mixed and INT4 use different dispatch paths. Results
 do not establish isolated kernel speedups, accuracy preservation, task success,
 real-service throughput, BF16 coverage, concurrency or CUDA capture safety.
-P95 is based on only ten requests. No accuracy evaluation was performed.
+P95 is based on only ten requests. These performance runs did not evaluate
+accuracy; separate full-test ARC-Easy and preliminary quality checks are documented in
+[ACCURACY.md](ACCURACY.md).
 
 ## Local Reproduction Artifacts
 

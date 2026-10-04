@@ -42,8 +42,10 @@ uses block size 64, INT2 expert gate/up weights in 24 layers, INT4 attention
 and remaining expert weights, INT4 embeddings, and an INT8 head. Its README
 includes export instructions, a measured model-size comparison, and a direct-ORT
 performance analysis against a matching block64 INT4 baseline. CUDA inference
-requires a runtime supporting mixed-width INT2/INT4 QMoE; accuracy has not been
-evaluated.
+requires a runtime supporting mixed-width INT2/INT4 QMoE. Its
+[quality evaluation](rtn_mixed_int2_fp16/ACCURACY.md) reports full-test
+ARC-Easy results and packed INT2 prefill verification, plus preliminary
+WikiText-2 PPL and 50-question MMLU checks. Accuracy preservation is not established.
 
 ## Setup and export
 

@@ -47,7 +47,9 @@ that support. Install a compatible custom runtime after the requirements
 when necessary. Direct-ORT execution and performance were validated with
 ONNX Runtime `main@62ac19abcf`, including the packed prefill implementation
 from PR #33005. Group size 64 is required by that packed prefill path;
-group size 128 does not select it. GenAI execution and accuracy were not tested.
+group size 128 does not select it. A separate GenAI runtime check entered
+dense fallback and failed; GenAI compatibility is not established. Full
+ARC-Easy and preliminary quality results are reported in [ACCURACY.md](ACCURACY.md).
 
 ## Model Size Comparison
 
@@ -98,7 +100,10 @@ The actual exported graph was checked for 48 QMoE nodes, the selected
 and an INT8 head. External weight file bounds and GenAI config JSON were
 also checked. Separate 512/4096-token execution checks confirmed packed
 prefill and decode dispatch; the full benchmark completed 40 measured
-requests per model. Accuracy was not evaluated.
+requests per model. Full-test ARC-Easy evaluation verified packed INT2
+prefill, with mixed `acc` / `acc_norm` lower by 1.94 / 4.97 percentage points.
+These results, preliminary WikiText-2 PPL and a 50-question MMLU smoke test
+are documented in [ACCURACY.md](ACCURACY.md). Accuracy preservation is not established.
 
 Run the configuration schedule test with:
 
