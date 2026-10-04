@@ -24,7 +24,7 @@
         "rtn": {
             "type": "Rtn",
             "bits": 4,
-            "group_size": 128,
+            "group_size": 64,
             "sym": true,
             "moe": true,
             "embeds": true,
