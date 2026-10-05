@@ -49,7 +49,10 @@ On one A100 80 GB, 100 measured in-process requests produced:
 | INT4 middle MLP, edge 8 | 7.68 ms | 130.16 | **2,509 MiB** | 1.43 GB |
 
 FP16 is both faster than the INT4 variants and substantially closer to FP32.
-Its sample probabilities differed by at most 0.0003.
+Its sample probabilities differed by at most 0.0003. Full-suite FP16
+qualification evaluated 3,568 records and 4,389 questions with no rejection or
+truncation. Relative to FP32, accuracy changed by at most 0.093 percentage
+points, NLL by at most 0.00012, and Brier score by at most 0.00011.
 
 Both INT4 policies were evaluated against matched FP32 on decision-v7,
 devtools-v1, hard-v1, and transfer-v4: 3,568 records and 4,389 questions per
