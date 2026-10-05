@@ -32,10 +32,21 @@ From this recipe directory:
 olive run --config kev-0.8b_cuda_fp16.json
 ```
 
+An experimental FP16/INT4 middle-MLP package is also retained:
+
+```bash
+olive run --config kev-0.8b_cuda_mixed.json
+```
+
+It publishes to `build-mixed/` so it does not overwrite the selected FP16
+artifact. This recipe uses the tested edge-4, block-128, accuracy-level-3
+policy. It is available for experimentation but is not the recommended
+release artifact because its NLL and Brier scores regress on all four
+qualification suites.
+
 The package is staged under `cache/mobius-export/` and atomically published to
 `build/`. The recipe JSON writes one intra-op and one inter-op host thread into
-`genai_config.json`. INT4 is intentionally not enabled: the 4B quantization
-policy has not received full KEV-0.8B accuracy qualification.
+`genai_config.json`.
 
 ## Precision qualification
 

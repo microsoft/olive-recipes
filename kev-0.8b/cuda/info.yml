@@ -4,3 +4,7 @@ recipes:
     file: kev-0.8b_cuda_fp16.json
     devices: gpu
     eps: CUDAExecutionProvider
+  - name: kev-0.8b_cuda_mobius_mixed_experimental
+    file: kev-0.8b_cuda_mixed.json
+    devices: gpu
+    eps: CUDAExecutionProvider

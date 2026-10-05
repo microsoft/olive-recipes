@@ -69,6 +69,7 @@ def test_recipe_session_options_override_generated_config(tmp_path):
         ("kev-4b/cuda/kev-4b_cuda_mixed.json", 1),
         ("kev-0.8b/cpu/kev-0.8b_cpu_fp32.json", 16),
         ("kev-0.8b/cuda/kev-0.8b_cuda_fp16.json", 1),
+        ("kev-0.8b/cuda/kev-0.8b_cuda_mixed.json", 1),
     ],
 )
 def test_kev_recipe_json_declares_component_session_options(
@@ -112,26 +113,6 @@ def test_kev_08_recipe_uses_immutable_model_contract():
     assert recipe.artifact_revision == "bf75a6a8848ea6960ff2ed108d9ed44c2941174f"
     assert recipe.fp32_directory == "kev-0.8b-fp32"
     assert recipe.mixed_directory == "kev-0.8b-mixed-middle-mlp"
-
-
-def test_kev_08_mixed_export_is_rejected_before_loading_artifacts(tmp_path):
-    with pytest.raises(ValueError, match="not accuracy-qualified"):
-        olive_export(
-            model_name="kev08",
-            output_dir=tmp_path,
-            execution_provider="cuda",
-            exporter_config={
-                "artifact_path": "artifact",
-                "recipe_precision": "mixed",
-                "staging_path": "staging",
-                "component_session_options": {
-                    "intra_op_num_threads": 1,
-                    "inter_op_num_threads": 1,
-                    "session.intra_op.allow_spinning": "0",
-                    "session.inter_op.allow_spinning": "0",
-                },
-            },
-        )
 
 
 def test_olive_export_rejects_provider_precision_mismatch(tmp_path):

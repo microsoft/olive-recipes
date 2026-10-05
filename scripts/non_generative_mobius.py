@@ -489,10 +489,6 @@ def run_recipe(
 ) -> None:
     """Run one model-specific recipe."""
     recipe = RECIPES[model]
-    if recipe.name == "kev08" and precision in {"mixed", "both"}:
-        raise ValueError(
-            "KEV-0.8B mixed INT4 export is not accuracy-qualified; use fp32 or fp16"
-        )
     output_root = output_root.resolve()
     artifact = artifact.resolve()
     output_root.mkdir(parents=True, exist_ok=True)
@@ -553,10 +549,6 @@ def olive_export(
     precision = exporter_config.get("recipe_precision", "fp32")
     if precision not in {"fp32", "fp16", "mixed"}:
         raise ValueError("recipe_precision must be fp32, fp16, or mixed")
-    if recipe.name == "kev08" and precision == "mixed":
-        raise ValueError(
-            "KEV-0.8B mixed INT4 export is not accuracy-qualified; use fp16"
-        )
     expected_provider = "cuda" if precision != "fp32" else "cpu"
     if execution_provider != expected_provider:
         raise ValueError(
