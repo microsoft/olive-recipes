@@ -1,7 +1,33 @@
 {
     "input_model": {
         "type": "CompositeModel",
-        "model_path": "multi_comp/gemma4_onnx"
+        "model_path": "multi_comp/gemma4_onnx",
+        "model_component_names": ["decoder", "vision_encoder", "audio_encoder", "embedding"],
+        "model_components": [
+            {
+                "type": "ONNXModel",
+                "model_path": "multi_comp/gemma4_onnx",
+                "onnx_file_name": "decoder/model.onnx",
+                "model_attributes": {
+                    "additional_files": ["multi_comp/gemma4_onnx/genai_config.json"]
+                }
+            },
+            {
+                "type": "ONNXModel",
+                "model_path": "multi_comp/gemma4_onnx",
+                "onnx_file_name": "vision_encoder/model.onnx"
+            },
+            {
+                "type": "ONNXModel",
+                "model_path": "multi_comp/gemma4_onnx",
+                "onnx_file_name": "audio_encoder/model.onnx"
+            },
+            {
+                "type": "ONNXModel",
+                "model_path": "multi_comp/gemma4_onnx",
+                "onnx_file_name": "embedding/model.onnx"
+            }
+        ]
     },
     "systems": {
         "cpu_system": {
