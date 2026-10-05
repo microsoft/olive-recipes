@@ -4,16 +4,23 @@
 # --------------------------------------------------------------------------
 """Calibration images for the Gemma 4 vision QNN build."""
 
+import json
 import math
+import random
+from io import BytesIO
+from itertools import islice
+from urllib.parse import urlencode, urlsplit
+from urllib.request import urlopen
 
 import numpy as np
 import torch
-from datasets import load_dataset
 from olive.data.registry import Registry
 from PIL import Image
 from torch.utils.data import Dataset
 
 DATASET_NAME = "HuggingFaceM4/the_cauldron"
+ROWS_URL = "https://datasets-server.huggingface.co/rows"
+ROWS_PER_REQUEST = 100
 PATCH_SIZE = 16
 POOLING_KERNEL_SIZE = 3
 CELL_SIZE = PATCH_SIZE * POOLING_KERNEL_SIZE
@@ -46,19 +53,19 @@ def cauldron_calibration_dataset(
         raise ValueError("max_soft_tokens must be greater than zero.")
     if shuffle_buffer_size < 0:
         raise ValueError("shuffle_buffer_size must be non-negative.")
+    if samples_per_subset <= 0:
+        raise ValueError("samples_per_subset must be greater than zero.")
 
     images = []
     for subset_index, subset in enumerate(subsets):
-        dataset = load_dataset(DATASET_NAME, subset, split="train", streaming=True)
-        if shuffle_buffer_size:
-            dataset = dataset.shuffle(seed=seed + subset_index, buffer_size=shuffle_buffer_size)
-
         subset_images = []
-        for sample in dataset:
-            sample_images = sample.get("images") or []
-            if not sample_images:
-                continue
-            subset_images.append(sample_images[0].convert("RGB"))
+        urls = _image_urls(subset)
+        if shuffle_buffer_size:
+            urls = _shuffle_buffer(urls, shuffle_buffer_size, random.Random(seed + subset_index))
+        for url in urls:
+            with urlopen(url, timeout=60) as response:
+                with Image.open(BytesIO(response.read())) as image:
+                    subset_images.append(image.convert("RGB"))
             if len(subset_images) == samples_per_subset:
                 break
 
@@ -70,6 +77,47 @@ def cauldron_calibration_dataset(
         images.extend(subset_images)
 
     return CauldronVisionCalibrationDataset(images, max_soft_tokens * POOLING_KERNEL_SIZE**2)
+
+
+def _image_urls(subset):
+    offset = 0
+    while True:
+        query = urlencode({
+            "dataset": DATASET_NAME,
+            "config": subset,
+            "split": "train",
+            "offset": offset,
+            "length": ROWS_PER_REQUEST,
+        })
+        with urlopen(f"{ROWS_URL}?{query}", timeout=60) as response:
+            page = json.load(response)
+        rows = page["rows"]
+        total = page["num_rows_total"]
+        if not rows and offset < total:
+            raise RuntimeError(f"Cauldron subset '{subset}' returned an empty page at row {offset}.")
+        for sample in rows:
+            sample_images = sample["row"].get("images") or []
+            if not sample_images:
+                continue
+            url = sample_images[0]["src"]
+            parsed = urlsplit(url)
+            if parsed.scheme != "https" or parsed.hostname != "datasets-server.huggingface.co":
+                raise ValueError(f"Unexpected Cauldron image URL for subset '{subset}': {url}")
+            yield url
+        offset += len(rows)
+        if offset >= total:
+            return
+
+
+def _shuffle_buffer(urls, size, rng):
+    iterator = iter(urls)
+    buffered = list(islice(iterator, size))
+    for url in iterator:
+        index = rng.randrange(len(buffered))
+        yield buffered[index]
+        buffered[index] = url
+    while buffered:
+        yield buffered.pop(rng.randrange(len(buffered)))
 
 
 def preprocess_image(image, max_patches):
