@@ -2,7 +2,7 @@
 # Copyright (c) Microsoft Corporation. All rights reserved.
 # Licensed under the MIT License.
 # --------------------------------------------------------------------------
-"""Calibration data for the Gemma 4 decoder on QNN.
+"""Calibration data for the Gemma 4 decoder QNN build.
 
 The decoder consumed by this recipe has already been through
 ``AttentionMaskToSequenceLengths``, so it takes ``past_seq_len`` and
