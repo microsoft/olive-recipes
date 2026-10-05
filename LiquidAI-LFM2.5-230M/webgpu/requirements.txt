@@ -1,4 +1,4 @@
 onnxruntime-genai>=0.16.0
-# Olive imports requests without declaring it (microsoft/Olive#2676)
+# Olive imports requests without declaring it; drop once microsoft/Olive#2676 is fixed
 requests
 transformers>=5.0.0

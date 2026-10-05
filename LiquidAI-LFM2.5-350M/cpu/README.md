@@ -19,35 +19,29 @@ olive run --config LiquidAI-LFM2.5-350M_cpu_int8.json
 
 ## Measured quality
 
-Scored against the Hugging Face model in FP32 on wikitext-2 (test split, 64 chunks of 512 tokens,
-second half of each chunk scored): `KLD` is the mean KL divergence of the next-token distribution
-from FP32 (lower is better) and `same top` is how often the most likely next token matches FP32. The
-llama.cpp rows are LiquidAI's official GGUFs, scored the same way with `llama-perplexity
---kl-divergence`; each range spans its Metal backend and its CPU backend, which quantizes
-activations to 8 bits as ONNX Runtime's CPU kernels do. The ONNX rows were measured on an Apple M3
-Ultra. Sizes count the decoder.
+KL divergence of the next-token distribution from the FP32 model on wikitext-2 (`KLD`, lower is
+better) and how often the most likely next token matches FP32 (`same top`), next to LiquidAI's GGUFs
+on llama.cpp's CPU and Metal backends. ONNX rows: the CPU EP on an Apple M3 Ultra. `±` is the
+standard error over the 64 scored chunks; sizes count the decoder. Method, scripts and the
+measurements behind the notes: [eval](../../LiquidAI-LFM2.5-1.2B-Instruct/eval/README.md).
 
 | recipe | size | KLD | same top |
 | --- | --- | --- | --- |
-| `_cpu_int4.json` | 0.54 GiB | 0.492 | 67.5% |
-| `_cpu_int8.json` | 0.47 GiB | 0.0090 | 95.4% |
-| llama.cpp Q4_K_M | 0.21 GiB | 0.465-0.481 | 67.4-68.0% |
-| llama.cpp Q8_0 | 0.35 GiB | 0.0037-0.0084 | 95.3-96.7% |
+| `_cpu_int4.json` | 0.54 GiB | 0.492 ± 0.012 | 67.5% |
+| `_cpu_int8.json` | 0.47 GiB | 0.00896 ± 0.00021 | 95.4% |
+| llama.cpp Q4_K_M, CPU | 0.21 GiB | 0.481 ± 0.010 | 67.4% |
+| llama.cpp Q4_K_M, Metal | 0.21 GiB | 0.465 ± 0.010 | 68.0% |
+| llama.cpp Q8_0, CPU | 0.35 GiB | 0.00843 ± 0.00018 | 95.3% |
+| llama.cpp Q8_0, Metal | 0.35 GiB | 0.00370 ± 0.00009 | 96.7% |
 
-INT8 matches Q8_0 (0.0090 against 0.0084).
-
-INT4 matches Q4_K_M's quality (0.492 against 0.481 on llama.cpp's CPU backend), at 2.6x its size.
-The size comes from two places: the embedding table stays in FP32 next to the INT8 LM head, where
-Q4_K_M keeps one 6-bit copy, and MatMulNBits stores an FP32 scale for every block of 32 weights,
-where Q4_K packs 6-bit scales into 256-weight super-blocks. On this model that makes INT4 larger
-than INT8 (0.47 GiB).
-
-Where INT4 trails, the cause is ONNX Runtime's `k_quant` rather than the recipe: it fits each
-block's scale and minimum the way llama.cpp does, then rounds the minimum to an integer zero point
-without refitting, which leaves its 4-bit weights with about 1.3x the rounding error of Q4_K. The
-recipe's INT8 LM head and INT8 sensitive layers (the same layers Q4_K_M promotes to 6 bits) make up
-for part of that. [microsoft/onnxruntime#32814](https://github.com/microsoft/onnxruntime/pull/32814)
-fixes the rounding.
+- INT4 has 2% ± 1% more KLD than Q4_K_M on llama.cpp CPU and 6% ± 2% more than on Metal (paired on
+  the same tokens), at 2.6x its size
+  ([why](../../LiquidAI-LFM2.5-1.2B-Instruct/eval/README.md#size)).
+- Built with [microsoft/onnxruntime#32814](https://github.com/microsoft/onnxruntime/pull/32814)
+  (open), which fits `k_quant`'s scale to the zero point it stores, INT4 scores 0.468: 3% ± 2% less
+  KLD than Q4_K_M on llama.cpp CPU
+  ([details](../../LiquidAI-LFM2.5-1.2B-Instruct/eval/README.md#int4-against-q4_k_m-k_quants-zero-point)).
+- INT8 has 6% ± 1% more KLD than Q8_0 on llama.cpp CPU and 2.4x Metal's.
 
 ## Setup
 

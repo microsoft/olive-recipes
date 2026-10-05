@@ -19,35 +19,33 @@ olive run --config LiquidAI-LFM2.5-350M_cuda_int8.json
 
 ## Measured quality
 
-Scored against the Hugging Face model in FP32 on wikitext-2 (test split, 64 chunks of 512 tokens,
-second half of each chunk scored): `KLD` is the mean KL divergence of the next-token distribution
-from FP32 (lower is better) and `same top` is how often the most likely next token matches FP32. The
-llama.cpp rows are LiquidAI's official GGUFs, scored the same way with `llama-perplexity
---kl-divergence`; each range spans its Metal backend and its CPU backend, which quantizes
-activations to 8 bits as ONNX Runtime's CPU kernels do. The ONNX rows were measured on an NVIDIA
-A10. Sizes count the decoder.
+KL divergence of the next-token distribution from the FP32 model on wikitext-2 (`KLD`, lower is
+better) and how often the most likely next token matches FP32 (`same top`), next to LiquidAI's GGUFs
+on llama.cpp's CPU and Metal backends. ONNX rows: the CUDA EP on an NVIDIA A10. `±` is the standard
+error over the 64 scored chunks; sizes count the decoder. Method, scripts and the measurements
+behind the notes: [eval](../../LiquidAI-LFM2.5-1.2B-Instruct/eval/README.md).
 
 | recipe | size | KLD | same top |
 | --- | --- | --- | --- |
-| `_cuda_int4.json` | 0.38 GiB | 0.488 | 67.5% |
-| `_cuda_int8.json` | 0.43 GiB | 0.017 | 93.3% |
-| llama.cpp Q4_K_M | 0.21 GiB | 0.465-0.481 | 67.4-68.0% |
-| llama.cpp Q8_0 | 0.35 GiB | 0.0037-0.0084 | 95.3-96.7% |
+| `_cuda_int4.json` | 0.38 GiB | 0.488 ± 0.012 | 67.5% |
+| `_cuda_int8.json` | 0.43 GiB | 0.0171 ± 0.0004 | 93.3% |
+| llama.cpp Q4_K_M, CPU | 0.21 GiB | 0.481 ± 0.010 | 67.4% |
+| llama.cpp Q4_K_M, Metal | 0.21 GiB | 0.465 ± 0.010 | 68.0% |
+| llama.cpp Q8_0, CPU | 0.35 GiB | 0.00843 ± 0.00018 | 95.3% |
+| llama.cpp Q8_0, Metal | 0.35 GiB | 0.00370 ± 0.00009 | 96.7% |
 
-INT8 is close to Q8_0 but not level with it (0.017 against 0.0084 on llama.cpp's CPU backend); the
-CUDA EP computes in FP16.
-
-INT4 matches Q4_K_M's quality (0.488 against 0.481 on llama.cpp's CPU backend), at 1.8x its size.
-The size comes from two places: the embedding table stays in FP16 next to the INT8 LM head, where
-Q4_K_M keeps one 6-bit copy, and MatMulNBits stores an FP16 scale for every block of 32 weights,
-where Q4_K packs 6-bit scales into 256-weight super-blocks.
-
-Where INT4 trails, the cause is ONNX Runtime's `k_quant` rather than the recipe: it fits each
-block's scale and minimum the way llama.cpp does, then rounds the minimum to an integer zero point
-without refitting, which leaves its 4-bit weights with about 1.3x the rounding error of Q4_K. The
-recipe's INT8 LM head and INT8 sensitive layers (the same layers Q4_K_M promotes to 6 bits) make up
-for part of that. [microsoft/onnxruntime#32814](https://github.com/microsoft/onnxruntime/pull/32814)
-fixes the rounding.
+- INT4 has 1% ± 1% more KLD than Q4_K_M on llama.cpp CPU and 5% ± 1% more than on Metal (paired on
+  the same tokens), at 1.8x its size
+  ([why](../../LiquidAI-LFM2.5-1.2B-Instruct/eval/README.md#size)).
+- [microsoft/onnxruntime#32814](https://github.com/microsoft/onnxruntime/pull/32814) (open) fits
+  `k_quant`'s scale to the zero point it stores. With it, the CPU INT4 recipe scores 0.468 instead
+  of 0.492: 3% ± 2% less KLD than Q4_K_M on llama.cpp CPU
+  ([details](../../LiquidAI-LFM2.5-1.2B-Instruct/eval/README.md#int4-against-q4_k_m-k_quants-zero-point)).
+  This recipe uses the same quantizer.
+- INT8 has 2.0x the KLD of Q8_0 on llama.cpp CPU and 4.6x Metal's. The CUDA package runs in FP16: an
+  unquantized FP16 build has KLD 0.0123 on its own, and the same INT8 weights score 0.00896 on the
+  CPU EP
+  ([details](../../LiquidAI-LFM2.5-1.2B-Instruct/eval/README.md#int8-on-cuda-fp16-execution)).
 
 ## Setup
 
@@ -64,5 +62,8 @@ skips the `check_extra_options` step that `create_model` now requires), and Oliv
 `main` imports the `onnxruntime_genai.models.loaders` package that only ships from
 genai 0.16.0. LFM2 support itself landed in genai 0.14.0.
 
-The `onnxruntime-genai-cuda` 0.17.0 and `onnxruntime-gpu` 1.30 wheels on PyPI are CUDA 13
-builds, so they need NVIDIA driver 580 or newer.
+The current `onnxruntime-genai-cuda` and `onnxruntime-gpu` wheels on PyPI are CUDA 13 builds and need
+NVIDIA driver 580 or newer (`nvidia-smi` shows the driver version). No CUDA 12 wheels of
+`onnxruntime-genai-cuda` 0.16 or newer are published, so with an older driver either upgrade it or
+[build onnxruntime-genai from source](https://onnxruntime.ai/docs/genai/howto/build-from-source.html)
+against a CUDA 12 build of onnxruntime.
