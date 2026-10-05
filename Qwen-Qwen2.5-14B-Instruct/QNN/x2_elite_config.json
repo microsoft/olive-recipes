@@ -3,7 +3,7 @@
     "systems": {
         "qnn_system": {
             "type": "PythonEnvironment",
-            "python_environment_path": "/prj/qct/lv/computeai-scratch/srutis/ssruti/aot-comp-new/bin",
+            "python_environment_path": "/path/to/qnn/env/bin"
             "accelerators": [ { "execution_providers": [ "QNNExecutionProvider" ] } ]
         }
     },
