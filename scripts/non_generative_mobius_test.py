@@ -37,7 +37,7 @@ def _write_kev_config(path, threads: int = 16) -> None:
 def test_mixed_kev_metadata_selects_accelerator_thread_defaults(tmp_path):
     _write_kev_config(tmp_path / "genai_config.json")
 
-    save_package_metadata(RECIPES["kev"], tmp_path, mixed=True)
+    save_package_metadata(RECIPES["kev"], tmp_path, precision="mixed")
 
     config = json.loads((tmp_path / "genai_config.json").read_text())
     assert config["model"]["decoder"]["session_options"] == {
@@ -67,6 +67,8 @@ def test_recipe_session_options_override_generated_config(tmp_path):
     [
         ("kev-4b/cpu/kev-4b_cpu_fp32.json", 16),
         ("kev-4b/cuda/kev-4b_cuda_mixed.json", 1),
+        ("kev-0.8b/cpu/kev-0.8b_cpu_fp32.json", 16),
+        ("kev-0.8b/cuda/kev-0.8b_cuda_fp16.json", 1),
     ],
 )
 def test_kev_recipe_json_declares_component_session_options(
@@ -102,6 +104,36 @@ def test_reusable_kev_package_requires_genai_config(tmp_path):
     assert reusable_package(tmp_path, recipe)
 
 
+def test_kev_08_recipe_uses_immutable_model_contract():
+    recipe = RECIPES["kev08"]
+
+    assert recipe.base == "Qwen/Qwen3.5-0.8B-Base"
+    assert recipe.base_revision == "dc7cdfe2ee4154fa7e30f5b51ca41bfa40174e68"
+    assert recipe.artifact_revision == "bf75a6a8848ea6960ff2ed108d9ed44c2941174f"
+    assert recipe.fp32_directory == "kev-0.8b-fp32"
+    assert recipe.mixed_directory == "kev-0.8b-mixed-middle-mlp"
+
+
+def test_kev_08_mixed_export_is_rejected_before_loading_artifacts(tmp_path):
+    with pytest.raises(ValueError, match="not accuracy-qualified"):
+        olive_export(
+            model_name="kev08",
+            output_dir=tmp_path,
+            execution_provider="cuda",
+            exporter_config={
+                "artifact_path": "artifact",
+                "recipe_precision": "mixed",
+                "staging_path": "staging",
+                "component_session_options": {
+                    "intra_op_num_threads": 1,
+                    "inter_op_num_threads": 1,
+                    "session.intra_op.allow_spinning": "0",
+                    "session.inter_op.allow_spinning": "0",
+                },
+            },
+        )
+
+
 def test_olive_export_rejects_provider_precision_mismatch(tmp_path):
     with pytest.raises(ValueError, match="requires execution_provider='cuda'"):
         olive_export(
@@ -134,6 +166,7 @@ def test_olive_export_requires_explicit_kev_session_options(tmp_path):
     ("script", "function_name", "model_name"),
     [
         ("kev-4b/user_script.py", "export_kev_package", "kev"),
+        ("kev-0.8b/user_script.py", "export_kev_package", "kev08"),
         (
             "Contrastive-LM-CLM-v0.1-8B/user_script.py",
             "export_clm_package",

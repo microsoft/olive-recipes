@@ -25,8 +25,8 @@ from transformers import AutoConfig, AutoModelForCausalLM, AutoTokenizer
 
 from mobius import ArchitectureConfig, build_clm_package, build_kev_package
 
-ModelName = Literal["clm", "kev"]
-Precision = Literal["fp32", "mixed", "both"]
+ModelName = Literal["clm", "kev", "kev08"]
+Precision = Literal["fp32", "fp16", "mixed", "both"]
 
 
 @dataclass(frozen=True)
@@ -70,6 +70,18 @@ RECIPES = {
         mixed_model_id="kev-4b-mixed-cuda:1",
         int4_accuracy_level=3,
     ),
+    "kev08": Recipe(
+        name="kev08",
+        base="Qwen/Qwen3.5-0.8B-Base",
+        base_revision="dc7cdfe2ee4154fa7e30f5b51ca41bfa40174e68",
+        artifact_revision="bf75a6a8848ea6960ff2ed108d9ed44c2941174f",
+        fp32_directory="kev-0.8b-fp32",
+        mixed_directory="kev-0.8b-mixed-middle-mlp",
+        fp16_directory="kev-0.8b-fp16-backbone",
+        component="backbone",
+        mixed_model_id="kev-0.8b-mixed-cuda:1",
+        int4_accuracy_level=3,
+    ),
 }
 
 
@@ -109,7 +121,7 @@ def reusable_package(path: Path, recipe: Recipe) -> bool:
         *(path / name / "model.onnx" for name in component_names(recipe)),
         *(path / name / "model.onnx.data" for name in component_names(recipe)),
     ]
-    if recipe.name == "kev":
+    if recipe.name != "clm":
         required.append(path / "genai_config.json")
     return all(item.is_file() for item in required)
 
@@ -171,7 +183,11 @@ def manifest(recipe: Recipe) -> dict:
     }
 
 
-def inference_metadata(recipe: Recipe, *, mixed: bool) -> dict:
+def inference_metadata(
+    recipe: Recipe,
+    *,
+    precision: Literal["fp32", "fp16", "mixed"],
+) -> dict:
     """Create Foundry metadata for one exported package."""
     if recipe.name == "clm":
         source = "Contrastive-LM/CLM-v0.1-8B"
@@ -180,13 +196,22 @@ def inference_metadata(recipe: Recipe, *, mixed: bool) -> dict:
         capabilities = ["structured-input", "candidate-ranking", "action-cache"]
         fp32_id = "clm-v0.1-8b-generic-cpu:1"
     else:
-        source = "jaredpalmer/kev-4b"
+        size = "0.8b" if recipe.name == "kev08" else "4b"
+        source = f"jaredpalmer/kev-{size}"
         alias = "kev"
         task = "typed-decision"
         capabilities = ["structured-input", "noul", "choice", "score"]
-        fp32_id = "kev-4b-generic-cpu:1"
+        fp32_id = f"kev-{size}-generic-cpu:1"
     return {
-        "Name": recipe.mixed_model_id if mixed else fp32_id,
+        "Name": (
+            recipe.mixed_model_id
+            if precision == "mixed"
+            else (
+                "kev-0.8b-fp16-cuda:1"
+                if precision == "fp16" and recipe.name == "kev08"
+                else fp32_id
+            )
+        ),
         "Alias": alias,
         "Task": task,
         "ComponentManifest": "component_manifest.json",
@@ -198,21 +223,28 @@ def inference_metadata(recipe: Recipe, *, mixed: bool) -> dict:
             "base_revision": recipe.base_revision,
         },
         "Provider": {
-            "execution_provider": "cuda" if mixed else "cpu",
-            "variant": "fp16-int4-middle-mlp-edge4" if mixed else "fp32",
+            "execution_provider": "cuda" if precision != "fp32" else "cpu",
+            "variant": (
+                "fp16-int4-middle-mlp-edge4" if precision == "mixed" else precision
+            ),
         },
         "Capabilities": capabilities,
     }
 
 
-def save_package_metadata(recipe: Recipe, output: Path, *, mixed: bool) -> None:
+def save_package_metadata(
+    recipe: Recipe,
+    output: Path,
+    *,
+    precision: Literal["fp32", "fp16", "mixed"],
+) -> None:
     """Write runtime and Foundry manifests."""
     write_json(output / "component_manifest.json", manifest(recipe))
     write_json(
         output / "inference_model.json",
-        inference_metadata(recipe, mixed=mixed),
+        inference_metadata(recipe, precision=precision),
     )
-    if recipe.name == "kev" and mixed:
+    if recipe.name != "clm" and precision != "fp32":
         config_path = output / "genai_config.json"
         config = json.loads(config_path.read_text(encoding="utf-8"))
         session_options = config["model"]["decoder"]["session_options"]
@@ -290,7 +322,7 @@ def export_fp32(recipe: Recipe, artifact: Path, output_root: Path) -> None:
         )
         owners = (package, weights, merged, adapted, container, checkpoint)
     package.save(output, external_data="onnx", max_workers=1)
-    if recipe.name == "kev":
+    if recipe.name != "clm":
         write_ort_genai_config(
             package,
             str(output),
@@ -301,7 +333,7 @@ def export_fp32(recipe: Recipe, artifact: Path, output_root: Path) -> None:
         recipe.base,
         revision=recipe.base_revision,
     ).save_pretrained(output)
-    save_package_metadata(recipe, output, mixed=False)
+    save_package_metadata(recipe, output, precision="fp32")
     del package, owners
     gc.collect()
 
@@ -382,6 +414,11 @@ def export_fp16_backbone(
             temporary,
             output_root / recipe.fp16_directory,
         )
+    save_package_metadata(
+        recipe,
+        output_root / recipe.fp16_directory,
+        precision="fp16",
+    )
     del package, owners
     gc.collect()
 
@@ -441,7 +478,7 @@ def quantize_mixed(recipe: Recipe, output_root: Path) -> None:
     if count == 0:
         raise RuntimeError("mixed graph contains no MatMulNBits nodes")
     onnx.checker.check_model(str(output_model))
-    save_package_metadata(recipe, output, mixed=True)
+    save_package_metadata(recipe, output, precision="mixed")
 
 
 def run_recipe(
@@ -452,6 +489,10 @@ def run_recipe(
 ) -> None:
     """Run one model-specific recipe."""
     recipe = RECIPES[model]
+    if recipe.name == "kev08" and precision in {"mixed", "both"}:
+        raise ValueError(
+            "KEV-0.8B mixed INT4 export is not accuracy-qualified; use fp32 or fp16"
+        )
     output_root = output_root.resolve()
     artifact = artifact.resolve()
     output_root.mkdir(parents=True, exist_ok=True)
@@ -477,6 +518,13 @@ def run_recipe(
         return
     if not fp32_ready:
         export_fp32(recipe, artifact, output_root)
+    if precision == "fp16":
+        fp16 = output_root / recipe.fp16_directory
+        if fp16.exists():
+            shutil.rmtree(fp16)
+        export_fp16_backbone(recipe, artifact, output_root)
+        shutil.rmtree(fp32)
+        return
     if precision in {"mixed", "both"} and not mixed_ready:
         fp16 = output_root / recipe.fp16_directory
         if fp16.exists():
@@ -503,16 +551,20 @@ def olive_export(
     if not isinstance(artifact_value, str) or not artifact_value:
         raise ValueError("exporter_config.artifact_path is required")
     precision = exporter_config.get("recipe_precision", "fp32")
-    if precision not in {"fp32", "mixed"}:
-        raise ValueError("recipe_precision must be fp32 or mixed")
-    expected_provider = "cuda" if precision == "mixed" else "cpu"
+    if precision not in {"fp32", "fp16", "mixed"}:
+        raise ValueError("recipe_precision must be fp32, fp16, or mixed")
+    if recipe.name == "kev08" and precision == "mixed":
+        raise ValueError(
+            "KEV-0.8B mixed INT4 export is not accuracy-qualified; use fp16"
+        )
+    expected_provider = "cuda" if precision != "fp32" else "cpu"
     if execution_provider != expected_provider:
         raise ValueError(
             f"recipe_precision={precision!r} requires execution_provider="
             f"{expected_provider!r}, got {execution_provider!r}"
         )
     component_options = exporter_config.get("component_session_options")
-    if recipe.name == "kev" and not isinstance(component_options, dict):
+    if recipe.name != "clm" and not isinstance(component_options, dict):
         raise ValueError(
             "exporter_config.component_session_options is required for KEV"
         )
@@ -528,9 +580,13 @@ def olive_export(
     selected = (
         staging / recipe.mixed_directory
         if precision == "mixed"
-        else staging / recipe.fp32_directory
+        else (
+            staging / recipe.fp16_directory
+            if precision == "fp16"
+            else staging / recipe.fp32_directory
+        )
     )
-    if recipe.name == "kev":
+    if recipe.name != "clm":
         assert isinstance(component_options, dict)
         apply_component_session_options(selected, component_options)
     publishing = output_dir.with_name(f".{output_dir.name}.publishing")
