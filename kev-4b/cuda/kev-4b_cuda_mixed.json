@@ -26,7 +26,13 @@
       "exporter_config": {
         "artifact_path": "artifacts/kev",
         "recipe_precision": "mixed",
-        "staging_path": "cache/mobius-export"
+        "staging_path": "cache/mobius-export",
+        "component_session_options": {
+          "intra_op_num_threads": 1,
+          "inter_op_num_threads": 1,
+          "session.intra_op.allow_spinning": "0",
+          "session.inter_op.allow_spinning": "0"
+        }
       },
       "user_script": "../user_script.py",
       "script_dir": "../.."

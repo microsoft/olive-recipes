@@ -15,6 +15,7 @@ from typing import Literal
 import onnx
 import onnx_ir as ir
 import torch
+from mobius.integrations.ort_genai import write_ort_genai_config
 from onnxruntime.quantization.matmul_nbits_quantizer import (
     MatMulNBitsQuantizer,
     QuantFormat,
@@ -100,14 +101,16 @@ def component_names(recipe: Recipe) -> tuple[str, ...]:
 
 def reusable_package(path: Path, recipe: Recipe) -> bool:
     """Return whether a package can be reused after an interrupted run."""
-    required = (
+    required = [
         path / "component_manifest.json",
         path / "inference_model.json",
         path / "tokenizer.json",
         path / "tokenizer_config.json",
         *(path / name / "model.onnx" for name in component_names(recipe)),
         *(path / name / "model.onnx.data" for name in component_names(recipe)),
-    )
+    ]
+    if recipe.name == "kev":
+        required.append(path / "genai_config.json")
     return all(item.is_file() for item in required)
 
 
@@ -209,6 +212,48 @@ def save_package_metadata(recipe: Recipe, output: Path, *, mixed: bool) -> None:
         output / "inference_model.json",
         inference_metadata(recipe, mixed=mixed),
     )
+    if recipe.name == "kev" and mixed:
+        config_path = output / "genai_config.json"
+        config = json.loads(config_path.read_text(encoding="utf-8"))
+        session_options = config["model"]["decoder"]["session_options"]
+        session_options["intra_op_num_threads"] = 1
+        session_options["inter_op_num_threads"] = 1
+        write_json(config_path, config)
+
+
+def apply_component_session_options(
+    package: Path,
+    options: dict,
+) -> None:
+    """Apply recipe-owned ORT session options to a generated component config."""
+    expected = {
+        "intra_op_num_threads",
+        "inter_op_num_threads",
+        "session.intra_op.allow_spinning",
+        "session.inter_op.allow_spinning",
+    }
+    if set(options) != expected:
+        raise ValueError(
+            "component_session_options must contain exactly "
+            f"{sorted(expected)}, got {sorted(options)}"
+        )
+    for name in ("intra_op_num_threads", "inter_op_num_threads"):
+        value = options[name]
+        if not isinstance(value, int) or isinstance(value, bool) or value <= 0:
+            raise ValueError(
+                f"component_session_options.{name} must be a positive integer"
+            )
+    for name in (
+        "session.intra_op.allow_spinning",
+        "session.inter_op.allow_spinning",
+    ):
+        if options[name] not in {"0", "1"}:
+            raise ValueError(f"component_session_options.{name} must be '0' or '1'")
+
+    config_path = package / "genai_config.json"
+    config = json.loads(config_path.read_text(encoding="utf-8"))
+    config["model"]["decoder"]["session_options"] = dict(options)
+    write_json(config_path, config)
 
 
 def export_fp32(recipe: Recipe, artifact: Path, output_root: Path) -> None:
@@ -245,6 +290,13 @@ def export_fp32(recipe: Recipe, artifact: Path, output_root: Path) -> None:
         )
         owners = (package, weights, merged, adapted, container, checkpoint)
     package.save(output, external_data="onnx", max_workers=1)
+    if recipe.name == "kev":
+        write_ort_genai_config(
+            package,
+            str(output),
+            ep="cpu",
+            context_length=8192,
+        )
     AutoTokenizer.from_pretrained(
         recipe.base,
         revision=recipe.base_revision,
@@ -442,6 +494,7 @@ def olive_export(
     *,
     model_name: ModelName,
     output_dir: Path,
+    execution_provider: str,
     exporter_config: dict,
 ) -> dict[str, list[str]]:
     """Export one recipe into an Olive-owned output directory."""
@@ -452,6 +505,17 @@ def olive_export(
     precision = exporter_config.get("recipe_precision", "fp32")
     if precision not in {"fp32", "mixed"}:
         raise ValueError("recipe_precision must be fp32 or mixed")
+    expected_provider = "cuda" if precision == "mixed" else "cpu"
+    if execution_provider != expected_provider:
+        raise ValueError(
+            f"recipe_precision={precision!r} requires execution_provider="
+            f"{expected_provider!r}, got {execution_provider!r}"
+        )
+    component_options = exporter_config.get("component_session_options")
+    if recipe.name == "kev" and not isinstance(component_options, dict):
+        raise ValueError(
+            "exporter_config.component_session_options is required for KEV"
+        )
     staging_value = exporter_config.get("staging_path")
     if not isinstance(staging_value, str) or not staging_value:
         raise ValueError("exporter_config.staging_path is required")
@@ -466,6 +530,9 @@ def olive_export(
         if precision == "mixed"
         else staging / recipe.fp32_directory
     )
+    if recipe.name == "kev":
+        assert isinstance(component_options, dict)
+        apply_component_session_options(selected, component_options)
     publishing = output_dir.with_name(f".{output_dir.name}.publishing")
     if publishing.exists():
         shutil.rmtree(publishing)

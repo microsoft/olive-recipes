@@ -8,5 +8,6 @@ def export_kev_package(**kwargs):
     return olive_export(
         model_name="kev",
         output_dir=kwargs["output_dir"],
+        execution_provider=kwargs["execution_provider"],
         exporter_config=kwargs["exporter_config"],
     )

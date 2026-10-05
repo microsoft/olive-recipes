@@ -8,5 +8,6 @@ def export_clm_package(**kwargs):
     return olive_export(
         model_name="clm",
         output_dir=kwargs["output_dir"],
+        execution_provider=kwargs["execution_provider"],
         exporter_config=kwargs["exporter_config"],
     )
