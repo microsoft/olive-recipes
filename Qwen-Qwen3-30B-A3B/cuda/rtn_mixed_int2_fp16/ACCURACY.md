@@ -1,11 +1,12 @@
 # Quality Evaluation
 
-Measured October 4, 2026, for the same matched block64 exports described in
+Measured October 4-5, 2026, for the same matched block64 exports described in
 the recipe README. The WikiText-2 and MMLU checks used direct ORT with Release
 `main@62ac19abcf` on A100-SXM4-80GB GPU 1 in Docker `jiafa-dev`.
-ARC-Easy used Olive's ORT backend on GPU 1 with the same ORT build.
-WikiText-2 and MMLU are small-sample diagnostics; ARC-Easy covers the full
-test split. These results do not establish accuracy preservation.
+ARC-Easy, ARC-Challenge and PIQA used Olive's ORT backend on GPU 1 with the
+same ORT build. WikiText-2 and MMLU are small-sample diagnostics; the three
+standard multiple-choice tasks cover their full evaluation splits.
+These results do not establish accuracy preservation.
 No unquantized FP16/Hugging Face quality reference or
 independent numerical parity check was evaluated.
 
@@ -62,6 +63,74 @@ by the successful direct-ORT results. Local Olive gained an optional
 separately while loading the original ONNX graph and external weights.
 The neighboring evaluator tests passed (9 tests). This local compatibility
 change is not included in this recipe PR.
+
+## Full ARC-Challenge and PIQA
+
+Measured October 5 with the same matched exports and Olive `ort` backend
+as ARC-Easy. Standard lm-evaluation-harness 0.4.12 tasks:
+
+- `arc_challenge`: `allenai/ai2_arc`, `ARC-Challenge`, all 1172 test documents.
+- `piqa`: `baber/piqa`, all 1838 validation documents.
+
+Both use zero-shot evaluation, batch size 1, maximum input length 2048,
+no chat template and 1000 bootstrap iterations. Prompts are
+`Question: {question}\nAnswer:` for ARC-Challenge and
+`Question: {goal}\nAnswer:` for PIQA. Candidate answer texts (PIQA's
+`sol1` and `sol2`) are scored by continuation loglikelihood.
+`acc_norm` uses the candidate string's character count, as described above.
+
+| Task | Model | Correct (`acc`) | `acc` | Correct (`acc_norm`) | `acc_norm` |
+|---|---|---:|---:|---:|---:|
+| ARC-Challenge | INT4 block64 | 598 / 1172 | 51.0239% | 648 / 1172 | 55.2901% |
+| ARC-Challenge | Mixed INT2/INT4 block64 | 566 / 1172 | 48.2935% | 612 / 1172 | 52.2184% |
+| PIQA | INT4 block64 | 1467 / 1838 | 79.8150% | 1471 / 1838 | 80.0326% |
+| PIQA | Mixed INT2/INT4 block64 | 1430 / 1838 | 77.8020% | 1445 / 1838 | 78.6181% |
+
+Mixed decreases ARC-Challenge `acc` by **2.7304 percentage points** and
+`acc_norm` by **3.0717 percentage points**. On PIQA the decreases are
+**2.0131** and **1.4146 percentage points**, respectively. Together with
+ARC-Easy, these runs show a quality cost for this mixed recipe on all three
+tested tasks, not accuracy preservation or a general claim about INT2.
+
+### Paired Result Verification
+
+The harness retained lm-eval's full raw results, including documents,
+candidate scores and both per-document metrics. All candidate scores were
+finite. Both metrics were independently recomputed from those scores and
+matched the reported aggregates. Paired document IDs, full documents,
+targets, prompt arguments and document/prompt/target hashes were identical.
+Tokenizer hashes, ORT builds and evaluation settings also matched.
+Original and raw-record reruns produced identical aggregate metrics.
+
+| Task | Metric | INT4 Correct to Mixed Wrong | INT4 Wrong to Mixed Correct |
+|---|---|---:|---:|
+| ARC-Challenge | `acc` | 96 | 64 |
+| ARC-Challenge | `acc_norm` | 103 | 67 |
+| PIQA | `acc` | 81 | 44 |
+| PIQA | `acc_norm` | 81 | 55 |
+
+Shared document SHA256 values (ordered documents serialized as compact,
+sorted-key UTF-8 JSON with `ensure_ascii=False`):
+
+- ARC-Challenge: `de86c368d3a59701a5114595cefc1869edac18bd558710f930bf6b6a7a753224`.
+- PIQA: `9a7f72f9637da4ee27bcd4d90f783116a9cc9a4a37c9792d463313d7e5c7bc9e`.
+
+### Packed Route Verification
+
+All four full runs completed with `ORT_QMOE_INT_DEQUANT_MAX_SCRATCH_BYTES=1`.
+Mixed additionally enabled `ORT_ENABLE_QMOE_KERNEL_DEBUG_INFO=1`.
+This guard limits full dense expert-weight dequantization, not total GPU
+memory or the packed kernels' workspace.
+
+| Mixed Task | `packed_int_prefill` Calls | `grouped_moe` Calls | Shared-Context Prefills | Prefill Tokens |
+|---|---:|---:|---:|---:|
+| ARC-Challenge | 103608 | 103608 | 4317 | 9-177 |
+| PIQA | 87864 | 87864 | 3661 | 8-243 |
+
+Only these two QMoE routes were present. No dense-fallback errors or input
+truncations were found. Counts reflect 24 INT2 gate/up layers and 24 INT4
+expert layers per prefill after continuation grouping. These are accuracy
+evaluations; elapsed evaluation times are not warmed performance benchmarks.
 
 ## WikiText-2 Perplexity
 
@@ -150,6 +219,13 @@ Artifacts under `qwen3-perf-block64-20261004/`:
 - `olive-arc-easy-int4-full/results.json` and `samples/arc_easy_samples.jsonl`.
 - `olive-arc-easy-mixed-full/results.json` and `samples/arc_easy_samples.jsonl`.
 - `olive-arc-easy-mixed-full.log`: complete mixed kernel-route log.
+- `olive-arc_challenge-{int4,mixed}-full-verified-20261005/`: `results.json`,
+    `raw_results.json` and `samples/arc_challenge_samples.jsonl`.
+- `olive-piqa-{int4,mixed}-full-verified-20261005/`: `results.json`,
+    `raw_results.json` and `samples/piqa_samples.jsonl`.
+- Matching `*-mixed-full-verified-20261005.log` files contain the complete
+    mixed route logs for the two added tasks. Original runs without full raw
+    records are retained in `*-full-20261005/` for aggregate cross-checking.
 
 Both MMLU result files reference sample SHA256
 `f357ff5dddc9485253f07f7135f95615280f061b5faa24e0177a1d03574b95f1`.
