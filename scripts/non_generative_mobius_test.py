@@ -8,14 +8,6 @@ from pathlib import Path
 
 import pytest
 import scripts.non_generative_mobius as exporter
-from scripts.non_generative_mobius import (
-    RECIPES,
-    apply_component_session_options,
-    apply_execution_provider_metadata,
-    olive_export,
-    reusable_package,
-    save_package_metadata,
-)
 
 
 def _write_kev_config(path, threads: int = 16) -> None:
@@ -39,7 +31,11 @@ def _write_kev_config(path, threads: int = 16) -> None:
 def test_mixed_kev_metadata_selects_accelerator_thread_defaults(tmp_path):
     _write_kev_config(tmp_path / "genai_config.json")
 
-    save_package_metadata(RECIPES["kev"], tmp_path, precision="mixed")
+    exporter.save_package_metadata(
+        exporter.RECIPES["kev"],
+        tmp_path,
+        precision="mixed",
+    )
 
     config = json.loads((tmp_path / "genai_config.json").read_text())
     assert config["model"]["decoder"]["session_options"] == {
@@ -58,7 +54,7 @@ def test_recipe_session_options_override_generated_config(tmp_path):
         "session.inter_op.allow_spinning": "0",
     }
 
-    apply_component_session_options(tmp_path, options)
+    exporter.apply_component_session_options(tmp_path, options)
 
     config = json.loads(config_path.read_text())
     assert config["model"]["decoder"]["session_options"] == options
@@ -77,13 +73,13 @@ def test_recipe_provider_overrides_published_metadata(tmp_path):
         )
     )
 
-    apply_execution_provider_metadata(tmp_path, "webgpu")
+    exporter.apply_execution_provider_metadata(tmp_path, "webgpu")
 
     metadata = json.loads((tmp_path / "inference_model.json").read_text())
     assert metadata["Name"] == "kev-0.8b-fp16-webgpu:1"
     assert metadata["Provider"]["execution_provider"] == "webgpu"
 
-    apply_execution_provider_metadata(tmp_path, "cuda")
+    exporter.apply_execution_provider_metadata(tmp_path, "cuda")
     metadata = json.loads((tmp_path / "inference_model.json").read_text())
     assert metadata["Name"] == "kev-0.8b-fp16-cuda:1"
     assert metadata["Provider"]["execution_provider"] == "cuda"
@@ -135,7 +131,7 @@ def test_webgpu_recipe_targets_webgpu_provider(config_path):
 
 def test_webgpu_publication_stamps_provider_metadata(tmp_path, monkeypatch):
     staging = tmp_path / "staging"
-    package = staging / RECIPES["kev08"].fp16_directory
+    package = staging / exporter.RECIPES["kev08"].fp16_directory
     for component in ("backbone", "pointer_head"):
         (package / component).mkdir(parents=True)
     (package / "inference_model.json").write_text(
@@ -154,7 +150,7 @@ def test_webgpu_publication_stamps_provider_metadata(tmp_path, monkeypatch):
     output.mkdir()
     monkeypatch.setattr(exporter, "run_recipe", lambda *args: None)
 
-    result = olive_export(
+    result = exporter.olive_export(
         model_name="kev08",
         output_dir=output,
         execution_provider="webgpu",
@@ -209,7 +205,7 @@ def test_run_recipe_forwards_webgpu_to_mobius_build(tmp_path, monkeypatch):
 
 
 def test_reusable_kev_package_requires_genai_config(tmp_path):
-    recipe = RECIPES["kev"]
+    recipe = exporter.RECIPES["kev"]
     for filename in (
         "component_manifest.json",
         "inference_model.json",
@@ -223,13 +219,13 @@ def test_reusable_kev_package_requires_genai_config(tmp_path):
         (directory / "model.onnx").touch()
         (directory / "model.onnx.data").touch()
 
-    assert not reusable_package(tmp_path, recipe)
+    assert not exporter.reusable_package(tmp_path, recipe)
     (tmp_path / "genai_config.json").touch()
-    assert reusable_package(tmp_path, recipe)
+    assert exporter.reusable_package(tmp_path, recipe)
 
 
 def test_kev_08_recipe_uses_immutable_model_contract():
-    recipe = RECIPES["kev08"]
+    recipe = exporter.RECIPES["kev08"]
 
     assert recipe.base == "Qwen/Qwen3.5-0.8B-Base"
     assert recipe.base_revision == "dc7cdfe2ee4154fa7e30f5b51ca41bfa40174e68"
@@ -240,7 +236,7 @@ def test_kev_08_recipe_uses_immutable_model_contract():
 
 def test_olive_export_rejects_provider_precision_mismatch(tmp_path):
     with pytest.raises(ValueError, match="requires execution_provider in"):
-        olive_export(
+        exporter.olive_export(
             model_name="kev",
             output_dir=tmp_path,
             execution_provider="cpu",
@@ -254,7 +250,7 @@ def test_olive_export_rejects_provider_precision_mismatch(tmp_path):
 
 def test_olive_export_requires_explicit_kev_session_options(tmp_path):
     with pytest.raises(ValueError, match="component_session_options is required"):
-        olive_export(
+        exporter.olive_export(
             model_name="kev",
             output_dir=tmp_path,
             execution_provider="cpu",
