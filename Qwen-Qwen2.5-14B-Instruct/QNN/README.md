@@ -1,6 +1,6 @@
 # Qwen2.5-14B-Instruct Model Optimization
 
-This repository demonstrates the optimization of the [Qwen3-4B](https://huggingface.co/Qwen/Qwen2.5-14B-Instruct) model using **post-training quantization (PTQ)** techniques.
+This repository demonstrates the optimization of the [Qwen2.5-14B-Instruct](https://huggingface.co/Qwen/Qwen2.5-14B-Instruct) model using **post-training quantization (PTQ)** techniques.
 
 ### Quantization Python Environment Setup
 Quantization is resource-intensive and requires GPU acceleration. In an x64 Python environment, install the required packages:
