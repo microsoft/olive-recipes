@@ -50,16 +50,17 @@ way llama.cpp's Q4_K does. It then rounds the minimum to the integer zero point 
 requantizes with the scale it found for the unrounded minimum, so the stored grid is not the one it fitted.
 [microsoft/onnxruntime#32814](https://github.com/microsoft/onnxruntime/pull/32814) (open) fits the scale to the
 stored zero point. The CPU INT4 recipes built with its `k_quant` (head 6c7ea3aa, swapped into onnxruntime 1.30.0;
-same package format and size), on the CPU EP, with the paired differences in brackets:
+same package format and size), on the CPU EP; percentages are from the values shown, their ± from the paired
+comparison on the same tokens:
 
 | model | INT4 as shipped | INT4 with #32814 | change | Q4_K_M, CPU | Q4_K_M, Metal |
 | --- | --- | --- | --- | --- | --- |
-| 230M | 0.114 | 0.0950 | -16% ± 1% | 0.0988 (-4% ± 2%) | 0.0922 (+3% ± 1%) |
+| 230M | 0.114 | 0.0950 | -17% ± 1% | 0.0988 (-4% ± 2%) | 0.0922 (+3% ± 1%) |
 | 350M | 0.492 | 0.468 | -5% ± 1% | 0.481 (-3% ± 2%) | 0.465 (+1% ± 2%) |
-| 1.2B-Instruct | 0.155 | 0.103 | -33% ± 7% | 0.109 (-5% ± 4%) | 0.104 (0% ± 4%) |
-| 2.6B | 0.165 | 0.146 | -11% ± 2% | 0.155 (-6% ± 2%) | 0.155 (-5% ± 2%) |
+| 1.2B-Instruct | 0.155 | 0.103 | -34% ± 7% | 0.109 (-6% ± 4%) | 0.104 (-1% ± 4%) |
+| 2.6B | 0.165 | 0.146 | -12% ± 2% | 0.155 (-6% ± 2%) | 0.155 (-6% ± 2%) |
 
-With it, INT4 scores 3-6% below Q4_K_M on llama.cpp's CPU backend on every model, and between 5% below and 3%
+With it, INT4 scores 3-6% below Q4_K_M on llama.cpp's CPU backend on every model, and between 6% below and 3%
 above its Metal backend. The recipes' INT8 LM head and INT8 sensitive layers (the layers Q4_K_M promotes to 6
 bits) are unchanged; the same quantizer builds the CUDA and WebGPU INT4 recipes.
 
@@ -68,7 +69,8 @@ bits) are unchanged; the same quantizer builds the CUDA and WebGPU INT4 recipes.
 `_webgpu_fp16_int4.json` quantizes every MatMul except the LM head with symmetric RTN: a scale of absmax/7.5 per
 block of 32 and no zero point. `_webgpu_int4.json` uses `k_quant` with the sensitive layers and the LM head at INT8.
 Each variant below changes one ModelBuilder option of a recipe and is built and scored on WebGPU like the recipes
-(in brackets: the paired difference from the column to its left, or for the last column from `int4`):
+(in brackets: the difference from the column to its left, or for the last column from `int4`, with the paired
+error):
 
 | model | `fp16_int4`: symmetric RTN, FP16 head | asymmetric RTN | + INT8 sensitive layers | `int4`: k_quant, INT8 layers and head | `int4` with an FP16 head |
 | --- | --- | --- | --- | --- | --- |
