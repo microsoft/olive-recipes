@@ -102,35 +102,75 @@ olive run --config cuda/mixed/embedding.json
 K-Quant (Q4_K_M) is significantly faster with GPU acceleration —
 install `cupy-cuda12x` for a 19–51× speedup during quantization.
 
-### NPU (QNN) — multimodal decoder and vision
+### NPU (QNN) — decoder, now part of a multimodal build
 
-`npu/config_qnn.json` starts with the INT4 Gemma 4 Mobius CompositeModel
-export at `multi_comp/gemma4_onnx` (including its external weights,
-`genai_config.json`, and tokenizer/processor assets). This export is a local
-build artifact, not included in Git. Run the recipe from this Gemma 4 directory
-with the local Olive build that supports component assembly; see
-[`npu/README.md`](npu/README.md) for the build and output layout.
+`npu/config_qnn.json` targets the Qualcomm Hexagon NPU through the ONNX
+Runtime **QNN execution provider**. It starts from the already INT4-quantized
+Gemma 4 Mobius CompositeModel export in `multi_comp/gemma4_onnx`, including
+the decoder, vision encoder, embedding, audio encoder, and runtime assets.
+This export is a local build artifact, not included in Git. The decoder
+build below is no longer published standalone — Olive assembles its output
+together with an optimized vision encoder and the unchanged audio/embedding
+components into one multimodal package.
 
-The decoder build retains all passes from the original chunked text recipe:
-QDQ conversion, graph surgeries, fp16, CPU A16/W8 calibration, splitting into
-seven transformer chunks and an LM head, fixed KV shapes, `StaticLLM`,
-weight-sharing QNN context compilation, and `ComposeOnnxModels`. The vision
-build applies QDQ conversion, graph surgeries, CPU A16/W8 calibration, and
-fixes the input to 2,520 patches; it does **not** split the vision model.
-Olive assembles the results with the original audio and embedding components
-in `npu/output`, preserving the Gemma 4 multimodal model type in
-`genai_config.json` rather than publishing a text-only `decoder-pipeline`.
+The decoder cannot be compiled as a single QNN graph — 35 transformer
+layers exceed what the HTP can hold at once. The decoder build therefore
+**splits** it into 8 pieces (7 transformer chunks and the `lm_head`) via
+`SplitModel` and compiles the transformer chunks into QNN context binaries.
+`weight_sharing` lets prompt processing and token generation share one copy
+of the weights, so the 7 chunks are emitted as 7 `.bin` files rather than 14.
 
-`npu/decoder_user_script.py` reads WikiText Parquet directly for text
-calibration. `npu/vision_user_script.py` selects the first 16 usable training
-images from each of eight Cauldron subsets through the Hugging Face dataset
-viewer's paginated rows API; it does not import `datasets` or PyArrow. The
-viewer serves image assets that may differ in encoding from the raw dataset
-images, so accuracy should be checked after this calibration-source change.
-Both calibration passes use `CPUExecutionProvider`; QNN is needed for the
-decoder context binaries and the target vision session. The existing
-`npu/requirements.txt` and local Olive/ORT GenAI builds still supply the
-remaining runtime dependencies.
+**Vision**: the encoder is converted from INT4 to QDQ, quantized to A16/W8,
+and fixed to a 2,520-patch input; it is not split.
+
+| Recipe | Pipeline | Output dir |
+|---|---|---|
+| `npu/config_qnn.json` (decoder build) | `MatMulNBitsToQDQ` → `GraphSurgeries` → fp16 → `OnnxStaticQuantization` (uint16 activations / uint8 weights) → `SplitModel` (8 chunks) → `DynamicToFixedShape` → `StaticLLM` → `EPContextBinaryGenerator` (weight sharing) → `ComposeOnnxModels` | `npu/output` |
+| `npu/config_qnn.json` (vision build) | `MatMulNBitsToQDQ` → `GraphSurgeries` → `OnnxStaticQuantization` (uint16 activations / int8 weights) → `DynamicToFixedShape` | `npu/output` |
+
+Run this config from the Gemma 4 directory with the local Olive build that
+supports component assembly. It assembles the optimized models with the
+unchanged audio and embedding components into one multimodal package:
+
+```text
+npu/output/
+├── decoder/model_context_ctx.onnx   # QNN prompt processing
+├── decoder/model_iterator_ctx.onnx  # QNN token generation
+├── decoder/model_lm_head.onnx       # CPU LM head
+├── vision_encoder/model.onnx        # Optimized vision
+├── embedding/model.onnx
+├── audio_encoder/model.onnx
+└── genai_config.json                # type: gemma4
+```
+
+The decoder build alone generates a text-only `decoder-pipeline` config;
+the package assembler retains Gemma 4's multimodal type and references the
+composed decoder stages, QNN vision model, and unchanged components instead.
+See [`npu/README.md`](npu/README.md) for the complete build layout.
+
+**Calibration**: `npu/decoder_user_script.py` reads WikiText Parquet directly
+for text calibration. Vision calibration (`npu/vision_user_script.py`) uses a
+small Cauldron image sample fetched via the Hugging Face dataset viewer API.
+Both passes calibrate with `CPUExecutionProvider`; QNN is only used for
+decoder context compilation and the vision session at runtime.
+
+> **Note**: the decoder's `nodes_to_exclude` entries are exact node names
+> specific to this Mobius export; regenerate them if the export graph changes.
+> `npu/requirements.txt` still does not provide the local Olive checkout or
+> an accessible ONNX export — both are required separately to run the build.
+
+Historical measurements from the original **decoder-only** Snapdragon X
+Elite (X1E80100, HTP V73) recipe, for 64-token decode (not measurements of
+this combined multimodal build):
+
+| Metric | Value |
+|---|---|
+| Decode | 1.07 tok/s |
+| Prefill (TTFT) | 1.15 s |
+| Model load | 4.94 s |
+
+> Decode was dominated by the CPU `lm_head`, accounting for roughly 96% of
+> per-token latency in that decoder-only run.
 
 ## Build
 

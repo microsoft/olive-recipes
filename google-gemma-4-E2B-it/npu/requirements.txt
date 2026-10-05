@@ -15,4 +15,15 @@ onnx
 onnxruntime-qnn
 
 # Used by user_script.py to shape the calibration batches.
+numpy
 pandas
+
+# Decoder calibration (decoder_user_script.py): builds calibration tensors
+# with torch.utils.data.Dataset and tokenizes WikiText with the Gemma 4
+# tokenizer.
+torch
+tokenizers
+
+# Vision calibration (vision_user_script.py): decodes the Cauldron sample
+# images fetched over the Hugging Face dataset viewer API.
+Pillow
