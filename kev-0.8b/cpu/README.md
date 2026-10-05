@@ -35,3 +35,10 @@ olive run --config kev-0.8b_cpu_fp32.json
 The package is staged under `cache/mobius-export/` and atomically published to
 `build/`. The recipe JSON writes 16 intra-op threads, one inter-op thread, and
 non-spinning idle pools into `genai_config.json`.
+
+## Validated performance
+
+On one 24-core NUMA node of an AMD EPYC 7V12, the FP32 package reached
+188.89 ms p50, 202.87 ms p95, and 5.27 requests/s over 100 measured in-process
+requests. Peak process RSS was 2,131 MiB. The 61-token sample matched upstream
+PyTorch exactly.
