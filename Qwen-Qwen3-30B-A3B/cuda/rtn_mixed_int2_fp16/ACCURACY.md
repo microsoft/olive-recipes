@@ -10,6 +10,13 @@ These results do not establish accuracy preservation.
 No unquantized FP16/Hugging Face quality reference or
 independent numerical parity check was evaluated.
 
+The original multiple-choice runs intentionally omit chat templating to
+retain lm-eval's standard completion-style baseline. This is a protocol
+choice, not a requirement imposed by quantization. A chat-formatted run is
+a separate protocol: it wraps the task prompt as a user message and scores
+candidate answer continuations after the assistant prefix. Neither protocol
+generates a free-form answer or a reasoning trace.
+
 ## Full ARC-Easy Test
 
 Olive `LMEvaluator` calls `lm_eval.simple_evaluate` using the standard
@@ -132,6 +139,81 @@ truncations were found. Counts reflect 24 INT2 gate/up layers and 24 INT4
 expert layers per prefill after continuation grouping. These are accuracy
 evaluations; elapsed evaluation times are not warmed performance benchmarks.
 
+## Full Chat-Template Evaluation
+
+Measured October 5 on the same full splits: ARC-Easy test (2376),
+ARC-Challenge test (1172), and PIQA validation (1838), for both matched
+exports. The ORT build, GPU, tokenizer, zero-shot setting, batch size 1,
+maximum length 2048 and 1000 bootstrap iterations are unchanged.
+`apply_chat_template=True` uses the exported Qwen template with
+`enable_thinking=False` and `add_generation_prompt=True`. Both exports have
+template SHA256
+`a55ee1b1660128b7098723e0abcd92caa0788061051c62d51cbe87d9cf1974d8`.
+
+The standard task prompt, including its `Answer:`, is wrapped as a user
+message. Candidate answer texts are scored after the assistant prefix
+`<|im_start|>assistant\n<think>\n\n</think>\n\n`.
+No system message, reasoning trace or free-form answer is generated.
+Options are not displayed together in the user message; this remains
+multiple-choice continuation likelihood, not letter-answer chat generation.
+The local harness supplies the ordinary Olive ORT adapter with the missing
+chat-template/tokenizer-name interfaces; this local extension is not part
+of the recipe PR.
+
+| Task | Model | Correct (`acc`) | `acc` | Correct (`acc_norm`) | `acc_norm` |
+|---|---|---:|---:|---:|---:|
+| ARC-Easy | INT4 block64 | 1465 / 2376 | 61.6582% | 1135 / 2376 | 47.7694% |
+| ARC-Easy | Mixed INT2/INT4 block64 | 1443 / 2376 | 60.7323% | 1133 / 2376 | 47.6852% |
+| ARC-Challenge | INT4 block64 | 473 / 1172 | 40.3584% | 468 / 1172 | 39.9317% |
+| ARC-Challenge | Mixed INT2/INT4 block64 | 442 / 1172 | 37.7133% | 435 / 1172 | 37.1160% |
+| PIQA | INT4 block64 | 1362 / 1838 | 74.1023% | 1333 / 1838 | 72.5245% |
+| PIQA | Mixed INT2/INT4 block64 | 1372 / 1838 | 74.6464% | 1358 / 1838 | 73.8847% |
+
+| Task | Mixed Minus INT4 `acc` (pp) | Mixed Minus INT4 `acc_norm` (pp) |
+|---|---:|---:|
+| ARC-Easy | -0.9259 | -0.0842 |
+| ARC-Challenge | -2.6451 | -2.8157 |
+| PIQA | +0.5441 | +1.3602 |
+
+Both models score lower than their no-template counterparts on all three
+tasks. Mixed scores below INT4 on the two ARC tasks and above it on PIQA
+under this protocol. These observations do not establish accuracy
+preservation or a general improvement in chat-generation capability.
+
+All six full raw results were checked for complete split coverage and
+finite candidate scores. Both metrics were independently recomputed and
+matched every per-document metric and aggregate. Paired full documents,
+IDs, targets, prompt arguments and hashes match, as do tokenizer/template
+hashes and runtime settings. All runs retained the one-byte dense-dequant
+guard; mixed additionally logged kernel routes:
+
+| Mixed Task | `packed_int_prefill` Calls | `grouped_moe` Calls | Shared-Context Prefills | Prefill Tokens |
+|---|---:|---:|---:|---:|
+| ARC-Easy | 211848 | 211848 | 8827 | 20-180 |
+| ARC-Challenge | 107232 | 107232 | 4468 | 21-190 |
+| PIQA | 87864 | 87864 | 3661 | 20-255 |
+
+Only these two QMoE routes were found, with no input truncation or runtime
+tracebacks. The guard does not limit total GPU memory or packed workspace.
+
+### ARC-Easy 50-Question Diagnostic
+
+Separate INT4 checks use only the first 50 ARC-Easy questions, not a new
+full-split evaluation. No-template scoring gives 37/50 raw correct answers;
+an exact replay of the chat requests gives 27/50, matching the full run's
+first 50 documents. Adding an assistant-side `Answer:` prefix gives 35/50.
+A default-thinking template without reasoning generation gives 24/50.
+This supports answer-prefix placement as an important factor on this
+sample, not a complete attribution of the full-split decrease.
+
+lm-eval moves trailing template whitespace into the scored continuation.
+Removing its score did not change either diagnostic metric; the sampled
+newline log probability was recorded as zero. These checks do not support
+that whitespace score as the cause of the observed decrease. A full-split
+assistant-prefix ablation and HF/ORT numerical comparison were not run.
+Prompt changes must be reported as distinct protocols, not silently used
+to replace the full results above.
+
 ## WikiText-2 Perplexity
 
 Dataset: `Salesforce/wikitext`, `wikitext-2-raw-v1`, test split. All 4358 text
@@ -226,6 +308,13 @@ Artifacts under `qwen3-perf-block64-20261004/`:
 - Matching `*-mixed-full-verified-20261005.log` files contain the complete
     mixed route logs for the two added tasks. Original runs without full raw
     records are retained in `*-full-20261005/` for aggregate cross-checking.
+- `olive-{arc_easy,arc_challenge,piqa}-{int4,mixed}-full-chat-20261005/`:
+    `results.json`, `raw_results.json` and per-task `samples/*_samples.jsonl`.
+    Matching `*-mixed-full-chat-20261005.log` files contain mixed route logs.
+- `chat-diagnostic-50-20261005.json` and
+    `chat-diagnostic-exact-50-20261005.json`: local 50-question token-score
+    diagnostics, not full-split results; `qwen3_chat_diagnostic.py` is the
+    local diagnostic harness.
 
 Both MMLU result files reference sample SHA256
 `f357ff5dddc9485253f07f7135f95615280f061b5faa24e0177a1d03574b95f1`.
