@@ -7,9 +7,11 @@ import runpy
 from pathlib import Path
 
 import pytest
+import scripts.non_generative_mobius as exporter
 from scripts.non_generative_mobius import (
     RECIPES,
     apply_component_session_options,
+    apply_execution_provider_metadata,
     olive_export,
     reusable_package,
     save_package_metadata,
@@ -62,6 +64,31 @@ def test_recipe_session_options_override_generated_config(tmp_path):
     assert config["model"]["decoder"]["session_options"] == options
 
 
+def test_recipe_provider_overrides_published_metadata(tmp_path):
+    (tmp_path / "inference_model.json").write_text(
+        json.dumps(
+            {
+                "Name": "kev-0.8b-fp16-cuda:1",
+                "Provider": {
+                    "execution_provider": "cuda",
+                    "variant": "fp16",
+                },
+            }
+        )
+    )
+
+    apply_execution_provider_metadata(tmp_path, "webgpu")
+
+    metadata = json.loads((tmp_path / "inference_model.json").read_text())
+    assert metadata["Name"] == "kev-0.8b-fp16-webgpu:1"
+    assert metadata["Provider"]["execution_provider"] == "webgpu"
+
+    apply_execution_provider_metadata(tmp_path, "cuda")
+    metadata = json.loads((tmp_path / "inference_model.json").read_text())
+    assert metadata["Name"] == "kev-0.8b-fp16-cuda:1"
+    assert metadata["Provider"]["execution_provider"] == "cuda"
+
+
 @pytest.mark.parametrize(
     ("config_path", "expected_threads"),
     [
@@ -82,6 +109,102 @@ def test_kev_recipe_json_declares_component_session_options(
         "inter_op_num_threads": 1,
         "session.intra_op.allow_spinning": "0",
         "session.inter_op.allow_spinning": "0",
+    }
+
+
+@pytest.mark.parametrize(
+    "config_path",
+    [
+        "Contrastive-LM-CLM-v0.1-8B/webgpu/CLM-v0.1-8B_webgpu_fp32.json",
+        "Contrastive-LM-CLM-v0.1-8B/webgpu/CLM-v0.1-8B_webgpu_mixed.json",
+        "kev-4b/webgpu/kev-4b_webgpu_fp32.json",
+        "kev-4b/webgpu/kev-4b_webgpu_mixed.json",
+        "kev-0.8b/webgpu/kev-0.8b_webgpu_fp32.json",
+        "kev-0.8b/webgpu/kev-0.8b_webgpu_fp16.json",
+        "kev-0.8b/webgpu/kev-0.8b_webgpu_mixed.json",
+    ],
+)
+def test_webgpu_recipe_targets_webgpu_provider(config_path):
+    config = json.loads((Path(__file__).parents[1] / config_path).read_text())
+    accelerator = config["systems"]["local_system"]["accelerators"][0]
+    assert accelerator == {
+        "device": "gpu",
+        "execution_providers": ["WebGpuExecutionProvider"],
+    }
+
+
+def test_webgpu_publication_stamps_provider_metadata(tmp_path, monkeypatch):
+    staging = tmp_path / "staging"
+    package = staging / RECIPES["kev08"].fp16_directory
+    for component in ("backbone", "pointer_head"):
+        (package / component).mkdir(parents=True)
+    (package / "inference_model.json").write_text(
+        json.dumps(
+            {
+                "Name": "kev-0.8b-fp16-cuda:1",
+                "Provider": {
+                    "execution_provider": "cuda",
+                    "variant": "fp16",
+                },
+            }
+        )
+    )
+    _write_kev_config(package / "genai_config.json")
+    output = tmp_path / "output"
+    output.mkdir()
+    monkeypatch.setattr(exporter, "run_recipe", lambda *args: None)
+
+    result = olive_export(
+        model_name="kev08",
+        output_dir=output,
+        execution_provider="webgpu",
+        exporter_config={
+            "artifact_path": "artifact",
+            "recipe_precision": "fp16",
+            "staging_path": str(staging),
+            "component_session_options": {
+                "intra_op_num_threads": 1,
+                "inter_op_num_threads": 1,
+                "session.intra_op.allow_spinning": "0",
+                "session.inter_op.allow_spinning": "0",
+            },
+        },
+    )
+
+    metadata = json.loads((output / "inference_model.json").read_text())
+    assert result == {"components": ["backbone", "pointer_head"]}
+    assert metadata["Name"] == "kev-0.8b-fp16-webgpu:1"
+    assert metadata["Provider"]["execution_provider"] == "webgpu"
+
+
+def test_run_recipe_forwards_webgpu_to_mobius_build(tmp_path, monkeypatch):
+    captured = {}
+
+    def fake_export(recipe, artifact, output_root, execution_provider):
+        captured.update(
+            recipe=recipe.name,
+            artifact=artifact,
+            output_root=output_root,
+            execution_provider=execution_provider,
+        )
+
+    monkeypatch.setattr(exporter, "export_fp32", fake_export)
+    artifact = tmp_path / "artifact"
+    output_root = tmp_path / "output"
+
+    exporter.run_recipe(
+        "kev08",
+        artifact,
+        output_root,
+        "fp32",
+        "webgpu",
+    )
+
+    assert captured == {
+        "recipe": "kev08",
+        "artifact": artifact.resolve(),
+        "output_root": output_root.resolve(),
+        "execution_provider": "webgpu",
     }
 
 
@@ -116,7 +239,7 @@ def test_kev_08_recipe_uses_immutable_model_contract():
 
 
 def test_olive_export_rejects_provider_precision_mismatch(tmp_path):
-    with pytest.raises(ValueError, match="requires execution_provider='cuda'"):
+    with pytest.raises(ValueError, match="requires execution_provider in"):
         olive_export(
             model_name="kev",
             output_dir=tmp_path,

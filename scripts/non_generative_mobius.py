@@ -195,6 +195,7 @@ def inference_metadata(
         task = "text-ranking"
         capabilities = ["structured-input", "candidate-ranking", "action-cache"]
         fp32_id = "clm-v0.1-8b-generic-cpu:1"
+        fp16_id = "clm-v0.1-8b-fp16-cuda:1"
     else:
         size = "0.8b" if recipe.name == "kev08" else "4b"
         source = f"jaredpalmer/kev-{size}"
@@ -202,15 +203,12 @@ def inference_metadata(
         task = "typed-decision"
         capabilities = ["structured-input", "noul", "choice", "score"]
         fp32_id = f"kev-{size}-generic-cpu:1"
+        fp16_id = f"kev-{size}-fp16-cuda:1"
     return {
         "Name": (
             recipe.mixed_model_id
             if precision == "mixed"
-            else (
-                "kev-0.8b-fp16-cuda:1"
-                if precision == "fp16" and recipe.name == "kev08"
-                else fp32_id
-            )
+            else (fp16_id if precision == "fp16" else fp32_id)
         ),
         "Alias": alias,
         "Task": task,
@@ -288,7 +286,29 @@ def apply_component_session_options(
     write_json(config_path, config)
 
 
-def export_fp32(recipe: Recipe, artifact: Path, output_root: Path) -> None:
+def apply_execution_provider_metadata(package: Path, execution_provider: str) -> None:
+    """Stamp the provider selected by the Olive recipe onto published metadata."""
+    path = package / "inference_model.json"
+    metadata = json.loads(path.read_text(encoding="utf-8"))
+    metadata["Provider"]["execution_provider"] = execution_provider
+    name = metadata["Name"]
+    if execution_provider == "webgpu":
+        name = name.replace("-generic-cpu:", "-generic-webgpu:")
+        name = name.replace("-cuda:", "-webgpu:")
+    elif execution_provider == "cpu":
+        name = name.replace("-generic-webgpu:", "-generic-cpu:")
+    elif execution_provider == "cuda":
+        name = name.replace("-webgpu:", "-cuda:")
+    metadata["Name"] = name
+    write_json(path, metadata)
+
+
+def export_fp32(
+    recipe: Recipe,
+    artifact: Path,
+    output_root: Path,
+    execution_provider: str,
+) -> None:
     """Export one complete FP32 Mobius package."""
     output = output_root / recipe.fp32_directory
     if output.exists():
@@ -307,6 +327,7 @@ def export_fp32(recipe: Recipe, artifact: Path, output_root: Path) -> None:
             base_weights=base.state_dict(),
             head_checkpoint=checkpoint,
             base_revision=recipe.base_revision,
+            execution_provider=execution_provider,
         )
         owners = (package, base, checkpoint)
     else:
@@ -319,6 +340,7 @@ def export_fp32(recipe: Recipe, artifact: Path, output_root: Path) -> None:
             config,
             head_checkpoint=checkpoint,
             merged_base_weights=weights,
+            execution_provider=execution_provider,
         )
         owners = (package, weights, merged, adapted, container, checkpoint)
     package.save(output, external_data="onnx", max_workers=1)
@@ -326,7 +348,7 @@ def export_fp32(recipe: Recipe, artifact: Path, output_root: Path) -> None:
         write_ort_genai_config(
             package,
             str(output),
-            ep="cpu",
+            ep=execution_provider,
             context_length=8192,
         )
     AutoTokenizer.from_pretrained(
@@ -370,6 +392,7 @@ def export_fp16_backbone(
     recipe: Recipe,
     artifact: Path,
     output_root: Path,
+    execution_provider: str,
 ) -> None:
     """Export an FP16 backbone while preserving FP32 decision heads."""
     config = architecture_config(recipe, ir.DataType.FLOAT16)
@@ -386,6 +409,7 @@ def export_fp16_backbone(
             base_weights=base.state_dict(),
             head_checkpoint=checkpoint,
             base_revision=recipe.base_revision,
+            execution_provider=execution_provider,
         )
         owners = (package, base, checkpoint)
     else:
@@ -398,6 +422,7 @@ def export_fp16_backbone(
             config,
             head_checkpoint=checkpoint,
             merged_base_weights=weights,
+            execution_provider=execution_provider,
         )
         owners = (package, weights, merged, adapted, container, checkpoint)
     with tempfile.TemporaryDirectory(prefix=f"{recipe.name}-fp16-") as directory:
@@ -486,6 +511,7 @@ def run_recipe(
     artifact: Path,
     output_root: Path,
     precision: Precision,
+    execution_provider: str = "default",
 ) -> None:
     """Run one model-specific recipe."""
     recipe = RECIPES[model]
@@ -513,12 +539,12 @@ def run_recipe(
     if mixed_ready and precision == "mixed":
         return
     if not fp32_ready:
-        export_fp32(recipe, artifact, output_root)
+        export_fp32(recipe, artifact, output_root, execution_provider)
     if precision == "fp16":
         fp16 = output_root / recipe.fp16_directory
         if fp16.exists():
             shutil.rmtree(fp16)
-        export_fp16_backbone(recipe, artifact, output_root)
+        export_fp16_backbone(recipe, artifact, output_root, execution_provider)
         shutil.rmtree(fp32)
         return
     if precision in {"mixed", "both"} and not mixed_ready:
@@ -526,7 +552,7 @@ def run_recipe(
         if fp16.exists():
             print(f"removing incomplete FP16 package: {fp16}")
             shutil.rmtree(fp16)
-        export_fp16_backbone(recipe, artifact, output_root)
+        export_fp16_backbone(recipe, artifact, output_root, execution_provider)
         quantize_mixed(recipe, output_root)
         shutil.rmtree(fp16)
     if precision in {"mixed", "both"}:
@@ -549,11 +575,15 @@ def olive_export(
     precision = exporter_config.get("recipe_precision", "fp32")
     if precision not in {"fp32", "fp16", "mixed"}:
         raise ValueError("recipe_precision must be fp32, fp16, or mixed")
-    expected_provider = "cuda" if precision != "fp32" else "cpu"
-    if execution_provider != expected_provider:
+    allowed_providers = {
+        "fp32": {"cpu", "webgpu"},
+        "fp16": {"cuda", "webgpu"},
+        "mixed": {"cuda", "webgpu"},
+    }[precision]
+    if execution_provider not in allowed_providers:
         raise ValueError(
-            f"recipe_precision={precision!r} requires execution_provider="
-            f"{expected_provider!r}, got {execution_provider!r}"
+            f"recipe_precision={precision!r} requires execution_provider in "
+            f"{sorted(allowed_providers)}, got {execution_provider!r}"
         )
     component_options = exporter_config.get("component_session_options")
     if recipe.name != "clm" and not isinstance(component_options, dict):
@@ -568,7 +598,13 @@ def olive_export(
     if any(output_dir.iterdir()):
         raise ValueError(f"Olive output directory must be empty: {output_dir}")
     staging = Path(staging_value)
-    run_recipe(model_name, Path(artifact_value), staging, precision)
+    run_recipe(
+        model_name,
+        Path(artifact_value),
+        staging,
+        precision,
+        execution_provider,
+    )
     selected = (
         staging / recipe.mixed_directory
         if precision == "mixed"
@@ -581,6 +617,7 @@ def olive_export(
     if recipe.name != "clm":
         assert isinstance(component_options, dict)
         apply_component_session_options(selected, component_options)
+    apply_execution_provider_metadata(selected, execution_provider)
     publishing = output_dir.with_name(f".{output_dir.name}.publishing")
     if publishing.exists():
         shutil.rmtree(publishing)

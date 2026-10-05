@@ -5,6 +5,7 @@ numpy
 onnx
 onnx-ir
 onnxruntime
+onnxruntime-ep-webgpu==0.4.0
 peft
 safetensors
 sentencepiece
