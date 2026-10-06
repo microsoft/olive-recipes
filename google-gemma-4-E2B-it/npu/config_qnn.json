@@ -15,7 +15,10 @@
             {
                 "type": "ONNXModel",
                 "model_path": "multi_comp/gemma4_onnx",
-                "onnx_file_name": "vision_encoder/model.onnx"
+                "onnx_file_name": "vision_encoder/model.onnx",
+                "model_attributes": {
+                    "additional_files": ["multi_comp/gemma4_onnx/genai_config.json"]
+                }
             },
             {
                 "type": "ONNXModel",
@@ -253,6 +256,8 @@
         },
         "vision_cb": {
             "type": "EPContextBinaryGenerator",
+            "update_genai_config": true,
+            "genai_config_role": "vision",
             "provider_options": {
                 "htp_performance_mode": "burst",
                 "htp_graph_finalization_optimization_mode": "3",
@@ -277,6 +282,9 @@
         }
     },
     "max_concurrent_builds": 1,
+    "component_assembly": {
+        "package_config_updater": "ort_genai"
+    },
     "builds": {
         "decoder": {
             "components": ["decoder"],
