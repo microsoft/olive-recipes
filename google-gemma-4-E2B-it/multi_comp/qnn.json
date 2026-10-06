@@ -6,6 +6,17 @@
         }
     },
     "systems": {
+        "cpu_system": {
+            "type": "LocalSystem",
+            "accelerators": [
+                {
+                    "device": "cpu",
+                    "execution_providers": [
+                        "CPUExecutionProvider"
+                    ]
+                }
+            ]
+        },
         "qnn_system": {
             "type": "LocalSystem",
             "accelerators": [
@@ -133,7 +144,10 @@
             "type": "GraphSurgeries",
             "surgeries": [
                 {
-                    "surgeon": "RemoveUnusedNodeOutputs"
+                    "surgeon": "RemoveUnusedNodeOutputs",
+                    "op_types": [
+                        "SkipSimplifiedLayerNormalization"
+                    ]
                 },
                 {
                     "surgeon": "SimplifiedLayerNormToL2Norm"
@@ -156,6 +170,9 @@
             "precision": "int8",
             "quant_format": "QDQ",
             "calibrate_method": "MinMax",
+            "calibration_providers": [
+                "CPUExecutionProvider"
+            ],
             "quant_preprocess": false,
             "prepare_qdq_config": true,
             "extra_options": {
@@ -198,6 +215,9 @@
             "data_config": "calib",
             "activation_type": "uint16",
             "precision": "uint8",
+            "calibration_providers": [
+                "CPUExecutionProvider"
+            ],
             "quant_preprocess": true,
             "op_types_to_exclude": [
                 "GatherBlockQuantized",
@@ -257,8 +277,36 @@
         },
         "cp": {
             "type": "ComposeOnnxModels"
+        },
+        "vision_cb": {
+            "type": "EPContextBinaryGenerator",
+            "provider_options": {
+                "htp_performance_mode": "burst",
+                "htp_graph_finalization_optimization_mode": "3",
+                "soc_model": "60",
+                "vtcm_mb": "7"
+            },
+            "session_options": {
+                "optimization.disable_specified_optimizers": "QDQPropagationTransformer",
+                "log_severity_level": 1
+            }
+        },
+        "embedding_cast": {
+            "type": "GraphSurgeries",
+            "surgeries": [
+                {
+                    "surgeon": "CastOutputs",
+                    "names": [
+                        "inputs_embeds",
+                        "per_layer_inputs"
+                    ],
+                    "to": "float16"
+                }
+            ],
+            "save_as_external_data": true
         }
     },
+    "max_concurrent_builds": 1,
     "builds": {
         "decoder": {
             "components": [
@@ -282,7 +330,7 @@
                 "embedding"
             ],
             "pipeline": [
-                "matmul_nbits_to_qdq"
+                "embedding_cast"
             ]
         },
         "vision": {
@@ -293,10 +341,12 @@
                 "matmul_nbits_to_qdq",
                 "gs_vision",
                 "a16w8_static_quantization",
-                "dynamic_to_fixed_shape"
+                "dynamic_to_fixed_shape",
+                "vision_cb"
             ]
         }
     },
+    "host": "cpu_system",
     "target": "qnn_system",
     "output_dir": "gemma4_qnn",
     "log_severity_level": 0

@@ -113,13 +113,20 @@ all four components with Mobius.
 
 ### NPU (QNN) - multi-component recipe
 
-The QNN text decoder pipeline is integrated into
-[`multi_comp/qnn.json`](multi_comp/qnn.json), alongside the existing vision
-and embedding builds. It converts the decoder weights to per-channel INT8
+The QNN decoder and vision pipelines are integrated into
+[`multi_comp/qnn.json`](multi_comp/qnn.json), alongside the embedding build.
+It converts the decoder weights to per-channel INT8
 QDQ, calibrates activations with WikiText 2, splits the decoder into seven
 transformer chunks plus a CPU `lm_head`, and compiles context / iterator graphs
 with shared QNN weights. The KV cache holds 1024 tokens and prefill uses
 64-token windows.
+
+The vision encoder is calibrated to A16/W8 on CPU, fixed to 2,520 patches,
+and precompiled as a QNN context binary. The embedding build casts only its
+two decoder-facing outputs to FP16, preserving its weights and inputs; audio
+is unchanged. All calibration uses the single shared `multi_comp/user_script.py`,
+with WikiText Parquet for text and the Cauldron dataset viewer API for images.
+The QNN builds run serially, with CPU calibration and QNN context compilation.
 
 Run from `multi_comp`:
 

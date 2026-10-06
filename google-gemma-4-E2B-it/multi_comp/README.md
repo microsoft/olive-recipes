@@ -57,10 +57,12 @@ weights and resolves the `lm_head` and logits softcap exclusions from its
 actual node names. Use the launcher so the decoder metadata and exclusions are
 populated from your export rather than the original text recipe's node numbers.
 
+Decoder and vision activation calibration both use `CPUExecutionProvider`.
 WikiText calibration downloads the parquet shard with `huggingface_hub` and
-reads it with `fastparquet`, without importing `datasets`. Vision calibration
-retains the existing Cauldron loader and imports `datasets` only when used.
-The vision and embedding pipelines are unchanged.
+reads it with `fastparquet`. Cauldron image calibration fetches rows and images
+through the Hugging Face dataset viewer API. Both loaders share
+`user_script.py` without importing `datasets` or `pyarrow`; the same vision
+loader is used by the OpenVINO recipe.
 
 The original decoder-only recipe reported the following results on Snapdragon
 X Elite (X1E80100, HTP V73), with 64 generated tokens. These are not measurements
@@ -73,6 +75,26 @@ of the full multi-component pipeline:
 | Model load | 4.94 s |
 
 `lm_head` remained on CPU and accounted for approximately 96% of decode latency.
+
+## QNN vision and embedding
+
+The vision and embedding builds incorporate
+[#650](https://github.com/microsoft/olive-recipes/pull/650) in the same
+`qnn.json`, without separate NPU configs or user scripts:
+
+1. Convert the vision encoder's INT4 weights to QDQ, simplify the graph, and
+   calibrate A16/W8 with the shared Cauldron loader on CPU.
+2. Fix the vision input to 2,520 patches and precompile its QNN context binary.
+   Precompilation avoids losing a dynamic vision graph handle when it is loaded
+   alongside the decoder's precompiled context and iterator sessions.
+3. Cast only the embedding outputs `inputs_embeds` and `per_layer_inputs` to
+   FP16 so they match the decoder inputs. Embedding weights and inputs stay
+   unchanged, and the audio component is retained.
+
+The three QNN builds run serially on the CPU host, with QNN used for context
+compilation. The assembled `gemma4_qnn` package contains the decoder stages,
+precompiled vision model, FP16-output embedding model, unchanged audio model,
+and shared runtime assets. OpenVINO's build pipelines are unchanged.
 
 ## Inference
 

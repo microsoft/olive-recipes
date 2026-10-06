@@ -1,6 +1,10 @@
 fastparquet
 huggingface_hub
+numpy
 olive-ai
 onnx
 onnxruntime-qnn
 pandas
+pillow
+tokenizers
+torch
