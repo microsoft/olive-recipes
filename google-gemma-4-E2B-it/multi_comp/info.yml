@@ -1,25 +1,27 @@
 keywords:
-  - olive-ai
   - gemma4
   - multimodal
   - multi-component
-  - kquant
-  - rtn
-  - int4
-  - mobius
   - qnn
   - npu
+  - openvino
 arch: gemma
 recipes:
-  - name: gemma4-e2b-decoder-kquant-vision-rtn
+  - name: gemma4
     file: gemma4_quantize.json
     eps:
       - CPUExecutionProvider
     devices:
       - cpu
-  - name: gemma4-e2b-qnn
+  - name: gemma4-qnn
     file: qnn.json
     eps:
       - QNNExecutionProvider
+    devices:
+      - npu
+  - name: gemma4-ov
+    file: ov.json
+    eps:
+      - OpenVINOExecutionProvider
     devices:
       - npu
