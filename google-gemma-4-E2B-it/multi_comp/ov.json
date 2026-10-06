@@ -126,6 +126,6 @@
             "pipeline": [ "matmul_nbits_to_qdq"]
         }
     },
-    "output_dir": "gemma4_quantized_onnx",
+    "output_dir": "gemma4_ov",
     "log_severity_level": 0
 }
