@@ -56,8 +56,16 @@ recipes:
     devices:
       - gpu
     eps: CUDAExecutionProvider
-  - name: gemma4-e2b-qnn
-    file: multi_comp/qnn.json
+  - name: gemma4-e2b-qnn-decoder
+    file: multi_comp/qnn_decoder.json
     devices:
       - npu
     eps: QNNExecutionProvider
+  - name: gemma4-e2b-qnn-vision
+    file: multi_comp/qnn_vision.json
+    devices:
+      - gpu
+      - npu
+    eps:
+      - CUDAExecutionProvider
+      - QNNExecutionProvider

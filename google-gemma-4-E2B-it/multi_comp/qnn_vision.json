@@ -1,0 +1,146 @@
+{
+    "input_model": {
+        "type": "CompositeModel",
+        "config": {
+            "model_path": "gemma4_onnx"
+        }
+    },
+    "data_configs": [
+        {
+            "name": "cauldron_vision_calibration",
+            "user_script": "user_script.py",
+            "load_dataset_config": {
+                "type": "cauldron_calibration_dataset",
+                "subsets": [
+                    "vqav2",
+                    "visual7w",
+                    "ai2d",
+                    "chartqa",
+                    "docvqa",
+                    "textvqa",
+                    "screen2words",
+                    "scienceqa"
+                ],
+                "samples_per_subset": 16,
+                "seed": 42,
+                "shuffle_buffer_size": 0,
+                "max_soft_tokens": 280
+            },
+            "dataloader_config": {
+                "type": "no_auto_batch_dataloader"
+            }
+        }
+    ],
+    "passes": {
+        "gs_vision": {
+            "type": "GraphSurgeries",
+            "surgeries": [
+                {
+                    "surgeon": "RemoveUnusedNodeOutputs",
+                    "op_types": [
+                        "SkipSimplifiedLayerNormalization"
+                    ]
+                },
+                {
+                    "surgeon": "SimplifiedLayerNormToL2Norm"
+                },
+                {
+                    "surgeon": "RMSNormalizationToL2Norm"
+                },
+                {
+                    "surgeon": "ReplaceAttentionMaskValue",
+                    "threshold": -1e8
+                }
+            ],
+            "save_as_external_data": true,
+            "external_data_name": "model.onnx.data"
+        },
+        "a16w8_static_quantization": {
+            "type": "OnnxStaticQuantization",
+            "data_config": "cauldron_vision_calibration",
+            "activation_type": "uint16",
+            "precision": "int8",
+            "quant_format": "QDQ",
+            "calibrate_method": "MinMax",
+            "calibration_providers": [
+                "CUDAExecutionProvider"
+            ],
+            "quant_preprocess": false,
+            "prepare_qdq_config": true,
+            "extra_options": {
+                "DedicatedQDQPair": true
+            },
+            "save_as_external_data": true,
+            "external_data_name": "model.onnx.data"
+        },
+        "matmul_nbits_to_qdq": {
+            "type": "MatMulNBitsToQDQ",
+            "use_signed_int": true,
+            "add_zero_point": true,
+            "save_as_external_data": true,
+            "external_data_name": "model.onnx.data"
+        },
+        "dynamic_to_fixed_shape": {
+            "type": "DynamicToFixedShape",
+            "dim_param": [
+                "component.vision_encoder.num_patches"
+            ],
+            "dim_value": [
+                2520
+            ],
+            "save_as_external_data": true,
+            "external_data_name": "model.onnx.data"
+        },
+        "vision_cb": {
+            "type": "EPContextBinaryGenerator",
+            "provider_options": {
+                "htp_performance_mode": "burst",
+                "htp_graph_finalization_optimization_mode": "3",
+                "soc_model": "60",
+                "vtcm_mb": "7"
+            },
+            "session_options": {
+                "optimization.disable_specified_optimizers": "QDQPropagationTransformer",
+                "log_severity_level": 1
+            }
+        },
+        "embedding_cast": {
+            "type": "GraphSurgeries",
+            "surgeries": [
+                {
+                    "surgeon": "CastOutputs",
+                    "names": [
+                        "inputs_embeds",
+                        "per_layer_inputs"
+                    ],
+                    "to": "float16"
+                }
+            ],
+            "save_as_external_data": true
+        }
+    },
+    "builds": {
+        "embedding": {
+            "components": [
+                "embedding"
+            ],
+            "pipeline": [
+                "embedding_cast"
+            ]
+        },
+        "vision": {
+            "components": [
+                "vision_encoder"
+            ],
+            "pipeline": [
+                "matmul_nbits_to_qdq",
+                "gs_vision",
+                "a16w8_static_quantization",
+                "dynamic_to_fixed_shape",
+                "vision_cb"
+            ]
+        }
+    },
+    "output_dir": "gemma4_qnn_vision",
+    "log_severity_level": 0
+}

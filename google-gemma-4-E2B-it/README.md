@@ -113,31 +113,16 @@ all four components with Mobius.
 
 ### NPU (QNN) - multi-component recipe
 
-The QNN decoder and vision pipelines are integrated into
-[`multi_comp/qnn.json`](multi_comp/qnn.json), alongside the embedding build.
-It converts the decoder weights to per-channel INT8
-QDQ, calibrates activations with WikiText 2, splits the decoder into seven
-transformer chunks plus a CPU `lm_head`, and compiles context / iterator graphs
-with shared QNN weights. The KV cache holds 1024 tokens and prefill uses
-64-token windows.
+The QNN recipe uses separate
+[`qnn_vision.json`](multi_comp/qnn_vision.json) and
+[`qnn_decoder.json`](multi_comp/qnn_decoder.json) jobs. Vision calibration runs
+with CUDA, while decoder compilation runs on a Qualcomm QNN device. Their
+separate `gemma4_qnn_vision` and `gemma4_qnn_decoder` packages are explicitly
+merged into `gemma4_qnn`; independent Olive invocations do not automatically
+merge when pointed at the same output directory.
 
-The vision encoder is calibrated to A16/W8 on CPU, fixed to 2,520 patches,
-and precompiled as a QNN context binary. The embedding build casts only its
-two decoder-facing outputs to FP16, preserving its weights and inputs; audio
-is unchanged. All calibration uses the single shared `multi_comp/user_script.py`,
-with WikiText Parquet for text and the Cauldron dataset viewer API for images.
-The QNN builds run serially, with CPU calibration and QNN context compilation.
-
-Run from `multi_comp`:
-
-```bash
-pip install -r requirements-qnn.txt
-python optimize.py --ep qnn
-```
-
-The result is saved under `multi_comp/gemma4_qnn`. See
-[`multi_comp/README.md`](multi_comp/README.md#qnn-text-decoder) for calibration,
-export-specific node exclusions, and the original decoder-only measurements.
+See [`multi_comp/README.md`](multi_comp/README.md#qnn-split-workflow) for the
+CUDA, QNN-device, transfer, and merge commands.
 
 ## Build
 
