@@ -14,16 +14,17 @@ hf auth login
 
 ## Optimize
 
-Run OpenVINO from this `multi_comp` directory:
+Run one command from this `multi_comp` directory:
 
 ```bash
 python optimize.py --ep ov
+python optimize.py --ep qnn
 ```
 
-The script runs component quantization, Mobius ONNX export, and OpenVINO
-optimization in sequence. The result is written to `gemma4_ov`.
+The script runs component quantization, Mobius ONNX export, and the selected
+execution-provider optimization in sequence.
 
-## QNN split workflow
+## QNN
 
 Install the QNN requirements in addition to the prerequisites above:
 
@@ -31,51 +32,32 @@ Install the QNN requirements in addition to the prerequisites above:
 pip install -r requirements-qnn.txt
 ```
 
-The QNN workflow is split because its two component groups require different
-machines:
+Before running QNN:
 
-- `qnn_vision.json` requires `CUDAExecutionProvider` for vision calibration.
-  Run it in a CUDA environment that can also execute the QNN context-binary
-  pass.
+- The current Python environment must provide `CUDAExecutionProvider` for
+  vision calibration and be able to execute the QNN context-binary pass.
 - `qnn_decoder.json` requires a Qualcomm QNN device. Set
   `systems.qnn_system.python_environment_path` to the QNN Python environment
-  on that device before running it.
+  on that device.
 
-Run the vision and embedding build on the CUDA machine:
-
-```bash
-python optimize.py --ep qnn-vision
-```
-
-This creates the shared `gemma4_onnx` input and the
-`gemma4_qnn_vision` package. Copy `gemma4_onnx` to the QNN device so both
-component jobs use the same exported model, then run:
+Then run one command:
 
 ```bash
-python optimize.py --ep qnn-decoder --skip-prepare
+python optimize.py --ep qnn
 ```
 
-Without `--skip-prepare`, the decoder command regenerates the quantized model
-and ONNX export before running `qnn_decoder.json`. The decoder launcher also
-resolves the export-specific `lm_head` and logits-softcap node exclusions and
-attaches `genai_config.json` to the decoder pipeline.
+The command automatically:
 
-Put `gemma4_qnn_vision` and `gemma4_qnn_decoder` next to `optimize.py` on one
-machine, then assemble the deployable package:
+1. Quantizes and exports the shared `gemma4_onnx` model.
+2. Runs `qnn_vision.json` for the vision and embedding components.
+3. Runs `qnn_decoder.json` for the decoder, including export-specific node
+   exclusions and decoder `genai_config.json` generation.
+4. Combines both component packages into the final `gemma4_qnn` directory.
 
-```bash
-python optimize.py --merge-qnn
-```
+### QNN output assembly
 
-The final package is written to `gemma4_qnn`. The merge starts from the decoder
-package so its generated `genai_config.json` is preserved, replaces the
-`embedding` and `vision_encoder` directories with their CUDA-job outputs, keeps
-the unchanged audio component, and rewrites `model_config.json` for the final
-path.
-
-### Why the QNN outputs must be different
-
-Olive's component assembly produces a complete package for each invocation:
+Internally, the two Olive runs still use different intermediate output
+directories:
 
 - `gemma4_qnn_vision` contains optimized vision and embedding components plus
   the unmodified decoder and audio components copied from `gemma4_onnx`.
@@ -86,8 +68,8 @@ Two independent Olive runs cannot incrementally assemble into the same
 `output_dir`. The second run detects package files written by the first and
 fails because component assembly requires a clean workflow output. Olive only
 automatically combines component folders when all builds belong to one
-multi-build invocation. Since these builds run on different hardware, keep the
-two intermediate output directories and use `--merge-qnn`.
+multi-build invocation. `optimize.py --ep qnn` handles the separate
+intermediate directories and final merge automatically.
 
 ## Inference
 

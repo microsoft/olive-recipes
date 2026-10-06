@@ -2,9 +2,7 @@
 
 Usage:
     python optimize.py --ep OpenVINOExecutionProvider
-    python optimize.py --ep qnn-vision
-    python optimize.py --ep qnn-decoder --skip-prepare
-    python optimize.py --merge-qnn
+    python optimize.py --ep QNNExecutionProvider
 """
 
 import argparse
@@ -21,24 +19,22 @@ RECIPE_DIR = Path(__file__).resolve().parent
 QNN_VISION_OUTPUT = RECIPE_DIR / "gemma4_qnn_vision"
 QNN_DECODER_OUTPUT = RECIPE_DIR / "gemma4_qnn_decoder"
 QNN_OUTPUT = RECIPE_DIR / "gemma4_qnn"
-EP_CONFIGS = {
-    "openvino": "ov.json",
-    "openvinoexecutionprovider": "ov.json",
-    "ov": "ov.json",
-    "qnn_vision": "qnn_vision.json",
-    "qnnvision": "qnn_vision.json",
-    "qnn_decoder": "qnn_decoder.json",
-    "qnndecoder": "qnn_decoder.json",
+EP_ALIASES = {
+    "openvino": "ov",
+    "openvinoexecutionprovider": "ov",
+    "ov": "ov",
+    "qnn": "qnn",
+    "qnnexecutionprovider": "qnn",
 }
 
 
 def parse_ep(value: str) -> str:
-    ep = value.lower().replace("-", "_")
-    if ep not in EP_CONFIGS:
+    ep = value.lower()
+    if ep not in EP_ALIASES:
         raise argparse.ArgumentTypeError(
-            "expected one of: OpenVINOExecutionProvider, ov, qnn-vision, qnn-decoder"
+            "expected one of: OpenVINOExecutionProvider, ov, QNNExecutionProvider, qnn"
         )
-    return ep
+    return EP_ALIASES[ep]
 
 
 def run_step(step: int, total: int, description: str, args: list[str]) -> None:
@@ -216,68 +212,65 @@ def merge_qnn_outputs() -> None:
 
 def main() -> None:
     parser = argparse.ArgumentParser(
-        description="Optimize Gemma 4 E2B for OpenVINO or one QNN component group"
-    )
-    action = parser.add_mutually_exclusive_group(required=True)
-    action.add_argument(
-        "--ep",
-        type=parse_ep,
-        help="Target: OpenVINOExecutionProvider/ov, qnn-vision, or qnn-decoder",
-    )
-    action.add_argument(
-        "--merge-qnn",
-        action="store_true",
-        help="Merge gemma4_qnn_vision and gemma4_qnn_decoder into gemma4_qnn",
+        description="Optimize Gemma 4 E2B for OpenVINO or QNN"
     )
     parser.add_argument(
-        "--skip-prepare",
-        action="store_true",
-        help="Use the existing gemma4_onnx export and run only the selected EP optimization",
+        "--ep",
+        required=True,
+        type=parse_ep,
+        help="Target execution provider: OpenVINOExecutionProvider/ov or QNNExecutionProvider/qnn",
     )
     args = parser.parse_args()
 
-    if args.merge_qnn:
-        if args.skip_prepare:
-            parser.error("--skip-prepare cannot be used with --merge-qnn")
+    total_steps = 5 if args.ep == "qnn" else 3
+    run_step(
+        1,
+        total_steps,
+        "Quantizing the Hugging Face components",
+        ["run", "--config", "gemma4_quantize.json"],
+    )
+    run_step(
+        2,
+        total_steps,
+        "Exporting the quantized model with Mobius",
+        [
+            "capture-onnx-graph",
+            "--model_name_or_path",
+            "gemma4_quantized_hf",
+            "--use_mobius_builder",
+            "--precision",
+            "fp32",
+            "--output_path",
+            "gemma4_onnx",
+        ],
+    )
+
+    if args.ep == "qnn":
+        run_step(
+            3,
+            total_steps,
+            "Optimizing vision and embedding for QNN",
+            ["run", "--config", "qnn_vision.json"],
+        )
+        with tempfile.TemporaryDirectory() as directory:
+            resolved_config = Path(directory) / "qnn_decoder.json"
+            prepare_qnn_decoder_config(resolved_config)
+            run_step(
+                4,
+                total_steps,
+                "Optimizing the decoder for QNN",
+                ["run", "--config", str(resolved_config)],
+            )
+        print("[5/5] Merging the QNN component packages", flush=True)
         merge_qnn_outputs()
         return
 
-    total_steps = 1 if args.skip_prepare else 3
-    if not args.skip_prepare:
-        run_step(
-            1,
-            total_steps,
-            "Quantizing the Hugging Face components",
-            ["run", "--config", "gemma4_quantize.json"],
-        )
-        run_step(
-            2,
-            total_steps,
-            "Exporting the quantized model with Mobius",
-            [
-                "capture-onnx-graph",
-                "--model_name_or_path",
-                "gemma4_quantized_hf",
-                "--use_mobius_builder",
-                "--precision",
-                "fp32",
-                "--output_path",
-                "gemma4_onnx",
-            ],
-        )
-
-    with tempfile.TemporaryDirectory() as directory:
-        config_path = EP_CONFIGS[args.ep]
-        if config_path == "qnn_decoder.json":
-            resolved_config = Path(directory) / config_path
-            prepare_qnn_decoder_config(resolved_config)
-            config_path = str(resolved_config)
-        run_step(
-            total_steps,
-            total_steps,
-            f"Optimizing for {args.ep}",
-            ["run", "--config", config_path],
-        )
+    run_step(
+        3,
+        total_steps,
+        "Optimizing for OpenVINO",
+        ["run", "--config", "ov.json"],
+    )
 
 
 if __name__ == "__main__":

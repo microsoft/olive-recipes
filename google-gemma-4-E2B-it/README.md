@@ -117,12 +117,15 @@ The QNN recipe uses separate
 [`qnn_vision.json`](multi_comp/qnn_vision.json) and
 [`qnn_decoder.json`](multi_comp/qnn_decoder.json) jobs. Vision calibration runs
 with CUDA, while decoder compilation runs on a Qualcomm QNN device. Their
-separate `gemma4_qnn_vision` and `gemma4_qnn_decoder` packages are explicitly
-merged into `gemma4_qnn`; independent Olive invocations do not automatically
-merge when pointed at the same output directory.
+separate intermediate packages are automatically merged into `gemma4_qnn` by:
 
-See [`multi_comp/README.md`](multi_comp/README.md#qnn-split-workflow) for the
-CUDA, QNN-device, transfer, and merge commands.
+```bash
+cd multi_comp
+python optimize.py --ep qnn
+```
+
+See [`multi_comp/README.md`](multi_comp/README.md#qnn) for the CUDA and QNN
+environment requirements.
 
 ## Build
 
