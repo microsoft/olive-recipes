@@ -1,6 +1,6 @@
 gemma4_quantized_onnx/
 gemma4_onnx/
+gemma4_qnn/
 
 # Olive caches and generated dependency lists
 .olive-cache/
-

@@ -111,6 +111,27 @@ decoder and INT4 RTN to the vision encoder in two independent component builds,
 automatically assembles a standard Hugging Face checkpoint, and then exports
 all four components with Mobius.
 
+### NPU (QNN) - multi-component recipe
+
+The QNN text decoder pipeline is integrated into
+[`multi_comp/qnn.json`](multi_comp/qnn.json), alongside the existing vision
+and embedding builds. It converts the decoder weights to per-channel INT8
+QDQ, calibrates activations with WikiText 2, splits the decoder into seven
+transformer chunks plus a CPU `lm_head`, and compiles context / iterator graphs
+with shared QNN weights. The KV cache holds 1024 tokens and prefill uses
+64-token windows.
+
+Run from `multi_comp`:
+
+```bash
+pip install -r requirements-qnn.txt
+python optimize.py --ep qnn
+```
+
+The result is saved under `multi_comp/gemma4_qnn`. See
+[`multi_comp/README.md`](multi_comp/README.md#qnn-text-decoder) for calibration,
+export-specific node exclusions, and the original decoder-only measurements.
+
 ## Build
 
 ```bash

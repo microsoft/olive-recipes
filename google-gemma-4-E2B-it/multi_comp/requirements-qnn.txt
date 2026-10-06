@@ -1,0 +1,6 @@
+fastparquet
+huggingface_hub
+olive-ai
+onnx
+onnxruntime-qnn
+pandas

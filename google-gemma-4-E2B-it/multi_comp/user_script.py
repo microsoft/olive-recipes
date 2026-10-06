@@ -9,7 +9,6 @@ import numpy as np
 import onnxruntime as ort
 import pandas as pd
 import torch
-from datasets import load_dataset
 from huggingface_hub import hf_hub_download
 from olive.data.registry import Registry
 from PIL import Image
@@ -50,6 +49,8 @@ def cauldron_calibration_dataset(
     subsets, samples_per_subset=16, seed=42, shuffle_buffer_size=0, max_soft_tokens=280, **kwargs
 ):
     """Load an even number of calibration images from each Cauldron subset."""
+    from datasets import load_dataset
+
     del kwargs
     if max_soft_tokens <= 0:
         raise ValueError("max_soft_tokens must be greater than zero.")

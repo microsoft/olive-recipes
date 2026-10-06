@@ -7,10 +7,19 @@ keywords:
   - rtn
   - int4
   - mobius
+  - qnn
+  - npu
+arch: gemma
 recipes:
   - name: gemma4-e2b-decoder-kquant-vision-rtn
-    file: gemma4_quantize_then_export.json
+    file: gemma4_quantize.json
     eps:
       - CPUExecutionProvider
     devices:
       - cpu
+  - name: gemma4-e2b-qnn
+    file: qnn.json
+    eps:
+      - QNNExecutionProvider
+    devices:
+      - npu
