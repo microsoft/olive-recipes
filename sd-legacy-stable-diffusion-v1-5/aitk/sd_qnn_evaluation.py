@@ -81,9 +81,9 @@ def main(raw_args=None):
     prompts = ["A baby is laying down with a teddy bear"]
     model_dir = Path(args.script_dir) / "model" / args.model_dir / args.model_id
 
-    from winml import register_execution_providers
+    from winml import register_execution_providers_to_onnxruntime
 
-    register_execution_providers()
+    register_execution_providers_to_onnxruntime(args.execution_provider)
 
     sess_options = ort.SessionOptions()
     provider_options = [{}]

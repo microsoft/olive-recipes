@@ -1,0 +1,19 @@
+name: nvidia-nemotron-asr-streaming-multilingual-0.6b
+provider: NVIDIA
+model_id: nvidia/NVIDIA-Nemotron-3.5-ASR-Streaming-Multilingual-0.6b
+task: automatic-speech-recognition
+framework: ONNX Runtime
+execution_provider: NvTensorRTRTXExecutionProvider
+summary: >
+  TRT-RTX recipe for exporting the multilingual NVIDIA Nemotron 3.5 ASR
+  Streaming RNNT encoder, decoder, and joint models with homogeneous FP16
+  inputs, outputs, and internal compute at ONNX opset 23.
+
+artifacts:
+  - NvTensorRtRtx/nemotron_encoder_fp16_trtrtx.json
+  - NvTensorRtRtx/nemotron_decoder_fp16_trtrtx.json
+  - NvTensorRtRtx/nemotron_joint_fp16_trtrtx.json
+  - NvTensorRtRtx/optimize.py
+
+scripts:
+  - scripts/export_tokenizer.py

@@ -6,3 +6,12 @@ updates:
       interval: "weekly"
     exclude-paths:
       - ".aitk/requirements/**"
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    groups:
+      github-actions:
+        patterns: ["*"]
+    schedule:
+      interval: "weekly"
+    cooldown:
+      default-days: 7

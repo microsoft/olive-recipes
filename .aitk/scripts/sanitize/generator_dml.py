@@ -3,7 +3,7 @@ from pathlib import Path
 from typing import Optional
 
 from .constants import OlivePassNames, OlivePropertyNames, ParameterTypeEnum, PhaseTypeEnum
-from .generator_common import create_model_parameter, set_optimization_path
+from .generator_common import apply_runtime_feature_overrides, create_model_parameter, set_optimization_path
 from .model_info import ModelList
 from .model_parameter import ModelParameter, OptimizationPath, Section
 from .parameters import Parameter
@@ -77,6 +77,8 @@ def generator_dml(id: str, recipe, folder: Path, modelList: ModelList):
     quantize = generate_quantization_config(configFile, parameter)
     if quantize:
         parameter.sections.append(quantize)
+
+    apply_runtime_feature_overrides(aitk, parameter)
 
     parameter.writeIfChanged()
     print(f"\tGenerated DML configuration for {file}")

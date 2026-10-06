@@ -10,4 +10,8 @@ recipes:
       devices:
         - gpu
       ep: QNNExecutionProvider
+    - file: "config_gpu_composite_ctxbin.json"
+      devices:
+        - gpu
+      ep: QNNExecutionProvider
 name: Llama-3.2-1B-Instruct
