@@ -8,25 +8,12 @@
     "systems": {
         "cpu_system": {
             "type": "LocalSystem",
-            "accelerators": [
-                {
-                    "device": "cpu",
-                    "execution_providers": [
-                        "CPUExecutionProvider"
-                    ]
-                }
-            ]
+            "accelerators": [ { "device": "cpu", "execution_providers": [ "CPUExecutionProvider" ] } ]
         },
         "qnn_system": {
-            "type": "LocalSystem",
-            "accelerators": [
-                {
-                    "device": "npu",
-                    "execution_providers": [
-                        "QNNExecutionProvider"
-                    ]
-                }
-            ]
+            "type": "PythonEnvironment",
+            "python_environment_path": "/path/to/qnn/env/bin",
+            "accelerators": [ { "execution_providers": [ "QNNExecutionProvider" ] } ]
         }
     },
     "data_configs": [
