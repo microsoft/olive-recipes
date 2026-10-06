@@ -2,44 +2,7 @@
     "input_model": {
         "type": "CompositeModel",
         "config": {
-            "model_path": "gemma4_onnx",
-            "model_components": [
-                {
-                    "type": "ONNXModel",
-                    "config": {
-                        "model_path": "gemma4_onnx/decoder/model.onnx",
-                        "model_attributes": {
-                            "additional_files": [
-                                "gemma4_onnx/genai_config.json"
-                            ]
-                        }
-                    }
-                },
-                {
-                    "type": "ONNXModel",
-                    "config": {
-                        "model_path": "gemma4_onnx/vision_encoder/model.onnx"
-                    }
-                },
-                {
-                    "type": "ONNXModel",
-                    "config": {
-                        "model_path": "gemma4_onnx/audio_encoder/model.onnx"
-                    }
-                },
-                {
-                    "type": "ONNXModel",
-                    "config": {
-                        "model_path": "gemma4_onnx/embedding/model.onnx"
-                    }
-                }
-            ],
-            "model_component_names": [
-                "decoder",
-                "vision_encoder",
-                "audio_encoder",
-                "embedding"
-            ]
+            "model_path": "gemma4_onnx"
         }
     },
     "systems": {

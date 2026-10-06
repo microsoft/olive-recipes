@@ -39,9 +39,18 @@ def run_step(step: int, description: str, args: list[str]) -> None:
 
 def prepare_qnn_config(output_path: Path) -> None:
     import onnx
+    from olive.model import CompositeModelHandler
 
     config = json.loads((RECIPE_DIR / "qnn.json").read_text(encoding="utf-8"))
-    model_path = RECIPE_DIR / config["input_model"]["config"]["model_path"] / "decoder" / "model.onnx"
+    model_dir = RECIPE_DIR / config["input_model"]["config"]["model_path"]
+    composite_model = CompositeModelHandler(model_path=str(model_dir))
+    decoder_model = dict(composite_model.get_model_components())["decoder"]
+    decoder_model.model_attributes = {
+        **(decoder_model.model_attributes or {}),
+        "additional_files": [str(model_dir / "genai_config.json")],
+    }
+    config["input_model"] = composite_model.to_json()
+    model_path = decoder_model.model_path
     model = onnx.load(model_path, load_external_data=False)
     lm_head_nodes = [
         node.name

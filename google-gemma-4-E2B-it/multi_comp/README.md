@@ -46,14 +46,16 @@ recipe from [#645](https://github.com/microsoft/olive-recipes/pull/645):
 4. Compile QNN context binaries with weight sharing and compose the context
    and iterator graphs.
 
-Only the decoder carries `genai_config.json` in its `additional_files`, so
-its runtime configuration is updated for the split pipeline without attaching
-decoder metadata to the vision calibration build.
+The input config only specifies `model_path`. Olive automatically discovers
+the ONNX components under `gemma4_onnx`; no component list or names need to be
+maintained in the recipe. The launcher attaches `genai_config.json` only to
+the discovered decoder's `additional_files` for the split pipeline, keeping
+decoder metadata out of the vision calibration build.
 
 `optimize.py --ep qnn` reads the exported decoder without loading its external
 weights and resolves the `lm_head` and logits softcap exclusions from its
-actual node names. The defaults in `qnn.json` match the original text export;
-when running that JSON directly, update those exclusions for your export.
+actual node names. Use the launcher so the decoder metadata and exclusions are
+populated from your export rather than the original text recipe's node numbers.
 
 WikiText calibration downloads the parquet shard with `huggingface_hub` and
 reads it with `fastparquet`, without importing `datasets`. Vision calibration
