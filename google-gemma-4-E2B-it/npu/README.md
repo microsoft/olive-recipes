@@ -6,7 +6,7 @@ Run `olive run --config npu/config_qnn.json` from the
 CompositeModel assembly support, and a Windows ARM64
 environment with QNN for context-binary generation.
 
-The two component builds run serially into `npu/output/.builds`. The
+The three component builds run serially into `npu/output/.builds`. The
 decoder build uses the complete original text recipe: graph surgery,
 quantization, layer splitting, fixed KV shapes, `StaticLLM`, weight-sharing
 QNN context binaries, and `ComposeOnnxModels`. Olive's decoder-only build
@@ -16,16 +16,21 @@ Gemma 4 multimodal model type. Only the decoder component carries this file;
 the vision build remains independent and can reuse its cache. The package
 assembler merges the generated decoder settings into the source package
 config. The vision build converts existing INT4 weights to QDQ, simplifies the
-graph, calibrates A16/W8 on **CPU**, then fixes the vision input to 2,520
-patches. Decoder activation calibration also uses `CPUExecutionProvider`;
-only decoder context-binary compilation requires QNN.
+graph, calibrates A16/W8 on **CPU**, fixes the vision input to 2,520
+patches, then precompiles a QNN context for the vision stage. Dynamic QNN
+vision sessions lose their graph handle when loaded alongside the decoder's
+precompiled context/iterator sessions. The embedding build casts only
+`inputs_embeds` and `per_layer_inputs` to fp16 so they match the compiled
+decoder inputs, leaving its weights and other inputs unchanged. Decoder
+activation calibration also uses `CPUExecutionProvider`; decoder and vision
+context-binary compilation both require QNN.
 
-Olive assembles the output package with the untouched audio and embedding
-components, composed decoder stage graphs under `decoder/`, and optimized
-`vision_encoder/model.onnx`. `genai_config.json` selects QNN for the
-context/iterator stages and the single vision model; embedding and LM head
-stages remain on CPU. The complete package is in `npu/output`. The
-assembler also supports unsplit decoder outputs and separate vision graphs.
+Olive assembles the output package with the untouched audio component, the
+fp16-output embedding component, composed decoder stage graphs under `decoder/`,
+and optimized `vision_encoder/model.onnx`. `genai_config.json` selects QNN for
+the context/iterator stages and the single vision model; embedding and LM head
+stages remain on CPU. The complete package is in `npu/output`. The assembler
+also supports unsplit decoder outputs and separate vision graphs.
 
 For a CPU-only wiring check, make a temporary copy of this config outside the
 package output, remove `cb` from the decoder build pipeline, select

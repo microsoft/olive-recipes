@@ -250,6 +250,30 @@
             "dim_param": ["component.vision_encoder.num_patches"],
             "dim_value": [2520],
             "save_as_external_data": true
+        },
+        "vision_cb": {
+            "type": "EPContextBinaryGenerator",
+            "provider_options": {
+                "htp_performance_mode": "burst",
+                "htp_graph_finalization_optimization_mode": "3",
+                "soc_model": "60",
+                "vtcm_mb": "7"
+            },
+            "session_options": {
+                "optimization.disable_specified_optimizers": "QDQPropagationTransformer",
+                "log_severity_level": 1
+            }
+        },
+        "embedding_cast": {
+            "type": "GraphSurgeries",
+            "surgeries": [
+                {
+                    "surgeon": "CastOutputs",
+                    "names": ["inputs_embeds", "per_layer_inputs"],
+                    "to": "float16"
+                }
+            ],
+            "save_as_external_data": true
         }
     },
     "max_concurrent_builds": 1,
@@ -260,7 +284,11 @@
         },
         "vision": {
             "components": ["vision_encoder"],
-            "pipeline": ["vision_mq", "vision_gs", "vision_sq", "vision_fixed"]
+            "pipeline": ["vision_mq", "vision_gs", "vision_sq", "vision_fixed", "vision_cb"]
+        },
+        "embedding": {
+            "components": ["embedding"],
+            "pipeline": ["embedding_cast"]
         }
     },
     "host": "cpu_system",
