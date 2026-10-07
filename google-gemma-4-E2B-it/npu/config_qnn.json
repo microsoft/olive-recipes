@@ -283,7 +283,7 @@
     },
     "max_concurrent_builds": 1,
     "component_assembly": {
-        "package_config_updater": "ort_genai"
+        "multimodal_package_config_updater": "ort_genai"
     },
     "builds": {
         "decoder": {
