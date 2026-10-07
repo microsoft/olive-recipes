@@ -1,0 +1,3 @@
+# Files whose raw bytes are pinned by SHA-256 must stay LF in every checkout.
+evidence/** text eol=lf
+scripts/run_ort_llama_benchmark.py text eol=lf
