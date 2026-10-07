@@ -269,6 +269,99 @@ runtime behavior, fused SwiGLU/FC2 correctness or full ORT integration. Activati
 32-bit loading, thread/ reduction changes and upstream quantization fusion were
 not part of this weight-packing change.
 
+### Follow-Up: Fused FC1 Integration and Full-Model A/B
+
+Measured October 7, 2026, on A100-SXM4-80GB physical GPU 6 in Docker
+`jiafa-dev`. Unlike the standalone experiments above, this follow-up builds
+the complete CUDA provider, matching Python binding and shared-provider library
+from the local experimental branch based on `main@98468bff47`. The build contains
+uncommitted experimental changes; the commit ID alone does not reproduce them.
+The previously validated `main@62ac19abcf` wheel was not overwritten or combined
+with the new provider. This remains a local prototype, not a submitted ORT PR
+or functionality delivered by this recipe.
+
+#### Implementation
+
+The default-off `ORT_QMOE_INT2_PREQUANTIZED_FC1=1` path is integrated at the
+packed INT2 QMoE FC1 dispatch in `moe_quantization.cc`. It currently applies to
+FP16 activations, no FC1 bias, and symmetric block64/block128 weights. Other
+cases retain the existing launch path. In the eligible branch:
+
+1. Quantize each original source row once into symmetric INT8, with one FP32
+  scale per 16 activation values: scale is amax/127, values use round-to-nearest
+  and clamp to [-127, 127]. Stream-aware ORT scratch buffers hold values/scales.
+2. Reuse that row across selected experts and output columns in the fused
+  gate/up GEMV and SwiGLU epilogue, rather than quantizing it in each dot tile.
+3. Decode packed uniform INT2 weights directly into four signed bytes using
+  byte permutation, masks and byte subtraction, then accumulate with DP4A
+  into INT32. Prequantized activation operands use aligned 32-bit loads.
+4. Restore activation scales into FP32 accumulation and factor out the shared
+  weight scale within each tile. This changes floating-point association;
+  bitwise equivalence to the preceding implementation is not guaranteed.
+
+Weights remain INT2 in device memory; there is no full INT8 weight expansion.
+This is not an INT2/INT8 Tensor Core implementation. The existing source-row
+mapping, activation epilogue, FC2 and finalization remain in use. Quantization
+is still a separate kernel, not fused into the upstream producer. The earlier
+online switch `ORT_QMOE_INT2_INT8_ACTIVATIONS` is disabled in both A/B arms.
+
+For comparison, the inspected llama.cpp revision
+`c479922ac520a08969b4c1dc154d7bbb3c386d85` also uses a separate activation
+quantizer and pooled temporary storage for CUDA MMVQ, reusing Q8_1 activations
+across columns and applicable shared experts; eligible indexed MMVQ paths can
+fuse up/gate GLU. Its Q8_1 groups contain 32 values, while this prototype uses
+16-value groups. Its IQ2 formats use codebooks/sign decoding, unlike ORT's
+uniform symmetric INT2 values [-2, -1, 0, 1]. These are implementation parallels,
+not format equivalence or a llama.cpp-versus-ORT performance comparison. No
+same-model cross-runtime benchmark or upstream-producer quantization fusion
+has been established here.
+
+#### Model Measurement and Dispatch
+
+Both arms use the same mixed model directory listed above, the same newly
+built runtime, GPU 6, batch size 1, 128 input tokens and exactly 16 output tokens.
+Each process has two warmups and five measured requests. The first pair runs
+default then prequantized; the second pair reverses that order. Each arm thus
+has ten measured requests and 150 timed decode tokens, excluding prefill's
+first token. Timing retains the binding, synchronized ORT execution, last-row
+D2H, finite check and CPU argmax methodology above. Profiling and route logging
+are disabled during timing; the one-byte dense-dequantization scratch guard
+is retained. Other GPUs on this shared host are not controlled.
+
+Here **baseline means the same mixed INT2 model with the new switch disabled**,
+not the all-INT4 model or the earlier wheel. Absolute TPS should not be treated
+as a controlled comparison with the October 4 results above.
+
+| Order | Default Mixed Decode TPS | Prequantized FC1 Decode TPS | Default ORT Run P50 (ms) | Prequantized ORT Run P50 (ms) |
+|---|---:|---:|---:|---:|
+| Default, then prequantized | 111.6133 | 112.7932 | 7.3397 | 7.1691 |
+| Prequantized, then default | 111.1562 | 112.9433 | 7.2548 | 7.2609 |
+| Combined tokens / summed decode time | 111.3843 | 112.8682 | N/A | N/A |
+
+Combined decode TPS improves **1.33%**. Both pairs have the same TPS direction,
+but the second pair's ORT-run median is not improved. This is a small observed
+gain, without a statistical confidence interval, not evidence of a robust
+general speedup. All 20 measured requests produce the same 16-token sequence
+across both arms, and last-position logits are finite. Token agreement on this
+single synthetic prompt does not establish accuracy preservation.
+
+A separate Nsight Systems capture covers 15 measured decode steps and confirms
+360 activation-quantization launches and 360 prequantized INT2 fused FC1
+launches: 24 eligible layers per step. The profiled mean durations are about
+3.52 us for quantization and 10.89 us for fused INT2 FC1. These establish actual
+dispatch and expose the extra launch cost; profiled times are not used for TPS
+and are not directly comparable with earlier captures or standalone timings.
+
+The fused standalone harness additionally checked the independent quantized
+CPU reference, shared and two-source-row mappings, default/custom activation
+parameters and Compute Sanitizer memcheck. These checks do not substitute for
+full QMoE numerical qualification. Remaining work includes reducing the
+separate quantization/launch overhead, broader sequence and routing shapes,
+BF16/bias/fallback tests, CUDA capture/allocation lifetime validation and full
+task-accuracy evaluation with the experimental switch enabled. Existing recipe
+accuracy results do not qualify this newly quantized-activation path. Default
+dispatch remains unchanged.
+
 ## Local Reproduction Artifacts
 
 The validation machine retains `qwen3_mixed_qmoe_benchmark.py` and
@@ -291,6 +384,18 @@ Follow-up artifacts include `qmoe-dp4a-before-repeat.log`,
 `qmoe-dp4a-byte-ncu.log` in the same local directory. The before/after binaries
 are `/tmp/qmoe_prequant_experiment` and `/tmp/qmoe_dp4a_byte_experiment`
 inside `jiafa-dev`; neither binary nor the prototype source is shipped here.
+
+Full-model follow-up artifacts in the same local directory are
+`qwen3-decode-mixed-current-{baseline,prequant}-20261007.json` and
+`qwen3-decode-mixed-current-{baseline,prequant}-reverse-20261007.json`, with
+matching logs. Dispatch evidence is retained in
+`qwen3-current-prequant-dispatch-20261007.nsys-rep` and
+`qwen3-current-prequant-dispatch-kernels-20261007.csv`; the complete build log
+is `qmoe-prequant-runtime-build.log`. These local artifacts and the experimental
+ORT source changes are not shipped in this PR. The A/B uses the Python package
+under `onnxruntime/build/cuda-wheel-clean-20261002/Release`, not `wheel-site`,
+with `ORT_QMOE_INT2_PREQUANTIZED_FC1` set to 0 or 1 and
+`ORT_QMOE_INT2_INT8_ACTIVATIONS=0` in both arms.
 
 Example command on that machine; repeat for both models and each length:
 
