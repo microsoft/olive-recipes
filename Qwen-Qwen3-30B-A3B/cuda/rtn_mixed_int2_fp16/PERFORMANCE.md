@@ -192,15 +192,82 @@ output fingerprints match between float-unpack and direct-integer prototypes
 for all four cases, supporting equivalence on these inputs. Fingerprints and
 error statistics do not prove correctness for arbitrary inputs. The CPU
 reference checks the original unquantized-activation dot product; an independent
-reference for the prototype's tilewise activation quantization is still needed.
+reference for the prototype's tilewise activation quantization was not included
+in this initial run; the follow-up below adds that check.
 The 2.20%-2.54% relative L2 difference is an output error, **not a task-accuracy
 drop**. No model quality evaluation was run for this path.
 
 Remaining qualification includes BF16 execution, fused SwiGLU/FC2 paths,
-independent quantized-reference and broader input tests, full ORT integration,
+broader input tests, full ORT integration,
 profiling, end-to-end model decode and target-hardware runs. No H200 or Spark
 results, model decode-TPS gains, memory savings or production readiness are
 claimed. The prototype is local and has not been submitted as an ORT PR.
+
+### Follow-Up: Prequantized Input Reuse and Direct DP4A Packing
+
+Also measured October 7, 2026, in `jiafa-dev` on A100 GPU 1 using CUDA 12.8
+and SM80. A separate experimental entry point quantizes each source input row
+once into INT8 values and FP32 scales, retaining the same 16-element groups
+and rounding rule as the online prototype. GEMV then reuses these values across
+output columns and mapped expert rows. This is not llama.cpp's block32 Q8_1
+format. Tests cover eight distinct source rows with a reversed row mapping,
+and one shared source row consumed by eight experts.
+
+The subsequent weight-side optimization replaces intermediate INT16 decoding,
+layout reordering and repacking with `__byte_perm`, shifts/masks and `__vsub4`
+to construct signed four-byte DP4A operands directly. Packed device weights,
+activation quantization, FP32 accumulation and thread configuration remain
+unchanged. An initial scalar direct-packing variant was slower; the following
+results are for the byte-parallel implementation, not that scalar variant.
+Default ORT dispatch is unchanged.
+
+The extended harness measures four modes: INT2/FP16 baseline, online INT8,
+prequantization plus GEMV, and GEMV with already-quantized inputs. Each mode
+uses 20 warmups and 200 timed invocations; mode order rotates over three rounds
+and the reported value is the median. CUDA Graph timing captures 200 invocations
+and divides elapsed device-event time by 200. The total mode includes a
+quantization kernel for every GEMV invocation, including temporary-buffer writes
+and reads; GEMV-only excludes that quantization. Allocation, weight preprocessing,
+transfers and references are excluded. Before/after binaries were run sequentially
+in two alternating pairs, not randomized trials or a statistical confidence study.
+
+The table uses the second pair's CUDA Graph results for **one shared input row,
+eight expert rows**. Baseline values are from the after binary. These are
+standalone, non-fused synthetic GEMV latencies, not complete QMoE or decode TPS.
+
+| N | K | Block | INT2/FP16 Baseline (us) | Online INT8 Before / After (us) | Prequantized GEMV Before / After (us) | Prequantization + GEMV Before / After (us) |
+|---:|---:|---:|---:|---:|---:|---:|
+| 1536 | 2048 | 64 | 10.8851 | 17.6794 / 12.0269 | 16.0358 / 10.3782 | 18.9235 / 13.1942 |
+| 1536 | 2048 | 128 | 10.7571 | 17.5872 / 12.0115 | 16.0102 / 10.3475 | 18.9235 / 13.2762 |
+| 2048 | 768 | 64 | 6.55872 | 10.2451 / 7.49568 | 9.40032 / 6.70208 | 12.0166 / 9.31328 |
+
+Byte-parallel packing reduces online INT8 latency by approximately 27%-32%
+and prequantized GEMV-only latency by approximately 29%-35% on these cases.
+GEMV-only is slightly faster than the baseline on the two K=2048 cases, but
+**including quantization remains slower than INT2/FP16 on all three cases**.
+The result does not demonstrate end-to-end model speedup. Timing from this
+Graph experiment should not be directly compared with the initial non-Graph
+table above, which also used a different source-row arrangement.
+
+Compiler resource reports for the ordinary FP16, no-bias experimental kernels
+show registers decreasing from 96 to 79 with online quantization, and from 96
+to 56 with prequantized inputs, for block64 and block128. Stack and local
+storage were zero before and after: this is not evidence of eliminating spills.
+Nsight Compute hardware-counter collection failed with `ERR_NVGPUCTRPERM`;
+no bandwidth, occupancy or stall-counter attribution is claimed.
+
+Validation passed for all eight shape/input-mapping cases, including zero
+inputs. An independent CPU reference checks activation scales, round-to-nearest
+INT8 values and the quantized dot product. Maximum absolute quantized-reference
+error was below 0.000396; zero inputs remained exact zero. Before/after online
+output fingerprints matched for all eight cases, prequantized and online outputs
+were identical on these cases, and CUDA Graph outputs matched ordinary launches.
+The packed mapping additionally passed 1,000 random 16-byte tile checks covering
+all 64 decoded elements. Compute Sanitizer memcheck reported zero errors.
+These checks do not establish arbitrary-input correctness, model quality, BF16
+runtime behavior, fused SwiGLU/FC2 correctness or full ORT integration. Activation
+32-bit loading, thread/ reduction changes and upstream quantization fusion were
+not part of this weight-packing change.
 
 ## Local Reproduction Artifacts
 
@@ -216,6 +283,14 @@ The INT8-activation experiment additionally retains
 `/datadisks/disk1/jiafa/accuracy/`. Build logs and standalone binaries remain
 inside `jiafa-dev` under `/tmp/`. These local prototype sources and raw artifacts
 are not distributed by this recipe PR.
+
+Follow-up artifacts include `qmoe-dp4a-before-repeat.log`,
+`qmoe-dp4a-before-repeat2.log`, `qmoe-dp4a-byte-repeat.log`,
+`qmoe-dp4a-byte-repeat2.log`, `qmoe-prequant-resources-before.log`,
+`qmoe-dp4a-resources-byte.log`, `qmoe-dp4a-byte-memcheck.log` and
+`qmoe-dp4a-byte-ncu.log` in the same local directory. The before/after binaries
+are `/tmp/qmoe_prequant_experiment` and `/tmp/qmoe_dp4a_byte_experiment`
+inside `jiafa-dev`; neither binary nor the prototype source is shipped here.
 
 Example command on that machine; repeat for both models and each length:
 
