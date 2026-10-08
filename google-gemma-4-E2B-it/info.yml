@@ -25,11 +25,47 @@ recipes:
       - cpu
     eps: CPUExecutionProvider
   - name: gemma4-e2b-mixed-cpu
-    file:
-      - cpu/mixed/export.json
-      - cpu/mixed/text.json
-      - cpu/mixed/vision.json
-      - cpu/mixed/audio.json
+    file: cpu/mixed/export.json
+    devices:
+      - cpu
+    eps: CPUExecutionProvider
+  - name: gemma4-e2b-mixed-text-cpu
+    file: cpu/mixed/text.json
+    devices:
+      - cpu
+    eps: CPUExecutionProvider
+  - name: gemma4-e2b-mixed-vision-cpu
+    file: cpu/mixed/vision.json
+    devices:
+      - cpu
+    eps: CPUExecutionProvider
+  - name: gemma4-e2b-mixed-audio-cpu
+    file: cpu/mixed/audio.json
+    devices:
+      - cpu
+    eps: CPUExecutionProvider
+  - name: gemma4-e2b-int4-optimized-export-cpu
+    file: cpu/int4-optimized/export.json
+    devices:
+      - cpu
+    eps: CPUExecutionProvider
+  - name: gemma4-e2b-int4-optimized-text-cpu
+    file: cpu/int4-optimized/text.json
+    devices:
+      - cpu
+    eps: CPUExecutionProvider
+  - name: gemma4-e2b-int4-optimized-embedding-cpu
+    file: cpu/int4-optimized/embedding.json
+    devices:
+      - cpu
+    eps: CPUExecutionProvider
+  - name: gemma4-e2b-int4-optimized-vision-cpu
+    file: cpu/int4-optimized/vision.json
+    devices:
+      - cpu
+    eps: CPUExecutionProvider
+  - name: gemma4-e2b-int4-optimized-audio-cpu
+    file: cpu/int4-optimized/audio.json
     devices:
       - cpu
     eps: CPUExecutionProvider
@@ -44,11 +80,47 @@ recipes:
       - gpu
     eps: CUDAExecutionProvider
   - name: gemma4-e2b-mixed-cuda
-    file:
-      - cuda/mixed/export.json
-      - cuda/mixed/text.json
-      - cuda/mixed/vision.json
-      - cuda/mixed/audio.json
+    file: cuda/mixed/export.json
+    devices:
+      - gpu
+    eps: CUDAExecutionProvider
+  - name: gemma4-e2b-mixed-text-cuda
+    file: cuda/mixed/text.json
+    devices:
+      - gpu
+    eps: CUDAExecutionProvider
+  - name: gemma4-e2b-mixed-vision-cuda
+    file: cuda/mixed/vision.json
+    devices:
+      - gpu
+    eps: CUDAExecutionProvider
+  - name: gemma4-e2b-mixed-audio-cuda
+    file: cuda/mixed/audio.json
+    devices:
+      - gpu
+    eps: CUDAExecutionProvider
+  - name: gemma4-e2b-int4-optimized-export-cuda
+    file: cuda/int4-optimized/export.json
+    devices:
+      - gpu
+    eps: CUDAExecutionProvider
+  - name: gemma4-e2b-int4-optimized-text-cuda
+    file: cuda/int4-optimized/text.json
+    devices:
+      - gpu
+    eps: CUDAExecutionProvider
+  - name: gemma4-e2b-int4-optimized-embedding-cuda
+    file: cuda/int4-optimized/embedding.json
+    devices:
+      - gpu
+    eps: CUDAExecutionProvider
+  - name: gemma4-e2b-int4-optimized-vision-cuda
+    file: cuda/int4-optimized/vision.json
+    devices:
+      - gpu
+    eps: CUDAExecutionProvider
+  - name: gemma4-e2b-int4-optimized-audio-cuda
+    file: cuda/int4-optimized/audio.json
     devices:
       - gpu
     eps: CUDAExecutionProvider
