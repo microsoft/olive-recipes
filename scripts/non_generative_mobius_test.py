@@ -295,7 +295,7 @@ def test_precomputed_actions_use_declared_encoder_inputs(
 @pytest.mark.parametrize(
     ("config_path", "expected_threads"),
     [
-        ("kev-4b/cpu/kev-4b_cpu_fp32.json", 16),
+        ("kev-4b/cpu/kev-4b_cpu_fp32.json", 24),
         ("kev-4b/cuda/kev-4b_cuda_mixed.json", 1),
         ("kev-0.8b/cpu/kev-0.8b_cpu_fp32.json", 16),
         ("kev-0.8b/cuda/kev-0.8b_cuda_fp16.json", 1),
