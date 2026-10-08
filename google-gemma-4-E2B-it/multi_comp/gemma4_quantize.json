@@ -30,7 +30,10 @@
             "sym": true,
             "damp_percent": 0.05,
             "desc_act": false,
-            "data_config": "wikitext2_train_joined"
+            "data_config": "wikitext2_train_joined",
+            "overrides": {
+                "lm_head": { "bits": 8 }
+            }
         },
         "vision_rtn": {
             "type": "Rtn",

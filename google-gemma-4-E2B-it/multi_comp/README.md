@@ -25,8 +25,8 @@ optimization in sequence. QNN uses the two-machine workflow below.
 
 `gemma4_quantize.json` uses Olive's native `Gptq` pass for the decoder and
 `lm_head`, a separate native `Gptq` embedding build, and `Rtn` for vision.
-Decoder and output-head weights use INT4; the embedding component, including
-the PLE table and input projection, uses INT8. All use group size 128.
+Decoder weights use INT4; `lm_head` is overridden to INT8. The embedding component,
+including the PLE table and input projection, uses INT8. All use group size 128.
 Input embeddings and the output head are untied and quantized independently.
 Pass targets follow the selected components automatically; `embeds`, `lm_head`,
 and `quantize_vision` do not need to be repeated in the pass configuration.
