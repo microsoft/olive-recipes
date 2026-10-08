@@ -8,6 +8,7 @@ from pathlib import Path
 
 import pytest
 import scripts.non_generative_mobius as exporter
+import scripts.non_generative_runtime_optimizations as runtime_optimizations
 
 
 def _write_kev_config(path, threads: int = 16) -> None:
@@ -83,6 +84,212 @@ def test_recipe_provider_overrides_published_metadata(tmp_path):
     metadata = json.loads((tmp_path / "inference_model.json").read_text())
     assert metadata["Name"] == "kev-0.8b-fp16-cuda:1"
     assert metadata["Provider"]["execution_provider"] == "cuda"
+
+
+def test_component_runtime_policy_is_package_owned(tmp_path):
+    exporter.apply_component_runtime(
+        tmp_path,
+        {
+            "backbone": {
+                "cuda_graph_max_signatures": 4,
+                "cuda_graph_max_bytes": 1048576,
+            },
+            "pointer_head": {"cuda_graph_max_signatures": 0},
+        },
+    )
+
+    assert json.loads((tmp_path / "component_runtime.json").read_text()) == {
+        "schema_version": 1,
+        "components": {
+            "backbone": {
+                "cuda_graph_max_signatures": 4,
+                "cuda_graph_max_bytes": 1048576,
+            },
+            "pointer_head": {"cuda_graph_max_signatures": 0},
+        },
+    }
+
+
+def test_component_runtime_policy_rejects_invalid_limits(tmp_path):
+    with pytest.raises(ValueError, match="non-negative integer"):
+        exporter.apply_component_runtime(
+            tmp_path,
+            {"backbone": {"cuda_graph_max_signatures": -1}},
+        )
+
+
+def test_clm_publication_applies_component_session_options(tmp_path, monkeypatch):
+    staging = tmp_path / "staging"
+    package = staging / exporter.RECIPES["clm"].fp32_directory
+    for component in ("encoder", "state_head", "action_head", "scorer"):
+        (package / component).mkdir(parents=True)
+    (package / "inference_model.json").write_text(
+        json.dumps(
+            {
+                "Name": "clm-v0.1-8b-generic-cpu:1",
+                "Provider": {
+                    "execution_provider": "cpu",
+                    "variant": "fp32",
+                },
+            }
+        )
+    )
+    output = tmp_path / "output"
+    output.mkdir()
+    monkeypatch.setattr(exporter, "run_recipe", lambda *args: None)
+    options = {
+        "intra_op_num_threads": 32,
+        "inter_op_num_threads": 1,
+        "session.intra_op.allow_spinning": "0",
+        "session.inter_op.allow_spinning": "0",
+    }
+
+    exporter.olive_export(
+        model_name="clm",
+        output_dir=output,
+        execution_provider="cpu",
+        exporter_config={
+            "artifact_path": "artifact",
+            "recipe_precision": "fp32",
+            "staging_path": str(staging),
+            "component_session_options": options,
+        },
+    )
+
+    config = json.loads((output / "genai_config.json").read_text())
+    assert config["model"]["decoder"] == {
+        "filename": "encoder/model.onnx",
+        "session_options": options,
+    }
+
+
+def test_clm_publication_applies_runtime_optimizations(tmp_path, monkeypatch):
+    staging = tmp_path / "staging"
+    package = staging / exporter.RECIPES["clm"].fp16_directory
+    for component in ("encoder", "state_head", "action_head", "scorer"):
+        (package / component).mkdir(parents=True)
+    (package / "inference_model.json").write_text(
+        json.dumps(
+            {
+                "Name": "clm-v0.1-8b-fp16-cuda:1",
+                "Provider": {
+                    "execution_provider": "cuda",
+                    "variant": "fp16",
+                },
+            }
+        )
+    )
+    output = tmp_path / "output"
+    output.mkdir()
+    monkeypatch.setattr(exporter, "run_recipe", lambda *args: None)
+    calls = []
+    monkeypatch.setattr(
+        exporter,
+        "finalize_clm_package",
+        lambda package, options, provider: calls.append(
+            (package, options, provider)
+        ),
+    )
+    options = {
+        "fallback_idle_ms": 300000,
+        "fixed_action_catalog": "catalog.json",
+        "readiness_texts": "readiness.json",
+    }
+    monkeypatch.setattr(exporter, "export_clm_safe_encoder", lambda *args: None)
+
+    exporter.olive_export(
+        model_name="clm",
+        output_dir=output,
+        execution_provider="cuda",
+        exporter_config={
+            "artifact_path": "artifact",
+            "recipe_precision": "fp16",
+            "staging_path": str(staging),
+            "runtime_optimizations": options,
+        },
+    )
+
+    assert calls == [(package, options, "cuda")]
+
+
+def test_runtime_optimizations_require_complete_config(tmp_path):
+    with pytest.raises(ValueError, match="must contain exactly"):
+        runtime_optimizations.finalize_clm_package(
+            tmp_path,
+            {
+                "fallback_idle_ms": 300000,
+                "fixed_action_catalog": "catalog.json",
+            },
+            "cuda",
+        )
+
+
+@pytest.mark.parametrize(
+    "encoder_input_names",
+    [
+        ("input_ids", "attention_mask"),
+        ("input_ids", "attention_mask", "position_ids"),
+    ],
+)
+def test_precomputed_actions_use_declared_encoder_inputs(
+    tmp_path, monkeypatch, encoder_input_names
+):
+    package = tmp_path / "package"
+    (package / "encoder").mkdir(parents=True)
+    (package / "action_head").mkdir()
+    (package / "tokenizer.json").write_text("{}")
+    (package / "tokenizer_config.json").write_text(
+        json.dumps({"pad_token": "<pad>"})
+    )
+    catalog = tmp_path / "catalog.json"
+    catalog.write_text(json.dumps({"a": "candidate"}))
+
+    class FakeEncoding:
+        ids = [1, 2]
+
+    class FakeTokenizer:
+        @staticmethod
+        def from_file(_):
+            return FakeTokenizer()
+
+        @staticmethod
+        def token_to_id(_):
+            return 0
+
+        @staticmethod
+        def encode(_):
+            return FakeEncoding()
+
+    feeds = []
+
+    class FakeInput:
+        def __init__(self, name):
+            self.name = name
+
+    class FakeSession:
+        def __init__(self, path, providers):
+            self.encoder = "encoder" in path
+
+        def get_inputs(self):
+            return [FakeInput(name) for name in encoder_input_names]
+
+        def run(self, outputs, input_feed):
+            import numpy as np
+
+            feeds.append(set(input_feed))
+            if self.encoder:
+                return [np.ones((1, 2, 4), dtype=np.float32)]
+            return [np.ones((1, 2), dtype=np.float32)]
+
+    monkeypatch.setattr(runtime_optimizations, "Tokenizer", FakeTokenizer)
+    monkeypatch.setattr(
+        runtime_optimizations.ort, "InferenceSession", FakeSession
+    )
+
+    runtime_optimizations.precompute_actions(package, catalog, "provider")
+
+    assert feeds[0] == set(encoder_input_names)
+    assert feeds[1] == {"embeddings"}
 
 
 @pytest.mark.parametrize(
