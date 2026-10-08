@@ -8,26 +8,40 @@
         }
     },
     "data_configs": [
-        {
-            "name": "wikitext2_train_joined",
-            "type": "HuggingfaceContainer",
-            "load_dataset_config": { "data_name": "wikitext", "subset": "wikitext-2-raw-v1", "split": "train" },
-            "pre_process_data_config": {
-                "strategy": "join",
-                "add_special_tokens": false,
-                "max_seq_len": 4096,
-                "max_samples": 128
+            {
+                "name": "evol_instruct_code_train_joined",
+                "type": "HuggingfaceContainer",
+                "load_dataset_config": {
+                    "data_name": "chnug/Evol-Instruct-Code-80k-v1-rogery-2k-sampled-20250426",
+                    "split": "train"
+                },
+                "pre_process_data_config": {
+                    "strategy": "join",
+                    "text_cols": [
+                        "instruction",
+                        "output"
+                    ],
+                    "add_special_tokens": true,
+                    "max_seq_len": 4096,
+                    "max_samples": 128
             }
         },
         {
-            "name": "wikitext2_train_act",
-            "type": "HuggingfaceContainer",
-            "load_dataset_config": { "data_name": "wikitext", "subset": "wikitext-2-raw-v1", "split": "train" },
-            "pre_process_data_config": {
-                "strategy": "line-by-line",
-                "add_special_tokens": true,
-                "max_samples": 256,
-                "max_seq_len": 2048
+                "name": "evol_instruct_code_train_act",
+                "type": "HuggingfaceContainer",
+                "load_dataset_config": {
+                    "data_name": "chnug/Evol-Instruct-Code-80k-v1-rogery-2k-sampled-20250426",
+                    "split": "train"
+                },
+                "pre_process_data_config": {
+                    "strategy": "line-by-line",
+                    "text_cols": [
+                        "instruction",
+                        "output"
+                    ],
+                    "add_special_tokens": false,
+                    "max_samples": 256,
+                    "max_seq_len": 2048
             }
         }
     ],
@@ -41,7 +55,7 @@
             "group_size": -1,
             "lm_head": true,
             "device": "cuda",
-            "data_config": "wikitext2_train_joined",
+            "data_config": "evol_instruct_code_train_joined",
             "dynamic": {
                 "+:.*lm_head*": { "bits": 4, "sym": true, "group_size": 32, "desc_act": false }
             }
@@ -71,7 +85,7 @@
         },
         "sq": {
             "type": "OnnxStaticQuantization",
-            "data_config": "wikitext2_train_act",
+            "data_config": "evol_instruct_code_train_act",
             "activation_type": "uint16",
             "precision": "uint8",
             "calibration_providers": [ "CUDAExecutionProvider" ],
