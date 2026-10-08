@@ -23,6 +23,7 @@ from onnxruntime.quantization.matmul_nbits_quantizer import (
 from transformers import AutoConfig, AutoModelForCausalLM, AutoTokenizer
 
 from mobius import ArchitectureConfig, build_clm_package, build_kev_package
+from non_generative_runtime_optimizations import finalize_clm_package
 
 ModelName = Literal["clm", "kev", "kev08"]
 Precision = Literal["fp32", "fp16", "mixed", "both"]
@@ -326,6 +327,48 @@ def apply_execution_provider_metadata(package: Path, execution_provider: str) ->
     write_json(path, metadata)
 
 
+def apply_component_runtime(package: Path, component_runtime: dict) -> None:
+    """Write provider/runtime policies that are independent of model graphs."""
+    if not component_runtime:
+        raise ValueError("component_runtime must be a non-empty object")
+    components = {}
+    for component, policy in component_runtime.items():
+        if not isinstance(component, str) or not component:
+            raise ValueError("component_runtime keys must be non-empty strings")
+        allowed = {"cuda_graph_max_signatures", "cuda_graph_max_bytes"}
+        if (
+            not isinstance(policy, dict)
+            or "cuda_graph_max_signatures" not in policy
+            or not set(policy) <= allowed
+        ):
+            raise ValueError(
+                "each component_runtime policy must define "
+                "cuda_graph_max_signatures and may define cuda_graph_max_bytes"
+            )
+        limit = policy["cuda_graph_max_signatures"]
+        if not isinstance(limit, int) or isinstance(limit, bool) or limit < 0:
+            raise ValueError(
+                "cuda_graph_max_signatures must be a non-negative integer"
+            )
+        result = {"cuda_graph_max_signatures": limit}
+        if "cuda_graph_max_bytes" in policy:
+            max_bytes = policy["cuda_graph_max_bytes"]
+            if (
+                not isinstance(max_bytes, int)
+                or isinstance(max_bytes, bool)
+                or max_bytes < 0
+            ):
+                raise ValueError(
+                    "cuda_graph_max_bytes must be a non-negative integer"
+                )
+            result["cuda_graph_max_bytes"] = max_bytes
+        components[component] = result
+    write_json(
+        package / "component_runtime.json",
+        {"schema_version": 1, "components": components},
+    )
+
+
 def export_fp32(
     recipe: Recipe,
     artifact: Path,
@@ -470,6 +513,49 @@ def export_fp16_backbone(
         precision="fp16",
     )
     del package, owners
+    gc.collect()
+
+
+def export_clm_safe_encoder(
+    recipe: Recipe,
+    artifact: Path,
+    package_path: Path,
+    execution_provider: str,
+) -> None:
+    """Add a BF16 CLM encoder used only after non-finite FP16 output."""
+    if recipe.name != "clm":
+        raise ValueError("safe encoder export is supported only for CLM")
+    checkpoint = load_clm_head(artifact)
+    base = AutoModelForCausalLM.from_pretrained(
+        recipe.base,
+        revision=recipe.base_revision,
+        dtype=torch.bfloat16,
+        low_cpu_mem_usage=True,
+    )
+    package = build_clm_package(
+        architecture_config(recipe, ir.DataType.BFLOAT16),
+        base_weights=base.state_dict(),
+        head_checkpoint=checkpoint,
+        base_revision=recipe.base_revision,
+        execution_provider=execution_provider,
+    )
+    with tempfile.TemporaryDirectory(prefix="clm-safe-bf16-") as directory:
+        temporary = Path(directory)
+        package.save(
+            temporary,
+            external_data="onnx",
+            max_workers=1,
+            components=lambda name: name == "encoder",
+        )
+        source = temporary / "encoder"
+        if not source.is_dir():
+            source = temporary
+        destination = package_path / "safe_encoder"
+        destination.mkdir()
+        for child in source.iterdir():
+            if child.name.startswith("model.onnx"):
+                shutil.copy2(child, destination / child.name)
+    del package, base, checkpoint
     gc.collect()
 
 
@@ -646,6 +732,26 @@ def olive_export(
         ensure_component_config(selected, recipe.component)
         apply_component_session_options(selected, component_options)
     apply_execution_provider_metadata(selected, execution_provider)
+    component_runtime = exporter_config.get("component_runtime")
+    if component_runtime is not None:
+        if not isinstance(component_runtime, dict):
+            raise ValueError("component_runtime must be an object")
+        apply_component_runtime(selected, component_runtime)
+    runtime_optimizations = exporter_config.get("runtime_optimizations")
+    if runtime_optimizations is not None:
+        if recipe.name != "clm" or not isinstance(runtime_optimizations, dict):
+            raise ValueError(
+                "runtime_optimizations is supported only for CLM and must be an object"
+            )
+        export_clm_safe_encoder(
+            recipe,
+            Path(artifact_value).resolve(),
+            selected,
+            execution_provider,
+        )
+        finalize_clm_package(
+            selected, runtime_optimizations, execution_provider
+        )
     publishing = output_dir.with_name(f".{output_dir.name}.publishing")
     if publishing.exists():
         shutil.rmtree(publishing)

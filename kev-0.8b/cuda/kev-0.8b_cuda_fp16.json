@@ -32,6 +32,12 @@
           "inter_op_num_threads": 1,
           "session.intra_op.allow_spinning": "0",
           "session.inter_op.allow_spinning": "0"
+        },
+        "component_runtime": {
+          "backbone": {
+            "cuda_graph_max_signatures": 4,
+            "cuda_graph_max_bytes": 2147483648
+          }
         }
       },
       "user_script": "../user_script.py",
