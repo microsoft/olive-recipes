@@ -28,7 +28,6 @@
             "bits": 4,
             "group_size": 128,
             "sym": true,
-            "lm_head": true,
             "damp_percent": 0.05,
             "desc_act": false,
             "data_config": "wikitext2_train_joined"
@@ -37,16 +36,13 @@
             "type": "Rtn",
             "bits": 4,
             "group_size": 128,
-            "sym": true,
-            "quantize_vision": true
+            "sym": true
         },
         "embedding_gptq": {
             "type": "Gptq",
             "bits": 8,
             "group_size": 128,
             "sym": true,
-            "embeds": true,
-            "lm_head": false,
             "damp_percent": 0.05,
             "desc_act": false,
             "data_config": "wikitext2_train_joined"

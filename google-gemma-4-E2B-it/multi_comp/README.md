@@ -28,6 +28,8 @@ optimization in sequence. QNN uses the two-machine workflow below.
 Decoder and output-head weights use INT4; the embedding component, including
 the PLE table and input projection, uses INT8. All use group size 128.
 Input embeddings and the output head are untied and quantized independently.
+Pass targets follow the selected components automatically; `embeds`, `lm_head`,
+and `quantize_vision` do not need to be repeated in the pass configuration.
 Native GPTQ requires Olive's Gemma 4 PLE, mixed-attention, and shared-KV
 calibration support.
 
