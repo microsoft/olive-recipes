@@ -362,6 +362,106 @@ task-accuracy evaluation with the experimental switch enabled. Existing recipe
 accuracy results do not qualify this newly quantized-activation path. Default
 dispatch remains unchanged.
 
+## FP16-Activation INT2 Fused FC1 CTA Experiment
+
+Measured October 8, 2026, in Docker `jiafa-dev` on A100-SXM4-80GB GPU 7,
+using the local experimental ORT branch based on `main@98468bff47` and a
+rebuilt CUDA provider with matching Python binding/shared-provider library.
+Both arms retain FP16 activations, packed INT2 weights and FP32 accumulation.
+This is a separate experiment from INT8 activation quantization above.
+
+The default INT2 specialization already uses CTA4 (`kCtaN / 2`, where
+`kCtaN = 8`). The default-off `ORT_QMOE_INT2_FP16_FC1_CTA8=1` prototype changes
+the fused FC1 tile to CTA8, increasing columns handled per CTA without changing
+weight format, activation precision, dot-product arithmetic or SwiGLU parameters.
+An earlier explicit CTA4 switch was mistakenly treated as a change from CTA8;
+that was a no-op and its measurements are excluded from all results below.
+
+### Kernel Comparison
+
+The same standalone binary compares default CTA4 against genuine CTA8, with
+eight expert rows and one shared source row, rotating mode order over three
+rounds with 20 warmups and 200 launches per mode. Independent binaries are not
+compared. Configuration order is reversed in a second run. CUDA Graph timings
+below are device-event time per invocation, excluding allocation, transfers,
+preprocessing and reference checks; they are not model TPS.
+
+| Packed Gate/Up N | K | Block | CTA4 (us) | CTA8 (us) | Latency Reduction |
+|---:|---:|---:|---:|---:|---:|
+| 1536 | 2048 | 64 | 13.2506 | 11.0746 | 16.42% |
+| 1536 | 2048 | 128 | 13.2096 | 10.9773 | 16.90% |
+
+Values are from the reverse-order run; the first run agrees on these shared-row
+cases. CTA8 is slower for N=2048/K=768, and the eight-independent-source-row
+block64 case has substantial run-to-run variation. This is not evidence for
+replacing CTA4 globally or for register/occupancy causality. Eight FP16 output
+files match CTA4 byte-for-byte. Two-source-row/custom-activation output checks
+also match, and Compute Sanitizer memcheck reports zero errors for the tested
+CTA8 variant. These are finite synthetic cases, not arbitrary-input proof.
+
+### Full-Model Comparison
+
+Both arms use the same mixed model, same rebuilt runtime and same GPU, with
+`ORT_QMOE_INT2_PREQUANTIZED_FC1=0` and `ORT_QMOE_INT2_INT8_ACTIVATIONS=0`.
+Baseline here is default FP16/INT2 CTA4, not all-INT4 or the INT8 experiment.
+Each input/output configuration uses CTA4/CTA8 then CTA8/CTA4 order, two
+warmups and five measured requests per process: ten requests per arm. Combined
+TPS is total decode tokens divided by summed decode time, excluding prefill's
+first token. The end-to-end decode definition and one-byte dense scratch guard
+are retained. Profiling is disabled during timing; other GPUs on the shared
+host are not controlled. The table is not a controlled head-to-head comparison
+with the earlier INT8 measurements on GPU 6.
+
+| Input Tokens | Output Tokens | CTA4 Decode TPS | CTA8 Decode TPS | Change |
+|---:|---:|---:|---:|---:|
+| 128 | 16 | 111.0333 | 113.6529 | +2.36% |
+| 128 | 128 | 110.5721 | 112.7280 | +1.95% |
+| 512 | 128 | 108.4455 | 110.0642 | +1.49% |
+| 2048 | 128 | 98.7603 | 99.1122 | +0.36% |
+
+Both order pairs improve TPS for 128 and 512 input tokens. For 2048 input,
+the first pair is 97.8962 versus 99.4896 TPS, but the reverse pair is 99.6398
+versus 98.7376 TPS (CTA4 versus CTA8). Thus the combined +0.36% does not
+establish a stable long-context gain. The short-output CTA4 measurements also
+show noticeable variation. No confidence interval or general speedup is claimed.
+All measured token sequences match across arms within each configuration,
+including all 128 generated tokens for longer-output cases; logits are finite.
+This is not a full task-accuracy evaluation or proof of numerical equivalence.
+
+A separate 128-input/16-output Nsight Systems capture confirms 360 FP16/INT2
+fused FC1 CTA8 launches across 15 decode steps, with no activation quantization
+path enabled. It establishes actual dispatch, not an unprofiled latency estimate.
+
+### Dispatch Scope and Disposition
+
+After timing, the source condition was narrowed to SM80, one source row, eight
+expanded expert rows, K=2048, inter_size=768 (packed gate/up N=1536), FP16,
+no bias and block64/block128. Other cases retain CTA4; existing split-K dispatch
+is unchanged. The scoped GEMV unit passes formal Ninja compilation. A harness
+linked against that new object matches all eight default FP16 output files, and
+a separate trace shows only the two eligible shared-row cases use CTA8 while
+the other six cases use CTA4. Block128 has standalone validation only; the model
+measurements use block64.
+
+The full-model timing above used the earlier broader opt-in condition, not the
+subsequently scoped provider. At this documentation update, the final scoped
+runtime is still rebuilding and its model smoke/dispatch check remains pending.
+No completion is implied by the scoped object/harness checks. The experimental
+switch stays default-off, the local ORT changes remain uncommitted and are not
+shipped by this recipe. No ORT optimization PR is being opened on this evidence:
+the observed short-context gain is small and the longer-context result is not
+stable. Broader correctness/fallback coverage and independent repeatability
+would be needed before proposing an upstream dispatch change.
+
+Local artifacts include `qmoe-real-cta{4,8}[-reverse]-20261008.log`,
+`qwen3-fp16-{cta4,cta8}[-reverse]-20261008.json`,
+`qwen3-fp16-long-{cta4,cta8}[-reverse]-20261008.json` and
+`qwen3-fp16-input{512,2048}-{cta4,cta8}[-reverse]-20261008.json`, with matching
+logs. Actual-model dispatch is in `qwen3-cta8-dispatch-kernels-20261008.csv`;
+scoped harness dispatch is in `qmoe-scoped-cta8-kernels-20261008.csv`.
+`[-reverse]` denotes an optional filename suffix, not a literal path component.
+These sources, binaries and raw artifacts are local, not distributed in this PR.
+
 ## Local Reproduction Artifacts
 
 The validation machine retains `qwen3_mixed_qmoe_benchmark.py` and
