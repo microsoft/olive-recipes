@@ -100,7 +100,8 @@ CUDA graphs and fpA-intB GEMM with profile shapes `1,729`.
 must use checked buffer offsets for large vocabulary projections, and ORT
 GenAI must preserve static decode embedding buffers across prefills. Without
 these fixes, long prompts can crash and graph-enabled continuation can produce
-corrupted output.
+corrupted output. Include the [ORT CUDA RMSNorm alignment guard](https://github.com/microsoft/onnxruntime/pull/33178)
+to avoid CUDA error 716 with two-byte-offset FP16 buffers.
 
 Use the same GPU visibility for all commands:
 
@@ -232,11 +233,10 @@ Each command produces the full ORT GenAI package in the recipe's
 
 Use `--model-path` for optimized packages; `--variant` does not accept
 `int4-optimized`. The bundled helper provides text-only smoke tests: it
-explicitly sets `past_present_share_buffer=False`, overriding the optimized
-package setting. Its timings do not measure the optimized shared-buffer
-configuration, and interactive mode starts a fresh generator for every prompt.
-For optimized-runtime measurements, preserve the package's search settings
-when constructing the GenAI generator.
+preserves the package's `past_present_share_buffer` setting, including the
+shared buffers required by CUDA graphs. Interactive mode starts a fresh
+generator for every prompt, so these smoke-test timings do not measure
+persistent-cache continuation.
 
 ```bash
 # CPU optimized INT4 (smoke test)
