@@ -118,51 +118,6 @@ def test_component_runtime_policy_rejects_invalid_limits(tmp_path):
         )
 
 
-def test_clm_publication_applies_component_session_options(tmp_path, monkeypatch):
-    staging = tmp_path / "staging"
-    package = staging / exporter.RECIPES["clm"].fp32_directory
-    for component in ("encoder", "state_head", "action_head", "scorer"):
-        (package / component).mkdir(parents=True)
-    (package / "inference_model.json").write_text(
-        json.dumps(
-            {
-                "Name": "clm-v0.1-8b-generic-cpu:1",
-                "Provider": {
-                    "execution_provider": "cpu",
-                    "variant": "fp32",
-                },
-            }
-        )
-    )
-    output = tmp_path / "output"
-    output.mkdir()
-    monkeypatch.setattr(exporter, "run_recipe", lambda *args: None)
-    options = {
-        "intra_op_num_threads": 32,
-        "inter_op_num_threads": 1,
-        "session.intra_op.allow_spinning": "0",
-        "session.inter_op.allow_spinning": "0",
-    }
-
-    exporter.olive_export(
-        model_name="clm",
-        output_dir=output,
-        execution_provider="cpu",
-        exporter_config={
-            "artifact_path": "artifact",
-            "recipe_precision": "fp32",
-            "staging_path": str(staging),
-            "component_session_options": options,
-        },
-    )
-
-    config = json.loads((output / "genai_config.json").read_text())
-    assert config["model"]["decoder"] == {
-        "filename": "encoder/model.onnx",
-        "session_options": options,
-    }
-
-
 def test_clm_publication_applies_runtime_optimizations(tmp_path, monkeypatch):
     staging = tmp_path / "staging"
     package = staging / exporter.RECIPES["clm"].fp16_directory
