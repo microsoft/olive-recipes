@@ -5,6 +5,9 @@ Measured October 4, 2026, following the direct-ORT timing methodology in
 This is a synthetic batch-one full-model comparison, not a quality benchmark
 or an isolated INT2-versus-INT4 kernel experiment.
 
+A Chinese discussion of llama.cpp implementation differences and the follow-up
+experiments is available in [discussion.md](discussion.md).
+
 ## Environment and Models
 
 - NVIDIA A100-SXM4-80GB, physical GPU 1, SM80; Docker `jiafa-dev`.
