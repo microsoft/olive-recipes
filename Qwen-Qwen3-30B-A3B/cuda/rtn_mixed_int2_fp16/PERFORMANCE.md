@@ -335,11 +335,20 @@ Here **baseline means the same mixed INT2 model with the new switch disabled**,
 not the all-INT4 model or the earlier wheel. Absolute TPS should not be treated
 as a controlled comparison with the October 4 results above.
 
-| Order | Default Mixed Decode TPS | Prequantized FC1 Decode TPS | Default ORT Run P50 (ms) | Prequantized ORT Run P50 (ms) |
-|---|---:|---:|---:|---:|
-| Default, then prequantized | 111.6133 | 112.7932 | 7.3397 | 7.1691 |
-| Prequantized, then default | 111.1562 | 112.9433 | 7.2548 | 7.2609 |
-| Combined tokens / summed decode time | 111.3843 | 112.8682 | N/A | N/A |
+| Order | Default Mixed Decode TPS | Prequantized FC1 Decode TPS | Default ORT Run P50 (ms) | Prequantized ORT Run P50 (ms) | Default Process Peak (GiB) | Prequantized Process Peak (GiB) |
+|---|---:|---:|---:|---:|---:|---:|
+| Default, then prequantized | 111.6133 | 112.7932 | 7.3397 | 7.1691 | 26.5977 | 26.5352 |
+| Prequantized, then default | 111.1562 | 112.9433 | 7.2548 | 7.2609 | 26.5391 | 26.5312 |
+| Combined TPS; maximum observed peak across both orders | 111.3843 | 112.8682 | N/A | N/A | 26.5977 | 26.5352 |
+
+Process Peak is the existing raw-result field `measurement_peak_process_gib`:
+NVML-sampled GPU memory resident for the benchmark process during the measurement
+window, after warmups, in GiB (bytes / 2^30). Sampling requests a 5 ms interval;
+it is not an exact ORT allocator peak, kernel workspace size, or whole-device
+memory usage. Per-order rows show that process's sampled peak; the combined row
+takes the maximum of the two order peaks for each arm, not their mean or median.
+The small differences do not establish a memory reduction from the INT8 path;
+allocator residency and sampling variability can obscure its added scratch.
 
 Combined decode TPS improves **1.33%**. Both pairs have the same TPS direction,
 but the second pair's ORT-run median is not improved. This is a small observed
@@ -415,12 +424,20 @@ are retained. Profiling is disabled during timing; other GPUs on the shared
 host are not controlled. The table is not a controlled head-to-head comparison
 with the earlier INT8 measurements on GPU 6.
 
-| Input Tokens | Output Tokens | CTA4 Decode TPS | CTA8 Decode TPS | Change |
-|---:|---:|---:|---:|---:|
-| 128 | 16 | 111.0333 | 113.6529 | +2.36% |
-| 128 | 128 | 110.5721 | 112.7280 | +1.95% |
-| 512 | 128 | 108.4455 | 110.0642 | +1.49% |
-| 2048 | 128 | 98.7603 | 99.1122 | +0.36% |
+| Input Tokens | Output Tokens | CTA4 Decode TPS | CTA8 Decode TPS | Change | CTA4 Baseline Process Peak (GiB) | CTA8 Process Peak (GiB) |
+|---:|---:|---:|---:|---:|---:|---:|
+| 128 | 16 | 111.0333 | 113.6529 | +2.36% | 26.5625 | 26.5957 |
+| 128 | 128 | 110.5721 | 112.7280 | +1.95% | 26.5977 | 26.5625 |
+| 512 | 128 | 108.4455 | 110.0642 | +1.49% | 26.5938 | 26.5938 |
+| 2048 | 128 | 98.7603 | 99.1122 | +0.36% | 27.5938 | 27.5645 |
+
+Process Peak uses the same `measurement_peak_process_gib` NVML measurement
+definition as the fused INT8 FC1 A/B above. Each table entry is the maximum
+observed peak across the forward-order and reverse-order process runs for that
+configuration and arm, rounded to four decimals. It is not a pooled TPS-like
+aggregation or an exact allocator/workspace peak. The mixed directions of these
+small differences do not establish a consistent memory benefit or penalty from
+CTA8; the longer-prompt values include process residency beyond the FC1 kernel.
 
 Both order pairs improve TPS for 128 and 512 input tokens. For 2048 input,
 the first pair is 97.8962 versus 99.4896 TPS, but the reverse pair is 99.6398
