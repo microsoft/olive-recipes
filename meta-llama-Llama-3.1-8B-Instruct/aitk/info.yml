@@ -54,6 +54,8 @@ recipes:
             ref: "../Qwen-Qwen3-4B/webgpu/Qwen-Qwen3-4B_webgpu_int4.json"
             ignoreChanged:
               - ^root\['s'\]$
+            ignoreRemoved:
+              - ^root\['t'\]$
 aitk:
     modelInfo:
         id: "huggingface/meta-llama/Llama-3.1-8B-Instruct"
