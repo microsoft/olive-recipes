@@ -62,7 +62,7 @@
                         "block_size": 256,
                         "num_blocks": 8,
                         "max_batch_size": 1,
-                        "max_scheduled_tokens": 64
+                        "max_scheduled_tokens": 256
                     }
                 },
                 "search": {
@@ -70,30 +70,6 @@
                     "max_length": 262144
                 }
             }
-        },
-        "runtime_profiles": {
-            "type": "GenAIModelRuntimeProfiles",
-            "runtime_profiles": [
-                {
-                    "id": "40-to-less-than-60-gib",
-                    "eligibility": {
-                        "minimum_total_device_memory_bytes": 42949672960,
-                        "maximum_total_device_memory_bytes": 64424509439
-                    },
-                    "overlay": {
-                        "engine": {
-                            "dynamic_batching": {
-                                "num_blocks": 8,
-                                "max_batch_size": 1,
-                                "max_scheduled_tokens": 256
-                            }
-                        },
-                        "search": {
-                            "chunk_size": 256
-                        }
-                    }
-                }
-            ]
         }
     },
     "target": "local_system",
