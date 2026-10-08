@@ -55,6 +55,19 @@ with omitted GQA cache outputs on the selected device; CUDA additionally
 requires H512 XQA and fpA-intB GEMM support. Use an ABI-compatible ORT GenAI
 build. Stock pip packages alone do not guarantee these features.
 
+Required patches (or builds that include them):
+
+- [Olive runtime overrides and GQA cache-output surgery](https://github.com/microsoft/Olive/pull/2718)
+- [ORT borrowed KV cache and window handling](https://github.com/microsoft/onnxruntime/pull/33175)
+- [ORT CUDA H512 GQA support](https://github.com/microsoft/onnxruntime/pull/33176)
+- [ORT INT4 decode tuning and fpA-intB profiler safety](https://github.com/microsoft/onnxruntime/pull/33177)
+- [ORT CUDA RMSNorm alignment guard](https://github.com/microsoft/onnxruntime/pull/33178)
+- [GenAI captured decode embedding-buffer ownership](https://github.com/microsoft/onnxruntime-genai/pull/2686)
+
+Recipe exports and reported quality/performance measurements used a patched
+GenAI v0.15.2 baseline. The linked GenAI PR is a separately built and tested
+main-branch port; those model measurements were not rerun with that port.
+
 For CUDA, build ORT with `onnxruntime_USE_FPA_INTB_GEMM=ON` and
 `onnxruntime_USE_FPA_INTB_GEMM_FULL=OFF`. Symmetric RTN INT4 block 32 uses the
 existing compact kernels; no asymmetric kernel additions are required. The
