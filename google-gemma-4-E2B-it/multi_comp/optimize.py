@@ -2,7 +2,8 @@
 
 Usage:
     python optimize.py --ep OpenVINOExecutionProvider
-    python optimize.py --ep QNNExecutionProvider
+    python optimize.py --ep qnn --qnn-stage cuda
+    python optimize.py --ep qnn --qnn-stage npu
 """
 
 import argparse
@@ -16,7 +17,8 @@ from pathlib import Path, PurePosixPath
 
 
 RECIPE_DIR = Path(__file__).resolve().parent
-QNN_VISION_OUTPUT = RECIPE_DIR / "gemma4_qnn_vision"
+QNN_VISION_INPUT = RECIPE_DIR / "gemma4_qnn_vision_1"
+QNN_VISION_OUTPUT = RECIPE_DIR / "gemma4_qnn_vision_2"
 QNN_DECODER_OUTPUT = RECIPE_DIR / "gemma4_qnn_decoder"
 QNN_OUTPUT = RECIPE_DIR / "gemma4_qnn"
 EP_ALIASES = {
@@ -47,6 +49,10 @@ def prepare_qnn_decoder_config(output_path: Path) -> None:
     from olive.model import CompositeModelHandler
 
     config = json.loads((RECIPE_DIR / "qnn_decoder.json").read_text(encoding="utf-8"))
+    config["systems"]["qnn_system"] = {
+        "type": "LocalSystem",
+        "accelerators": [{"device": "npu", "execution_providers": ["QNNExecutionProvider"]}],
+    }
     model_dir = RECIPE_DIR / config["input_model"]["config"]["model_path"]
     composite_model = CompositeModelHandler(model_path=str(model_dir))
     decoder_model = dict(composite_model.get_model_components())["decoder"]
@@ -178,6 +184,7 @@ def merge_qnn_outputs() -> None:
     decoder_attributes = merged_config["config"].setdefault("model_attributes", {})
     optimized_components = set(decoder_attributes.get("assembled_components") or [])
     optimized_components.update(vision_config["config"].get("model_attributes", {}).get("assembled_components") or [])
+    optimized_components.update(selected_components)
     decoder_attributes["assembled_components"] = [
         name for name in merged_config["config"]["model_component_names"] if name in optimized_components
     ]
@@ -210,6 +217,27 @@ def merge_qnn_outputs() -> None:
     print(f"Merged QNN package: {QNN_OUTPUT}", flush=True)
 
 
+def run_qnn_npu() -> None:
+    with tempfile.TemporaryDirectory() as directory:
+        config = json.loads((RECIPE_DIR / "qnn_vision_2.json").read_text(encoding="utf-8"))
+        vision_model = load_composite_config(QNN_VISION_INPUT)
+        config["input_model"] = rebase_config_paths(
+            vision_model,
+            vision_model["config"]["model_path"],
+            QNN_VISION_INPUT.resolve(),
+        )
+        resolved_config = Path(directory) / "qnn_vision_2.json"
+        resolved_config.write_text(json.dumps(config, indent=4) + "\n", encoding="utf-8")
+        run_step(1, 3, "Generating vision QNN context binaries", ["run", "--config", str(resolved_config)])
+
+        resolved_config = Path(directory) / "qnn_decoder.json"
+        prepare_qnn_decoder_config(resolved_config)
+        run_step(2, 3, "Optimizing the decoder for QNN", ["run", "--config", str(resolved_config)])
+
+    print("[3/3] Merging the QNN component packages", flush=True)
+    merge_qnn_outputs()
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(
         description="Optimize Gemma 4 E2B for OpenVINO or QNN"
@@ -220,9 +248,22 @@ def main() -> None:
         type=parse_ep,
         help="Target execution provider: OpenVINOExecutionProvider/ov or QNNExecutionProvider/qnn",
     )
+    parser.add_argument(
+        "--qnn-stage",
+        choices=("cuda", "npu"),
+        help="QNN stage: cuda prepares vision; npu compiles vision and decoder, then merges them",
+    )
     args = parser.parse_args()
 
-    total_steps = 5 if args.ep == "qnn" else 3
+    if args.ep == "qnn" and args.qnn_stage is None:
+        parser.error("--ep qnn requires --qnn-stage cuda or --qnn-stage npu")
+    if args.ep != "qnn" and args.qnn_stage is not None:
+        parser.error("--qnn-stage is only supported with --ep qnn")
+    if args.ep == "qnn" and args.qnn_stage == "npu":
+        run_qnn_npu()
+        return
+
+    total_steps = 3
     run_step(
         1,
         total_steps,
@@ -249,24 +290,18 @@ def main() -> None:
         run_step(
             3,
             total_steps,
-            "Optimizing vision and embedding for QNN",
-            ["run", "--config", "qnn_vision.json"],
+            "Calibrating vision and preparing embedding with CUDA",
+            ["run", "--config", "qnn_vision_1.json"],
         )
-        with tempfile.TemporaryDirectory() as directory:
-            resolved_config = Path(directory) / "qnn_decoder.json"
-            prepare_qnn_decoder_config(resolved_config)
-            run_step(
-                4,
-                total_steps,
-                "Optimizing the decoder for QNN",
-                ["run", "--config", str(resolved_config)],
-            )
-        print("[5/5] Merging the QNN component packages", flush=True)
-        merge_qnn_outputs()
+        print(
+            "Copy gemma4_onnx and gemma4_qnn_vision_1 to the QNN device, "
+            "then run --ep qnn --qnn-stage npu.",
+            flush=True,
+        )
         return
 
     run_step(
-        3,
+        total_steps,
         total_steps,
         "Optimizing for OpenVINO",
         ["run", "--config", "ov.json"],

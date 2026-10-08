@@ -2,6 +2,7 @@ gemma4_quantized_hf/
 gemma4_onnx/
 gemma4_qnn/
 gemma4_qnn_decoder/
-gemma4_qnn_vision/
+gemma4_qnn_vision_1/
+gemma4_qnn_vision_2/
 gemma4_ov/
 .olive-cache/

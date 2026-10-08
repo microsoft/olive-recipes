@@ -91,19 +91,6 @@
             "save_as_external_data": true,
             "external_data_name": "model.onnx.data"
         },
-        "vision_cb": {
-            "type": "EPContextBinaryGenerator",
-            "provider_options": {
-                "htp_performance_mode": "burst",
-                "htp_graph_finalization_optimization_mode": "3",
-                "soc_model": "60",
-                "vtcm_mb": "7"
-            },
-            "session_options": {
-                "optimization.disable_specified_optimizers": "QDQPropagationTransformer",
-                "log_severity_level": 1
-            }
-        },
         "embedding_cast": {
             "type": "GraphSurgeries",
             "surgeries": [
@@ -136,11 +123,10 @@
                 "matmul_nbits_to_qdq",
                 "gs_vision",
                 "a16w8_static_quantization",
-                "dynamic_to_fixed_shape",
-                "vision_cb"
+                "dynamic_to_fixed_shape"
             ]
         }
     },
-    "output_dir": "gemma4_qnn_vision",
+    "output_dir": "gemma4_qnn_vision_1",
     "log_severity_level": 0
 }

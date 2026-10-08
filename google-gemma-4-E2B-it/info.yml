@@ -61,11 +61,15 @@ recipes:
     devices:
       - npu
     eps: QNNExecutionProvider
-  - name: gemma4-e2b-qnn-vision
-    file: multi_comp/qnn_vision.json
+  - name: gemma4-e2b-qnn-vision-cuda
+    file: multi_comp/qnn_vision_1.json
     devices:
       - gpu
-      - npu
     eps:
       - CUDAExecutionProvider
+  - name: gemma4-e2b-qnn-vision-npu
+    file: multi_comp/qnn_vision_2.json
+    devices:
+      - npu
+    eps:
       - QNNExecutionProvider

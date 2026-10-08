@@ -19,13 +19,17 @@ recipes:
       - QNNExecutionProvider
     devices:
       - npu
-  - name: gemma4-qnn-vision
-    file: qnn_vision.json
+  - name: gemma4-qnn-vision-cuda
+    file: qnn_vision_1.json
     eps:
       - CUDAExecutionProvider
-      - QNNExecutionProvider
     devices:
       - gpu
+  - name: gemma4-qnn-vision-npu
+    file: qnn_vision_2.json
+    eps:
+      - QNNExecutionProvider
+    devices:
       - npu
   - name: gemma4-ov
     file: ov.json

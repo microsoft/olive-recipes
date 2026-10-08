@@ -114,14 +114,22 @@ all four components with Mobius.
 ### NPU (QNN) - multi-component recipe
 
 The QNN recipe uses separate
-[`qnn_vision.json`](multi_comp/qnn_vision.json) and
+[`qnn_vision_1.json`](multi_comp/qnn_vision_1.json),
+[`qnn_vision_2.json`](multi_comp/qnn_vision_2.json), and
 [`qnn_decoder.json`](multi_comp/qnn_decoder.json) jobs. Vision calibration runs
-with CUDA, while decoder compilation runs on a Qualcomm QNN device. Their
-separate intermediate packages are automatically merged into `gemma4_qnn` by:
+on a CUDA GPU. Vision context compilation and decoder optimization run on a
+Qualcomm QNN/NPU device.
 
 ```bash
 cd multi_comp
-python optimize.py --ep qnn
+
+# Step 1: CUDA machine
+python optimize.py --ep qnn --qnn-stage cuda
+
+# Copy gemma4_onnx and gemma4_qnn_vision_1 to the QNN device.
+
+# Step 2: QNN/NPU device; this also merges the final package.
+python optimize.py --ep qnn --qnn-stage npu
 ```
 
 See [`multi_comp/README.md`](multi_comp/README.md#qnn) for the CUDA and QNN
