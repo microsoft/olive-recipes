@@ -24,23 +24,13 @@
     ],
     "passes": {
         "decoder_gptq": {
-            "type": "GptqModel",
+            "type": "Gptq",
             "bits": 4,
             "group_size": 128,
             "sym": true,
-            "lm_head": false,
-            "embed_quant_mode": "output",
-            "embed_only": false,
-            "dynamic": {
-                "^lm_head$": {
-                    "bits": 4,
-                    "group_size": 128,
-                    "sym": true,
-                    "desc_act": false
-                }
-            },
+            "lm_head": true,
+            "damp_percent": 0.05,
             "desc_act": false,
-            "device": "cuda",
             "data_config": "wikitext2_train_joined"
         },
         "vision_rtn": {

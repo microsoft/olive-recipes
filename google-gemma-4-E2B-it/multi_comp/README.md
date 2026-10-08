@@ -23,6 +23,11 @@ python optimize.py --ep ov
 The script runs component quantization, Mobius ONNX export, and OpenVINO
 optimization in sequence. QNN uses the two-machine workflow below.
 
+`gemma4_quantize.json` uses Olive's native `Gptq` pass for the decoder and
+`lm_head`, and `Rtn` for vision. Decoder and output-head weights use INT4 with
+group size 128; input embeddings stay floating point. Native GPTQ requires
+Olive's Gemma 4 PLE, mixed-attention, and shared-KV calibration support.
+
 ## QNN
 
 The workflow has two user steps on two different machines:
