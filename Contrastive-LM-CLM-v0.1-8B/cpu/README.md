@@ -33,6 +33,14 @@ olive run --config CLM-v0.1-8B_cpu_fp32.json
 Download the artifact under `artifacts/clm/` in this directory. The package is
 staged under `cache/mobius-export/`, so a complete FP32 export is reused on a
 rerun. Olive atomically publishes the selected package to its `build/` output.
+The recipe writes bounded component session pools to `genai_config.json`: 32
+intra-op threads, one inter-op thread, and non-spinning idle pools. The
+32-thread profile is tuned for two adjacent EPYC NUMA nodes; reduce it to the
+physical cores available to one local NUMA domain on smaller systems.
+
+On an AMD EPYC 7V12 allocation, changing-state model routing improved from
+2,893 ms to 1,145 ms p50 and from 3,772 ms to 1,420 ms p95 with unchanged
+10/10 route accuracy.
 
 ```text
 build/
