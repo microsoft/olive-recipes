@@ -6,14 +6,9 @@
         }
     },
     "systems": {
-        "cpu_system": {
-            "type": "LocalSystem",
-            "accelerators": [ { "device": "cpu", "execution_providers": [ "CPUExecutionProvider" ] } ]
-        },
         "qnn_system": {
-            "type": "PythonEnvironment",
-            "python_environment_path": "/path/to/qnn/env/bin",
-            "accelerators": [ { "execution_providers": [ "QNNExecutionProvider" ] } ]
+            "type": "LocalSystem",
+            "accelerators": [ { "device": "npu", "execution_providers": [ "QNNExecutionProvider" ] } ]
         }
     },
     "data_configs": [
@@ -202,7 +197,6 @@
             ]
         }
     },
-    "host": "cpu_system",
     "target": "qnn_system",
     "output_dir": "gemma4_qnn_decoder",
     "log_severity_level": 0
