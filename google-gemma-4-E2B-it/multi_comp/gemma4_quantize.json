@@ -39,6 +39,17 @@
             "group_size": 128,
             "sym": true,
             "quantize_vision": true
+        },
+        "embedding_gptq": {
+            "type": "Gptq",
+            "bits": 8,
+            "group_size": 128,
+            "sym": true,
+            "embeds": true,
+            "lm_head": false,
+            "damp_percent": 0.05,
+            "desc_act": false,
+            "data_config": "wikitext2_train_joined"
         }
     },
     "builds": {
@@ -49,6 +60,10 @@
         "vision": {
             "components": [ "vision_encoder" ],
             "pipeline": [ "vision_rtn" ]
+        },
+        "embedding": {
+            "components": [ "embedding" ],
+            "pipeline": [ "embedding_gptq" ]
         }
     },
     "output_dir": "gemma4_quantized_hf",

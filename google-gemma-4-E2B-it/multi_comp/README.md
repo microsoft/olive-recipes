@@ -24,9 +24,12 @@ The script runs component quantization, Mobius ONNX export, and OpenVINO
 optimization in sequence. QNN uses the two-machine workflow below.
 
 `gemma4_quantize.json` uses Olive's native `Gptq` pass for the decoder and
-`lm_head`, and `Rtn` for vision. Decoder and output-head weights use INT4 with
-group size 128; input embeddings stay floating point. Native GPTQ requires
-Olive's Gemma 4 PLE, mixed-attention, and shared-KV calibration support.
+`lm_head`, a separate native `Gptq` embedding build, and `Rtn` for vision.
+Decoder and output-head weights use INT4; the embedding component, including
+the PLE table and input projection, uses INT8. All use group size 128.
+Input embeddings and the output head are untied and quantized independently.
+Native GPTQ requires Olive's Gemma 4 PLE, mixed-attention, and shared-KV
+calibration support.
 
 ## QNN
 
