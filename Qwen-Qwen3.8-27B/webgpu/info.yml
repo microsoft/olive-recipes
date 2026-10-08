@@ -1,0 +1,11 @@
+keywords:
+  - olive-ai
+  - int4
+  - paged-attention
+  - text-generation
+arch: qwen3_5_text
+recipes:
+  - name: Qwen3.8-27B_WebGPU_INT4_Paged
+    file: Qwen-Qwen3.8-27B_webgpu_int4.json
+    devices: gpu
+    eps: WebGpuExecutionProvider
