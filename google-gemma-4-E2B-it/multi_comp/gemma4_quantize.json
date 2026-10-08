@@ -1,0 +1,71 @@
+{
+    "input_model": {
+        "type": "HfModel",
+        "config": {
+            "model_path": "google/gemma-4-E2B-it",
+            "task": "image-text-to-text",
+            "load_kwargs": { "trust_remote_code": true }
+        }
+    },
+    "data_configs": [
+        {
+            "name": "wikitext2_train_joined",
+            "type": "HuggingfaceContainer",
+            "load_dataset_config": { "data_name": "Salesforce/wikitext", "subset": "wikitext-2-raw-v1", "split": "train" },
+            "pre_process_data_config": {
+                "type": "text_generation_huggingface_pre_process",
+                "text_cols": [ "text" ],
+                "strategy": "join",
+                "add_special_tokens": false,
+                "max_seq_len": 4096,
+                "max_samples": 128
+            }
+        }
+    ],
+    "passes": {
+        "decoder_gptq": {
+            "type": "Gptq",
+            "bits": 4,
+            "group_size": 128,
+            "sym": true,
+            "lm_head": true,
+            "damp_percent": 0.05,
+            "desc_act": false,
+            "data_config": "wikitext2_train_joined"
+        },
+        "vision_rtn": {
+            "type": "Rtn",
+            "bits": 4,
+            "group_size": 128,
+            "sym": true,
+            "quantize_vision": true
+        },
+        "embedding_gptq": {
+            "type": "Gptq",
+            "bits": 8,
+            "group_size": 128,
+            "sym": true,
+            "embeds": true,
+            "lm_head": false,
+            "damp_percent": 0.05,
+            "desc_act": false,
+            "data_config": "wikitext2_train_joined"
+        }
+    },
+    "builds": {
+        "decoder": {
+            "components": [ "decoder" ],
+            "pipeline": [ "decoder_gptq" ]
+        },
+        "vision": {
+            "components": [ "vision_encoder" ],
+            "pipeline": [ "vision_rtn" ]
+        },
+        "embedding": {
+            "components": [ "embedding" ],
+            "pipeline": [ "embedding_gptq" ]
+        }
+    },
+    "output_dir": "gemma4_quantized_hf",
+    "log_severity_level": 0
+}

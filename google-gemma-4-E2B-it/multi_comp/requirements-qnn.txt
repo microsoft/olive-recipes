@@ -1,0 +1,5 @@
+fastparquet
+onnxruntime-qnn
+pandas
+pillow
+tokenizers

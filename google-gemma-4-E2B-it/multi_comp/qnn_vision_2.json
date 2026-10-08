@@ -1,0 +1,49 @@
+{
+    "input_model": {
+        "type": "CompositeModel",
+        "config": {
+            "model_path": "gemma4_qnn_vision_1"
+        }
+    },
+    "systems": {
+        "qnn_system": {
+            "type": "LocalSystem",
+            "accelerators": [
+                {
+                    "device": "npu",
+                    "execution_providers": [
+                        "QNNExecutionProvider"
+                    ]
+                }
+            ]
+        }
+    },
+    "passes": {
+        "vision_cb": {
+            "type": "EPContextBinaryGenerator",
+            "provider_options": {
+                "htp_performance_mode": "burst",
+                "htp_graph_finalization_optimization_mode": "3",
+                "soc_model": "60",
+                "vtcm_mb": "7"
+            },
+            "session_options": {
+                "optimization.disable_specified_optimizers": "QDQPropagationTransformer",
+                "log_severity_level": 1
+            }
+        }
+    },
+    "builds": {
+        "vision": {
+            "components": [
+                "vision_encoder"
+            ],
+            "pipeline": [
+                "vision_cb"
+            ]
+        }
+    },
+    "target": "qnn_system",
+    "output_dir": "gemma4_qnn_vision_2",
+    "log_severity_level": 0
+}

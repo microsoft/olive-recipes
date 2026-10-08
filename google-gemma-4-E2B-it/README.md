@@ -19,6 +19,9 @@ post-processing required.
 pip install -r requirements.txt
 ```
 
+The pinned Mobius revision includes support for the heterogeneous per-layer
+Gemma 4 configuration used by current Transformers releases.
+
 Install ONNX Runtime GenAI:
 
 | Device | Install Command |
@@ -101,6 +104,36 @@ olive run --config cuda/mixed/embedding.json
 
 K-Quant (Q4_K_M) is significantly faster with GPU acceleration —
 install `cupy-cuda12x` for a 19–51× speedup during quantization.
+
+For a Torch-stage quantize-then-export flow, see
+[`multi_comp/README.md`](multi_comp/README.md). It applies INT4 KQuant to the
+decoder and INT4 RTN to the vision encoder in two independent component builds,
+automatically assembles a standard Hugging Face checkpoint, and then exports
+all four components with Mobius.
+
+### NPU (QNN) - multi-component recipe
+
+The QNN recipe uses separate
+[`qnn_vision_1.json`](multi_comp/qnn_vision_1.json),
+[`qnn_vision_2.json`](multi_comp/qnn_vision_2.json), and
+[`qnn_decoder.json`](multi_comp/qnn_decoder.json) jobs. Vision calibration runs
+on a CUDA GPU. Vision context compilation and decoder optimization run on a
+Qualcomm QNN/NPU device.
+
+```bash
+cd multi_comp
+
+# Step 1: CUDA machine
+python optimize.py --ep qnn --qnn-stage cuda
+
+# Copy gemma4_onnx and gemma4_qnn_vision_1 to the QNN device.
+
+# Step 2: QNN/NPU device; this also merges the final package.
+python optimize.py --ep qnn --qnn-stage npu
+```
+
+See [`multi_comp/README.md`](multi_comp/README.md#qnn) for the CUDA and QNN
+environment requirements.
 
 ## Build
 

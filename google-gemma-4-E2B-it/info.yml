@@ -5,13 +5,17 @@ keywords:
   - int4
   - kquant
   - mobius
+  - qnn
+  - npu
 arch: gemma
 ep:
   - CPUExecutionProvider
   - CUDAExecutionProvider
+  - QNNExecutionProvider
 device:
   - cpu
   - gpu
+  - npu
 name: gemma4_e2b
 recipes:
   - name: gemma4-e2b-fp32-cpu
@@ -52,3 +56,20 @@ recipes:
     devices:
       - gpu
     eps: CUDAExecutionProvider
+  - name: gemma4-e2b-qnn-decoder
+    file: multi_comp/qnn_decoder.json
+    devices:
+      - npu
+    eps: QNNExecutionProvider
+  - name: gemma4-e2b-qnn-vision-cuda
+    file: multi_comp/qnn_vision_1.json
+    devices:
+      - gpu
+    eps:
+      - CUDAExecutionProvider
+  - name: gemma4-e2b-qnn-vision-npu
+    file: multi_comp/qnn_vision_2.json
+    devices:
+      - npu
+    eps:
+      - QNNExecutionProvider
