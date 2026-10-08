@@ -1,10 +1,10 @@
-accelerate==1.13.0
+accelerate==1.15.0
 aiohappyeyeballs==2.6.1
 aiohttp==3.13.5
 aiosignal==1.4.0
 alembic==1.18.4
 annotated-types==0.7.0
-anyio==4.13.0
+anyio==4.14.2
 attrs==26.1.0
 certifi==2026.4.22
 charset-normalizer==3.4.7
@@ -70,7 +70,7 @@ tokenizers==0.21.4
 # uvpip:install torch==2.11.0+cu130 --no-deps --extra-index-url https://download.pytorch.org/whl/cu130;pre
 torchmetrics==1.9.0
 tqdm==4.67.3
-transformers==4.52.4
+transformers==5.10.1
 typing-extensions==4.15.0
 typing-inspection==0.4.2
 tzdata==2026.2
