@@ -146,7 +146,53 @@ A100 上本实验使用的是四路 INT8 DP4A 加 INT32 累加，不是原生 pa
 
 这解释了为什么目标 kernel 约 16% 的延迟降低只对应短上下文约 1%–2% 的模型 TPS 变化。随着上下文增长，其他工作占比可能改变，但现有实验不能把 2048 输入收益减弱严格归因于某一个 attention/KV 瓶颈。共享主机波动和统计样本也需考虑。
 
-## 6. 结论和下一步判断标准
+## 6. Prefill 可以借鉴的方向：待核查和验证的 MMQ 研究
+
+**本节是候选研究计划，不是已完成的 llama.cpp MMQ 源码结论或 ORT prefill 性能结果。** 前文检查的是固定 revision 的 MMVQ、Q8_1 和 IQ2 点积；prefill 应另行检查同一 revision 的 [mmq.cu](https://github.com/ggml-org/llama.cpp/blob/c479922ac520a08969b4c1dc154d7bbb3c386d85/ggml/src/ggml-cuda/mmq.cu) 与 [mmq.cuh](https://github.com/ggml-org/llama.cpp/blob/c479922ac520a08969b4c1dc154d7bbb3c386d85/ggml/src/ggml-cuda/mmq.cuh)，核对具体格式、硬件分支、activation 量化调用和 indexed 路径，不能把 MMVQ 的观察直接套到 MMQ。
+
+文档中的 long-context TPS 对照仍是逐 token decode：较长历史 KV 不会让当前 FC1 重新处理所有 prompt token，被测 INT2 FC1 仍走 GEMV。这里讨论的 prefill 则一次处理多行输入，更适合研究 grouped GEMM 与矩阵乘 tile，但还必须看每个专家实际分到多少行。
+
+### 6.1 激活预量化复用：FC1 和 FC2 必须分开
+
+FC1 可以先对每个原始 token 的 source row 量化一次，再让输出 tile 和选中专家通过源行映射复用 INT8 值与 scale。量化应发生在复制专家输入之前，或通过索引保留共享关系；必须计入 routing 和访问布局的成本。这里的“一次”只指本次 FC1 调用，不能跨层或跨 decode step 复用不同的 activation。
+
+FC2 的输入是各专家自己计算的 gate/up + SwiGLU 结果；即使来自同一个 token，各专家的 intermediate activation 也不同。因此若研究 FC2 INT8 activation，必须按专家对应的 intermediate row 分别量化，不能共用 FC1 的 source-row 结果。是否融合 SwiGLU 输出与量化，需要另行验证误差、写回和同步成本。
+
+我们的 decode 原型每 16 个值一组并存储 FP32 scale，不是 Q8_1。Prefill 的分组、scale dtype 和 tile layout 应按矩阵乘需要重新评估，不直接复制 decode 配置，也不假设 llama.cpp 的格式与均匀 INT2 兼容。
+
+### 6.2 Tile 内解码与整数 Tensor Core 候选路径
+
+值得核查格式专用权重解码如何与 tile 搬运和计算衔接：从 packed 权重仅恢复当前 tile 所需的整数操作数，放入寄存器或 shared memory，再进入矩阵乘，避免持久展开整个专家权重矩阵。ORT 现有 packed prefill 已有避免完整展开的目标；候选方案必须与实际现有路径比较，不能把这一点当作独有的新收益。
+
+Prefill 可研究 INT8 MMA/Tensor Core，而不只是把 decode 的 DP4A kernel 放大。A100 支持 INT8 Tensor Core，但不原生消费我们的 packed INT2/INT3；仍需解码和 tile 排列。矩阵乘 layout、shared-memory 搬运、同步、partial tile、整数累加边界以及 activation/weight scale 分组都必须匹配。不同组的 scale 不能无条件合并为整个 K 上的一次统一缩放。
+
+候选流程如下，不代表已实现或已证明快于基线：
+
+```text
+FC1 source rows / FC2 expert-specific intermediate rows
+	-> activation quantization + scales
+packed weights -> tile-local integer decoding and rearrangement
+	-> integer matrix multiply and local accumulation
+	-> floating-point scale restoration and output
+```
+
+量化与 scale 恢复仍有浮点工作，这不是全程整数。新增 activation 量化误差必须通过层/logits 和完整任务评估，不能只检查 greedy token 一致。
+
+### 6.3 专家桶调度与端到端验收
+
+Prefill 总 token 数大，不代表每个专家都有足够大的矩阵。应记录每个专家桶的行数和分布，研究大桶的 GEMM tile 复用、小桶的 padding/launch 成本、空桶跳过、routing gather、输出 scatter 和尾部处理。llama.cpp MMQ 的索引与工作分配是否适合当前 ORT grouped GEMM，须由固定 revision 的源码核查和实验决定，而不是先认定可直接移植。
+
+首轮先建立现有 FP16/BF16 activation + packed 权重 grouped GEMM 的基线，检查 tile 利用率、解码和 workspace，再比较预量化 activation + 整数 MMA 候选实现。保持相同权重数值、scale、routing、形状、GPU 和构建，分别测试 FP16/BF16、不同 prompt 长度及专家桶分布。完整计时边界应至少包括：
+
+$$
+T_{\mathrm{MoE\ prefill}} = T_{\mathrm{quantization}} + T_{\mathrm{routing/movement}} + T_{\mathrm{FC1}} + T_{\mathrm{SwiGLU}} + T_{\mathrm{FC2}} + T_{\mathrm{finalize}}.
+$$
+
+这是成本核算清单，不要求融合或重叠阶段能被逐项独立相加；同时测量完整 MoE wall time，并明确 profiler 的归因边界。报告量化和临时读写、load/prepack、persistent/scratch 峰值、MoE 耗时、完整模型 prefill latency/TTFT；GEMM-only 不代表端到端收益，TTFT 也包含 MoE 以外工作。独立 profiling 证明实际分派，性能 A/B 在 profiling 关闭时重复测量。
+
+进入 ORT 性能 PR 的条件是：实际 provider 构建和正确性通过、scratch 有界、fallback 无未解释退化、量化质量达标，以及包含所有新增成本的可重复模型收益。若只在 kernel 微基准更快或容量收益被临时展开抵消，则停止扩展。当前没有 MMQ 移植、INT8 prefill、llama.cpp/ORT 同配方性能胜负或新的 prefill 准确率结果；本 recipe PR 只加入研究方向，不改变默认运行时路径。
+
+## 7. 结论和下一步判断标准
 
 可以借鉴 llama.cpp 的激活预量化复用、格式专用整数解码和符合条件的 GLU 融合，但不能忽略双方格式、分组、调度和运行时边界的差异。少做浮点转换，只证明局部优化方向有效；必须把激活量化、临时读写、launch、scale 和模型其余工作一起计入。
 
