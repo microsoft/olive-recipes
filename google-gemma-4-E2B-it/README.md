@@ -106,30 +106,22 @@ K-Quant (Q4_K_M) is significantly faster with GPU acceleration —
 install `cupy-cuda12x` for a 19–51× speedup during quantization.
 
 For a Torch-stage quantize-then-export flow, see
-[`multi_comp/README.md`](multi_comp/README.md). It applies INT4 KQuant to the
-decoder and INT4 RTN to the vision encoder in two independent component builds,
-automatically assembles a standard Hugging Face checkpoint, and then exports
-all four components with Mobius.
+[`multi_comp/README.md`](multi_comp/README.md). It applies native GPTQ to the
+decoder (INT4 with an INT8 output head) and embedding (INT8), and RTN to the
+vision encoder (INT4). It assembles a Hugging Face checkpoint, captures all
+four ONNX components with Mobius, and runs `ov.json` or `qnn.json`.
 
 ### NPU (QNN) - multi-component recipe
 
-The QNN recipe uses separate
-[`qnn_vision_1.json`](multi_comp/qnn_vision_1.json),
-[`qnn_vision_2.json`](multi_comp/qnn_vision_2.json), and
-[`qnn_decoder.json`](multi_comp/qnn_decoder.json) jobs. Vision calibration runs
-on a CUDA GPU. Vision context compilation and decoder optimization run on a
-Qualcomm QNN/NPU device.
+The QNN recipe uses one [`qnn.json`](multi_comp/qnn.json) multi-build workflow
+for the decoder, embedding, and vision components. The optimization script
+runs three steps: `gemma4_quantize.json`, Mobius ONNX graph capture, and
+`qnn.json`. Olive assembles the output into `gemma4_qnn`.
 
 ```bash
 cd multi_comp
 
-# Step 1: CUDA machine
-python optimize.py --ep qnn --qnn-stage cuda
-
-# Copy gemma4_onnx and gemma4_qnn_vision_1 to the QNN device.
-
-# Step 2: QNN/NPU device; this also merges the final package.
-python optimize.py --ep qnn --qnn-stage npu
+python optimize.py --ep qnn
 ```
 
 See [`multi_comp/README.md`](multi_comp/README.md#qnn) for the CUDA and QNN
