@@ -6,16 +6,17 @@
         }
     },
     "systems": {
-        "qnn_system": {
+        "cuda_system": {
             "type": "LocalSystem",
-            "accelerators": [
-                {
-                    "device": "npu",
-                    "execution_providers": [
-                        "QNNExecutionProvider"
-                    ]
-                }
-            ]
+            "accelerators": [ {
+                "device": "gpu",
+                "execution_providers": [ "CUDAExecutionProvider" ]
+            } ]
+        },
+        "qnn_system": {
+            "type": "PythonEnvironment",
+            "python_environment_path": "/home/xiaoyuzhang/workspace/qnn/qnn/bin",
+            "accelerators": [ { "execution_providers": [ "QNNExecutionProvider" ] } ]
         }
     },
     "data_configs": [
@@ -72,9 +73,6 @@
                     "surgeon": "SimplifiedLayerNormToL2Norm"
                 },
                 {
-                    "surgeon": "RMSNormalizationToL2Norm"
-                },
-                {
                     "surgeon": "ReplaceAttentionMaskValue",
                     "threshold": -1e8
                 }
@@ -112,11 +110,11 @@
             "dim_value": [
                 2520
             ],
+            "save_as_external_data": true
+        },
         "f16_vision": {
             "type": "OnnxFloatToFloat16",
             "keep_io_types": true,
-            "save_as_external_data": true
-        },
             "save_as_external_data": true
         },
         "embedding_cast": {
@@ -320,13 +318,14 @@
             "pipeline": [
                 "matmul_nbits_to_qdq",
                 "gs_vision",
-                "f16_vision",
                 "a16w8_static_quantization",
                 "dynamic_to_fixed_shape",
+                "f16_vision",
                 "vision_cb"
             ]
         }
     },
+    "host": "cuda_system",
     "target": "qnn_system",
     "output_dir": "gemma4_qnn",
     "log_severity_level": 1

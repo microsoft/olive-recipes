@@ -218,7 +218,7 @@ def wikitext_decoder_calibration_dataset(
     tokenizer = Tokenizer.from_file(str(tokenizer_path))
 
     parquet_path = hf_hub_download(DATASET_REPO, DATASET_FILE, repo_type="dataset")
-    texts = pd.read_parquet(parquet_path, engine="fastparquet")["text"].tolist()
+    texts = pd.read_parquet(parquet_path)["text"].tolist()
 
     ids = []
     needed = num_samples * seq_len

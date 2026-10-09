@@ -1,4 +1,3 @@
-fastparquet
 onnxruntime-qnn
 pandas
 pillow
