@@ -1,0 +1,171 @@
+{
+  "schema": "fresh-export-mmlu/2",
+  "recorded": "2026-10-08",
+  "scope": "One fresh run of the documented recipe after the PR was opened. Single runs; raw logs and per-question samples are not committed. No absolute local paths are recorded.",
+  "environment": {
+    "python": "3.12.9",
+    "torch": "2.14.1",
+    "transformers": "5.18.0",
+    "huggingface_hub": "1.33.0",
+    "olive_ai": "0.11.0.dev0 @ 18bf0b7f4943cd6ca7a8546a4c427e34d7343543",
+    "mobius_onnx": "0.1.0 @ e48b5e8acec62f8e82f002cb5ee03056bdda58a5",
+    "onnx": "1.23.1",
+    "onnx_ir": "1.0.0",
+    "onnxscript": "0.7.2",
+    "onnxruntime_gpu": "1.30.0 (git f2c39fe2f)",
+    "onnxruntime_genai_cuda": "0.17.1 (git 83de55a1f3886cddbb32a5517e26adb3f9d65159)",
+    "requests": "2.34.2",
+    "gpu": "NVIDIA A100-SXM4-80GB, physical GPU 0 only"
+  },
+  "documented_install": {
+    "exit": 0,
+    "wall_s": 168,
+    "pip_freeze_lines": 84,
+    "requests_installed": false
+  },
+  "olive_run": {
+    "attempt_1_documented": {
+      "exit": 1,
+      "wall_s": 0,
+      "error": "ModuleNotFoundError: No module named 'requests' (olive/telemetry/library/exporter.py, line 14)"
+    },
+    "packages_added_before_attempt_2": {
+      "requests": "2.34.2",
+      "charset-normalizer": "3.5.2",
+      "urllib3": "2.8.0"
+    },
+    "attempt_2": {
+      "exit": 0,
+      "wall_s": 371,
+      "kquant_pass_s": 286.107727,
+      "mobius_pass_s": 50.698737,
+      "peak_gpu_memory_mib": 13581,
+      "gpu_memory_sampling": "nvidia-smi every 2 s",
+      "huggingface_snapshot": "already in the local cache; download time not included"
+    }
+  },
+  "artifacts": {
+    "model.onnx.data": {
+      "fresh_bytes": 16753033216,
+      "archived_bytes": 16753033216,
+      "fresh_sha256": "7068abc4f751789535d792be6ad5f90bffa60e7b768e92e3a4dbfe9c2cbec34f",
+      "archived_sha256": "7068abc4f751789535d792be6ad5f90bffa60e7b768e92e3a4dbfe9c2cbec34f"
+    },
+    "model.onnx": {
+      "fresh_bytes": 903664,
+      "archived_bytes": 903556,
+      "fresh_sha256": "15f50d74aef8b1cdbe3ee95023c42b70bc915b96b77ac96f83274d6e207c1c9f",
+      "archived_sha256": "bf73c13d0d4a79c0b443a00ffa40a2efa2f0f3b7c52fac1f58c2716330be7beb"
+    },
+    "genai_config.json": {
+      "fresh_bytes": 1665,
+      "archived_bytes": 1341,
+      "fresh_sha256": "b1571e40ed7a1dcdafd14b84269c429b3e048ba1d6bcd76de9a4b62e69e26b9e",
+      "archived_sha256": "d59b0f5157aea2a05be9c7bc6b4968ae34b9c920c7bc2c062cba4ab405d55212",
+      "json_content_identical": true
+    }
+  },
+  "graph_comparison": {
+    "differing_text_format_lines": 1,
+    "differing_field": "graph.name",
+    "graph_name_chars_fresh": 219,
+    "graph_name_chars_archived": 112,
+    "op_type_histogram_identical": true,
+    "initializer_names_identical": true,
+    "nodes": 1163,
+    "initializers": 828,
+    "input_names": 98,
+    "output_names": 97
+  },
+  "genai_smoke": {
+    "model_load_s": 58.2,
+    "chat_prompt_tokens": 24,
+    "output_ids": [
+      18,
+      24,
+      16,
+      151645
+    ],
+    "output_text": "391",
+    "contains_391": true,
+    "tokens_7189_ids_equal_of_64": 64,
+    "tokens_7189_first_divergent_index": null
+  },
+  "mmlu": {
+    "protocol": "Olive LMEvaluator (ortgenai) with lm-eval 0.4.13 task mmlu; test split; limit 200 per subject; 0-shot; no chat template; batch size 1; max_length 4096",
+    "torch_baseline": "Previously saved Torch bf16 run from an earlier task; not rerun in this check",
+    "questions": 9183,
+    "subjects": 57,
+    "paired_counts": {
+      "onnx_fresh_vs_torch_bf16": {
+        "first": "onnx_fresh",
+        "second": "torch_bf16",
+        "both_right": 7381,
+        "only_first_right": 170,
+        "only_second_right": 268,
+        "both_wrong": 1364
+      },
+      "onnx_fresh_vs_onnx_archived": {
+        "first": "onnx_fresh",
+        "second": "onnx_archived",
+        "both_right": 7551,
+        "only_first_right": 0,
+        "only_second_right": 0,
+        "both_wrong": 1632
+      }
+    },
+    "captured_statistics": {
+      "accuracy": {
+        "onnx_fresh": 0.822280300555374,
+        "torch_bf16": 0.8329521942720244,
+        "onnx_archived": 0.822280300555374
+      },
+      "stderr": {
+        "onnx_fresh": 0.003989413783294864,
+        "torch_bf16": 0.0038927972226495233,
+        "onnx_archived": 0.003989413783294864
+      },
+      "comparisons": {
+        "onnx_fresh_vs_torch_bf16": {
+          "delta_points": -1.0671893716650334,
+          "ci95_points": [
+            -1.5133724252649325,
+            -0.6210063180651338
+          ],
+          "mcnemar_exact_p": 3.2677750218436497e-06
+        },
+        "onnx_fresh_vs_onnx_archived": {
+          "delta_points": 0.0,
+          "ci95_points": [
+            0.0,
+            0.0
+          ],
+          "mcnemar_exact_p": 1.0
+        }
+      },
+      "ci95_method": "Normal approximation: delta +/- 1.96 * SE; SE = sample standard deviation (ddof=1) of the per-question paired differences divided by sqrt(n); the deviation is reconstructed exactly from the paired counts. No resampling, no seed.",
+      "ci95_seed": null,
+      "mcnemar_method": "Two-sided exact binomial test (p = 0.5) on the discordant pairs",
+      "stderr_method": "sqrt(p * (1 - p) / (n - 1)) for accuracy p over n questions"
+    },
+    "captured_not_recomputable": {
+      "same_option_fraction_onnx_fresh_vs_torch_bf16": 0.9422846564303604,
+      "prompts_over_512_tokens": {
+        "count": 60,
+        "of": 9183,
+        "note": "reconstructed from the standard 0-shot layout, approximately +/-20 tokens"
+      }
+    }
+  },
+  "limitations": [
+    "Sanity check of the exported weights; not a quality-equivalence result.",
+    "Olive's ortgenai backend appears to replace the exported genai_config.json provider options with defaults (read from source, not confirmed at run time), so the shipped CUDA-graph and strict skip-layer-norm settings may not have been in effect.",
+    "Almost no prompt exceeds 512 tokens, so the run says nothing about chunked prefill or long-context behavior.",
+    "The Torch baseline is a previously saved run and was not rerun here; every number is a single run."
+  ],
+  "source_digests": {
+    "raw_report_sha256": "e2254e5c47b39a939eb572013aac3e633b53c280ba833624b8b5a3cbd4b9dbc6",
+    "sample_manifest_sha256": "66c3c19f8482bb25fdfcc78cda5f390b542b83fe759b1585e45ea6ed59dbe7e0",
+    "predictions_sha256": "d532a14069b27548c4a52dff9b3e9f45d7c964bf553b75d0cac83e39c3ec014c"
+  }
+}

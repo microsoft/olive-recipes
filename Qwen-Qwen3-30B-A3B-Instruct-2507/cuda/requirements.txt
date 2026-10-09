@@ -1,0 +1,12 @@
+# Proposed build environment: same source pins as the base Qwen recipe.
+# These are not recovered historical Instruct-2507 export versions.
+mobius-onnx @ git+https://github.com/onnxruntime/mobius.git@e48b5e8acec62f8e82f002cb5ee03056bdda58a5
+olive-ai[gpu] @ git+https://github.com/microsoft/Olive.git@18bf0b7f4943cd6ca7a8546a4c427e34d7343543
+onnx-ir>=1.0.0
+# Runtime used for the recorded investigation. Exact source commits are in
+# evidence/provenance.json; matching CUDA wheels may require source builds.
+onnxruntime-genai-cuda==0.17.1
+onnxruntime-gpu==1.30.0
+# The pinned Olive commit imports requests without declaring it. The version is the
+# one validated on 2026-10-08. Same symptom: Olive #2676 (on 0.13.0); fix: #2693.
+requests==2.34.2
