@@ -11,6 +11,7 @@ import json
 import math
 import statistics
 import struct
+from fractions import Fraction
 from pathlib import Path
 from typing import Any
 
@@ -36,6 +37,8 @@ FLOAT_FIELDS = {
     "max_sample_gap_ms", "median_sample_gap_ms",
 }
 STATS = ("InUse", "RequestedInUse", "TotalAllocated", "MaxInUse")
+FRESH_EXPORT = "fresh_export_mmlu.json"
+Z95 = 1.96
 
 
 def require(condition: bool, message: str) -> None:
@@ -454,6 +457,106 @@ def sequential_summary(data: dict[str, Any], expected_ids: list[int]) -> dict[st
     }
 
 
+def varint_size(value: int) -> int:
+    require(type(value) is int and value >= 0, "Invalid protobuf length")
+    size = 1
+    while value >= 0x80:
+        value >>= 7
+        size += 1
+    return size
+
+
+def exact_mcnemar_p(only_first: int, only_second: int) -> float:
+    """Two-sided exact binomial (p = 0.5) p-value for the discordant pairs, in exact integer arithmetic."""
+    discordant = only_first + only_second
+    smaller = min(only_first, only_second)
+    if discordant == 0 or 2 * smaller == discordant:
+        return 1.0
+    tail = Fraction(sum(math.comb(discordant, k) for k in range(smaller + 1)), 2**discordant)
+    return min(1.0, float(2 * tail))
+
+
+def close(actual: float, expected: float, tolerance: float = 1e-9) -> bool:
+    return math.isclose(actual, expected, rel_tol=tolerance, abs_tol=tolerance)
+
+
+def paired_statistics(entry: dict[str, Any], questions: int) -> dict[str, Any]:
+    keys = ("both_right", "only_first_right", "only_second_right", "both_wrong")
+    require(all(type(entry[key]) is int and entry[key] >= 0 for key in keys), "Paired counts must be non-negative integers")
+    require(sum(entry[key] for key in keys) == questions, "Paired counts do not sum to the question total")
+    both, first, second, _ = (entry[key] for key in keys)
+    mean = (first - second) / questions
+    variance = ((first + second) - questions * mean * mean) / (questions - 1)
+    error = math.sqrt(max(variance, 0.0) / questions)
+    return {
+        "first_correct": both + first, "second_correct": both + second,
+        "delta_points": 100 * mean, "ci95_points": [100 * (mean - Z95 * error), 100 * (mean + Z95 * error)],
+        "mcnemar_exact_p": exact_mcnemar_p(first, second),
+    }
+
+
+def artifact_relationships(record: dict[str, Any], provenance: dict[str, Any]) -> dict[str, int]:
+    locked = provenance["artifacts"]
+    artifacts = record["artifacts"]
+    data, graph, config = (artifacts[name] for name in ("model.onnx.data", "model.onnx", "genai_config.json"))
+    for entry in (data, graph, config):
+        for key in ("fresh_sha256", "archived_sha256"):
+            require(len(entry[key]) == 64 and set(entry[key]) <= set("0123456789abcdef"), "Invalid SHA-256 value")
+    require(data["archived_bytes"] == locked["original_external_data"]["bytes"]
+            and data["archived_sha256"] == locked["original_external_data"]["sha256"], "Archived external data differs from the provenance record")
+    require(graph["archived_bytes"] == locked["original_graph"]["bytes"]
+            and graph["archived_sha256"] == locked["original_graph"]["sha256"], "Archived graph differs from the provenance record")
+    require(config["archived_sha256"] == locked["original_genai_config_sha256"], "Archived genai_config differs from the provenance record")
+    require(data["fresh_bytes"] == data["archived_bytes"] and data["fresh_sha256"] == data["archived_sha256"],
+            "Fresh external data is not byte-identical to the archived file")
+    compare = record["graph_comparison"]
+    require(compare["differing_text_format_lines"] == 1 and compare["differing_field"] == "graph.name",
+            "The documented graph difference is not limited to graph.name")
+    require(compare["op_type_histogram_identical"] is True and compare["initializer_names_identical"] is True,
+            "Graph structure differs beyond graph.name")
+    require(graph["fresh_sha256"] != graph["archived_sha256"], "The documented model.onnx exception requires differing hashes")
+    fresh_chars, archived_chars = compare["graph_name_chars_fresh"], compare["graph_name_chars_archived"]
+    prefix_delta = varint_size(fresh_chars) - varint_size(archived_chars)
+    size_delta = graph["fresh_bytes"] - graph["archived_bytes"]
+    require(size_delta == (fresh_chars - archived_chars) + prefix_delta,
+            "model.onnx size difference is not explained by the graph.name length difference")
+    require(config["json_content_identical"] is True, "genai_config.json content differs")
+    return {"graph_size_delta": size_delta, "graph_name_char_delta": fresh_chars - archived_chars, "length_prefix_delta": prefix_delta}
+
+
+def fresh_export_summary(record: dict[str, Any], provenance: dict[str, Any]) -> dict[str, Any]:
+    require(record["schema"] == "fresh-export-mmlu/2", "Unsupported fresh-export schema")
+    added = record["olive_run"]["packages_added_before_attempt_2"]
+    require(added.get("requests") == record["environment"]["requests"] and len(added) > 1,
+            "The recorded requests version or its added transitive dependencies are inconsistent")
+    mmlu = record["mmlu"]
+    questions = mmlu["questions"]
+    require(type(questions) is int and questions > 1, "Invalid MMLU question total")
+    require("test split" in mmlu["protocol"] and "limit 200 per subject" in mmlu["protocol"], "MMLU protocol changed")
+    captured = mmlu["captured_statistics"]
+    require(captured["ci95_seed"] is None, "The paired CI is deterministic; no seed is expected")
+    correct: dict[str, int] = {}
+    comparisons: dict[str, dict[str, Any]] = {}
+    for name, entry in mmlu["paired_counts"].items():
+        stats = paired_statistics(entry, questions)
+        claimed = captured["comparisons"][name]
+        require(close(stats["delta_points"], claimed["delta_points"]), f"Captured delta does not match the paired counts: {name}")
+        require(all(close(a, b) for a, b in zip(stats["ci95_points"], claimed["ci95_points"])),
+                f"Captured 95% CI does not match the paired counts: {name}")
+        require(close(stats["mcnemar_exact_p"], claimed["mcnemar_exact_p"]), f"Captured exact McNemar p does not match the paired counts: {name}")
+        for side, count in ((entry["first"], stats["first_correct"]), (entry["second"], stats["second_correct"])):
+            require(correct.setdefault(side, count) == count, f"Correct counts differ between comparisons: {side}")
+        comparisons[name] = {**entry, **stats}
+    require(set(correct) == set(captured["accuracy"]) == set(captured["stderr"]), "Captured accuracy sides do not match the paired counts")
+    accuracy = {side: count / questions for side, count in correct.items()}
+    for side, value in accuracy.items():
+        require(close(captured["accuracy"][side], value, 1e-12), f"Captured accuracy does not match the paired counts: {side}")
+        require(close(captured["stderr"][side], math.sqrt(value * (1 - value) / (questions - 1)), 1e-12),
+                f"Captured stderr does not match the paired counts: {side}")
+    return {"record": record, "questions": questions, "correct": correct, "accuracy": accuracy, "comparisons": comparisons,
+            "artifacts": artifact_relationships(record, provenance)}
+
+
 def calculate(directory: Path = EVIDENCE) -> dict[str, Any]:
     verify_checksums(directory)
     provenance = read_json(directory / "provenance.json")
@@ -487,11 +590,88 @@ def calculate(directory: Path = EVIDENCE) -> dict[str, Any]:
                            "provisional_gap_mib": candidate - llama})
     return {"benchmark_groups": groups, "initializer_storage": weights, "allocator": allocation,
             "lifetime_controls": {case: lifetime_controls(rows) for case, rows in allocation.items()}, "logits": logits,
-            "qmoe": qmoe, "sequential": sequential, "comparison": comparison}
+            "qmoe": qmoe, "sequential": sequential, "comparison": comparison,
+            "fresh_export": fresh_export_summary(read_json(directory / FRESH_EXPORT), provenance)}
 
 
 def interval(metric: dict[str, float]) -> str:
     return f"{metric['median']:,.2f} [{metric['min']:,.2f}, {metric['max']:,.2f}]"
+
+
+def percent(value: float) -> str:
+    return f"{100 * value:.2f}%"
+
+
+def fresh_export_tables(summary: dict[str, Any]) -> dict[str, str]:
+    record = summary["record"]
+    install, run, smoke = record["documented_install"], record["olive_run"], record["genai_smoke"]
+    first, second = run["attempt_1_documented"], run["attempt_2"]
+    relations, compare = summary["artifacts"], record["graph_comparison"]
+    steps = [
+        "| Step | Result |",
+        "|---|---|",
+        f"| `pip install -r cuda/requirements.txt` in a clean environment | exit {install['exit']}, {install['wall_s']} s |",
+        f"| `olive run --config cuda/kquant_fp16/config.json` as documented | exit {first['exit']} after {first['wall_s']} s: {first['error']} |",
+        f"| The same command after adding `requests=={record['environment']['requests']}` and its transitive dependencies | exit {second['exit']}, {second['wall_s']} s "
+        f"(KQuant pass {second['kquant_pass_s']:.1f} s, MobiusBuilder pass {second['mobius_pass_s']:.1f} s); "
+        f"peak GPU 0 memory {second['peak_gpu_memory_mib']:,} MiB |",
+        f"| ORT GenAI smoke test on the fresh export | `{smoke['output_text']}`; the 7,189-token greedy run matched "
+        f"{smoke['tokens_7189_ids_equal_of_64']}/64 accepted IDs |",
+    ]
+    data, graph, config = (record["artifacts"][name] for name in ("model.onnx.data", "model.onnx", "genai_config.json"))
+    digest = f"{data['fresh_sha256'][:8]}...{data['fresh_sha256'][-4:]}"
+    files = [
+        "| File | Fresh bytes | Archived bytes | SHA-256 |",
+        "|---|---:|---:|---|",
+        f"| `model.onnx.data` | {data['fresh_bytes']:,} | {data['archived_bytes']:,} | identical (`{digest}`) |",
+        f"| `model.onnx` | {graph['fresh_bytes']:,} | {graph['archived_bytes']:,} | differs only in `graph.name` "
+        f"({compare['graph_name_chars_fresh']} versus {compare['graph_name_chars_archived']} characters: "
+        f"{relations['graph_name_char_delta']:+d} characters and {relations['length_prefix_delta']:+d} length-prefix byte "
+        f"= {relations['graph_size_delta']:+d} bytes) |",
+        f"| `genai_config.json` | {config['fresh_bytes']:,} | {config['archived_bytes']:,} | differs in raw bytes; JSON content identical |",
+    ]
+    structure = (f"The op-type histogram, node count ({compare['nodes']:,}), initializer count ({compare['initializers']:,}), "
+                 f"initializer names and input/output name counts ({compare['input_names']} / {compare['output_names']}) are identical.")
+    sections = {"fresh-export": "\n".join(steps + [""] + files + ["", structure])}
+    mmlu, questions = record["mmlu"], summary["questions"]
+    stats = mmlu["captured_statistics"]
+    names = {"onnx_fresh": "ONNX fresh export", "torch_bf16": "Torch bf16 (previously saved baseline, not rerun)",
+             "onnx_archived": "ONNX archived artifact"}
+    lines = [f"| Side | Correct / {questions:,} | Accuracy (stderr, points) |", "|---|---:|---:|"]
+    for side in ("onnx_fresh", "torch_bf16", "onnx_archived"):
+        lines.append(f"| {names[side]} | {summary['correct'][side]:,} | {percent(summary['accuracy'][side])} ({100 * stats['stderr'][side]:.2f}) |")
+    lines.extend([
+        "",
+        "| Paired comparison | Both right | Only first right | Only second right | Both wrong | Delta (points) | 95% CI (points) | Exact McNemar p |",
+        "|---|---:|---:|---:|---:|---:|---:|---:|",
+    ])
+    labels = {"onnx_fresh_vs_torch_bf16": "ONNX fresh minus Torch bf16", "onnx_fresh_vs_onnx_archived": "ONNX fresh versus archived ONNX"}
+    for name, row in summary["comparisons"].items():
+        low, high = row["ci95_points"]
+        lines.append(f"| {labels[name]} | {row['both_right']:,} | {row['only_first_right']:,} | {row['only_second_right']:,} | "
+                     f"{row['both_wrong']:,} | {row['delta_points']:+.2f} | {low:.2f} to {high:.2f} | {row['mcnemar_exact_p']:.2g} |")
+    extra = mmlu["captured_not_recomputable"]
+    over = extra["prompts_over_512_tokens"]
+    lines.extend([
+        "",
+        f"- Protocol: {mmlu['protocol']}.",
+        f"- CI method: {stats['ci95_method']}",
+        f"- Exact McNemar: {stats['mcnemar_method']}.",
+        "- Captured, not recomputable from the compact evidence: both sides chose the same option for "
+        f"{percent(extra['same_option_fraction_onnx_fresh_vs_torch_bf16'])} of questions, and {over['count']} of {over['of']:,} prompts "
+        f"exceed 512 tokens ({over['note']}).",
+    ])
+    sections["mmlu"] = "\n".join(lines)
+    main_row = summary["comparisons"]["onnx_fresh_vs_torch_bf16"]
+    low, high = main_row["ci95_points"]
+    sections["mmlu-summary"] = "\n".join([
+        f"| MMLU sanity check (test split, up to 200 per subject, {questions:,} questions) | Accuracy |",
+        "|---|---:|",
+        f"| ONNX fresh export | {percent(summary['accuracy']['onnx_fresh'])} |",
+        f"| Torch bf16 (previously saved baseline, not rerun) | {percent(summary['accuracy']['torch_bf16'])} |",
+        f"| Paired difference (ONNX minus Torch) | {main_row['delta_points']:+.2f} points (95% CI {low:.2f} to {high:.2f}) |",
+    ])
+    return sections
 
 
 def tables(result: dict[str, Any]) -> dict[str, str]:
@@ -581,6 +761,7 @@ def tables(result: dict[str, Any]) -> dict[str, str]:
                      f"{r['genai_live_bytes']}/{r['genai_requested_bytes']} | 64/64 match |")
         previous = r["process_mib"]
     sections["sequential"] = "\n".join(lines)
+    sections.update(fresh_export_tables(result["fresh_export"]))
     return sections
 
 
@@ -611,6 +792,8 @@ def main() -> None:
         print("PASS: 24 same-checkpoint byte budgets; exact KV/logits shape arithmetic.")
         print("PASS: all 48 QMoE layer counters; exact FP16 difference metrics; all candidate output IDs.")
         print("PASS: fifteen sequential requests, 960 output IDs, allocator ordering and external GPU cleanup.")
+        print("PASS: fresh-export record: MMLU paired counts, accuracies, exact McNemar p, deterministic paired CI, "
+              "artifact hash/size relations to the provenance record and the documented graph.name exception.")
         if args.check_docs:
             print("PASS: every published Markdown table regenerated from committed evidence.")
     elif args.command == "summary":

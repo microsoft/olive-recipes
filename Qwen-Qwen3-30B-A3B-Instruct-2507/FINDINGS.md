@@ -15,6 +15,7 @@ inputs and fails explicitly on inconsistent data.
 | Experimental graph | [Logits metadata](evidence/logits_pairs.json) and pair histograms | Two-prompt numerical/token comparison and measured memory saving |
 | Source-supported calculation | [QMoE layer counters](evidence/qmoe_workspace.json) | Buffer subtotal and no additional high-water growth across layers |
 | Retention diagnostic | [Sequential checkpoints](evidence/sequential_requests.json) | Fifteen-request growth with stable allocator capacity; owner unresolved |
+| Fresh-export check | [Fresh export record](evidence/fresh_export_mmlu.json) | One export run, artifact hashes and one MMLU sanity check against a previously saved Torch baseline; single runs, not performance or quality equivalence |
 
 The early, superseded benchmark with incorrect timing/counting/capacity
 behavior is excluded. Earlier checkpoint arena values inferred from individual
@@ -441,18 +442,96 @@ allocation-event trace was run. The observation does not prove an
 indefinite leak, nor that graphs alone own the increase. The single-request
 115.10 MiB residual must not be described as universally constant overhead.
 
+## Fresh export and MMLU sanity check
+
+One fresh run of the documented recipe was made on 2026-10-08, after this PR was
+opened. It does not replace the archived artifact or any accepted result above.
+Raw logs and per-question samples are not committed. The compact record is
+[fresh_export_mmlu.json](evidence/fresh_export_mmlu.json); `python3
+scripts/evidence.py verify --check-docs` recomputes the accuracies, deltas, interval
+and exact p-values from its paired counts, checks the artifact size/hash relations
+against the provenance record, and fails if the tables below differ.
+
+The pinned Olive commit imports `requests` without declaring it (the same symptom
+is reported upstream for Olive 0.13.0 in
+[Olive #2676](https://github.com/microsoft/Olive/issues/2676), with a fix proposed
+in [#2693](https://github.com/microsoft/Olive/pull/2693)), so the documented
+`olive run` stopped at import until `requests` was installed. It is now listed in
+`cuda/requirements.txt`. The Hugging Face snapshot was already in the local cache,
+so download time is not included in the export timing.
+
+<!-- BEGIN fresh-export -->
+| Step | Result |
+|---|---|
+| `pip install -r cuda/requirements.txt` in a clean environment | exit 0, 168 s |
+| `olive run --config cuda/kquant_fp16/config.json` as documented | exit 1 after 0 s: ModuleNotFoundError: No module named 'requests' (olive/telemetry/library/exporter.py, line 14) |
+| The same command after adding `requests==2.34.2` and its transitive dependencies | exit 0, 371 s (KQuant pass 286.1 s, MobiusBuilder pass 50.7 s); peak GPU 0 memory 13,581 MiB |
+| ORT GenAI smoke test on the fresh export | `391`; the 7,189-token greedy run matched 64/64 accepted IDs |
+
+| File | Fresh bytes | Archived bytes | SHA-256 |
+|---|---:|---:|---|
+| `model.onnx.data` | 16,753,033,216 | 16,753,033,216 | identical (`7068abc4...c34f`) |
+| `model.onnx` | 903,664 | 903,556 | differs only in `graph.name` (219 versus 112 characters: +107 characters and +1 length-prefix byte = +108 bytes) |
+| `genai_config.json` | 1,665 | 1,341 | differs in raw bytes; JSON content identical |
+
+The op-type histogram, node count (1,163), initializer count (828), initializer names and input/output name counts (98 / 97) are identical.
+<!-- END fresh-export -->
+
+This is a single run with the pinned sources; it does not identify the historical
+Olive/Mobius versions.
+
+**MMLU.** Olive's lm-eval evaluator compared the fresh export with a previously
+saved Torch bf16 run of the same checkpoint. Torch was not rerun in this check.
+
+<!-- BEGIN mmlu -->
+| Side | Correct / 9,183 | Accuracy (stderr, points) |
+|---|---:|---:|
+| ONNX fresh export | 7,551 | 82.23% (0.40) |
+| Torch bf16 (previously saved baseline, not rerun) | 7,649 | 83.30% (0.39) |
+| ONNX archived artifact | 7,551 | 82.23% (0.40) |
+
+| Paired comparison | Both right | Only first right | Only second right | Both wrong | Delta (points) | 95% CI (points) | Exact McNemar p |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| ONNX fresh minus Torch bf16 | 7,381 | 170 | 268 | 1,364 | -1.07 | -1.51 to -0.62 | 3.3e-06 |
+| ONNX fresh versus archived ONNX | 7,551 | 0 | 0 | 1,632 | +0.00 | 0.00 to 0.00 | 1 |
+
+- Protocol: Olive LMEvaluator (ortgenai) with lm-eval 0.4.13 task mmlu; test split; limit 200 per subject; 0-shot; no chat template; batch size 1; max_length 4096.
+- CI method: Normal approximation: delta +/- 1.96 * SE; SE = sample standard deviation (ddof=1) of the per-question paired differences divided by sqrt(n); the deviation is reconstructed exactly from the paired counts. No resampling, no seed.
+- Exact McNemar: Two-sided exact binomial test (p = 0.5) on the discordant pairs.
+- Captured, not recomputable from the compact evidence: both sides chose the same option for 94.23% of questions, and 60 of 9,183 prompts exceed 512 tokens (reconstructed from the standard 0-shot layout, approximately +/-20 tokens).
+<!-- END mmlu -->
+
+Limits: this is a sanity check of the exported weights, not quality equivalence.
+Olive's `ortgenai` backend appears to replace the exported `genai_config.json`
+provider options with defaults (read from `olive/evaluator/lmeval_ort.py`, not
+confirmed at run time), so the shipped CUDA-graph and strict skip-layer-norm
+settings may not have been in effect. Almost no prompt exceeds 512 tokens, so the
+run says nothing about chunked prefill or long-context behavior. Every number is a
+single run.
+
 ## Outstanding work
 
-The experimental ORT-candidate minus existing llama.cpp gap is 1,508 MiB
-(1.47 GiB) at 7K and 6,676 MiB (6.52 GiB) at 28K. The difference grows by
-5,168 MiB (5.05 GiB); the initializers' fixed size alone does not explain
-context-dependent growth. These candidate measurements are n=1, instrumented,
-and numerically unaccepted. No fresh paired candidate/llama.cpp medians or
-quality-equivalence result is claimed.
+Historical configuration-limited comparison: the experimental ORT-candidate minus
+llama.cpp deltas are 1,508 MiB (1.47 GiB) at 7K and 6,676 MiB (6.52 GiB) at 28K, a
+difference of 5,168 MiB (5.05 GiB). The experimental candidate prefilled the full
+prompt in one pass (n=1, instrumented, numerically unaccepted), whereas llama.cpp
+processed it in 512-token micro-batches (llama-cpp-python 0.3.35 defaults
+`n_batch = n_ubatch = 512`, flash attention off). The QMoE workspace measurements
+above show that prompt-sized allocations depend on the number of tokens processed
+concurrently, so these deltas describe those runs but do not establish an intrinsic
+ORT-versus-llama.cpp runtime gap. Matched-prefill testing was performed separately;
+its results are outside this PR's evidence, which neither includes nor relies on
+them. No fresh paired candidate/llama.cpp medians are claimed here.
 
-Next: identify allocation types and concurrent lifetimes behind that growth;
-explain numerical differences before choosing a tolerance; attribute repeated-
-request growth separately. Arena disabling and allocation/free stack capture
-are possible diagnostic controls, not production recommendations. Coordinate
-Mobius/logits, workspace/resource-accounting and expert-offloading owners
-instead of creating duplicate implementations.
+The accepted benchmark compares the tested default prefill configurations: ORT's
+whole-prompt prefill (default allocator and the opt-in initializer-Reserve setting)
+and llama.cpp's default 512-token micro-batches. In it, both ORT variants had higher
+sampled peaks than llama.cpp at every context tier and request kind. This PR makes
+no tuned-parity, quality-equivalence or universal runtime-parity claim.
+
+Next: any claim based on the separate matched-prefill testing needs its own
+committed, verifier-checked evidence; explain numerical differences before choosing
+a tolerance; attribute repeated-request growth separately. Arena disabling and
+allocation/free stack capture are possible diagnostic controls, not production
+recommendations. Coordinate Mobius/logits, workspace/resource-accounting and
+expert-offloading owners instead of creating duplicate implementations.

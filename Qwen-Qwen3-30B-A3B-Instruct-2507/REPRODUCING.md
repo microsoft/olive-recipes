@@ -76,11 +76,11 @@ Unknowns are explicit:
 
 | Missing identity/check | Consequence |
 |---|---|
-| Historical Olive/Mobius versions | No byte-identical fresh export claim |
+| Historical Olive/Mobius versions | Not recovered. One fresh export with the pinned sources reproduced the archived external-data bytes (single run; see [Findings](FINDINGS.md#fresh-export-and-mmlu-sanity-check)); this does not identify the historical versions |
 | Separate native llama.cpp commit | Binding version/file fingerprints available; native revision not independently pinned |
 | Every build's CUDA toolkit | `libcudart.so.13` is an observed runtime-library name, not a compiler-toolkit identity |
 | Public distribution URL for the exact original ONNX package | GPU reproduction needs supplied matching artifacts |
-| New GPU run during this PR preparation | Recipe export/inference examples are documented, not newly executed |
+| Repeat runs of the fresh export | One fresh export (2026-10-08) was hashed and smoke-tested; timings and memory are single runs |
 
 The current build source pins follow the existing base-model recipe. They
 are a proposed setup, not evidence of which export environment ran in
@@ -89,10 +89,12 @@ the new output silently into these historical results.
 
 ## Optional GPU setup and baseline export
 
-GPU commands below are **not run** by the CPU verification and were not run
-during PR preparation. Use a Linux CUDA machine, keep GPU 0 isolated, and
-preserve original models. Exact matching runtime wheels may need source
-builds if the approved feed does not serve these versions.
+GPU commands below are **not run** by the CPU verification. They were executed
+once on 2026-10-08, after this PR was opened (see
+[Findings](FINDINGS.md#fresh-export-and-mmlu-sanity-check)). Use a Linux CUDA
+machine, keep GPU 0 isolated, and preserve original models. On that date the
+approved feed served the pinned `onnxruntime-gpu` and `onnxruntime-genai-cuda`
+wheels; exact matching runtime wheels may still need source builds if it does not.
 
 Run from this model directory:
 
@@ -108,8 +110,12 @@ olive run --config cuda/kquant_fp16/config.json
 ```
 
 Output is `cuda/kquant_fp16/models/`. No hidden-state-row selection is added
-by this baseline recipe. A fresh export is not asserted to reproduce the
-archived graph bytes until its hashes are compared.
+by this baseline recipe. In the 2026-10-08 run the fresh external data was
+byte-identical to the archived file, and `model.onnx` differed only in its
+`graph.name` string (an absolute Olive-cache path); see
+[Findings](FINDINGS.md#fresh-export-and-mmlu-sanity-check). `requests` is listed
+in `cuda/requirements.txt` because the pinned Olive commit imports it without
+declaring it. These are single-run facts, not a determinism claim.
 
 For source-built measured runtimes, use the pinned repositories rather than
 an arbitrary current release:

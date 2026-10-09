@@ -7,3 +7,6 @@ onnx-ir>=1.0.0
 # evidence/provenance.json; matching CUDA wheels may require source builds.
 onnxruntime-genai-cuda==0.17.1
 onnxruntime-gpu==1.30.0
+# The pinned Olive commit imports requests without declaring it. The version is the
+# one validated on 2026-10-08. Same symptom: Olive #2676 (on 0.13.0); fix: #2693.
+requests==2.34.2

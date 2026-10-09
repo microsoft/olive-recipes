@@ -110,15 +110,39 @@ the evidence inputs, checksum manifest and hash-pinned runner in LF form.
 
 ONNX KQuant and GGUF Q4_K_M are different quantized artifacts; the GGUF uses
 mixed Q4_K/Q6_K storage. Same inputs, capacities and output lengths do not
-establish numerical or output-quality equivalence. No MMLU/quality result is
-claimed for this artifact.
+establish numerical or output-quality equivalence. A single 0-shot MMLU sanity
+check compares a fresh export with a previously saved Torch bf16 run of the same
+checkpoint (Torch was not rerun for this check):
 
-The experimental candidate's provisional gap to the existing llama.cpp
-baseline is **1.47 GiB at 7K and 6.52 GiB at 28K**. The additional 5.05 GiB
-context-dependent difference is not closed by the internal accounting
-residual. Allocation types/lifetimes still need comparison between runtimes.
-These are diagnostic-to-benchmark comparisons, not fresh paired candidate
-benchmark medians.
+<!-- BEGIN mmlu-summary -->
+| MMLU sanity check (test split, up to 200 per subject, 9,183 questions) | Accuracy |
+|---|---:|
+| ONNX fresh export | 82.23% |
+| Torch bf16 (previously saved baseline, not rerun) | 83.30% |
+| Paired difference (ONNX minus Torch) | -1.07 points (95% CI -1.51 to -0.62) |
+<!-- END mmlu-summary -->
+
+This checks the exported weights; it is not a quality-equivalence result and says
+nothing about long-context or chunked-prefill behavior. Method, limits and the
+artifact comparison are in
+[Findings](FINDINGS.md#fresh-export-and-mmlu-sanity-check).
+
+**Historical configuration-limited comparison.** The experimental candidate
+prefilled the full prompt in one pass, whereas llama.cpp processed it in 512-token
+micro-batches (the llama-cpp-python 0.3.35 defaults `n_batch = n_ubatch = 512`,
+flash attention off). The PR's QMoE workspace measurements show that prompt-sized
+allocations depend on the number of tokens processed concurrently, so the
+candidate-minus-llama.cpp deltas (1.47 GiB at 7K, 6.52 GiB at 28K) describe those
+runs but do not establish an intrinsic ORT-versus-llama.cpp runtime gap.
+Matched-prefill testing was performed separately; its results are outside this
+PR's evidence, which neither includes nor relies on them. The deltas remain
+diagnostic-to-benchmark comparisons, not fresh paired medians.
+
+The accepted benchmark compares the tested default prefill configurations: ORT's
+whole-prompt prefill (default allocator and the opt-in initializer-Reserve setting)
+and llama.cpp's default 512-token micro-batches. In it, both ORT variants had higher
+sampled peaks than llama.cpp at every context tier and request kind. This PR makes
+no tuned-parity, quality-equivalence or universal runtime-parity claim.
 
 Explain the logits differences before proposing exactness or a tolerance.
 Coordinate the Mobius integration with existing last-token-logits work,

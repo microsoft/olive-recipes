@@ -6,6 +6,9 @@ from __future__ import annotations
 import copy
 import importlib.util
 import math
+import re
+import shutil
+import statistics
 import sys
 import tempfile
 import unittest
@@ -162,8 +165,185 @@ class EvidenceTests(unittest.TestCase):
             module.validate_input_capacity(range(10), 12, 3)
         self.assertTrue(math.isfinite(module.token_metrics(1, [1, 2], [2, 3])["decode_tokens_per_second"]))
 
+    def test_accepted_default_prefill_orders_both_ort_variants_above_llama_cpp_in_every_cell(self):
+        peaks = {(g["prompt_tokens"], g["request_kind"], g["variant"]): g["peak_vram_mib"]["median"]
+                 for g in self.result["benchmark_groups"]}
+        self.assertEqual(len(peaks), 45)
+        for (tokens, kind, variant), peak in peaks.items():
+            if variant != "llama.cpp":
+                self.assertGreater(peak, peaks[(tokens, kind, "llama.cpp")], (tokens, kind, variant))
+
     def test_all_published_tables_match_the_committed_evidence(self):
         evidence.check_documents(ROOT, evidence.tables(self.result))
+
+
+class FreshExportEvidenceTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.record = evidence.read_json(evidence.EVIDENCE / evidence.FRESH_EXPORT)
+        cls.provenance = evidence.read_json(evidence.EVIDENCE / "provenance.json")
+        cls.summary = evidence.calculate()["fresh_export"]
+
+    def summarize(self, record):
+        return evidence.fresh_export_summary(record, self.provenance)
+
+    def mutated(self, path, value):
+        record = copy.deepcopy(self.record)
+        target = record
+        for key in path[:-1]:
+            target = target[key]
+        target[path[-1]] = value
+        return record
+
+    def test_counts_reproduce_accuracies_delta_interval_and_exact_mcnemar(self):
+        self.assertEqual(self.summary["questions"], 9183)
+        self.assertEqual(self.summary["correct"], {"onnx_fresh": 7551, "torch_bf16": 7649, "onnx_archived": 7551})
+        row = self.summary["comparisons"]["onnx_fresh_vs_torch_bf16"]
+        self.assertAlmostEqual(row["delta_points"], -1.0671893716650334, delta=1e-12)
+        self.assertAlmostEqual(row["ci95_points"][0], -1.5133724252649325, delta=1e-10)
+        self.assertAlmostEqual(row["ci95_points"][1], -0.6210063180651338, delta=1e-10)
+        self.assertAlmostEqual(row["mcnemar_exact_p"], 3.2677750218436497e-06, delta=1e-15)
+        same = self.summary["comparisons"]["onnx_fresh_vs_onnx_archived"]
+        self.assertEqual((same["only_first_right"], same["only_second_right"], same["mcnemar_exact_p"]), (0, 0, 1.0))
+
+    def test_paired_statistics_match_an_explicit_per_question_computation(self):
+        entry = {"both_right": 3, "only_first_right": 2, "only_second_right": 1, "both_wrong": 4}
+        differences = [1] * 2 + [-1] + [0] * 7
+        mean = statistics.fmean(differences)
+        error = statistics.stdev(differences) / math.sqrt(len(differences))
+        stats = evidence.paired_statistics(entry, 10)
+        self.assertEqual((stats["first_correct"], stats["second_correct"]), (5, 4))
+        self.assertAlmostEqual(stats["delta_points"], 100 * mean)
+        self.assertAlmostEqual(stats["ci95_points"][0], 100 * (mean - 1.96 * error))
+        self.assertAlmostEqual(stats["ci95_points"][1], 100 * (mean + 1.96 * error))
+
+    def test_exact_mcnemar_matches_hand_computed_binomial_tails(self):
+        for first, second, expected in ((0, 0, 1.0), (5, 5, 1.0), (0, 10, 2 / 1024), (10, 0, 2 / 1024),
+                                        (1, 9, 22 / 1024), (7, 3, 352 / 1024)):
+            self.assertEqual(evidence.exact_mcnemar_p(first, second), expected)
+
+    def test_protobuf_length_prefix_sizes_change_at_the_varint_boundaries(self):
+        self.assertEqual([evidence.varint_size(v) for v in (0, 127, 128, 16383, 16384)], [1, 1, 2, 2, 3])
+        with self.assertRaisesRegex(ValueError, "Invalid protobuf length"):
+            evidence.varint_size(-1)
+
+    def test_tampered_paired_counts_are_rejected(self):
+        pair = ("mmlu", "paired_counts", "onnx_fresh_vs_torch_bf16")
+        both_right = self.record["mmlu"]["paired_counts"][pair[2]]["both_right"]
+        with self.assertRaisesRegex(ValueError, "do not sum"):
+            self.summarize(self.mutated(pair + ("both_right",), both_right + 1))
+        with self.assertRaisesRegex(ValueError, "non-negative integers"):
+            self.summarize(self.mutated(pair + ("both_wrong",), -1))
+        # Moving one question between cells keeps the sum, so only the captured delta can expose it.
+        wrong = self.mutated(pair + ("only_first_right",), 171)
+        wrong["mmlu"]["paired_counts"][pair[2]]["both_wrong"] -= 1
+        with self.assertRaisesRegex(ValueError, "Captured delta does not match"):
+            self.summarize(wrong)
+        # This edit leaves its own comparison self-consistent but contradicts the shared ONNX side.
+        archived = ("mmlu", "paired_counts", "onnx_fresh_vs_onnx_archived")
+        wrong = self.mutated(archived + ("both_right",), 7550)
+        wrong["mmlu"]["paired_counts"][archived[2]]["both_wrong"] += 1
+        with self.assertRaisesRegex(ValueError, "Correct counts differ between comparisons"):
+            self.summarize(wrong)
+
+    def test_captured_statistics_that_disagree_with_the_counts_are_rejected(self):
+        stats = ("mmlu", "captured_statistics")
+        torch = stats + ("comparisons", "onnx_fresh_vs_torch_bf16")
+        cases = (
+            (stats + ("accuracy", "torch_bf16"), 0.84, "Captured accuracy does not match"),
+            (stats + ("stderr", "onnx_fresh"), 0.01, "Captured stderr does not match"),
+            (torch + ("delta_points",), -1.0, "Captured delta does not match"),
+            (torch + ("ci95_points",), [-2.0, -0.5], "Captured 95% CI does not match"),
+            (torch + ("mcnemar_exact_p",), 0.001, "Captured exact McNemar p does not match"),
+            (stats + ("ci95_seed",), 12345, "no seed is expected"),
+        )
+        for path, value, message in cases:
+            with self.subTest(path=path[2:]), self.assertRaisesRegex(ValueError, message):
+                self.summarize(self.mutated(path, value))
+        wrong = copy.deepcopy(self.record)
+        del wrong["mmlu"]["captured_statistics"]["accuracy"]["onnx_archived"]
+        with self.assertRaisesRegex(ValueError, "accuracy sides do not match"):
+            self.summarize(wrong)
+
+    def test_record_schema_question_total_and_protocol_are_pinned(self):
+        cases = (
+            (("schema",), "fresh-export-mmlu/1", "Unsupported fresh-export schema"),
+            (("mmlu", "questions"), 1, "Invalid MMLU question total"),
+            (("mmlu", "protocol"), "validation split; limit 100 per subject", "MMLU protocol changed"),
+            (("olive_run", "packages_added_before_attempt_2", "requests"), "2.34.1", "requests version or its added transitive"),
+            (("environment", "requests"), "2.34.1", "requests version or its added transitive"),
+        )
+        for path, value, message in cases:
+            with self.subTest(path=path), self.assertRaisesRegex(ValueError, message):
+                self.summarize(self.mutated(path, value))
+
+    def test_requirements_pin_and_published_wording_match_the_recorded_requests_version(self):
+        version = self.record["environment"]["requests"]
+        pins = [line for line in (ROOT / "cuda/requirements.txt").read_text().splitlines() if line.startswith("requests")]
+        self.assertEqual(pins, [f"requests=={version}"])
+        self.assertIn(f"after adding `requests=={version}` and its transitive dependencies", evidence.tables(evidence.calculate())["fresh-export"])
+        self.assertNotIn("installing only", (ROOT / "FINDINGS.md").read_text())
+
+    def test_artifact_relations_and_the_documented_graph_name_exception(self):
+        self.assertEqual(self.summary["artifacts"], {"graph_size_delta": 108, "graph_name_char_delta": 107, "length_prefix_delta": 1})
+        files = ("artifacts",)
+        graph_sha = self.record["artifacts"]["model.onnx"]["archived_sha256"]
+        cases = (
+            (files + ("model.onnx.data", "fresh_sha256"), "0" * 64, "not byte-identical"),
+            (files + ("model.onnx.data", "archived_sha256"), "0" * 64, "differs from the provenance record"),
+            (files + ("model.onnx", "archived_bytes"), 903557, "differs from the provenance record"),
+            (files + ("genai_config.json", "archived_sha256"), "b" * 64, "differs from the provenance record"),
+            (files + ("model.onnx", "fresh_sha256"), graph_sha, "requires differing hashes"),
+            (files + ("model.onnx", "fresh_sha256"), "not-a-hash", "Invalid SHA-256"),
+            (files + ("model.onnx", "fresh_bytes"), 903665, "not explained by the graph.name length"),
+            (files + ("genai_config.json", "json_content_identical"), False, "content differs"),
+            (("graph_comparison", "graph_name_chars_fresh"), 220, "not explained by the graph.name length"),
+            (("graph_comparison", "differing_text_format_lines"), 2, "limited to graph.name"),
+            (("graph_comparison", "op_type_histogram_identical"), False, "beyond graph.name"),
+        )
+        for path, value, message in cases:
+            with self.subTest(path=path), self.assertRaisesRegex(ValueError, message):
+                self.summarize(self.mutated(path, value))
+
+    def test_edited_record_fails_the_checksum_manifest(self):
+        with tempfile.TemporaryDirectory() as directory:
+            copied = Path(directory) / "evidence"
+            shutil.copytree(evidence.EVIDENCE, copied)
+            path = copied / evidence.FRESH_EXPORT
+            text = path.read_text()
+            self.assertEqual(text.count('"only_first_right": 170'), 1)
+            path.write_text(text.replace('"only_first_right": 170', '"only_first_right": 171'))
+            with self.assertRaisesRegex(ValueError, "checksum mismatch"):
+                evidence.calculate(copied)
+
+    def test_record_is_portable_text_without_local_paths(self):
+        raw = (evidence.EVIDENCE / evidence.FRESH_EXPORT).read_bytes()
+        self.assertNotIn(b"\r", raw)
+        absolute = re.compile(rb"(?<![\w.:/-])/(?:[\w.-]+/)+[\w.-]+|\b[A-Za-z]:\\")
+        self.assertIsNone(absolute.search(raw))
+        self.assertIsNotNone(absolute.search(b'"/opt/data/model"'))
+        self.assertIsNone(absolute.search(b"olive/telemetry/library/exporter.py"))
+
+    def test_published_numbers_are_synchronized_with_the_record(self):
+        sections = evidence.tables(evidence.calculate())
+        self.assertLessEqual({"fresh-export", "mmlu", "mmlu-summary"}, set(sections))
+        edits = (
+            ("README.md", "| ONNX fresh export | 82.23% |", "| ONNX fresh export | 82.24% |", "mmlu-summary table differs"),
+            ("FINDINGS.md", "| ONNX fresh export | 7,551 |", "| ONNX fresh export | 7,552 |", "mmlu table differs"),
+            ("FINDINGS.md", "= +108 bytes", "= +109 bytes", "fresh-export table differs"),
+            ("README.md", "<!-- BEGIN mmlu-summary -->", "", "Missing/duplicate published table mmlu-summary"),
+        )
+        for name, old, new, message in edits:
+            with self.subTest(edit=old), tempfile.TemporaryDirectory() as directory:
+                root = Path(directory)
+                for document in ("README.md", "FINDINGS.md"):
+                    text = (ROOT / document).read_text()
+                    if document == name:
+                        self.assertEqual(text.count(old), 1)
+                        text = text.replace(old, new)
+                    (root / document).write_text(text)
+                with self.assertRaisesRegex(ValueError, message):
+                    evidence.check_documents(root, sections)
 
 
 if __name__ == "__main__":
