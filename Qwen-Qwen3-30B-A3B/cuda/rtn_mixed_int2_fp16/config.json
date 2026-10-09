@@ -1,0 +1,47 @@
+{
+    "input_model": {
+        "type": "HfModel",
+        "model_path": "Qwen/Qwen3-30B-A3B",
+        "task": "text-generation",
+        "load_kwargs": {
+            "revision": "ad44e777bcd18fa416d9da3bd8f70d33ebb85d39",
+            "trust_remote_code": false
+        }
+    },
+    "systems": {
+        "local_system": {
+            "type": "LocalSystem",
+            "accelerators": [
+                {
+                    "device": "gpu",
+                    "execution_providers": ["CUDAExecutionProvider"]
+                }
+            ]
+        }
+    },
+    "target": "local_system",
+    "passes": {
+        "rtn": {
+            "type": "Rtn",
+            "bits": 4,
+            "group_size": 64,
+            "sym": true,
+            "moe": true,
+            "embeds": true,
+            "lm_head": true,
+            "overrides": {
+                "re:model\\.layers\\.(?:6|7|9|10|12|13|15|16|18|19|21|22|24|25|27|28|30|31|33|34|36|37|39|40)\\.mlp\\.experts\\.(?:gate_up_proj|gate_proj|up_proj)": {
+                    "bits": 2
+                },
+                "lm_head": {
+                    "bits": 8
+                }
+            }
+        },
+        "mobius": {
+            "type": "MobiusBuilder",
+            "precision": "fp16"
+        }
+    },
+    "output_dir": "cuda/rtn_mixed_int2_fp16/models"
+}
