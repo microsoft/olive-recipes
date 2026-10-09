@@ -229,7 +229,7 @@
             "activation_type": "uint16",
             "precision": "uint8",
             "calibration_providers": [
-                "CPUExecutionProvider"
+                "CUDAExecutionProvider"
             ],
             "quant_preprocess": true,
             "op_types_to_exclude": [
