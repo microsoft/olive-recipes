@@ -142,7 +142,9 @@
             "session_options": {
                 "optimization.disable_specified_optimizers": "QDQPropagationTransformer",
                 "log_severity_level": 1
-            }
+            },
+            "update_genai_config": true,
+            "genai_config_role": "vision"
         },
         "gs_decoder": {
             "type": "GraphSurgeries",
