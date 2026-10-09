@@ -112,6 +112,11 @@
             "dim_value": [
                 2520
             ],
+        "f16_vision": {
+            "type": "OnnxFloatToFloat16",
+            "keep_io_types": true,
+            "save_as_external_data": true
+        },
             "save_as_external_data": true
         },
         "embedding_cast": {
@@ -315,6 +320,7 @@
             "pipeline": [
                 "matmul_nbits_to_qdq",
                 "gs_vision",
+                "f16_vision",
                 "a16w8_static_quantization",
                 "dynamic_to_fixed_shape",
                 "vision_cb"

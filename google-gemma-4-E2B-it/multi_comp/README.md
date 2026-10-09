@@ -23,6 +23,10 @@ python optimize.py --ep ov
 The script runs component quantization, Mobius ONNX export, and OpenVINO
 optimization in sequence. QNN uses the two-machine workflow below.
 
+`qnn.json` and `ov.json` convert the vision graph to FP16 after static
+quantization, preserving its interface types. This keeps QDQ outputs consistent
+when Softmax quantization introduces FP32 scales into an FP16 graph.
+
 `gemma4_quantize.json` uses Olive's native `Gptq` pass for the decoder and
 `lm_head`, a separate native `Gptq` embedding build, and `Rtn` for vision.
 Decoder weights use INT4; `lm_head` is overridden to INT8. The embedding component,

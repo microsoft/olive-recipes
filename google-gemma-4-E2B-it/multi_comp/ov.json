@@ -93,6 +93,11 @@
                 2520
             ],
             "save_as_external_data": true
+        "f16_vision": {
+            "type": "OnnxFloatToFloat16",
+            "keep_io_types": true,
+            "save_as_external_data": true
+        },
         },
         "split_vision_pooler": {
             "type": "SplitVisionPooler",
@@ -116,7 +121,7 @@
         },
         "vision": {
             "components": [ "vision_encoder" ],
-            "pipeline": [ "matmul_nbits_to_qdq", "gs_vision", "a16w8_static_quantization", "dynamic_to_fixed_shape", "split_vision_pooler" ]
+            "pipeline": [ "matmul_nbits_to_qdq", "gs_vision", "a16w8_static_quantization", "dynamic_to_fixed_shape", "f16_vision", "split_vision_pooler" ]
         },
         "embedding": {
             "components": ["embedding"],
