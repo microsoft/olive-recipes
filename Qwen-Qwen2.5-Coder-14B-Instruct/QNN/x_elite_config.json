@@ -17,10 +17,7 @@
                 },
                 "pre_process_data_config": {
                     "strategy": "join",
-                    "text_cols": [
-                        "instruction",
-                        "output"
-                    ],
+                    "text_template": "### Instruction:\n{instruction}\n\n### Response:\n{output}",
                     "add_special_tokens": false,
                     "max_seq_len": 4096,
                     "max_samples": 128
@@ -35,10 +32,7 @@
                 },
                 "pre_process_data_config": {
                     "strategy": "line-by-line",
-                    "text_cols": [
-                        "instruction",
-                        "output"
-                    ],
+                    "text_template": "### Instruction:\n{instruction}\n\n### Response:\n{output}",
                     "add_special_tokens": true,
                     "max_samples": 256,
                     "max_seq_len": 2048
