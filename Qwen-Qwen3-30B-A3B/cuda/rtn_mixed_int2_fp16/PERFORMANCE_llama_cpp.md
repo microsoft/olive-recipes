@@ -2,7 +2,8 @@
 
 Measured October 9, 2026. This document follows the results-table layout of
 [the October 8 ORT performance report](https://github.com/microsoft/olive-recipes/blob/e67424fb95b7c435c481608a78f58cc9095a7871/Qwen-Qwen3-30B-A3B/cuda/rtn_mixed_int2_fp16/PERFORMANCE.md)
-and compares llama.cpp Q2_K and Q4_K_M models. The TTFT and context-dependent
+and compares llama.cpp Q2_K and UD-Q2_K_XL against Q4_K_M in separate batches.
+The TTFT and context-dependent
 decode columns below are new request-level measurements, not estimates from
 `llama-bench` prompt-processing or prompt-plus-generation throughput.
 
@@ -26,7 +27,7 @@ decode columns below are new request-level measurements, not estimates from
 - GGUF repository:
   [`unsloth/Qwen3-30B-A3B-GGUF`](https://huggingface.co/unsloth/Qwen3-30B-A3B-GGUF/tree/d5b1d57bd0b504ac62ae6c725904e96ef228dc74),
   pinned revision `d5b1d57bd0b504ac62ae6c725904e96ef228dc74`.
-- Both files contain 30,532,122,624 stored model parameters: 48 MoE layers,
+- All three files contain 30,532,122,624 stored model parameters: 48 MoE layers,
   128 experts per layer, top-k 8. This parameter count includes inactive experts;
   it is not the approximately 3B active-parameter count per token.
 
@@ -77,7 +78,7 @@ not required or claimed.
   Docker subprocess PID. Runs with additional observed PIDs are rejected.
   Other GPUs and shared-host CPU/power/thermal conditions are not controlled.
 
-## Results
+## Results: Q2_K versus Q4_K_M
 
 | Input Tokens | Model | TTFT P50 (ms) | TTFT P95 (ms) | Prefill TPS | Decode TPS | Process Peak (GiB) |
 |---:|---|---:|---:|---:|---:|---:|
@@ -103,6 +104,51 @@ Q2_K has lower sampled process residency at every length, but higher TTFT
 and lower prefill/decode throughput in this run. No isolated-kernel explanation,
 confidence interval, accuracy preservation or general hardware speedup is claimed.
 
+## Follow-Up: UD-Q2_K_XL versus Q4_K_M
+
+Also measured October 9, 2026, using the same GPU, source-matching build,
+C++ harness binary, prompt, KV configuration and timing definitions above.
+This is a separate eight-process batch: the Q4_K_M baseline was remeasured,
+not copied from the Q2_K table. Each configuration has three warmups and ten
+measured requests producing exactly 128 tokens. Order is Q4_K_M/UD at 128,
+UD/Q4_K_M at 512, Q4_K_M/UD at 2048, and UD/Q4_K_M at 4096.
+The Python runner only adds `--low-quant UD-Q2_K_XL` to select the file;
+the C++ timing and selection implementation is unchanged.
+
+All prompt IDs match the ORT reference and the paired Q4_K_M prompts. All
+measured logits used for selection are finite, all ten generated sequences
+match within each configuration, and logs confirm 49/49 GPU layers, Flash
+Attention and CUDA Graph reuse during warmup. Each process observes one
+NVML compute PID. Requested sampling interval remains 5 ms; maximum observed
+gaps range from 11.52 to 17.24 ms in this follow-up. Memory is sampled only
+after warmup, as in the initial request-level table.
+
+| Input Tokens | Model | TTFT P50 (ms) | TTFT P95 (ms) | Prefill TPS | Decode TPS | Process Peak (GiB) |
+|---:|---|---:|---:|---:|---:|---:|
+| 128 | Q4_K_M | 100.24 | 102.44 | 1280.80 | 159.98 | 17.80 |
+| 128 | UD-Q2_K_XL | 153.64 | 155.74 | 834.57 | 151.19 | 11.52 |
+| 512 | Q4_K_M | 129.40 | 131.83 | 3956.64 | 158.99 | 18.01 |
+| 512 | UD-Q2_K_XL | 178.03 | 180.15 | 2876.74 | 150.28 | 11.74 |
+| 2048 | Q4_K_M | 434.83 | 436.92 | 4712.46 | 155.99 | 18.16 |
+| 2048 | UD-Q2_K_XL | 574.17 | 578.47 | 3565.74 | 146.90 | 11.88 |
+| 4096 | Q4_K_M | 838.75 | 844.20 | 4879.73 | 151.38 | 18.35 |
+| 4096 | UD-Q2_K_XL | 1082.28 | 1084.19 | 3786.68 | 142.25 | 12.07 |
+
+Changes use unrounded values and the newly measured Q4_K_M baseline.
+
+| Input Tokens | UD TTFT P50 Increase | UD Prefill TPS Change | UD Decode TPS Change | Process Peak Saving (GiB) |
+|---:|---:|---:|---:|---:|
+| 128 | +53.26% | -34.84% | -5.50% | 6.2773 |
+| 512 | +37.58% | -27.29% | -5.48% | 6.2773 |
+| 2048 | +32.04% | -24.33% | -5.83% | 6.2773 |
+| 4096 | +29.04% | -22.40% | -6.03% | 6.2773 |
+
+UD-Q2_K_XL reduces sampled process residency by 6.2773 GiB, but is slower
+than Q4_K_M for TTFT, prefill and decode at all four input lengths in this
+batch. Its observed throughput is higher than the earlier Q2_K measurements,
+but those two low-bit models were not interleaved in a controlled head-to-head
+trial. This does not isolate a quantization/kernel cause or establish accuracy.
+
 ## Model Size and GGUF Size
 
 All GiB values use 2^30 bytes. **Model tensor size** is the serialized tensor
@@ -113,10 +159,12 @@ is the actual file size. Neither is runtime GPU residency.
 | Model | Stored Parameters | Model Tensor Size (bytes) | Model Tensor Size (GiB) | GGUF Size (bytes) | GGUF Size (GiB) |
 |---|---:|---:|---:|---:|---:|
 | Q2_K | 30,532,122,624 | 11,252,639,744 | 10.4798 | 11,258,610,240 | 10.4854 |
+| UD-Q2_K_XL | 30,532,122,624 | 11,808,307,200 | 10.9973 | 11,814,277,696 | 11.0029 |
 | Q4_K_M | 30,532,122,624 | 18,550,716,416 | 17.2767 | 18,556,686,912 | 17.2823 |
 
 Each GGUF has 5,970,496 bytes of non-tensor file overhead. Q2_K is 39.33%
-smaller than Q4_K_M by GGUF file size. For context, storing this parameter
+smaller than Q4_K_M by GGUF file size. UD-Q2_K_XL is 36.33% smaller than
+Q4_K_M and 0.5175 GiB larger than Q2_K. For context, storing this parameter
 count uniformly at two bytes per parameter would take 56.8705 GiB; this is
 an arithmetic FP16/BF16-equivalent estimate, not a measured checkpoint file.
 
@@ -131,6 +179,7 @@ are different quantization recipes, not matched encodings or quality levels.
 | ORT mixed INT2/INT4 block64 | model.onnx + model.onnx.data | 902,868 | 13,989,249,024 | 13.0293 |
 | llama.cpp Q4_K_M | single GGUF | N/A | N/A | 17.2823 |
 | llama.cpp Q2_K | single GGUF | N/A | N/A | 10.4854 |
+| llama.cpp UD-Q2_K_XL | single GGUF | N/A | N/A | 11.0029 |
 
 ## Actual Quantization Recipes
 
@@ -169,6 +218,27 @@ bit labels are not total bits per stored parameter, and they are not the
 ORT packed INT2/INT4 ABI. This experiment does not isolate gate/up bit width
 from down-projection, attention or embedding quantization differences.
 
+### UD-Q2_K_XL Recipe
+
+The downloaded UD file's headers establish the following mapping. The Q4_K_M
+recipe in the table above is unchanged in the follow-up.
+
+| Tensor Family | UD-Q2_K_XL File |
+|---|---|
+| Expert gate / up | Q2_K, all 48 layers for each projection |
+| Expert down | Q3_K in 37 layers; Q4_K in 11 layers |
+| Attention Q / K / V | Q4_K in 44 layers; Q5_K in 4 layers for each projection |
+| Attention output | Q4_K in 36 layers; Q5_K in 2; Q6_K in 10 |
+| Token embeddings | Q4_K |
+| LM head | Q6_K |
+| MoE router and normalization weights | F32 |
+
+Expert down uses Q4_K at layers `1,2,3,26,28,42,43,44,45,46,47` and Q3_K
+elsewhere. Tensor counts are 241 F32, 96 Q2_K, 37 Q3_K, 180 Q4_K, 14 Q5_K
+and 11 Q6_K, totaling 579. No layer has all three expert projections in Q2_K.
+UD-Q2_K_XL is not an alias for Q2_K: both expert down and non-expert tensor
+recipes differ. No matched model-quality evaluation has been performed.
+
 ## Comparison Boundaries
 
 The column layout and prompt are aligned with the ORT report, but these are
@@ -199,14 +269,20 @@ The smoke runs and earlier runs with measurement-period DEBUG logging are
 excluded. Harnesses, binaries, GGUFs and raw results remain local and are not
 distributed in this documentation PR.
 
+The UD follow-up's final JSON/JSONL/log files and `summary.json` are in
+`qwen3-llama-ud-request-perf-20261009/`; its smoke is excluded. The runner's
+historical and current hashes below distinguish the selector-only change.
+
 SHA256 fingerprints:
 
 | Artifact | SHA256 |
 |---|---|
 | Qwen3-30B-A3B-Q2_K.gguf | `db3ce897ccc9e7d9dbf17fe083cae7880a2092aa473b45eba8b77715aa9ca170` |
 | Qwen3-30B-A3B-Q4_K_M.gguf | `9f1a24700a339b09c06009b729b5c809e0b64c213b8af5b711b3dbdfd0c5ba48` |
+| Qwen3-30B-A3B-UD-Q2_K_XL.gguf | `a8e68b6db5c20612c29178f3027330007e7c45aca6a77d8a03a493ac6aaa9d03` |
 | qwen3_llama_request_benchmark.cpp | `50ffa6fe6ad3ab5862dd78e5c8b0ecdabc20f110da9aad6d2b42391d4a61d6d6` |
-| qwen3_llama_request_compare.py | `ac672774336eb5c4197314bb74110dfe8c18f73c8eee12699d5cfe133b67ede5` |
+| qwen3_llama_request_compare.py (initial Q2_K batch) | `ac672774336eb5c4197314bb74110dfe8c18f73c8eee12699d5cfe133b67ede5` |
+| qwen3_llama_request_compare.py (UD follow-up) | `8ff3b7886f1eb31697b037c30d1959a37dc2b5c5ba607171cc83cf56db394afb` |
 | qwen3_llama_request_benchmark executable | `13103e48d5e3e0c889054a54e51846ee3417b0371813e615d35e5f3412b7e483` |
 
 On that machine, using the retained harnesses and matching build:
@@ -216,4 +292,14 @@ docker exec jiafa-dev \
   /datadisks/disk1/jiafa/accuracy/onnxruntime/.venv/bin/python \
   /datadisks/disk1/jiafa/accuracy/qwen3_llama_request_compare.py \
   --output-dir /datadisks/disk1/jiafa/accuracy/qwen3-llama-request-rerun
+```
+
+For the UD follow-up with a freshly measured Q4_K_M baseline:
+
+```bash
+docker exec jiafa-dev \
+  /datadisks/disk1/jiafa/accuracy/onnxruntime/.venv/bin/python \
+  /datadisks/disk1/jiafa/accuracy/qwen3_llama_request_compare.py \
+  --low-quant UD-Q2_K_XL \
+  --output-dir /datadisks/disk1/jiafa/accuracy/qwen3-llama-ud-request-rerun
 ```
