@@ -1,0 +1,6 @@
+lm-eval
+mobius-onnx @ git+https://github.com/onnxruntime/mobius.git@88fd6a1f53bc8e500c75c5d07121ccceec8f5ae1
+olive-ai[gpu] @ git+https://github.com/microsoft/Olive.git@f9cea1be1b7cea2f8b68ad524ea98d8fac78a08f
+onnx-ir>=1.0.0
+# Install a CUDA ORT build with mixed-width QMoE fallback after this file.
+onnxruntime-genai-cuda
