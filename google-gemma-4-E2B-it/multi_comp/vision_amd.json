@@ -24,7 +24,7 @@
                     "screen2words",
                     "scienceqa"
                 ],
-                "samples_per_subset": 1,
+                "samples_per_subset": 16,
                 "seed": 42,
                 "shuffle_buffer_size": 0,
                 "max_soft_tokens": 280
@@ -94,6 +94,6 @@
             "pipeline": [ "matmul_nbits_to_qdq", "gs_vision", "a16w8_static_quantization", "dynamic_to_fixed_shape", "split_vision_pooler" ]
         }
     },
-    "output_dir": "gemma4_amd",
+    "output_dir": "gemma4_amd_full",
     "log_severity_level": 0
 }
