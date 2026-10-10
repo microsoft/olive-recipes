@@ -59,6 +59,10 @@ Install the QNN requirements in the QNN target Python environment:
 pip install -r requirements-qnn.txt
 ```
 
+`qnn.json` excludes `lm_head` from MatMulNBits-to-QDQ conversion, preserving its
+8-bit, group-size-128 `MatMulNBits`. The exclusion uses the exact exported node
+name; update it if a new ONNX capture changes that name.
+
 ## Inference
 
 The examples below use the QNN output. Use `gemma4_ov` for OpenVINO.

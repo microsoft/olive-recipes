@@ -128,5 +128,5 @@
         }
     },
     "output_dir": "gemma4_ov",
-    "log_severity_level": 0
+    "log_severity_level": 1
 }
