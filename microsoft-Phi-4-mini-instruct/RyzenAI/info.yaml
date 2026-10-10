@@ -4,3 +4,13 @@ recipes:
     file: Phi-4-mini-instruct_quark_ryzenai_llm.json
     devices: npu
     eps: RyzenAIExecutionProvider
+
+  - name: Phi-4-mini-instruct_RyzenAI (full_fusion)
+    file: Phi-4-mini-instruct_quark_ryzenai_llm_full_fusion.json
+    devices: npu
+    eps: RyzenAIExecutionProvider
+
+  - name: Phi-4-mini-instruct_RyzenAI (hybrid)
+    file: Phi-4-mini-instruct_quark_ryzenai_llm_hybrid.json
+    devices: [npu, gpu]
+    eps: RyzenAIExecutionProvider
