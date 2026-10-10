@@ -100,9 +100,16 @@
         },
         "split_vision_pooler": {
             "type": "SplitVisionPooler",
-            "source_package_dir": "../multi_comp/gemma4_onnx",
-            "provider_options": {
-                "htp_performance_mode": "burst"
+            "stage_session_options": {
+                "vision_encoder": {
+                    "provider_options": [
+                        { "OpenVINO": { "device_type": "NPU" } }
+                    ]
+                },
+                "vision_pooler_projector": {
+                    "log_id": "onnxruntime-genai",
+                    "provider_options": []
+                }
             },
             "save_as_external_data": true
         },
