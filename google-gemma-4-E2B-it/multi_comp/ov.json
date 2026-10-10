@@ -62,6 +62,38 @@
             ],
             "save_as_external_data": true
         },
+        "ov_conversion": {
+            "type": "OpenVINOConversion",
+            "static": false,
+            "compress_to_fp16": false
+        },
+        "ov_encapsulation": {
+            "type": "OpenVINOEncapsulation",
+            "target_device": "npu",
+            "keep_ov_dynamic_dims": true,
+            "update_genai_config": true,
+            "genai_config_override": {
+                "model": {
+                    "decoder": {
+                        "session_options": {
+                            "graph_optimization_level": "ORT_DISABLE_ALL",
+                            "provider_options": [
+                                {
+                                    "OpenVINO": {
+                                        "device_type": "NPU",
+                                        "enable_causallm": "True",
+                                        "load_config": "{\"NPU\":{\"MAX_PROMPT_LEN\":\"4096\",\"MIN_RESPONSE_LEN\":\"128\"}}"
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                },
+                "search": {
+                    "past_present_share_buffer": false
+                }
+            }
+        },
         "gs_vision": {
             "type": "GraphSurgeries",
             "surgeries": [{"surgeon": "RemoveUnusedNodeOutputs"},
@@ -123,7 +155,7 @@
     "builds": {
         "decoder": {
             "components": [ "decoder" ],
-            "pipeline": [ "matmul_nbits_to_qdq", "gs_decoder" ]
+            "pipeline": [ "matmul_nbits_to_qdq", "gs_decoder", "ov_conversion", "ov_encapsulation" ]
         },
         "vision": {
             "components": [ "vision_encoder" ],

@@ -51,6 +51,29 @@ olive run --config ov.json
 olive run --config qnn.json
 ```
 
+## OpenVINO
+
+Install OpenVINO in the optimization environment:
+
+```bash
+pip install openvino
+```
+
+The decoder pipeline keeps the Mobius ONNX export, applies QDQ conversion and
+graph surgeries, then runs `OpenVINOConversion` and `OpenVINOEncapsulation`.
+Conversion preserves dynamic shapes and the existing weight precision.
+Encapsulation produces an ONNX `EPContext` targeting NPU, with the OpenVINO
+IR (`.xml`/`.bin`) alongside it. The vision and embedding pipelines are unchanged.
+
+Encapsulation uses `update_genai_config: true` to preserve the Mobius GenAI
+configuration and automatically merge the decoder filename and NPU session
+options into `gemma4_ov/genai_config.json`. It also disables
+`search.past_present_share_buffer` for the encapsulated decoder. This requires
+an Olive build with existing-GenAI-config update support in
+`OpenVINOEncapsulation`; no manual runtime configuration edits are needed.
+Inference requires an ONNX Runtime build with the OpenVINO EP and the matching
+Intel NPU runtime.
+
 ## QNN
 
 Install the QNN requirements in the QNN target Python environment:
