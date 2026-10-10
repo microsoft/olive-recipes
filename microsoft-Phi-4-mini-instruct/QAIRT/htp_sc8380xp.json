@@ -47,7 +47,7 @@
         }
     },
     "log_severity_level": 1,
-    "output_dir": "models/phi4-mini-instruct-hamoa",
+    "output_dir": "models/phi4_mini-instruct-qairt-htp-sc8380xp",
     "cache_dir": "cache",
     "no_artifacts": true
 }
