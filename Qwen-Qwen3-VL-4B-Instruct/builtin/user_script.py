@@ -20,13 +20,20 @@ def _load_base_model(model_path):
     """Load weights directly from safetensors, stripping 'model.' prefix,
     into our custom Qwen3VLModel without loading the full HF model."""
     from safetensors.torch import load_file
-    from huggingface_hub import hf_hub_download
     import glob
 
-    # Find safetensors file(s) in cache
-    config_path = hf_hub_download(model_path, 'config.json')
-    model_dir = os.path.dirname(config_path)
+    # Find safetensors file(s): support local directory or HF hub repo id
+    if model_path and os.path.isdir(model_path):
+        model_dir = model_path
+    else:
+        from huggingface_hub import hf_hub_download
+        config_path = hf_hub_download(model_path, 'config.json')
+        model_dir = os.path.dirname(config_path)
     st_files = sorted(glob.glob(os.path.join(model_dir, '*.safetensors')))
+
+    # Build the model from the checkpoint's own config so a local variant/finetune
+    # loads consistently; fall back to the module-level Hub config for a bare repo id.
+    model_config = Qwen3VLConfig.from_pretrained(model_dir) if os.path.isdir(model_dir) else config
 
     # Load and strip 'model.' prefix, keeping native bfloat16 precision
     state_dict = {}
@@ -37,7 +44,7 @@ def _load_base_model(model_path):
                 state_dict[k[6:]] = v
 
     # Create custom model and load weights in bfloat16 (native dtype)
-    custom_model = Qwen3VLModel(config)
+    custom_model = Qwen3VLModel(model_config)
     result = custom_model.load_state_dict(state_dict, strict=False)
     if result.missing_keys:
         print(f"Warning: {len(result.missing_keys)} missing keys")
@@ -66,11 +73,23 @@ def get_embedding_io_config(model_path=None):
     dynamic_axes = {
         "input_ids": {0: "batch_size", 1: "sequence_length"},
         "image_features": {0: "num_logical_patches"},
+        "deepstack_features_0": {0: "num_logical_patches"},
+        "deepstack_features_1": {0: "num_logical_patches"},
+        "deepstack_features_2": {0: "num_logical_patches"},
         "inputs_embeds": {0: "batch_size", 1: "sequence_length"},
+        "deepstack_0": {0: "batch_size", 1: "sequence_length"},
+        "deepstack_1": {0: "batch_size", 1: "sequence_length"},
+        "deepstack_2": {0: "batch_size", 1: "sequence_length"},
     }
     return {
-        "input_names": ["input_ids", "image_features"],
-        "output_names": ["inputs_embeds"],
+        "input_names": [
+            "input_ids",
+            "image_features",
+            "deepstack_features_0",
+            "deepstack_features_1",
+            "deepstack_features_2",
+        ],
+        "output_names": ["inputs_embeds", "deepstack_0", "deepstack_1", "deepstack_2"],
         "dynamic_axes": dynamic_axes,
     }
 
@@ -106,6 +125,15 @@ def get_embedding_dummy_inputs(model=None):
             out_hidden_size,
             dtype=torch.float32,  # fp32 to match embedding model export dtype
         ),
+        "deepstack_features_0": torch.randn(
+            num_logical_patches, out_hidden_size, dtype=torch.float32
+        ),
+        "deepstack_features_1": torch.randn(
+            num_logical_patches, out_hidden_size, dtype=torch.float32
+        ),
+        "deepstack_features_2": torch.randn(
+            num_logical_patches, out_hidden_size, dtype=torch.float32
+        ),
     }
 
     img_start_index = 3
@@ -127,6 +155,9 @@ def get_embedding_dummy_inputs(model=None):
     return {
         "input_ids": inputs["input_ids"],  # input_ids: torch.LongTensor
         "image_features": inputs["image_features"],  # image_features: Optional[torch.FloatTensor] = None,
+        "deepstack_features_0": inputs["deepstack_features_0"],
+        "deepstack_features_1": inputs["deepstack_features_1"],
+        "deepstack_features_2": inputs["deepstack_features_2"],
     }
 
 
@@ -150,7 +181,12 @@ def get_vision_io_config(model_path=None):
     """
     return {
         "input_names": ["pixel_values", "image_grid_thw"],
-        "output_names": ["image_features"],
+        "output_names": [
+            "image_features",
+            "deepstack_features_0",
+            "deepstack_features_1",
+            "deepstack_features_2",
+        ],
         "dynamic_shapes": {
             "pixel_values": {0: "num_patches"},
             "image_grid_thw": {0: "num_images"},
