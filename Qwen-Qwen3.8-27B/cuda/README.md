@@ -13,6 +13,10 @@ The target and drafter use prepacked `MatMulNBits` weights. CUDA graphs, GEMM
 auto-tuning, and 512-row `MatMulNBits` chunking are enabled in both decoder
 sessions.
 
+For a separate comparison of native PyTorch RTN/KQuant INT3 and INT4
+checkpoints, see [Torch quantization evaluation](../torch-quantization-evaluation.md).
+Those quality diagnostics do not validate this ONNX deployment recipe.
+
 ## Setup
 
 Install compatible development builds of Olive and ONNX Runtime GenAI with
