@@ -1,0 +1,40 @@
+{
+    "input_model": {
+        "type": "HfModel",
+        "model_path": "google/gemma-4-E2B-it"
+    },
+    "passes": {
+        "export": {
+            "type": "MobiusBuilder",
+            "precision": "fp16",
+            "genai_config": {
+                "model": {
+                    "decoder": {
+                        "session_options": {
+                            "ep.cuda.fpa_intb_gemm": "1",
+                            "ep.cuda.fpa_intb_profile_m": "1,729",
+                            "provider_options": [
+                                {
+                                    "cuda": {
+                                        "enable_cuda_graph": "1",
+                                        "enable_skip_layer_norm_strict_mode": "1"
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                },
+                "search": {
+                    "past_present_share_buffer": true
+                }
+            }
+        }
+    },
+    "target": {
+        "type": "LocalSystem",
+        "accelerators": [
+            {"device": "gpu", "execution_providers": ["CUDAExecutionProvider"]}
+        ]
+    },
+    "output_dir": "cuda/int4-optimized/models"
+}
