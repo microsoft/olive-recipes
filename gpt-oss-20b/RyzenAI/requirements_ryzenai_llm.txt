@@ -1,10 +1,10 @@
---extra-index-url=https://pypi.amd.com/olive/1.7.1-6D/simple/
+--extra-index-url=https://pypi.amd.com/olive/1.8.0-8D/simple/
 # AMD model generation
 --extra-index-url=https://pypi.amd.com/simple
 accelerate
 
 # Quark
-amd-quark==0.11
+amd-quark==0.12.post1
 datasets
 evaluate
 huggingface_hub
@@ -12,12 +12,12 @@ huggingface_hub
 model-generate
 
 nltk
-numpy==1.26.4
+numpy==2.5.1
 
 # Pin onnx version
-onnx==1.18.0
+onnx==1.22.0
 onnxruntime
-onnxruntime-genai
+onnxruntime-genai==0.14.0
 onnxsim
 optimum
 

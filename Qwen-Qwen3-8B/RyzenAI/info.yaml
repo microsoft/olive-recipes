@@ -1,0 +1,16 @@
+arch: qwen3
+recipes:
+  - name: Qwen3-8B_RyzenAI
+    file: Qwen3-8B_quark_ryzenai_llm.json
+    devices: npu
+    eps: RyzenAIExecutionProvider
+
+  - name: Qwen3-8B_RyzenAI (full_fusion)
+    file: Qwen3-8B_quark_ryzenai_llm_full_fusion.json
+    devices: npu
+    eps: RyzenAIExecutionProvider
+
+  - name: Qwen3-8B_RyzenAI (hybrid)
+    file: Qwen3-8B_quark_ryzenai_llm_hybrid.json
+    devices: [npu, gpu]
+    eps: RyzenAIExecutionProvider
