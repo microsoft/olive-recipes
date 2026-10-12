@@ -2,7 +2,7 @@
     "input_model": {
         "type": "CompositeModel",
         "config": {
-            "model_path": "gemma4_onnx"
+            "model_path": "gemma4_onnx_ov"
         }
     },
     "data_configs": [
@@ -37,12 +37,6 @@
             "surgeries": [
                 {
                     "surgeon": "FuseDecomposedRMSNorm"
-                },
-                {
-                    "surgeon": "RemoveRopeMultiCache"
-                },
-                {
-                    "surgeon": "AttentionMaskToSequenceLengths"
                 },
                 {
                     "surgeon": "RemoveGidxFromMatMulNBits"
@@ -97,8 +91,16 @@
         "gs_vision": {
             "type": "GraphSurgeries",
             "surgeries": [{"surgeon": "RemoveUnusedNodeOutputs"},
-                          {"surgeon": "SimplifiedLayerNormToL2Norm"},
                           {"surgeon": "ReplaceAttentionMaskValue",  "threshold": -1e8}],
+            "save_as_external_data": true
+        },
+        "l2_vision": {
+            "type": "GraphSurgeries",
+            "surgeries": [
+                {
+                    "surgeon": "SimplifiedLayerNormToL2Norm"
+                }
+            ],
             "save_as_external_data": true
         },
         "a16w8_static_quantization": {
@@ -106,6 +108,9 @@
             "data_config": "cauldron_vision_calibration",
             "activation_type": "uint16",
             "precision": "int8",
+            "calibration_providers": [
+                "CPUExecutionProvider"
+            ],
             "quant_format": "QDQ",
             "calibrate_method": "MinMax",
             "quant_preprocess": false,
@@ -128,6 +133,12 @@
         "f16_vision": {
             "type": "OnnxFloatToFloat16",
             "keep_io_types": true,
+            "use_symbolic_shape_infer": false,
+            "op_block_list": [
+                "QuantizeLinear",
+                "DequantizeLinear",
+                "RMSNormalization"
+            ],
             "save_as_external_data": true
         },
         "split_vision_pooler": {
@@ -159,7 +170,7 @@
         },
         "vision": {
             "components": [ "vision_encoder" ],
-            "pipeline": [ "matmul_nbits_to_qdq", "gs_vision", "a16w8_static_quantization", "dynamic_to_fixed_shape", "f16_vision", "split_vision_pooler" ]
+            "pipeline": [ "matmul_nbits_to_qdq", "gs_vision", "a16w8_static_quantization", "l2_vision", "dynamic_to_fixed_shape", "f16_vision", "split_vision_pooler" ]
         },
         "embedding": {
             "components": ["embedding"],
