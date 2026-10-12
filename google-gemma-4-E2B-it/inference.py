@@ -60,7 +60,6 @@ def generate(
     params = og.GeneratorParams(model)
     params.set_search_options(
         max_length=max_length,
-        past_present_share_buffer=False,
         do_sample=False,
         top_k=1,
     )
