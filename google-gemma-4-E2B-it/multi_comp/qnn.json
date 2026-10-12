@@ -137,6 +137,7 @@
                 "htp_performance_mode": "burst",
                 "htp_graph_finalization_optimization_mode": "3",
                 "soc_model": "60",
+                "htp_arch": "73",
                 "vtcm_mb": "7"
             },
             "session_options": {
@@ -325,7 +326,6 @@
                 "gs_vision",
                 "a16w8_static_quantization",
                 "dynamic_to_fixed_shape",
-                "f16_vision",
                 "vision_cb"
             ]
         }
