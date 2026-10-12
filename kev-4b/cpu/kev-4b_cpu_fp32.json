@@ -28,7 +28,7 @@
         "recipe_precision": "fp32",
         "staging_path": "cache/mobius-export",
         "component_session_options": {
-          "intra_op_num_threads": 16,
+          "intra_op_num_threads": 24,
           "inter_op_num_threads": 1,
           "session.intra_op.allow_spinning": "0",
           "session.inter_op.allow_spinning": "0"

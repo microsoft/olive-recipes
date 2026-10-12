@@ -20,7 +20,6 @@ from onnxruntime.quantization.matmul_nbits_quantizer import (
     MatMulNBitsQuantizer,
     QuantFormat,
 )
-from peft import PeftModel
 from transformers import AutoConfig, AutoModelForCausalLM, AutoTokenizer
 
 from mobius import ArchitectureConfig, build_clm_package, build_kev_package
@@ -121,8 +120,7 @@ def reusable_package(path: Path, recipe: Recipe) -> bool:
         *(path / name / "model.onnx" for name in component_names(recipe)),
         *(path / name / "model.onnx.data" for name in component_names(recipe)),
     ]
-    if recipe.name != "clm":
-        required.append(path / "genai_config.json")
+    required.append(path / "genai_config.json")
     return all(item.is_file() for item in required)
 
 
@@ -137,6 +135,8 @@ def load_clm_head(artifact: Path):
 
 def load_kev(recipe: Recipe, artifact: Path, dtype: torch.dtype):
     """Load the pinned KEV base, merge its adapter, and return dense weights."""
+    from peft import PeftModel
+
     checkpoint = torch.load(
         artifact / "head.pt",
         map_location="cpu",
@@ -286,6 +286,29 @@ def apply_component_session_options(
     write_json(config_path, config)
 
 
+def ensure_component_config(package: Path, component: str) -> None:
+    """Create the minimal runtime config consumed by component sessions."""
+    path = package / "genai_config.json"
+    if path.exists():
+        return
+    write_json(
+        path,
+        {
+            "model": {
+                "type": "component",
+                "pad_token_id": 0,
+                "eos_token_id": 0,
+                "vocab_size": 1,
+                "context_length": 8192,
+                "decoder": {
+                    "filename": f"{component}/model.onnx",
+                    "session_options": {},
+                },
+            }
+        },
+    )
+
+
 def apply_execution_provider_metadata(package: Path, execution_provider: str) -> None:
     """Stamp the provider selected by the Olive recipe onto published metadata."""
     path = package / "inference_model.json"
@@ -344,7 +367,9 @@ def export_fp32(
         )
         owners = (package, weights, merged, adapted, container, checkpoint)
     package.save(output, external_data="onnx", max_workers=1)
-    if recipe.name != "clm":
+    if recipe.name == "clm":
+        ensure_component_config(output, recipe.component)
+    else:
         write_ort_genai_config(
             package,
             str(output),
@@ -616,6 +641,9 @@ def olive_export(
     )
     if recipe.name != "clm":
         assert isinstance(component_options, dict)
+        apply_component_session_options(selected, component_options)
+    elif isinstance(component_options, dict):
+        ensure_component_config(selected, recipe.component)
         apply_component_session_options(selected, component_options)
     apply_execution_provider_metadata(selected, execution_provider)
     publishing = output_dir.with_name(f".{output_dir.name}.publishing")
