@@ -1,0 +1,44 @@
+{
+    "input_model": {
+        "type": "CompositeModel",
+        "model_components": [
+            {
+                "type": "OnnxModel",
+                "model_path": "path/to/context.onnx"
+            },
+            {
+                "type": "OnnxModel",
+                "model_path": "path/to/iterator.onnx"
+            }
+        ],
+        "model_component_names": ["context", "iterator"],
+        "model_attributes": {
+            "additional_files": [
+               "list_of_paths/to/additional_files"
+            ]
+        }
+    },
+    "systems": {
+        "qnn_system": {
+            "type": "LocalSystem",
+            "accelerators": [
+                {
+                    "device": "gpu",
+                    "execution_providers": [
+                        "QNNExecutionProvider"
+                    ]
+                }
+            ]
+        }
+    },
+    "passes": {
+        "cb": {
+            "type": "EPContextBinaryGenerator",
+            "weight_sharing": true
+        }
+    },
+    "target": "qnn_system",
+    "output_dir": "output",
+    "cache_dir": "cache",
+    "no_artifacts": true
+}

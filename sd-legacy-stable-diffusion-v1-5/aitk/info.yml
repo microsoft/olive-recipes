@@ -17,4 +17,4 @@ recipes:
 aitk:
   modelInfo:
     id: "huggingface/stable-diffusion-v1-5/stable-diffusion-v1-5"
-    version: 3
+    version: 4

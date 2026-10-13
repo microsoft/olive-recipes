@@ -40,6 +40,17 @@ def create_model_parameter(aitk, name: str, configFile: Path):
     return parameter
 
 
+def apply_runtime_feature_overrides(aitk: dict, parameter: ModelParameter):
+    """Apply explicit runtime feature overrides from info.yml aitk block.
+
+    When set in info.yml, these replace any auto-generated values.
+    """
+    for field in ("executeRuntimeFeatures", "evaluationRuntimeFeatures", "pyEnvRuntimeFeatures"):
+        value = aitk.get(field)
+        if value is not None:
+            setattr(parameter, field, value)
+
+
 def add_optimization_wa(optimizationPaths: list[OptimizationPath], k: str, v: dict) -> bool:
     if OlivePropertyNames.Precision in v:
         optimizationPaths.append(

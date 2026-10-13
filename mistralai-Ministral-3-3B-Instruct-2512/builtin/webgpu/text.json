@@ -7,8 +7,9 @@
         "convert": {
             "type": "ModelBuilder",
             "precision": "int4",
-            "int4_block_size": 32,
-            "int4_algo_config": "k_quant_mixed",
+            "block_size": 32,
+            "algo_config": "k_quant",
+            "matmul_mixed_precision": "last_matmul:int8,mixed_layers:int8",
             "extra_options": {
                 "filename": "model.onnx"
             }

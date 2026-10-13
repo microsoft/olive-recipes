@@ -1,0 +1,9 @@
+huggingface_hub>=0.23.0
+numpy>=1.26.0
+olive-ai @ git+https://github.com/microsoft/Olive.git@main
+onnx>=1.19.1
+onnxruntime>=1.24.0
+onnxruntime-genai>=0.13.0
+onnxscript>=0.5.0
+torch>=2.9.0
+transformers>=5.2.0

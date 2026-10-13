@@ -1,12 +1,12 @@
 accelerate
-aimet-torch==2.14.0
+aimet-torch==2.41.0
 datasets
 jsonschema
 onnx==1.19.1
 onnxruntime==1.23.2
-protobuf==6.31.0
+protobuf==6.31.1
 psutil
 safetensors==0.4.3
-torch==2.8.0
-torchvision==0.23.0
+torch==2.6.0
+torchvision==0.21.0
 transformers==4.57.1

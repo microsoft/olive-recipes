@@ -4,19 +4,19 @@ This example demonstrates how to convert [Ministral-3-3B-Instruct-2512-BF16](htt
 
 Ministral-3-3B is a multimodal (VLM) model combining a Pixtral vision encoder with a Mistral text decoder using YaRN RoPE for extended context. The pipeline exports three sub-models:
 - **Vision encoder** and **embedding** via Olive/MobiusBuilder pass (`vision_embedding_export.json`); vision INT8-quantized via Olive
-- **Text decoder** via Olive/ModelBuilder (GQA + k_quant_mixed INT4 quantization)
+- **Text decoder** via Olive/ModelBuilder (GQA + k_quant mixed-precision INT4 quantization)
 
 ## Exported Configurations
 
 | Component | CUDA | CPU | WebGPU |
 |-----------|------|-----|--------|
-| Text decoder | k_quant_mixed INT4 (`MatMulNBits`) | k_quant_mixed INT4 (`MatMulNBits`) | k_quant_mixed INT4 (`MatMulNBits`) |
+| Text decoder | k_quant mixed-precision INT4 (`MatMulNBits`) | k_quant mixed-precision INT4 (`MatMulNBits`) | k_quant mixed-precision INT4 (`MatMulNBits`) |
 | Vision encoder | INT8 RTN, asymmetric block 32 (`MatMulNBits`) | INT8 RTN, symmetric block 128 (`MatMulNBits`) | INT8 RTN, asymmetric block 32 (`MatMulNBits`) |
 | Embedding | FP16 | FP32 | FP16 |
 
-- **CUDA**: k_quant_mixed INT4 text decoder + asymmetric block-32 INT8 vision + FP16 embedding. Optimized for throughput on NVIDIA GPUs.
-- **CPU**: k_quant_mixed INT4 text decoder + INT8 vision + FP32 embedding. Uses FP32 for embedding (CPU EP promotes FP16 to FP32).
-- **WebGPU**: k_quant_mixed INT4 text decoder + asymmetric block-32 INT8 vision + FP16 embedding. Uses WebGPU provider options in `genai_config.json`.
+- **CUDA**: k_quant mixed-precision INT4 text decoder + asymmetric block-32 INT8 vision + FP16 embedding. Optimized for throughput on NVIDIA GPUs.
+- **CPU**: k_quant mixed-precision INT4 text decoder + INT8 vision + FP32 embedding. Uses FP32 for embedding (CPU EP promotes FP16 to FP32).
+- **WebGPU**: k_quant mixed-precision INT4 text decoder + asymmetric block-32 INT8 vision + FP16 embedding. Uses WebGPU provider options in `genai_config.json`.
 
 ## Benchmark Results
 
@@ -57,19 +57,19 @@ Install ONNX Runtime GenAI:
 
 ### 1. Export & Optimize Models
 
-**CPU (k_quant_mixed INT4 text + INT8 vision + FP32 embedding):**
+**CPU (k_quant mixed-precision INT4 text + INT8 vision + FP32 embedding):**
 
 ```bash
 python optimize.py --config-dir cpu_and_mobile --device cpu
 ```
 
-**CUDA (k_quant_mixed INT4 text + INT8 vision + FP16 embedding):**
+**CUDA (k_quant mixed-precision INT4 text + INT8 vision + FP16 embedding):**
 
 ```bash
 python optimize.py --config-dir cuda --device gpu
 ```
 
-**WebGPU (k_quant_mixed INT4 text + INT8 vision + FP16 embedding):**
+**WebGPU (k_quant mixed-precision INT4 text + INT8 vision + FP16 embedding):**
 
 ```bash
 python optimize.py --config-dir webgpu --device webgpu
@@ -82,7 +82,7 @@ python optimize.py --config-dir cpu_and_mobile --device cpu --model-path /path/t
 ```
 
 This runs:
-- **Olive/ModelBuilder** for text decoder (GQA attention, YaRN RoPE, k_quant_mixed INT4)
+- **Olive/ModelBuilder** for text decoder (GQA attention, YaRN RoPE, k_quant mixed-precision INT4)
 - **Olive/MobiusBuilder** (`vision_embedding_export.json`) for vision encoder (Pixtral, dynamic H×W, 2D RoPE) and embedding (token + image fusion)
 - **Olive INT8 quantization** (`vision.json`) on vision encoder (CPU, CUDA, and WebGPU)
 
@@ -155,15 +155,15 @@ python eval.py --model_path cuda/models --pytorch_model mistralai/Ministral-3-3B
 ```
 mistralai-Ministral-3-3B-Instruct-2512/builtin/
 ├── cpu_and_mobile/
-│   ├── text.json                       # k_quant_mixed INT4 text decoder config (Olive/ModelBuilder)
+│   ├── text.json                       # k_quant mixed-precision INT4 text decoder config (Olive/ModelBuilder)
 │   ├── vision_embedding_export.json    # Vision+embedding export (Olive/MobiusBuilder, FP32)
 │   └── vision.json                     # INT8 vision quantization (Olive)
 ├── cuda/
-│   ├── text.json                       # k_quant_mixed INT4 text decoder config (Olive/ModelBuilder)
+│   ├── text.json                       # k_quant mixed-precision INT4 text decoder config (Olive/ModelBuilder)
 │   ├── vision_embedding_export.json    # Vision+embedding export (Olive/MobiusBuilder, FP16)
 │   └── vision.json                     # INT8 vision quantization (Olive)
 ├── webgpu/
-│   ├── text.json                       # k_quant_mixed INT4 text decoder config (Olive/ModelBuilder)
+│   ├── text.json                       # k_quant mixed-precision INT4 text decoder config (Olive/ModelBuilder)
 │   ├── vision_embedding_export.json    # Vision+embedding export (Olive/MobiusBuilder, FP16)
 │   └── vision.json                     # INT8 vision quantization (Olive)
 ├── optimize.py                 # Export orchestrator (all-Olive pipeline)
@@ -235,7 +235,7 @@ The text decoder export (`text.json`) and INT8 quantization (`vision.json`) ARE 
 - **Multi-image supported.** The runtime supports variable-count multi-image inputs via PixtralImageSizes metadata. Requires onnxruntime-extensions ≥ PR #1050 and models exported with PixtralImageSizes in `processor_config.json`.
 
 - **CPU pipeline**: MobiusBuilder exports FP16 as an intermediate format. Olive then quantizes vision to INT8. For CPU deployment, the cpu_and_mobile JSON configs set `precision: fp32` so embedding outputs float32 natively (CPU EP promotes FP16 to FP32, which causes genai dtype mismatches). The `--dtype` flag is accepted for backward compatibility but does not control export precision — precision is set in the JSON config files.
-- **CUDA/WebGPU pipeline**: MobiusBuilder exports FP16 directly for vision/embedding. Olive quantizes vision to asymmetric block-32 INT8. Text decoder uses k_quant_mixed INT4 via ModelBuilder.
+- **CUDA/WebGPU pipeline**: MobiusBuilder exports FP16 directly for vision/embedding. Olive quantizes vision to asymmetric block-32 INT8. Text decoder uses k_quant mixed-precision INT4 via ModelBuilder.
 - The FP8 Hugging Face checkpoint uses quantized weights. Use the default `-BF16` checkpoint unless you specifically need to test FP8 export behavior.
 - The tokenizer uses `TokenizersBackend` class which genai doesn't support. The optimize script fixes this to `LlamaTokenizer`.
 - Pixtral vision supports dynamic image sizes (multiples of 28, up to 1540×1540).

@@ -1,7 +1,12 @@
 {
     "input_model": {
         "type": "OnnxModel",
-        "model_path": "/path/to/model/onnx"
+        "model_path": "/path/to/model/onnx",
+        "model_attributes": {
+            "additional_files": [
+               "list_of_paths/to/additional_files"
+            ]
+        }
     },
     "systems": {
         "qnn_system": {

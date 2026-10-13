@@ -1,7 +1,7 @@
 accelerate
 datasets
+git+https://github.com/microsoft/Olive.git@main
 lm-eval
-olive-ai
 onnxruntime-genai
 sentencepiece
 tiktoken

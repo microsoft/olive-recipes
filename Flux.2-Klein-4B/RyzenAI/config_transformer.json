@@ -1,0 +1,53 @@
+{
+    "input_model": {
+        "type": "PyTorchModel",
+        "model_path": "black-forest-labs/FLUX.2-klein-4B",
+        "model_loader": "transformer_load",
+        "model_script": "user_script.py",
+        "io_config": {
+            "input_names": [
+                "hidden_states",
+                "encoder_hidden_states",
+                "timestep",
+                "img_ids",
+                "txt_ids"
+            ],
+            "output_names": ["out_hidden_states"],
+            "dynamic_axes": {
+                "hidden_states":         {"0": "batch_size", "1": "img_seq_len"},
+                "encoder_hidden_states": {"0": "batch_size", "1": "txt_seq_len"},
+                "timestep":              {"0": "batch_size"},
+                "img_ids":               {"0": "batch_size", "1": "img_seq_len"},
+                "txt_ids":               {"0": "batch_size", "1": "txt_seq_len"},
+                "out_hidden_states":     {"0": "batch_size", "1": "img_seq_len"}
+            }
+        },
+        "dummy_inputs_func": "transformer_conversion_inputs"
+    },
+    "systems": {
+        "local_system": {
+            "type": "LocalSystem",
+            "accelerators": [{"device": "cpu", "execution_providers": ["CPUExecutionProvider"]}]
+        }
+    },
+    "passes": {
+        "convert": {
+            "type": "OnnxConversion",
+            "target_opset": 17,
+            "save_as_external_data": true,
+            "all_tensors_to_one_file": true,
+            "external_data_name": "model.onnx.data"
+        },
+        "model_generation": {
+            "type": "VitisGenerateModelSD",
+            "model_type": "flux2",
+            "resolutions": ["1024x1024"]
+        }
+    },
+    "log_severity_level": 0,
+    "evaluate_input_model": false,
+    "host": "local_system",
+    "target": "local_system",
+    "cache_dir": "ryzenai_cache",
+    "output_dir": "footprints/transformer"
+}

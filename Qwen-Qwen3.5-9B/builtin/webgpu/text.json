@@ -18,7 +18,7 @@
         "m": {
             "type": "ModelBuilder",
             "precision": "int4",
-            "int4_accuracy_level": 4,
+            "accuracy_level": 4,
             "extra_options": {
                 "filename": "text.onnx",
                 "prune_lm_head": true
