@@ -13,6 +13,8 @@ generator_config:
 
 stages:
   - model_loader:
+      model_reauthoring: false
+      apply_default_adaptations: false
       hf_tokenizer_kwargs:
         trust_remote_code: true
 
