@@ -46,19 +46,10 @@ pip list | grep qairt-dev  # Ensure the proper qairt-dev version was installed
 pip install qairt-dev[pipeline,onnx]==0.11.0  # Install the proper qairt-dev version, if not installed
 ```
 
-3. (Optional) Use qairt-vm to install a non-default version of QAIRT and set QAIRT_SDK_ROOT
+3. Install model-specific requirements
 
 ```bash
-# List available QAIRT SDK versions
-qairt-vm fetch --list
-
-# Download non-default version of QAIRT SDK
-qairt-vm fetch -v <version>
-
-# Set QAIRT_SDK_ROOT to download location of QAIRT SDK
-# By default, /opt/qcom/aistack/qairt/<version>
-# Note: No further QAIRT SDK installation steps are required when using qairt-dev
-export QAIRT_SDK_ROOT=/path/to/qairt/sdk
+pip install -r requirements.txt
 ```
 
 4. Run Olive recipe

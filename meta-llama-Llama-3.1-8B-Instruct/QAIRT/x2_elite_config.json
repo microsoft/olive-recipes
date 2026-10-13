@@ -6,7 +6,7 @@
     "passes": {
         "qp": {
             "type": "QairtPipelinePass",
-            "recipe": "llama31_8b_instruct_sc8480xp.yaml",
+            "recipe": "x2_elite_config.yaml",
             "cache_dir": "cache/qairt"
         },
         "qe": {
