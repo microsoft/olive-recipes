@@ -14,7 +14,7 @@
             "log_level": "ERROR",
             "run_checker": "true",
             "engine_config_overrides": {
-                "n_threads": 0,
+                "n_threads": 3,
                 "htp": {
                     "cpu_mask": "0xe0",
                     "allow_async_init": false,
@@ -23,10 +23,11 @@
                 }
             },
             "backend_extensions_overrides": {
-                "context": [{"reused_io_limit_mb": 100}],
+                "context": [{"weight_sharing_enabled": true, "reused_io_limit_mb": 100}],
                 "graphs": null,
                 "devices": [{"pd_session": "unsigned"}],
-                "groupContext": {"share_resources": false}
+                "groupContext": {"share_resources": false},
+                "memory": {"mem_type": "shared_buffer"}
             }
         }
     },

@@ -30,22 +30,29 @@ stages:
       num_logits_to_keep: 0
       return_new_key_value_only: true
 
+  quantization_opt:
+    recipe_name: ada_scale_hf
+    context_length: 2048
+    dataset:
+      name: c4
+      num_samples: 500
+    optimizer_kwargs:
+      num_iterations: 5000
+      num_batches: 20
+      beta_gamma_lr: 0.001
+      scales_lr: 0.0005
+      is_hf_quantization: true
+
   quantization:
-    recipe_name: adascale_gptaq
+    recipe_name: lpbq_seqmse
     technique_kwargs:
-      adascale:
-        num_batches: 20
-        num_iterations: 1500
-        beta_gamma_lr: 0.001
-        scales_lr: 0.0005
-        is_hf_quantization: true
-        device: cuda
-      gptaq:
-        param_bw: 4
-        group_size: -1
-        num_calib_batches: -1
-        device: cpu
-      calibration:
+      seqmse:
+        apply_seqmse: false
+      lpbq:
+        exceptions_json: ./mixed_precision_exceptions.json
+        module_precisions:
+          lm_head:
+            apply: true
         tie_quantizers:
           - concat
 
