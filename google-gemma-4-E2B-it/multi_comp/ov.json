@@ -2,7 +2,7 @@
     "input_model": {
         "type": "CompositeModel",
         "config": {
-            "model_path": "gemma4_onnx_ov"
+            "model_path": "gemma4_onnx"
         }
     },
     "data_configs": [
@@ -59,7 +59,8 @@
         "ov_conversion": {
             "type": "OpenVINOConversion",
             "static": false,
-            "compress_to_fp16": false
+            "compress_to_fp16": false,
+            "model_name": "model"
         },
         "ov_encapsulation": {
             "type": "OpenVINOEncapsulation",
@@ -71,12 +72,13 @@
                     "decoder": {
                         "session_options": {
                             "graph_optimization_level": "ORT_DISABLE_ALL",
+                            "ep.context_file_path": "decoder/model.onnx",
                             "provider_options": [
                                 {
                                     "OpenVINO": {
                                         "device_type": "NPU",
                                         "enable_causallm": "True",
-                                        "load_config": "{\"NPU\":{\"MAX_PROMPT_LEN\":\"4096\",\"MIN_RESPONSE_LEN\":\"128\"}}"
+                                        "load_config": "{\"NPU\":{\"MAX_PROMPT_LEN\":\"1024\",\"MIN_RESPONSE_LEN\":\"128\",\"NPUW_DEVICES\":\"NPU\",\"NPUW_FALLBACK_EXEC\":\"NO\"}}"
                                     }
                                 }
                             ]
@@ -92,15 +94,6 @@
             "type": "GraphSurgeries",
             "surgeries": [{"surgeon": "RemoveUnusedNodeOutputs"},
                           {"surgeon": "ReplaceAttentionMaskValue",  "threshold": -1e8}],
-            "save_as_external_data": true
-        },
-        "l2_vision": {
-            "type": "GraphSurgeries",
-            "surgeries": [
-                {
-                    "surgeon": "SimplifiedLayerNormToL2Norm"
-                }
-            ],
             "save_as_external_data": true
         },
         "a16w8_static_quantization": {
@@ -130,17 +123,6 @@
             ],
             "save_as_external_data": true
         },
-        "f16_vision": {
-            "type": "OnnxFloatToFloat16",
-            "keep_io_types": true,
-            "use_symbolic_shape_infer": false,
-            "op_block_list": [
-                "QuantizeLinear",
-                "DequantizeLinear",
-                "RMSNormalization"
-            ],
-            "save_as_external_data": true
-        },
         "split_vision_pooler": {
             "type": "SplitVisionPooler",
             "stage_session_options": {
@@ -156,6 +138,12 @@
             },
             "save_as_external_data": true
         },
+        "decoder_matmul_nbits_to_qdq": {
+            "type": "MatMulNBitsToQDQ",
+            "use_signed_int": true,
+            "add_zero_point": false,
+            "save_as_external_data": true
+        },
         "matmul_nbits_to_qdq": {
             "type": "MatMulNBitsToQDQ",
             "use_signed_int": true,
@@ -166,11 +154,11 @@
     "builds": {
         "decoder": {
             "components": [ "decoder" ],
-            "pipeline": [ "matmul_nbits_to_qdq", "gs_decoder", "ov_conversion", "ov_encapsulation" ]
+            "pipeline": [ "decoder_matmul_nbits_to_qdq", "gs_decoder", "ov_conversion", "ov_encapsulation" ]
         },
         "vision": {
             "components": [ "vision_encoder" ],
-            "pipeline": [ "matmul_nbits_to_qdq", "gs_vision", "a16w8_static_quantization", "l2_vision", "dynamic_to_fixed_shape", "f16_vision", "split_vision_pooler" ]
+            "pipeline": [ "matmul_nbits_to_qdq", "gs_vision", "a16w8_static_quantization", "dynamic_to_fixed_shape", "split_vision_pooler" ]
         },
         "embedding": {
             "components": ["embedding"],
