@@ -287,6 +287,16 @@ The following values sum individual GPU kernel durations, not request latency
 or critical-path time. Profiling affects wall time, so profiled request TPS is
 not used as a performance result.
 
+Here, **MMQ** refers to llama.cpp's quantized matrix-matrix multiplication CUDA
+kernel family, typically used during prefill to process multiple token activations
+against quantized weights. **MMVQ** refers to its quantized matrix-vector
+multiplication CUDA kernel family, typically used during single-token decode.
+These kernels unpack and reconstruct compressed weights as needed for multiplication
+and accumulation; a smaller stored weight format does not imply proportionally less
+arithmetic. MMQ and MMVQ name kernel families, not quantization formats such as
+Q2_K or Q4_K. The prefill/decode labels below describe the observed dispatch in
+these traces, not a universal dispatch rule.
+
 | Kernel Family | Q4_K_M Total (ms) | Q2_K Total (ms) | UD-Q2_K_XL Total (ms) |
 |---|---:|---:|---:|
 | Prefill: all kernels | 247.555 | 367.231 | 343.937 |
@@ -340,6 +350,19 @@ INT2 weights. Q3_K MMVQ reconstructs weights from low bits plus a high-bit mask
 and reconstructs packed per-group scales. Smaller serialized weights therefore
 need not imply less computation or better kernel utilization. Q2_K is not an
 IQ2 codebook format, and its cost should not be attributed to IQ2 lookup tables.
+
+Unpacking is computation, not just reading fewer bytes. The packed low-bit
+weights are not directly usable as the multiplication operands: the kernel must
+extract their bit fields using shifts and masks, reconstruct operands, and handle
+the quantization scales and, where applicable, minimum corrections. This work is
+performed within the quantized multiplication path, rather than appearing as a
+separate unpacking kernel in the table. Q2_K's finer scale/min groups and Q3_K's
+additional high-bit and packed-scale reconstruction introduce format-specific
+work that is not captured by the stored bit count alone. Such instructions and
+their dependencies can limit how quickly operands reach the multiply-accumulate
+operations, offsetting the benefit of reduced weight traffic. This explains how
+unpacking overhead can make a lower-bit kernel slower; it does not establish
+that unpacking alone caused the measured 119.297 ms prefill MMQ increase.
 
 The traces locate the slower kernel families and projections, but do not prove
 whether unpacking, scale arithmetic, register pressure, bandwidth or occupancy
