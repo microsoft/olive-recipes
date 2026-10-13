@@ -239,13 +239,125 @@ and 11 Q6_K, totaling 579. No layer has all three expert projections in Q2_K.
 UD-Q2_K_XL is not an alias for Q2_K: both expert down and non-expert tensor
 recipes differ. No matched model-quality evaluation has been performed.
 
+## CUDA Profiling Follow-Up (October 13)
+
+This follow-up investigates where the low-bit recipes spend additional time.
+It uses the same pinned GGUF files, llama.cpp source revision and source-matching
+build as above, but runs on physical A100-SXM4-80GB GPU 0, UUID
+`GPU-739515b2-62b4-f900-86a2-50f55272a810`. GPU 6 was occupied by another task;
+that task was not interrupted. The runs execute on the host because the existing
+Docker container could no longer initialize CUDA/NVML. These are separate
+measurements, not replacements for the October 9 tables.
+
+Input length is 512 with exactly 128 output tokens, three warmups per process,
+49/49 layers on GPU, FP16 KV, Flash Attention, batch 2048, microbatch 512 and
+default CUDA Graph behavior. The prompt and request timing definitions are
+unchanged. The runner checks that GPU 0 is idle before each load; other GPUs
+and shared-host conditions are not controlled, and continuous exclusivity is
+not guaranteed.
+
+### Unprofiled Timing Check
+
+The original benchmark binary, without profiling instrumentation or an active
+profiler, measures five requests per model in Q4_K_M/Q2_K/UD-Q2_K_XL order and
+five more in reverse order. Throughput below aggregates all ten requests using
+summed wall time. Both orders reproduce the slowdown. Prompt token IDs match
+across models, and all ten generated sequences agree within each model.
+
+| Model | Prefill TPS | Change vs Q4_K_M | Decode TPS | Change vs Q4_K_M |
+|---|---:|---:|---:|---:|
+| Q4_K_M | 3953.74 | reference | 159.20 | reference |
+| Q2_K | 2698.28 | -31.75% | 143.94 | -9.59% |
+| UD-Q2_K_XL | 2888.86 | -26.93% | 150.22 | -5.64% |
+
+This checks the performance direction at one input length on a different
+physical A100; it does not add confidence intervals or broader hardware coverage.
+
+### GPU Kernel Attribution
+
+A separate wrapper reuses the benchmark source and adds NVTX ranges. Nsight
+Systems 2024.6.2 records CUDA Graph nodes with CPU sampling disabled. Each model
+has two profiled requests after three warmups. Full-process traces retain warmup,
+but analysis selects only kernels fully contained in prefill/decode NVTX ranges
+inside the post-warmup measurement range. Each trace has two measured prefill
+ranges and 254 decode ranges. Generated tokens agree with the unprofiled runs
+within each model.
+
+The following values sum individual GPU kernel durations, not request latency
+or critical-path time. Profiling affects wall time, so profiled request TPS is
+not used as a performance result.
+
+| Kernel Family | Q4_K_M Total (ms) | Q2_K Total (ms) | UD-Q2_K_XL Total (ms) |
+|---|---:|---:|---:|
+| Prefill: all kernels | 247.555 | 367.231 | 343.937 |
+| Prefill: MMQ | 194.289 | 313.586 | 290.384 |
+| Prefill: Flash Attention | 6.660 | 6.690 | 6.498 |
+| Prefill: activation quantization | 5.436 | 5.737 | 5.732 |
+| Decode: all kernels | 1422.804 | 1594.748 | 1519.281 |
+| Decode: MMVQ | 786.780 | 973.107 | 895.157 |
+| Decode: Flash Attention | 109.906 | 99.445 | 105.872 |
+| Decode: activation quantization | 133.916 | 131.823 | 130.398 |
+
+Q2_K prefill MMQ adds 119.297 ms, accounting for about 99.7% of the increase
+in summed GPU kernel time. Decode MMVQ adds 186.326 ms, partly offset by other
+kernel families. Flash Attention and activation quantization are not the source
+of the additional kernel time in these traces.
+
+### Decode Projection Breakdown
+
+MoE MMVQ launches have `gridY=8` for the selected experts. In this build,
+`gridX=768` identifies the gate/up output and `gridX=512` the down output;
+the launch code derives gridX from output rows and rows per block. Attention
+output has `gridX=2048, gridY=1`, matching its checkpoint shape and quantization
+mapping. Each category has 48 launches per decode step. These shapes are specific
+to this checkpoint and compiled kernel settings. The `has_fusion` template flag
+alone is insufficient to identify gate/up, since it also covers bias fusion.
+
+| Projection, Summed Across 48 Layers per Decode Step | Q4_K_M (ms) | Q2_K (ms) | UD-Q2_K_XL (ms) |
+|---|---:|---:|---:|
+| Fused expert gate/up + GLU | 0.991 | 1.012 | 1.010 |
+| Expert down | 0.621 | 1.111 | 0.992 |
+| Attention output | 0.453 | 0.642 | 0.492 |
+
+Both recipes use fused expert gate/up. Q2_K gate/up is only about 2.1% slower
+in this trace, not the dominant decode penalty. Expert down and attention output
+together account for about 92.7% of the additional MMVQ time.
+
+The Q2_K file uses Q3_K for both expert down and attention output. Its down
+kernel averages about 23.16 microseconds per launch, compared with 12.04 for
+Q4_K down and 13.83 for Q6_K down in the baseline. UD-Q2_K_XL uses Q4_K down
+in 11 layers and higher-bit attention output formats, reducing these costs while
+retaining Q2_K gate/up. This is recipe-specific evidence, not a claim that Q3_K
+is universally slower than Q4_K/Q6_K or that INT2 gate/up inherently causes the
+observed end-to-end decode slowdown.
+
+### Mechanisms and Remaining Limits
+
+The fixed source defines 16-value scale/min groups for Q2_K versus 32-value
+groups for Q4_K. Both have SM80 MMQ MMA paths; Q2_K has specialized, finer-grained
+scale/min handling. MMVQ uses DP4A rather than arithmetic directly on packed
+INT2 weights. Q3_K MMVQ reconstructs weights from low bits plus a high-bit mask
+and reconstructs packed per-group scales. Smaller serialized weights therefore
+need not imply less computation or better kernel utilization. Q2_K is not an
+IQ2 codebook format, and its cost should not be attributed to IQ2 lookup tables.
+
+The traces locate the slower kernel families and projections, but do not prove
+whether unpacking, scale arithmetic, register pressure, bandwidth or occupancy
+dominates inside them. Nsight Compute attempts failed with
+`Invalid or unsupported charset:ANSI_X3.4-1968`, including an explicit UTF-8
+environment; no hardware-counter evidence was obtained. Different greedy
+continuations can change expert routing, and the recipes change several tensor
+families together. Fixed-route, same-shape isolated kernel comparisons are still
+needed to separate encoding cost from routing and recipe differences. No new
+task-quality or cross-runtime claim follows from this analysis.
+
 ## Comparison Boundaries
 
 The column layout and prompt are aligned with the ORT report, but these are
 not controlled same-quantization cross-runtime trials. The ORT report used
 GPU 1 on October 4, Python orchestration, no CUDA capture, full-sequence
-prefill logits and different weight recipes. This report uses GPU 6 on
-October 9, C++ orchestration, default CUDA Graph behavior and only final
+prefill logits and different weight recipes. The October 9 tables use GPU 6,
+C++ orchestration, default CUDA Graph behavior and only final
 prompt-position logits. Prefill batching and KV capacity also differ.
 Identical prompt IDs do not establish checkpoint/tokenizer provenance or
 quality equivalence. No llama.cpp-versus-ORT speedup or accuracy claim follows.
@@ -272,6 +384,22 @@ distributed in this documentation PR.
 The UD follow-up's final JSON/JSONL/log files and `summary.json` are in
 `qwen3-llama-ud-request-perf-20261009/`; its smoke is excluded. The runner's
 historical and current hashes below distinguish the selector-only change.
+
+The October 13 follow-up retains per-model `.nsys-rep`, `.sqlite`, `.log`,
+`summary.json` and a detailed `RESULTS.md` in
+`qwen3-llama-profile-20261013-input512-gpu0/`. Unprofiled forward/reverse
+logs and summaries are in `qwen3-llama-timing-20261013-input512-gpu0-forward/`
+and `qwen3-llama-timing-20261013-input512-gpu0-reverse/`. Its local helpers are
+`qwen3_llama_request_profile.cpp` and `qwen3_llama_profile_analysis.py`, also
+under the accuracy directory. They and the raw traces are not distributed in
+this documentation PR. On that host, with GPU 0 idle and the retained profiling
+wrapper compiled, reproduction commands are:
+
+```bash
+python3 qwen3_llama_profile_analysis.py --output-dir new-profile --gpu 0
+python3 qwen3_llama_profile_analysis.py --output-dir new-timing-forward --gpu 0 --timing-only --repeats 5
+python3 qwen3_llama_profile_analysis.py --output-dir new-timing-reverse --gpu 0 --timing-only --repeats 5 --reverse-order
+```
 
 SHA256 fingerprints:
 
