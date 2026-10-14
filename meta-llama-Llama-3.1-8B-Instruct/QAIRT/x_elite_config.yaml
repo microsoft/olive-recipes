@@ -36,7 +36,7 @@ stages:
         beta_gamma_lr: 0.001
         scales_lr: 0.0005
         is_hf_quantization: true
-        dsp_arch: v79
+        dsp_arch: v73
 
   - model_loader:
       model_reauthoring: true
