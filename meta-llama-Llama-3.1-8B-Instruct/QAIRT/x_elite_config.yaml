@@ -15,6 +15,7 @@ stages:
   - model_loader:
       model_reauthoring: false
       apply_default_adaptations: false
+      execution_environment: gpu
       hf_tokenizer_kwargs:
         trust_remote_code: true
 
@@ -40,6 +41,7 @@ stages:
   - model_loader:
       model_reauthoring: true
       apply_default_adaptations: true
+      execution_environment: gpu
 
       model_config_overrides:
         input_tokens_per_inference: 2073
