@@ -83,6 +83,16 @@
                                 }
                             ]
                         }
+                    },
+                    "embedding": {
+                        "session_options": {
+                            "provider_options": []
+                        }
+                    },
+                    "speech": {
+                        "session_options": {
+                            "provider_options": []
+                        }
                     }
                 },
                 "search": {
@@ -94,23 +104,6 @@
             "type": "GraphSurgeries",
             "surgeries": [{"surgeon": "RemoveUnusedNodeOutputs"},
                           {"surgeon": "ReplaceAttentionMaskValue",  "threshold": -1e8}],
-            "save_as_external_data": true
-        },
-        "a16w8_static_quantization": {
-            "type": "OnnxStaticQuantization",
-            "data_config": "cauldron_vision_calibration",
-            "activation_type": "uint16",
-            "precision": "int8",
-            "calibration_providers": [
-                "CPUExecutionProvider"
-            ],
-            "quant_format": "QDQ",
-            "calibrate_method": "MinMax",
-            "quant_preprocess": false,
-            "prepare_qdq_config": true,
-            "extra_options": {
-                "DedicatedQDQPair": true
-            },
             "save_as_external_data": true
         },
         "dynamic_to_fixed_shape": {
@@ -158,7 +151,7 @@
         },
         "vision": {
             "components": [ "vision_encoder" ],
-            "pipeline": [ "matmul_nbits_to_qdq", "gs_vision", "a16w8_static_quantization", "dynamic_to_fixed_shape", "split_vision_pooler" ]
+            "pipeline": [ "matmul_nbits_to_qdq", "gs_vision", "dynamic_to_fixed_shape", "split_vision_pooler" ]
         },
         "embedding": {
             "components": ["embedding"],
