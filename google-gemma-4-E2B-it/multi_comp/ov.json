@@ -103,7 +103,8 @@
         "gs_vision": {
             "type": "GraphSurgeries",
             "surgeries": [{"surgeon": "RemoveUnusedNodeOutputs"},
-                          {"surgeon": "ReplaceAttentionMaskValue",  "threshold": -1e8}],
+                          {"surgeon": "ReplaceAttentionMaskValue",  "threshold": -1e8},
+                          {"surgeon": "SimplifiedLayerNormToL2Norm"}],
             "save_as_external_data": true
         },
         "dynamic_to_fixed_shape": {
@@ -114,6 +115,11 @@
             "dim_value": [
                 2520
             ],
+            "save_as_external_data": true
+        },
+        "infer_vision_shapes": {
+            "type": "GraphSurgeries",
+            "surgeries": [{"surgeon": "InferShapes"}],
             "save_as_external_data": true
         },
         "split_vision_pooler": {
@@ -147,11 +153,11 @@
     "builds": {
         "decoder": {
             "components": [ "decoder" ],
-            "pipeline": [ "decoder_matmul_nbits_to_qdq", "gs_decoder", "ov_conversion", "ov_encapsulation" ]
+            "pipeline": [ "decoder_matmul_nbits_to_qdq", "gs_decoder", "ov_conversion", "ov_encapsulation"]
         },
         "vision": {
             "components": [ "vision_encoder" ],
-            "pipeline": [ "matmul_nbits_to_qdq", "gs_vision", "dynamic_to_fixed_shape", "split_vision_pooler" ]
+            "pipeline": [ "matmul_nbits_to_qdq", "gs_vision", "dynamic_to_fixed_shape", "infer_vision_shapes", "split_vision_pooler" ]
         },
         "embedding": {
             "components": ["embedding"],
