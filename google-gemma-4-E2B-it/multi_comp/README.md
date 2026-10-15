@@ -63,7 +63,9 @@ The decoder pipeline keeps the Mobius ONNX export, applies QDQ conversion and
 graph surgeries, then runs `OpenVINOConversion` and `OpenVINOEncapsulation`.
 Conversion preserves dynamic shapes and the existing weight precision.
 Encapsulation produces an ONNX `EPContext` targeting NPU, with the OpenVINO
-IR (`.xml`/`.bin`) alongside it. The vision and embedding pipelines are unchanged.
+IR (`.xml`/`.bin`) alongside it. The vision pipeline fixes the patch count,
+infers intermediate shapes, then splits the encoder from the pooler/projector;
+the embedding pipeline is unchanged.
 
 Encapsulation uses `update_genai_config: true` to preserve the Mobius GenAI
 configuration and automatically merge the decoder filename and NPU session
