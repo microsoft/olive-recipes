@@ -35,7 +35,7 @@ measurements behind the notes: [eval](../../LiquidAI-LFM2.5-1.2B-Instruct/eval/R
 | llama.cpp Q8_0, CPU | 2.68 GiB | 0.00289 ± 0.00012 | 97.5% |
 | llama.cpp Q8_0, Metal | 2.68 GiB | 0.00123 ± 0.00010 | 98.3% |
 
-- INT4 has 10% ± 2% more KLD than Q4_K_M on llama.cpp CPU and 10% ± 2% more than on Metal (paired on
+- INT4 has 10% ± 2% more KLD than Q4_K_M on llama.cpp CPU and 10% ± 3% more than on Metal (paired on
   the same tokens), at 1.4x its size
   ([why](../../LiquidAI-LFM2.5-1.2B-Instruct/eval/README.md#size)).
 - [microsoft/onnxruntime#32814](https://github.com/microsoft/onnxruntime/pull/32814) (open) fits
@@ -55,7 +55,10 @@ Python 3.11+ is required: onnxruntime-genai stopped publishing cp310 wheels at 0
 ```
 pip install git+https://github.com/microsoft/olive.git
 pip install -r requirements.txt
+hf auth login   # onnxruntime-genai's model builder asks for a token even for these public models
 ```
+
+Without a Hugging Face login the ModelBuilder pass fails, and `olive run` still exits 0.
 
 These recipes need Olive from `main` together with `onnxruntime-genai>=0.16.0`.
 The released `olive-ai` package cannot drive genai 0.15+ (its ModelBuilder pass

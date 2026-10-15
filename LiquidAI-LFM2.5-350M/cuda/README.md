@@ -34,12 +34,12 @@ behind the notes: [eval](../../LiquidAI-LFM2.5-1.2B-Instruct/eval/README.md).
 | llama.cpp Q8_0, CPU | 0.35 GiB | 0.00843 ± 0.00018 | 95.3% |
 | llama.cpp Q8_0, Metal | 0.35 GiB | 0.00370 ± 0.00009 | 96.7% |
 
-- INT4 has 1% ± 1% more KLD than Q4_K_M on llama.cpp CPU and 5% ± 1% more than on Metal (paired on
+- INT4 has 1% ± 1% more KLD than Q4_K_M on llama.cpp CPU and 5% ± 2% more than on Metal (paired on
   the same tokens), at 1.8x its size
   ([why](../../LiquidAI-LFM2.5-1.2B-Instruct/eval/README.md#size)).
 - [microsoft/onnxruntime#32814](https://github.com/microsoft/onnxruntime/pull/32814) (open) fits
   `k_quant`'s scale to the zero point it stores. With it, the CPU INT4 recipe scores 0.468 instead
-  of 0.492: 3% ± 2% less KLD than Q4_K_M on llama.cpp CPU
+  of 0.492: 3% ± 1% less KLD than Q4_K_M on llama.cpp CPU
   ([details](../../LiquidAI-LFM2.5-1.2B-Instruct/eval/README.md#int4-against-q4_k_m-k_quants-zero-point)).
   This recipe uses the same quantizer.
 - INT8 has 2.0x the KLD of Q8_0 on llama.cpp CPU and 4.6x Metal's. The CUDA package runs in FP16: an
@@ -54,7 +54,10 @@ Python 3.11+ is required: onnxruntime-genai stopped publishing cp310 wheels at 0
 ```
 pip install git+https://github.com/microsoft/olive.git
 pip install -r requirements.txt
+hf auth login   # onnxruntime-genai's model builder asks for a token even for these public models
 ```
+
+Without a Hugging Face login the ModelBuilder pass fails, and `olive run` still exits 0.
 
 These recipes need Olive from `main` together with `onnxruntime-genai-cuda>=0.16.0`.
 The released `olive-ai` package cannot drive genai 0.15+ (its ModelBuilder pass

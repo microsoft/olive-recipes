@@ -28,9 +28,11 @@ The `±` in the tables is the standard error of the mean over the 64 chunks. lla
 16,320 tokens as independent, but tokens of one chunk are correlated, so it is 1.3-6.8x smaller (CUDA INT4 on
 1.2B-Instruct: ±0.0020 against ±0.013 over chunks).
 
-Differences between two variants are measured on the same tokens: `compare.py` takes the error of the difference
-over the 64 chunk means. For example, CPU INT4 on 350M scores 0.492 ± 0.012 and Q4_K_M on llama.cpp's CPU backend
-0.481 ± 0.010; on the same tokens, the difference is +0.010 ± 0.007 (2% ± 1%).
+Differences between two variants are measured on the same tokens. `compare.py` takes the error of a difference
+over the 64 chunk means, and the error of a relative change by the delta method for the ratio of the two means,
+which includes the error of the denominator and its covariance with the numerator. For example, CPU INT4 on 350M
+scores 0.492 ± 0.012 and Q4_K_M on llama.cpp's CPU backend 0.481 ± 0.010; on the same tokens, the difference is
++0.010 ± 0.007 (2% ± 1%).
 
 ## Size
 
@@ -55,9 +57,9 @@ comparison on the same tokens:
 
 | model | INT4 as shipped | INT4 with #32814 | change | Q4_K_M, CPU | Q4_K_M, Metal |
 | --- | --- | --- | --- | --- | --- |
-| 230M | 0.114 | 0.0950 | -17% ± 1% | 0.0988 (-4% ± 2%) | 0.0922 (+3% ± 1%) |
-| 350M | 0.492 | 0.468 | -5% ± 1% | 0.481 (-3% ± 2%) | 0.465 (+1% ± 2%) |
-| 1.2B-Instruct | 0.155 | 0.103 | -34% ± 7% | 0.109 (-6% ± 4%) | 0.104 (-1% ± 4%) |
+| 230M | 0.114 | 0.0950 | -17% ± 1% | 0.0988 (-4% ± 1%) | 0.0922 (+3% ± 1%) |
+| 350M | 0.492 | 0.468 | -5% ± 1% | 0.481 (-3% ± 1%) | 0.465 (+1% ± 2%) |
+| 1.2B-Instruct | 0.155 | 0.103 | -34% ± 5% | 0.109 (-6% ± 4%) | 0.104 (-1% ± 4%) |
 | 2.6B | 0.165 | 0.146 | -12% ± 2% | 0.155 (-6% ± 2%) | 0.155 (-6% ± 2%) |
 
 With it, INT4 scores 3-6% below Q4_K_M on llama.cpp's CPU backend on every model, and between 6% below and 3%
@@ -76,8 +78,8 @@ error):
 | --- | --- | --- | --- | --- | --- |
 | 230M | 0.179 | 0.162 (-9% ± 1%) | 0.122 (-25% ± 1%) | 0.111 | 0.111 (+0.0000) |
 | 350M | 0.979 | 0.664 (-32% ± 1%) | 0.511 (-23% ± 1%) | 0.491 | 0.491 (+0.0001) |
-| 1.2B-Instruct | 0.210 | 0.132 (-37% ± 5%) | 0.119 (-10% ± 3%) | 0.158 | 0.158 (-0.0000) |
-| 2.6B | 0.283 | 0.216 (-24% ± 2%) | 0.166 (-23% ± 1%) | 0.170 | 0.170 (+0.0000) |
+| 1.2B-Instruct | 0.210 | 0.132 (-37% ± 3%) | 0.119 (-10% ± 3%) | 0.158 | 0.158 (-0.0000) |
+| 2.6B | 0.283 | 0.216 (-24% ± 1%) | 0.166 (-23% ± 1%) | 0.170 | 0.170 (+0.0000) |
 
 - The LM head: leaving it in FP16 (`nodes_to_exclude: /lm_head/MatMul` instead of `last_matmul:int8`) changes KLD
   by at most 0.0001 on every model and adds 0.05-0.22 GiB.
@@ -106,10 +108,13 @@ more; on 230M it costs little, and INT8 on CUDA matches the CPU EP.
 
 ## Reproduce
 
-For one model (1.2B-Instruct here), from this folder:
+For one model (1.2B-Instruct here), from this folder, with Python 3.11+:
 
 ```
-pip install numpy torch "transformers>=5.0.0" onnxruntime   # onnxruntime-gpu or onnxruntime-ep-webgpu for those EPs
+# Olive and the CPU recipe's requirements to build it, PyTorch for make_ref.py. To score the CUDA or WebGPU
+# recipes, install that folder's requirements.txt instead (and onnxruntime-ep-webgpu for WebGPU).
+pip install git+https://github.com/microsoft/olive.git -r ../cpu/requirements.txt torch
+hf auth login   # onnxruntime-genai's model builder asks for a token even for these public models
 git clone https://github.com/ggml-org/llama.cpp && git -C llama.cpp checkout 4e7481175
 cmake -S llama.cpp -B llama.cpp/build -DCMAKE_BUILD_TYPE=Release && cmake --build llama.cpp/build -j --target llama-perplexity
 curl -LO https://huggingface.co/datasets/ggml-org/ci/resolve/main/wikitext-2-raw-v1.zip && unzip wikitext-2-raw-v1.zip

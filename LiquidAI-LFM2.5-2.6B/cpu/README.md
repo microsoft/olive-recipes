@@ -50,7 +50,10 @@ Python 3.11+ is required: onnxruntime-genai stopped publishing cp310 wheels at 0
 ```
 pip install git+https://github.com/microsoft/olive.git
 pip install -r requirements.txt
+hf auth login   # onnxruntime-genai's model builder asks for a token even for these public models
 ```
+
+Without a Hugging Face login the ModelBuilder pass fails, and `olive run` still exits 0.
 
 These recipes need Olive from `main` together with `onnxruntime-genai>=0.16.0`.
 The released `olive-ai` package cannot drive genai 0.15+ (its ModelBuilder pass
