@@ -66,10 +66,12 @@ backends, ONNX on an Apple M3 Ultra (Metal)): INT8 scores 0.040 against Q8_0's 0
 and INT4 0.210 against Q4_K_M's 0.175-0.179, at 5.1 GiB against 4.8 GiB. INT4 differs from
 Q4_K_M in two ways: the model builder quantizes the experts, which hold most of the weights,
 with symmetric block-wise rounding (no zero point) where Q4_K fits a scale and a minimum per
-block, and the dense MatMuls go through ONNX Runtime's `k_quant`, whose rounding
-[microsoft/onnxruntime#32814](https://github.com/microsoft/onnxruntime/pull/32814) fixes. On
-this MoE model even llama.cpp's BF16 GGUF sits at 0.009 from the PyTorch FP32 model: small
-numeric differences flip the router's expert choices.
+block, and the dense MatMuls go through ONNX Runtime's `k_quant`, which rounds its zero
+point after fitting the scale;
+[microsoft/onnxruntime#32814](https://github.com/microsoft/onnxruntime/pull/32814) (open)
+fits the scale to the zero point it stores. On this MoE model even llama.cpp's BF16 GGUF
+sits at 0.009 from the PyTorch FP32 model: small numeric differences flip the router's
+expert choices.
 
 ## Running on WebGPU
 
@@ -99,14 +101,11 @@ pip install git+https://github.com/microsoft/olive.git
 pip install -r requirements.txt
 ```
 
-These recipes need Olive from `main` together with `onnxruntime-genai>=0.16.0`.
+These recipes need Olive from `main` together with `onnxruntime-genai>=0.17.0`.
 The released `olive-ai` package cannot drive genai 0.15+ (its ModelBuilder pass
 skips the `check_extra_options` step that `create_model` now requires), and Olive
 `main` imports the `onnxruntime_genai.models.loaders` package that only ships from
-genai 0.16.0. LFM2-MoE support itself comes from
-[microsoft/onnxruntime-genai#2575](https://github.com/microsoft/onnxruntime-genai/pull/2575),
-which landed after 0.16.0 and changes the runtime as well as the model builder. Until a
-release includes it, build onnxruntime-genai from `main` and install that wheel after the
-requirements with `pip install --no-deps --force-reinstall`: a `main` build is versioned
-`0.16.0.dev0`, which sorts below `0.16.0`, so installing the requirements afterwards would
-replace it with the release.
+genai 0.16.0. LFM2-MoE support itself landed in genai 0.17.0
+([microsoft/onnxruntime-genai#2575](https://github.com/microsoft/onnxruntime-genai/pull/2575)).
+It covers the runtime as well as the model builder, so running the exported model needs
+0.17.0 too.
