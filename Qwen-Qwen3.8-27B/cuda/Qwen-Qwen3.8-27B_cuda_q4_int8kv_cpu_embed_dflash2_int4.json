@@ -105,6 +105,9 @@
                     },
                     "decoder": {
                         "session_options": {
+                            "ep.cuda.fpa_intb_gemm": "1",
+                            "ep.cuda.fpa_intb_gemv_wave_aware": "1",
+                            "ep.cuda.fpa_intb_gemv_paired_k": "1",
                             "session.use_device_allocator_for_initializers": "1",
                             "ep.cuda.matmul_nbits_m_chunk_size": "512",
                             "ep.cuda.enable_gemm_auto_tune": "1",
@@ -119,6 +122,7 @@
                     },
                     "dflash2": {
                         "session_options": {
+                            "ep.cuda.fpa_intb_gemm": "0",
                             "session.use_device_allocator_for_initializers": "1",
                             "ep.cuda.matmul_nbits_m_chunk_size": "512",
                             "ep.cuda.enable_gemm_auto_tune": "1",
@@ -154,13 +158,14 @@
                 {
                     "id": "32-to-less-than-40-gib",
                     "eligibility": {
-                        "minimum_total_device_memory_bytes": 34359738368,
-                        "maximum_total_device_memory_bytes": 42949672959
+                        "minimum_total_device_memory_bytes": 34100000000,
+                        "maximum_total_device_memory_bytes": 42949672959,
+                        "is_integrated": false
                     },
                     "overlay": {
                         "engine": {
                             "dynamic_batching": {
-                                "num_blocks": 1031,
+                                "num_blocks": 1037,
                                 "max_batch_size": 1,
                                 "max_scheduled_tokens": 1024
                             }
@@ -174,7 +179,8 @@
                     "id": "40-to-less-than-60-gib",
                     "eligibility": {
                         "minimum_total_device_memory_bytes": 42949672960,
-                        "maximum_total_device_memory_bytes": 64424509439
+                        "maximum_total_device_memory_bytes": 64424509439,
+                        "is_integrated": false
                     },
                     "overlay": {
                         "engine": {
@@ -193,7 +199,8 @@
                     "id": "60-to-less-than-70-gib",
                     "eligibility": {
                         "minimum_total_device_memory_bytes": 64424509440,
-                        "maximum_total_device_memory_bytes": 75161927679
+                        "maximum_total_device_memory_bytes": 75161927679,
+                        "is_integrated": false
                     },
                     "overlay": {
                         "engine": {
@@ -211,7 +218,8 @@
                 {
                     "id": "70-gib-or-more",
                     "eligibility": {
-                        "minimum_total_device_memory_bytes": 75161927680
+                        "minimum_total_device_memory_bytes": 75161927680,
+                        "is_integrated": false
                     },
                     "overlay": {
                         "engine": {
@@ -223,6 +231,115 @@
                         },
                         "search": {
                             "chunk_size": 1024
+                        }
+                    }
+                },
+                {
+                    "id": "integrated-unified-free-31-to-less-than-45-gib",
+                    "eligibility": {
+                        "minimum_total_device_memory_bytes": 0,
+                        "minimum_free_device_memory_bytes": 33285996544,
+                        "is_integrated": true,
+                        "maximum_free_device_memory_bytes": 48318382079
+                    },
+                    "overlay": {
+                        "engine": {
+                            "dynamic_batching": {
+                                "num_blocks": 525,
+                                "max_batch_size": 1,
+                                "max_scheduled_tokens": 512,
+                                "dflash2_max_snapshots": 1
+                            }
+                        },
+                        "search": {
+                            "chunk_size": 512
+                        }
+                    }
+                },
+                {
+                    "id": "integrated-unified-free-45-to-less-than-65-gib",
+                    "eligibility": {
+                        "minimum_total_device_memory_bytes": 0,
+                        "minimum_free_device_memory_bytes": 48318382080,
+                        "is_integrated": true,
+                        "maximum_free_device_memory_bytes": 69793218559
+                    },
+                    "overlay": {
+                        "engine": {
+                            "dynamic_batching": {
+                                "num_blocks": 1037,
+                                "max_batch_size": 1,
+                                "max_scheduled_tokens": 512,
+                                "dflash2_max_snapshots": 1
+                            }
+                        },
+                        "search": {
+                            "chunk_size": 512
+                        }
+                    }
+                },
+                {
+                    "id": "integrated-unified-free-65-to-less-than-81-gib",
+                    "eligibility": {
+                        "minimum_total_device_memory_bytes": 0,
+                        "minimum_free_device_memory_bytes": 69793218560,
+                        "is_integrated": true,
+                        "maximum_free_device_memory_bytes": 86973087743
+                    },
+                    "overlay": {
+                        "engine": {
+                            "dynamic_batching": {
+                                "num_blocks": 2061,
+                                "max_batch_size": 2,
+                                "max_scheduled_tokens": 512,
+                                "dflash2_max_snapshots": 1
+                            }
+                        },
+                        "search": {
+                            "chunk_size": 512
+                        }
+                    }
+                },
+                {
+                    "id": "integrated-unified-free-81-to-less-than-97-gib",
+                    "eligibility": {
+                        "minimum_total_device_memory_bytes": 0,
+                        "minimum_free_device_memory_bytes": 86973087744,
+                        "is_integrated": true,
+                        "maximum_free_device_memory_bytes": 104152956927
+                    },
+                    "overlay": {
+                        "engine": {
+                            "dynamic_batching": {
+                                "num_blocks": 3091,
+                                "max_batch_size": 3,
+                                "max_scheduled_tokens": 512,
+                                "dflash2_max_snapshots": 1
+                            }
+                        },
+                        "search": {
+                            "chunk_size": 512
+                        }
+                    }
+                },
+                {
+                    "id": "integrated-unified-free-97-gib-or-more",
+                    "eligibility": {
+                        "minimum_total_device_memory_bytes": 0,
+                        "minimum_free_device_memory_bytes": 104152956928,
+                        "is_integrated": true
+                    },
+                    "overlay": {
+                        "engine": {
+                            "dynamic_batching": {
+                                "num_blocks": 4122,
+                                "max_batch_size": 4,
+                                "max_scheduled_tokens": 512,
+                                "dflash2_max_snapshots": 1
+                            }
+                        },
+                        "search": {
+                            "chunk_size": 512
                         }
                     }
                 }
