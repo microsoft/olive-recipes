@@ -59,14 +59,6 @@ stages:
 
   - quantization:
       recipe_name: lpbq_seqmse
-      post_prepare_evaluator_config:
-        enabled: true
-        metrics:
-          - name: PPL
-            dataset_name: wikitext
-            max_batches: 50
-        context_length: 2048
-        output_dir: ./eval_results
       technique_kwargs:
         seqmse:
           apply_seqmse: false
