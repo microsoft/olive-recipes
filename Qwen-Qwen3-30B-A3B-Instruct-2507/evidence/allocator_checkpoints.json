@@ -1,0 +1,2862 @@
+{
+  "schema": 1,
+  "sample_policy": "One stable paired NVML/allocator tuple; high-water counters not added",
+  "cases": {
+    "7k": {
+      "prompt_tokens": 7189,
+      "sequence_capacity": 8448,
+      "batch": 1,
+      "layers": 48,
+      "kv_heads": 4,
+      "head_dim": 128,
+      "vocab_size": 151936,
+      "kv_dtype": "float16",
+      "logits_dtype": "float16",
+      "kv_tensors": [
+        {
+          "name": "past_key_values.0.key",
+          "bytes": 8650752,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            8448,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.0.value",
+          "bytes": 8650752,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            8448,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.1.key",
+          "bytes": 8650752,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            8448,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.1.value",
+          "bytes": 8650752,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            8448,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.2.key",
+          "bytes": 8650752,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            8448,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.2.value",
+          "bytes": 8650752,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            8448,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.3.key",
+          "bytes": 8650752,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            8448,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.3.value",
+          "bytes": 8650752,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            8448,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.4.key",
+          "bytes": 8650752,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            8448,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.4.value",
+          "bytes": 8650752,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            8448,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.5.key",
+          "bytes": 8650752,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            8448,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.5.value",
+          "bytes": 8650752,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            8448,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.6.key",
+          "bytes": 8650752,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            8448,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.6.value",
+          "bytes": 8650752,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            8448,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.7.key",
+          "bytes": 8650752,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            8448,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.7.value",
+          "bytes": 8650752,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            8448,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.8.key",
+          "bytes": 8650752,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            8448,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.8.value",
+          "bytes": 8650752,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            8448,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.9.key",
+          "bytes": 8650752,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            8448,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.9.value",
+          "bytes": 8650752,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            8448,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.10.key",
+          "bytes": 8650752,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            8448,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.10.value",
+          "bytes": 8650752,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            8448,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.11.key",
+          "bytes": 8650752,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            8448,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.11.value",
+          "bytes": 8650752,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            8448,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.12.key",
+          "bytes": 8650752,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            8448,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.12.value",
+          "bytes": 8650752,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            8448,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.13.key",
+          "bytes": 8650752,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            8448,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.13.value",
+          "bytes": 8650752,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            8448,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.14.key",
+          "bytes": 8650752,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            8448,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.14.value",
+          "bytes": 8650752,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            8448,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.15.key",
+          "bytes": 8650752,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            8448,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.15.value",
+          "bytes": 8650752,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            8448,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.16.key",
+          "bytes": 8650752,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            8448,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.16.value",
+          "bytes": 8650752,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            8448,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.17.key",
+          "bytes": 8650752,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            8448,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.17.value",
+          "bytes": 8650752,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            8448,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.18.key",
+          "bytes": 8650752,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            8448,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.18.value",
+          "bytes": 8650752,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            8448,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.19.key",
+          "bytes": 8650752,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            8448,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.19.value",
+          "bytes": 8650752,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            8448,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.20.key",
+          "bytes": 8650752,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            8448,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.20.value",
+          "bytes": 8650752,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            8448,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.21.key",
+          "bytes": 8650752,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            8448,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.21.value",
+          "bytes": 8650752,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            8448,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.22.key",
+          "bytes": 8650752,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            8448,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.22.value",
+          "bytes": 8650752,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            8448,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.23.key",
+          "bytes": 8650752,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            8448,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.23.value",
+          "bytes": 8650752,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            8448,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.24.key",
+          "bytes": 8650752,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            8448,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.24.value",
+          "bytes": 8650752,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            8448,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.25.key",
+          "bytes": 8650752,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            8448,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.25.value",
+          "bytes": 8650752,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            8448,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.26.key",
+          "bytes": 8650752,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            8448,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.26.value",
+          "bytes": 8650752,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            8448,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.27.key",
+          "bytes": 8650752,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            8448,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.27.value",
+          "bytes": 8650752,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            8448,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.28.key",
+          "bytes": 8650752,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            8448,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.28.value",
+          "bytes": 8650752,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            8448,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.29.key",
+          "bytes": 8650752,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            8448,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.29.value",
+          "bytes": 8650752,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            8448,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.30.key",
+          "bytes": 8650752,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            8448,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.30.value",
+          "bytes": 8650752,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            8448,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.31.key",
+          "bytes": 8650752,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            8448,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.31.value",
+          "bytes": 8650752,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            8448,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.32.key",
+          "bytes": 8650752,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            8448,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.32.value",
+          "bytes": 8650752,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            8448,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.33.key",
+          "bytes": 8650752,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            8448,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.33.value",
+          "bytes": 8650752,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            8448,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.34.key",
+          "bytes": 8650752,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            8448,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.34.value",
+          "bytes": 8650752,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            8448,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.35.key",
+          "bytes": 8650752,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            8448,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.35.value",
+          "bytes": 8650752,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            8448,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.36.key",
+          "bytes": 8650752,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            8448,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.36.value",
+          "bytes": 8650752,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            8448,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.37.key",
+          "bytes": 8650752,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            8448,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.37.value",
+          "bytes": 8650752,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            8448,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.38.key",
+          "bytes": 8650752,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            8448,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.38.value",
+          "bytes": 8650752,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            8448,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.39.key",
+          "bytes": 8650752,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            8448,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.39.value",
+          "bytes": 8650752,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            8448,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.40.key",
+          "bytes": 8650752,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            8448,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.40.value",
+          "bytes": 8650752,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            8448,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.41.key",
+          "bytes": 8650752,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            8448,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.41.value",
+          "bytes": 8650752,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            8448,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.42.key",
+          "bytes": 8650752,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            8448,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.42.value",
+          "bytes": 8650752,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            8448,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.43.key",
+          "bytes": 8650752,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            8448,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.43.value",
+          "bytes": 8650752,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            8448,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.44.key",
+          "bytes": 8650752,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            8448,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.44.value",
+          "bytes": 8650752,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            8448,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.45.key",
+          "bytes": 8650752,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            8448,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.45.value",
+          "bytes": 8650752,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            8448,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.46.key",
+          "bytes": 8650752,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            8448,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.46.value",
+          "bytes": 8650752,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            8448,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.47.key",
+          "bytes": 8650752,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            8448,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.47.value",
+          "bytes": 8650752,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            8448,
+            128
+          ]
+        }
+      ],
+      "raw_logits": {
+        "name": "logits",
+        "bytes": 2184535808,
+        "dtype": 10,
+        "shape": [
+          1,
+          7189,
+          151936
+        ]
+      },
+      "checkpoints": [
+        {
+          "checkpoint": "A",
+          "nvml_process_bytes": 0,
+          "nvml_device_used_bytes": 0,
+          "nvml_driver_reserved_bytes_excluded": 804519936,
+          "model_session": null,
+          "genai_device": null,
+          "auxiliary_allocator_held_bytes": 0,
+          "kv_logical_live_bytes": 0,
+          "logits_logical_live_bytes": 0,
+          "payload_observation": "Direct tensor metadata at fixed checkpoints; D/F use source-verified E/G shape lifetimes",
+          "cuda_initialization_process_baseline_bytes": 0
+        },
+        {
+          "checkpoint": "A_cuda_initialized",
+          "nvml_process_bytes": 436207616,
+          "nvml_device_used_bytes": 445513728,
+          "nvml_driver_reserved_bytes_excluded": 804519936,
+          "model_session": null,
+          "genai_device": null,
+          "auxiliary_allocator_held_bytes": 0,
+          "kv_logical_live_bytes": 0,
+          "logits_logical_live_bytes": 0,
+          "payload_observation": "Direct tensor metadata at fixed checkpoints; D/F use source-verified E/G shape lifetimes",
+          "cuda_initialization_process_baseline_bytes": 436207616
+        },
+        {
+          "checkpoint": "B",
+          "nvml_process_bytes": 17261658112,
+          "nvml_device_used_bytes": 17270964224,
+          "nvml_driver_reserved_bytes_excluded": 804519936,
+          "model_session": {
+            "InUse": 16753045512,
+            "Limit": -1,
+            "MaxAllocSize": 622329856,
+            "MaxInUse": 16955945096,
+            "NumAllocs": 1254,
+            "NumArenaExtensions": 1,
+            "NumArenaShrinkages": 0,
+            "NumReserves": 1206,
+            "RequestedInUse": 16753045512,
+            "TotalAllocated": 16754044936
+          },
+          "genai_device": {
+            "InUse": 0,
+            "Limit": -1,
+            "MaxAllocSize": 0,
+            "MaxInUse": 0,
+            "NumAllocs": 0,
+            "NumArenaExtensions": 0,
+            "NumArenaShrinkages": 0,
+            "NumReserves": 0,
+            "RequestedInUse": 0,
+            "TotalAllocated": 0
+          },
+          "auxiliary_allocator_held_bytes": 0,
+          "kv_logical_live_bytes": 0,
+          "logits_logical_live_bytes": 0,
+          "payload_observation": "Direct tensor metadata at fixed checkpoints; D/F use source-verified E/G shape lifetimes",
+          "cuda_initialization_process_baseline_bytes": 436207616
+        },
+        {
+          "checkpoint": "C",
+          "nvml_process_bytes": 18337497088,
+          "nvml_device_used_bytes": 18346803200,
+          "nvml_driver_reserved_bytes_excluded": 804519936,
+          "model_session": {
+            "InUse": 16753045512,
+            "Limit": -1,
+            "MaxAllocSize": 622329856,
+            "MaxInUse": 16955945096,
+            "NumAllocs": 1254,
+            "NumArenaExtensions": 1,
+            "NumArenaShrinkages": 0,
+            "NumReserves": 1206,
+            "RequestedInUse": 16753045512,
+            "TotalAllocated": 16754044936
+          },
+          "genai_device": {
+            "InUse": 865634048,
+            "Limit": -1,
+            "MaxAllocSize": 16777216,
+            "MaxInUse": 865634048,
+            "NumAllocs": 100,
+            "NumArenaExtensions": 8,
+            "NumArenaShrinkages": 0,
+            "NumReserves": 0,
+            "RequestedInUse": 830506000,
+            "TotalAllocated": 1074790400
+          },
+          "auxiliary_allocator_held_bytes": 0,
+          "kv_logical_live_bytes": 830472192,
+          "logits_logical_live_bytes": 0,
+          "payload_observation": "Direct tensor metadata at fixed checkpoints; D/F use source-verified E/G shape lifetimes",
+          "cuda_initialization_process_baseline_bytes": 436207616
+        },
+        {
+          "checkpoint": "D",
+          "nvml_process_bytes": 26398949376,
+          "nvml_device_used_bytes": 26408255488,
+          "nvml_driver_reserved_bytes_excluded": 804519936,
+          "model_session": {
+            "InUse": 17541958408,
+            "Limit": -1,
+            "MaxAllocSize": 1271026944,
+            "MaxInUse": 18307017480,
+            "NumAllocs": 1284,
+            "NumArenaExtensions": 8,
+            "NumArenaShrinkages": 0,
+            "NumReserves": 1206,
+            "RequestedInUse": 17512986252,
+            "TotalAllocated": 20512141320
+          },
+          "genai_device": {
+            "InUse": 3050352896,
+            "Limit": -1,
+            "MaxAllocSize": 2184535808,
+            "MaxInUse": 3050352896,
+            "NumAllocs": 105,
+            "NumArenaExtensions": 9,
+            "NumArenaShrinkages": 0,
+            "NumReserves": 0,
+            "RequestedInUse": 3015224416,
+            "TotalAllocated": 5369757696
+          },
+          "auxiliary_allocator_held_bytes": 0,
+          "kv_logical_live_bytes": 830472192,
+          "logits_logical_live_bytes": 2184535808,
+          "payload_observation": "Direct tensor metadata at fixed checkpoints; D/F use source-verified E/G shape lifetimes",
+          "cuda_initialization_process_baseline_bytes": 436207616
+        },
+        {
+          "checkpoint": "prefill_return",
+          "nvml_process_bytes": 26398949376,
+          "nvml_device_used_bytes": 26408255488,
+          "nvml_driver_reserved_bytes_excluded": 804519936,
+          "model_session": {
+            "InUse": 16753045512,
+            "Limit": -1,
+            "MaxAllocSize": 1271026944,
+            "MaxInUse": 18307017480,
+            "NumAllocs": 1700,
+            "NumArenaExtensions": 8,
+            "NumArenaShrinkages": 0,
+            "NumReserves": 1206,
+            "RequestedInUse": 16753045512,
+            "TotalAllocated": 20512141320
+          },
+          "genai_device": {
+            "InUse": 3051235584,
+            "Limit": -1,
+            "MaxAllocSize": 2184535808,
+            "MaxInUse": 3051264512,
+            "NumAllocs": 107,
+            "NumArenaExtensions": 9,
+            "NumArenaShrinkages": 0,
+            "NumReserves": 0,
+            "RequestedInUse": 3016107276,
+            "TotalAllocated": 5369757696
+          },
+          "auxiliary_allocator_held_bytes": 0,
+          "kv_logical_live_bytes": 830472192,
+          "logits_logical_live_bytes": 2184535808,
+          "payload_observation": "Direct tensor metadata at fixed checkpoints; D/F use source-verified E/G shape lifetimes",
+          "cuda_initialization_process_baseline_bytes": 436207616
+        },
+        {
+          "checkpoint": "E",
+          "nvml_process_bytes": 26398949376,
+          "nvml_device_used_bytes": 26408255488,
+          "nvml_driver_reserved_bytes_excluded": 804519936,
+          "model_session": {
+            "InUse": 16753045512,
+            "Limit": -1,
+            "MaxAllocSize": 1271026944,
+            "MaxInUse": 18307017480,
+            "NumAllocs": 1700,
+            "NumArenaExtensions": 8,
+            "NumArenaShrinkages": 0,
+            "NumReserves": 1206,
+            "RequestedInUse": 16753045512,
+            "TotalAllocated": 20512141320
+          },
+          "genai_device": {
+            "InUse": 3056746752,
+            "Limit": -1,
+            "MaxAllocSize": 2184535808,
+            "MaxInUse": 3056746752,
+            "NumAllocs": 108,
+            "NumArenaExtensions": 9,
+            "NumArenaShrinkages": 0,
+            "NumReserves": 0,
+            "RequestedInUse": 3021618444,
+            "TotalAllocated": 5369757696
+          },
+          "auxiliary_allocator_held_bytes": 0,
+          "kv_logical_live_bytes": 830472192,
+          "logits_logical_live_bytes": 2184535808,
+          "payload_observation": "Direct tensor metadata at fixed checkpoints; D/F use source-verified E/G shape lifetimes",
+          "cuda_initialization_process_baseline_bytes": 436207616
+        },
+        {
+          "checkpoint": "F",
+          "nvml_process_bytes": 26438795264,
+          "nvml_device_used_bytes": 26448101376,
+          "nvml_driver_reserved_bytes_excluded": 804519936,
+          "model_session": {
+            "InUse": 16753045512,
+            "Limit": -1,
+            "MaxAllocSize": 1271026944,
+            "MaxInUse": 18307017480,
+            "NumAllocs": 2388,
+            "NumArenaExtensions": 8,
+            "NumArenaShrinkages": 0,
+            "NumReserves": 1206,
+            "RequestedInUse": 16753045512,
+            "TotalAllocated": 20512141320
+          },
+          "genai_device": {
+            "InUse": 872652032,
+            "Limit": -1,
+            "MaxAllocSize": 2184535808,
+            "MaxInUse": 3057187840,
+            "NumAllocs": 111,
+            "NumArenaExtensions": 9,
+            "NumArenaShrinkages": 0,
+            "NumReserves": 0,
+            "RequestedInUse": 837300256,
+            "TotalAllocated": 5369757696
+          },
+          "auxiliary_allocator_held_bytes": 0,
+          "kv_logical_live_bytes": 830472192,
+          "logits_logical_live_bytes": 303872,
+          "payload_observation": "Direct tensor metadata at fixed checkpoints; D/F use source-verified E/G shape lifetimes",
+          "cuda_initialization_process_baseline_bytes": 436207616
+        },
+        {
+          "checkpoint": "G",
+          "nvml_process_bytes": 26438795264,
+          "nvml_device_used_bytes": 26448101376,
+          "nvml_driver_reserved_bytes_excluded": 804519936,
+          "model_session": {
+            "InUse": 16753045512,
+            "Limit": -1,
+            "MaxAllocSize": 1271026944,
+            "MaxInUse": 18307017480,
+            "NumAllocs": 2388,
+            "NumArenaExtensions": 8,
+            "NumArenaShrinkages": 0,
+            "NumReserves": 1206,
+            "RequestedInUse": 16753045512,
+            "TotalAllocated": 20512141320
+          },
+          "genai_device": {
+            "InUse": 872652032,
+            "Limit": -1,
+            "MaxAllocSize": 2184535808,
+            "MaxInUse": 3057187840,
+            "NumAllocs": 111,
+            "NumArenaExtensions": 9,
+            "NumArenaShrinkages": 0,
+            "NumReserves": 0,
+            "RequestedInUse": 837300256,
+            "TotalAllocated": 5369757696
+          },
+          "auxiliary_allocator_held_bytes": 0,
+          "kv_logical_live_bytes": 830472192,
+          "logits_logical_live_bytes": 303872,
+          "payload_observation": "Direct tensor metadata at fixed checkpoints; D/F use source-verified E/G shape lifetimes",
+          "cuda_initialization_process_baseline_bytes": 436207616
+        },
+        {
+          "checkpoint": "H",
+          "nvml_process_bytes": 26438795264,
+          "nvml_device_used_bytes": 26448101376,
+          "nvml_driver_reserved_bytes_excluded": 804519936,
+          "model_session": {
+            "InUse": 16753045512,
+            "Limit": -1,
+            "MaxAllocSize": 1271026944,
+            "MaxInUse": 18307017480,
+            "NumAllocs": 2388,
+            "NumArenaExtensions": 8,
+            "NumArenaShrinkages": 0,
+            "NumReserves": 1206,
+            "RequestedInUse": 16753045512,
+            "TotalAllocated": 20512141320
+          },
+          "genai_device": {
+            "InUse": 0,
+            "Limit": -1,
+            "MaxAllocSize": 2184535808,
+            "MaxInUse": 3057187840,
+            "NumAllocs": 111,
+            "NumArenaExtensions": 9,
+            "NumArenaShrinkages": 0,
+            "NumReserves": 0,
+            "RequestedInUse": 0,
+            "TotalAllocated": 5369757696
+          },
+          "auxiliary_allocator_held_bytes": 0,
+          "kv_logical_live_bytes": 0,
+          "logits_logical_live_bytes": 0,
+          "payload_observation": "Direct tensor metadata at fixed checkpoints; D/F use source-verified E/G shape lifetimes",
+          "cuda_initialization_process_baseline_bytes": 436207616
+        },
+        {
+          "checkpoint": "I_model_destroyed",
+          "nvml_process_bytes": 5867831296,
+          "nvml_device_used_bytes": 5877137408,
+          "nvml_driver_reserved_bytes_excluded": 804519936,
+          "model_session": null,
+          "genai_device": {
+            "InUse": 0,
+            "Limit": -1,
+            "MaxAllocSize": 2184535808,
+            "MaxInUse": 3057187840,
+            "NumAllocs": 111,
+            "NumArenaExtensions": 9,
+            "NumArenaShrinkages": 0,
+            "NumReserves": 0,
+            "RequestedInUse": 0,
+            "TotalAllocated": 5369757696
+          },
+          "auxiliary_allocator_held_bytes": 0,
+          "kv_logical_live_bytes": 0,
+          "logits_logical_live_bytes": 0,
+          "payload_observation": "Direct tensor metadata at fixed checkpoints; D/F use source-verified E/G shape lifetimes",
+          "cuda_initialization_process_baseline_bytes": 436207616
+        },
+        {
+          "checkpoint": "J_genai_shutdown",
+          "nvml_process_bytes": 486539264,
+          "nvml_device_used_bytes": 495845376,
+          "nvml_driver_reserved_bytes_excluded": 804519936,
+          "model_session": null,
+          "genai_device": null,
+          "auxiliary_allocator_held_bytes": 0,
+          "kv_logical_live_bytes": 0,
+          "logits_logical_live_bytes": 0,
+          "payload_observation": "Direct tensor metadata at fixed checkpoints; D/F use source-verified E/G shape lifetimes",
+          "cuda_initialization_process_baseline_bytes": 436207616
+        }
+      ],
+      "joint_sample_count": 2805,
+      "unstable_samples_excluded": 20,
+      "median_sample_gap_ms": 10.785273,
+      "max_sample_gap_ms": 80.055774
+    },
+    "28k": {
+      "prompt_tokens": 28747,
+      "sequence_capacity": 33024,
+      "batch": 1,
+      "layers": 48,
+      "kv_heads": 4,
+      "head_dim": 128,
+      "vocab_size": 151936,
+      "kv_dtype": "float16",
+      "logits_dtype": "float16",
+      "kv_tensors": [
+        {
+          "name": "past_key_values.0.key",
+          "bytes": 33816576,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            33024,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.0.value",
+          "bytes": 33816576,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            33024,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.1.key",
+          "bytes": 33816576,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            33024,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.1.value",
+          "bytes": 33816576,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            33024,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.2.key",
+          "bytes": 33816576,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            33024,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.2.value",
+          "bytes": 33816576,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            33024,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.3.key",
+          "bytes": 33816576,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            33024,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.3.value",
+          "bytes": 33816576,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            33024,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.4.key",
+          "bytes": 33816576,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            33024,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.4.value",
+          "bytes": 33816576,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            33024,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.5.key",
+          "bytes": 33816576,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            33024,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.5.value",
+          "bytes": 33816576,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            33024,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.6.key",
+          "bytes": 33816576,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            33024,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.6.value",
+          "bytes": 33816576,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            33024,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.7.key",
+          "bytes": 33816576,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            33024,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.7.value",
+          "bytes": 33816576,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            33024,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.8.key",
+          "bytes": 33816576,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            33024,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.8.value",
+          "bytes": 33816576,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            33024,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.9.key",
+          "bytes": 33816576,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            33024,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.9.value",
+          "bytes": 33816576,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            33024,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.10.key",
+          "bytes": 33816576,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            33024,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.10.value",
+          "bytes": 33816576,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            33024,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.11.key",
+          "bytes": 33816576,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            33024,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.11.value",
+          "bytes": 33816576,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            33024,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.12.key",
+          "bytes": 33816576,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            33024,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.12.value",
+          "bytes": 33816576,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            33024,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.13.key",
+          "bytes": 33816576,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            33024,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.13.value",
+          "bytes": 33816576,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            33024,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.14.key",
+          "bytes": 33816576,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            33024,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.14.value",
+          "bytes": 33816576,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            33024,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.15.key",
+          "bytes": 33816576,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            33024,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.15.value",
+          "bytes": 33816576,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            33024,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.16.key",
+          "bytes": 33816576,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            33024,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.16.value",
+          "bytes": 33816576,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            33024,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.17.key",
+          "bytes": 33816576,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            33024,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.17.value",
+          "bytes": 33816576,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            33024,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.18.key",
+          "bytes": 33816576,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            33024,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.18.value",
+          "bytes": 33816576,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            33024,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.19.key",
+          "bytes": 33816576,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            33024,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.19.value",
+          "bytes": 33816576,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            33024,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.20.key",
+          "bytes": 33816576,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            33024,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.20.value",
+          "bytes": 33816576,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            33024,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.21.key",
+          "bytes": 33816576,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            33024,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.21.value",
+          "bytes": 33816576,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            33024,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.22.key",
+          "bytes": 33816576,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            33024,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.22.value",
+          "bytes": 33816576,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            33024,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.23.key",
+          "bytes": 33816576,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            33024,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.23.value",
+          "bytes": 33816576,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            33024,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.24.key",
+          "bytes": 33816576,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            33024,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.24.value",
+          "bytes": 33816576,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            33024,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.25.key",
+          "bytes": 33816576,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            33024,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.25.value",
+          "bytes": 33816576,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            33024,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.26.key",
+          "bytes": 33816576,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            33024,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.26.value",
+          "bytes": 33816576,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            33024,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.27.key",
+          "bytes": 33816576,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            33024,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.27.value",
+          "bytes": 33816576,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            33024,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.28.key",
+          "bytes": 33816576,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            33024,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.28.value",
+          "bytes": 33816576,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            33024,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.29.key",
+          "bytes": 33816576,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            33024,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.29.value",
+          "bytes": 33816576,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            33024,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.30.key",
+          "bytes": 33816576,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            33024,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.30.value",
+          "bytes": 33816576,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            33024,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.31.key",
+          "bytes": 33816576,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            33024,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.31.value",
+          "bytes": 33816576,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            33024,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.32.key",
+          "bytes": 33816576,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            33024,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.32.value",
+          "bytes": 33816576,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            33024,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.33.key",
+          "bytes": 33816576,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            33024,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.33.value",
+          "bytes": 33816576,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            33024,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.34.key",
+          "bytes": 33816576,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            33024,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.34.value",
+          "bytes": 33816576,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            33024,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.35.key",
+          "bytes": 33816576,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            33024,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.35.value",
+          "bytes": 33816576,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            33024,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.36.key",
+          "bytes": 33816576,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            33024,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.36.value",
+          "bytes": 33816576,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            33024,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.37.key",
+          "bytes": 33816576,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            33024,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.37.value",
+          "bytes": 33816576,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            33024,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.38.key",
+          "bytes": 33816576,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            33024,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.38.value",
+          "bytes": 33816576,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            33024,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.39.key",
+          "bytes": 33816576,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            33024,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.39.value",
+          "bytes": 33816576,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            33024,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.40.key",
+          "bytes": 33816576,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            33024,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.40.value",
+          "bytes": 33816576,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            33024,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.41.key",
+          "bytes": 33816576,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            33024,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.41.value",
+          "bytes": 33816576,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            33024,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.42.key",
+          "bytes": 33816576,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            33024,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.42.value",
+          "bytes": 33816576,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            33024,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.43.key",
+          "bytes": 33816576,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            33024,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.43.value",
+          "bytes": 33816576,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            33024,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.44.key",
+          "bytes": 33816576,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            33024,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.44.value",
+          "bytes": 33816576,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            33024,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.45.key",
+          "bytes": 33816576,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            33024,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.45.value",
+          "bytes": 33816576,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            33024,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.46.key",
+          "bytes": 33816576,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            33024,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.46.value",
+          "bytes": 33816576,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            33024,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.47.key",
+          "bytes": 33816576,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            33024,
+            128
+          ]
+        },
+        {
+          "name": "past_key_values.47.value",
+          "bytes": 33816576,
+          "dtype": 10,
+          "shape": [
+            1,
+            4,
+            33024,
+            128
+          ]
+        }
+      ],
+      "raw_logits": {
+        "name": "logits",
+        "bytes": 8735408384,
+        "dtype": 10,
+        "shape": [
+          1,
+          28747,
+          151936
+        ]
+      },
+      "checkpoints": [
+        {
+          "checkpoint": "A",
+          "nvml_process_bytes": 0,
+          "nvml_device_used_bytes": 0,
+          "nvml_driver_reserved_bytes_excluded": 804519936,
+          "model_session": null,
+          "genai_device": null,
+          "auxiliary_allocator_held_bytes": 0,
+          "kv_logical_live_bytes": 0,
+          "logits_logical_live_bytes": 0,
+          "payload_observation": "Direct tensor metadata at fixed checkpoints; D/F use source-verified E/G shape lifetimes",
+          "cuda_initialization_process_baseline_bytes": 0
+        },
+        {
+          "checkpoint": "A_cuda_initialized",
+          "nvml_process_bytes": 436207616,
+          "nvml_device_used_bytes": 445513728,
+          "nvml_driver_reserved_bytes_excluded": 804519936,
+          "model_session": null,
+          "genai_device": null,
+          "auxiliary_allocator_held_bytes": 0,
+          "kv_logical_live_bytes": 0,
+          "logits_logical_live_bytes": 0,
+          "payload_observation": "Direct tensor metadata at fixed checkpoints; D/F use source-verified E/G shape lifetimes",
+          "cuda_initialization_process_baseline_bytes": 436207616
+        },
+        {
+          "checkpoint": "B",
+          "nvml_process_bytes": 17261658112,
+          "nvml_device_used_bytes": 17270964224,
+          "nvml_driver_reserved_bytes_excluded": 804519936,
+          "model_session": {
+            "InUse": 16753045512,
+            "Limit": -1,
+            "MaxAllocSize": 622329856,
+            "MaxInUse": 16955945096,
+            "NumAllocs": 1254,
+            "NumArenaExtensions": 1,
+            "NumArenaShrinkages": 0,
+            "NumReserves": 1206,
+            "RequestedInUse": 16753045512,
+            "TotalAllocated": 16754044936
+          },
+          "genai_device": {
+            "InUse": 0,
+            "Limit": -1,
+            "MaxAllocSize": 0,
+            "MaxInUse": 0,
+            "NumAllocs": 0,
+            "NumArenaExtensions": 0,
+            "NumArenaShrinkages": 0,
+            "NumReserves": 0,
+            "RequestedInUse": 0,
+            "TotalAllocated": 0
+          },
+          "auxiliary_allocator_held_bytes": 0,
+          "kv_logical_live_bytes": 0,
+          "logits_logical_live_bytes": 0,
+          "payload_observation": "Direct tensor metadata at fixed checkpoints; D/F use source-verified E/G shape lifetimes",
+          "cuda_initialization_process_baseline_bytes": 436207616
+        },
+        {
+          "checkpoint": "C",
+          "nvml_process_bytes": 21558722560,
+          "nvml_device_used_bytes": 21568028672,
+          "nvml_driver_reserved_bytes_excluded": 804519936,
+          "model_session": {
+            "InUse": 16753045512,
+            "Limit": -1,
+            "MaxAllocSize": 622329856,
+            "MaxInUse": 16955945096,
+            "NumAllocs": 1254,
+            "NumArenaExtensions": 1,
+            "NumArenaShrinkages": 0,
+            "NumReserves": 1206,
+            "RequestedInUse": 16753045512,
+            "TotalAllocated": 16754044936
+          },
+          "genai_device": {
+            "InUse": 3458074368,
+            "Limit": -1,
+            "MaxAllocSize": 67108864,
+            "MaxInUse": 3458074368,
+            "NumAllocs": 100,
+            "NumArenaExtensions": 9,
+            "NumArenaShrinkages": 0,
+            "NumReserves": 0,
+            "RequestedInUse": 3246523408,
+            "TotalAllocated": 4296015872
+          },
+          "auxiliary_allocator_held_bytes": 0,
+          "kv_logical_live_bytes": 3246391296,
+          "logits_logical_live_bytes": 0,
+          "payload_observation": "Direct tensor metadata at fixed checkpoints; D/F use source-verified E/G shape lifetimes",
+          "cuda_initialization_process_baseline_bytes": 436207616
+        },
+        {
+          "checkpoint": "D",
+          "nvml_process_bytes": 49484398592,
+          "nvml_device_used_bytes": 49493704704,
+          "nvml_driver_reserved_bytes_excluded": 804519936,
+          "model_session": {
+            "InUse": 23024940808,
+            "Limit": -1,
+            "MaxAllocSize": 5082502656,
+            "MaxInUse": 23024940808,
+            "NumAllocs": 1276,
+            "NumArenaExtensions": 7,
+            "NumArenaShrinkages": 0,
+            "NumReserves": 1206,
+            "RequestedInUse": 22851122092,
+            "TotalAllocated": 27491463176
+          },
+          "genai_device": {
+            "InUse": 12194398464,
+            "Limit": -1,
+            "MaxAllocSize": 8735408384,
+            "MaxInUse": 12194398464,
+            "NumAllocs": 105,
+            "NumArenaExtensions": 10,
+            "NumArenaShrinkages": 0,
+            "NumReserves": 0,
+            "RequestedInUse": 11982655936,
+            "TotalAllocated": 21475885056
+          },
+          "auxiliary_allocator_held_bytes": 0,
+          "kv_logical_live_bytes": 3246391296,
+          "logits_logical_live_bytes": 8735408384,
+          "payload_observation": "Direct tensor metadata at fixed checkpoints; D/F use source-verified E/G shape lifetimes",
+          "cuda_initialization_process_baseline_bytes": 436207616
+        },
+        {
+          "checkpoint": "prefill_return",
+          "nvml_process_bytes": 49484398592,
+          "nvml_device_used_bytes": 49493704704,
+          "nvml_driver_reserved_bytes_excluded": 804519936,
+          "model_session": {
+            "InUse": 16753045512,
+            "Limit": -1,
+            "MaxAllocSize": 5082502656,
+            "MaxInUse": 23024940808,
+            "NumAllocs": 1700,
+            "NumArenaExtensions": 7,
+            "NumArenaShrinkages": 0,
+            "NumReserves": 1206,
+            "RequestedInUse": 16753045512,
+            "TotalAllocated": 27491463176
+          },
+          "genai_device": {
+            "InUse": 12195194880,
+            "Limit": -1,
+            "MaxAllocSize": 8735408384,
+            "MaxInUse": 12195310080,
+            "NumAllocs": 107,
+            "NumArenaExtensions": 10,
+            "NumArenaShrinkages": 0,
+            "NumReserves": 0,
+            "RequestedInUse": 11983452564,
+            "TotalAllocated": 21475885056
+          },
+          "auxiliary_allocator_held_bytes": 0,
+          "kv_logical_live_bytes": 3246391296,
+          "logits_logical_live_bytes": 8735408384,
+          "payload_observation": "Direct tensor metadata at fixed checkpoints; D/F use source-verified E/G shape lifetimes",
+          "cuda_initialization_process_baseline_bytes": 436207616
+        },
+        {
+          "checkpoint": "E",
+          "nvml_process_bytes": 49484398592,
+          "nvml_device_used_bytes": 49493704704,
+          "nvml_driver_reserved_bytes_excluded": 804519936,
+          "model_session": {
+            "InUse": 16753045512,
+            "Limit": -1,
+            "MaxAllocSize": 5082502656,
+            "MaxInUse": 23024940808,
+            "NumAllocs": 1700,
+            "NumArenaExtensions": 7,
+            "NumArenaShrinkages": 0,
+            "NumReserves": 1206,
+            "RequestedInUse": 16753045512,
+            "TotalAllocated": 27491463176
+          },
+          "genai_device": {
+            "InUse": 12200706048,
+            "Limit": -1,
+            "MaxAllocSize": 8735408384,
+            "MaxInUse": 12200706048,
+            "NumAllocs": 108,
+            "NumArenaExtensions": 10,
+            "NumArenaShrinkages": 0,
+            "NumReserves": 0,
+            "RequestedInUse": 11988963732,
+            "TotalAllocated": 21475885056
+          },
+          "auxiliary_allocator_held_bytes": 0,
+          "kv_logical_live_bytes": 3246391296,
+          "logits_logical_live_bytes": 8735408384,
+          "payload_observation": "Direct tensor metadata at fixed checkpoints; D/F use source-verified E/G shape lifetimes",
+          "cuda_initialization_process_baseline_bytes": 436207616
+        },
+        {
+          "checkpoint": "F",
+          "nvml_process_bytes": 49524244480,
+          "nvml_device_used_bytes": 49533550592,
+          "nvml_driver_reserved_bytes_excluded": 804519936,
+          "model_session": {
+            "InUse": 16753045512,
+            "Limit": -1,
+            "MaxAllocSize": 5082502656,
+            "MaxInUse": 23024940808,
+            "NumAllocs": 2388,
+            "NumArenaExtensions": 7,
+            "NumArenaShrinkages": 0,
+            "NumReserves": 1206,
+            "RequestedInUse": 16753045512,
+            "TotalAllocated": 27491463176
+          },
+          "genai_device": {
+            "InUse": 3465412864,
+            "Limit": -1,
+            "MaxAllocSize": 8735408384,
+            "MaxInUse": 12200821248,
+            "NumAllocs": 111,
+            "NumArenaExtensions": 10,
+            "NumArenaShrinkages": 0,
+            "NumReserves": 0,
+            "RequestedInUse": 3253514272,
+            "TotalAllocated": 21475885056
+          },
+          "auxiliary_allocator_held_bytes": 0,
+          "kv_logical_live_bytes": 3246391296,
+          "logits_logical_live_bytes": 303872,
+          "payload_observation": "Direct tensor metadata at fixed checkpoints; D/F use source-verified E/G shape lifetimes",
+          "cuda_initialization_process_baseline_bytes": 436207616
+        },
+        {
+          "checkpoint": "G",
+          "nvml_process_bytes": 49524244480,
+          "nvml_device_used_bytes": 49533550592,
+          "nvml_driver_reserved_bytes_excluded": 804519936,
+          "model_session": {
+            "InUse": 16753045512,
+            "Limit": -1,
+            "MaxAllocSize": 5082502656,
+            "MaxInUse": 23024940808,
+            "NumAllocs": 2388,
+            "NumArenaExtensions": 7,
+            "NumArenaShrinkages": 0,
+            "NumReserves": 1206,
+            "RequestedInUse": 16753045512,
+            "TotalAllocated": 27491463176
+          },
+          "genai_device": {
+            "InUse": 3465412864,
+            "Limit": -1,
+            "MaxAllocSize": 8735408384,
+            "MaxInUse": 12200821248,
+            "NumAllocs": 111,
+            "NumArenaExtensions": 10,
+            "NumArenaShrinkages": 0,
+            "NumReserves": 0,
+            "RequestedInUse": 3253514272,
+            "TotalAllocated": 21475885056
+          },
+          "auxiliary_allocator_held_bytes": 0,
+          "kv_logical_live_bytes": 3246391296,
+          "logits_logical_live_bytes": 303872,
+          "payload_observation": "Direct tensor metadata at fixed checkpoints; D/F use source-verified E/G shape lifetimes",
+          "cuda_initialization_process_baseline_bytes": 436207616
+        },
+        {
+          "checkpoint": "H",
+          "nvml_process_bytes": 49524244480,
+          "nvml_device_used_bytes": 49533550592,
+          "nvml_driver_reserved_bytes_excluded": 804519936,
+          "model_session": {
+            "InUse": 16753045512,
+            "Limit": -1,
+            "MaxAllocSize": 5082502656,
+            "MaxInUse": 23024940808,
+            "NumAllocs": 2388,
+            "NumArenaExtensions": 7,
+            "NumArenaShrinkages": 0,
+            "NumReserves": 1206,
+            "RequestedInUse": 16753045512,
+            "TotalAllocated": 27491463176
+          },
+          "genai_device": {
+            "InUse": 0,
+            "Limit": -1,
+            "MaxAllocSize": 8735408384,
+            "MaxInUse": 12200821248,
+            "NumAllocs": 111,
+            "NumArenaExtensions": 10,
+            "NumArenaShrinkages": 0,
+            "NumReserves": 0,
+            "RequestedInUse": 0,
+            "TotalAllocated": 21475885056
+          },
+          "auxiliary_allocator_held_bytes": 0,
+          "kv_logical_live_bytes": 0,
+          "logits_logical_live_bytes": 0,
+          "payload_observation": "Direct tensor metadata at fixed checkpoints; D/F use source-verified E/G shape lifetimes",
+          "cuda_initialization_process_baseline_bytes": 436207616
+        },
+        {
+          "checkpoint": "I_model_destroyed",
+          "nvml_process_bytes": 21973958656,
+          "nvml_device_used_bytes": 21983264768,
+          "nvml_driver_reserved_bytes_excluded": 804519936,
+          "model_session": null,
+          "genai_device": {
+            "InUse": 0,
+            "Limit": -1,
+            "MaxAllocSize": 8735408384,
+            "MaxInUse": 12200821248,
+            "NumAllocs": 111,
+            "NumArenaExtensions": 10,
+            "NumArenaShrinkages": 0,
+            "NumReserves": 0,
+            "RequestedInUse": 0,
+            "TotalAllocated": 21475885056
+          },
+          "auxiliary_allocator_held_bytes": 0,
+          "kv_logical_live_bytes": 0,
+          "logits_logical_live_bytes": 0,
+          "payload_observation": "Direct tensor metadata at fixed checkpoints; D/F use source-verified E/G shape lifetimes",
+          "cuda_initialization_process_baseline_bytes": 436207616
+        },
+        {
+          "checkpoint": "J_genai_shutdown",
+          "nvml_process_bytes": 486539264,
+          "nvml_device_used_bytes": 495845376,
+          "nvml_driver_reserved_bytes_excluded": 804519936,
+          "model_session": null,
+          "genai_device": null,
+          "auxiliary_allocator_held_bytes": 0,
+          "kv_logical_live_bytes": 0,
+          "logits_logical_live_bytes": 0,
+          "payload_observation": "Direct tensor metadata at fixed checkpoints; D/F use source-verified E/G shape lifetimes",
+          "cuda_initialization_process_baseline_bytes": 436207616
+        }
+      ],
+      "joint_sample_count": 3718,
+      "unstable_samples_excluded": 14,
+      "median_sample_gap_ms": 10.791095,
+      "max_sample_gap_ms": 311.516539
+    }
+  }
+}

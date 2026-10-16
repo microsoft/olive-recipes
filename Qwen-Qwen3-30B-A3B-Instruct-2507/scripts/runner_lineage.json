@@ -1,0 +1,58 @@
+{
+  "schema": 1,
+  "historical_reference": {
+    "runner_sha256": "6ece62bb9a8425f02f33c584ea2d09d27c40858c95a0068cf51f7d2a4cdbb0e9",
+    "recorded_whole_measurement_ast_sha256": "3fcaea0f725fb0300f122af6eddde60f49b5dfd95cc5f02a46290335a3a66626",
+    "source": "Protected historical evidence/provenance.json; not rewritten"
+  },
+  "pre_fix_publication_runner_sha256": "0d6299587792ff1fed9fa55ccc8bbcd866e23ced0e7c2967779f28a15b835444",
+  "revised_publication_runner_sha256": "3a649aac4807ca523798c32cf182e53fdff8ab1edf6e64d3d4d9a0e8491155d7",
+  "identity_definition": "SHA-256 of run_ort_llama_benchmark.py only; this separate lineage file is not included in its own hash",
+  "changed_existing_definitions": [
+    "collect_run_provenance",
+    "gpu_run_lock",
+    "gpu_zero_environment",
+    "nvml_device",
+    "trial_worker"
+  ],
+  "added_definitions": [
+    "CudaDeviceUUID",
+    "collect_package_versions",
+    "cuda_driver_gpu_uuid",
+    "normalize_gpu_uuid",
+    "require_linux_gpu_execution",
+    "validate_execution_gpu_identity"
+  ],
+  "unchanged_named_algorithm_ast_sha256": {
+    "Trial": "1db209cd3d43f66517ae5b8159d811a6d0d04c46100ea61ffbd514264e95864b",
+    "request_labels": "1a04e8a52b24d763e6e85e203ab2475296e44098ed312c9d172ac9f614f52819",
+    "config_digest": "9a816a4e33dac6ff4283e7d194d8322bdfa641fe95153eaabe9b24000f21bc2c",
+    "ort_model_variant": "36fbbc8054d9181f814b52e26f183f3197466d6a2e014bed8fd399a8f9274973",
+    "build_prompt": "ca24cea2b7a45c885e229f22bdb76be005b0af4c486714566947e85d00a5c9ef",
+    "requested_sequence_capacity": "23672c7a7fb387948b2ef3a54d7f5a9636b7c38566b04155644091d641ef8a6c",
+    "as_mib": "80439fd8b081da944205aa561411749ccc8e6cf97cb02ec41a004bd018bb2f34",
+    "device_snapshot": "ee90a14b0239fc747ba1102c0962694b4341dd45ec3b47fbac19174544e4ebca",
+    "check_gpu_processes": "c793da4f8bd0729f71b445ef06a49ba76f1838445de51391c355d40256904839",
+    "sample_worker": "4b61aa774846db356a3a07bda3b5b00a654d9ec98f0e8359c64d53ab5365675f",
+    "ResourceSampler": "b2956b1a04d2e116d696d7a413b999b757ddbcd59bb34547aa7ec373bb3ff916",
+    "CudaSynchronizer": "f9ea0df1364e0cc1c4724e2ebf5853897be41b352a528fb9793d5449ba16e81d",
+    "validate_input_capacity": "f75b98cac7e65062d8f891cf05477b24045a5b89b9749ab0041af46057be6657",
+    "token_metrics": "15eb4b8f5cc76819408747dd67c06b5f144b6113bf9dc727641e65c62cf39ce1",
+    "measure_tokens": "d06f4064ddc43869e06271ea7179531b6892ae8521005332fdb2ca3ec9e2d585",
+    "input_metadata": "8c797ec664e6fcc3262d4830be3cd9f091be27180cae4668d4aa2e402d44f692",
+    "inspect_ort_cache": "87b030f3ceb974b8945ec9efa79f2218d71856cb4abb7c72c77d01e3654ff2f4",
+    "prepare_request": "e24d7cb36450e53b166e2b29609b94351bbc51e5f863e3b88d2db03cf1bc5e10",
+    "finish_request": "19bd020230c0e701e589b81bda8c364076155fc8f8549bbfb52d46362f88bef2",
+    "ort_request": "6eb27787d404d9dd67222a41978e293ee78a2c1a3cd4f1b3e20444367e8cf101",
+    "run_ort": "7de32710107d481955a22d244bc1b2babc949a76cba900eba24d6dc0b51228c3",
+    "reset_llama_state": "3e411dfc1b6b9747f0b5a7fe128cff83bb99af54d381c0f84d4b7ad121a74c5c",
+    "llama_request": "69350f25a026fa3ec668f4d768ca66e30fb88c8eed5f8a4ab3170c7819821a18",
+    "run_llama": "a3977fb82e3c3aaf42ead3b8e5a7d463ad1be6b58256f481d11a2fb9115684d7",
+    "summarize_samples": "2029ec17311276f425a26cac796ef9a97c9c6748d236554a97ee365ac4d25b50"
+  },
+  "comparison": "Each named definition compared to both pre-fix publication snapshot and original historical runner source",
+  "whole_runner_ast_claim": "Not identical: provider/platform/UUID helpers and worker preflight are revised",
+  "native_identity_query_exercised": false,
+  "native_windows_validation_exercised": false,
+  "new_gpu_workloads": 0
+}
