@@ -1,3 +1,5 @@
-git+https://github.com/microsoft/Olive.git@main
-torch>=2.10.0
+git+https://github.com/microsoft/Olive.git
+git+https://github.com/onnxruntime/mobius.git
+torch
+torchvision
 transformers>=4.57.0,<6.0
