@@ -1,6 +1,6 @@
-accelerate==1.13.0
+accelerate==1.15.0
 aiohappyeyeballs==2.6.1
-aiohttp==3.13.5
+aiohttp==3.14.3
 aiosignal==1.4.0
 alembic==1.18.4
 annotated-types==0.7.0
@@ -35,7 +35,7 @@ multiprocess==0.70.19
 networkx==3.6.1
 numpy==2.4.4
 olive-ai==0.12.1
-onnx==1.21.0
+onnx==1.21.0rc1
 onnx-ir==0.2.1
 # install it separately with no deps as it will install onnxruntime to overwrite onnxruntime-webgpu
 # uvpip:install onnxruntime-genai==0.12.2 --no-deps;post
@@ -70,7 +70,7 @@ tokenizers==0.21.4
 # uvpip:install torch==2.11.0+cu130 --no-deps --extra-index-url https://download.pytorch.org/whl/cu130;pre
 torchmetrics==1.9.0
 tqdm==4.67.3
-transformers==4.52.4
+transformers==5.10.1
 typing-extensions==4.15.0
 typing-inspection==0.4.2
 tzdata==2026.2
