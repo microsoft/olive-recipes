@@ -38,7 +38,7 @@ SUPPORTED_PRETOKENIZER_REGEX = (
 
 
 def load_hf_json(filename: str) -> dict:
-    return json.loads(Path(hf_hub_download(MODEL_ID, filename)).read_text())
+    return json.loads(Path(hf_hub_download(MODEL_ID, filename)).read_text(encoding="utf-8"))
 
 
 def interpolation(resample: int) -> str:
@@ -95,7 +95,7 @@ def make_processor_config(image_processor: dict, patch_size: int, merge_size: in
 
 def fix_tokenizer_regex(tokenizer_path: Path) -> bool:
     """Swap the pre-tokenizer pattern onnxruntime-extensions cannot parse for its equivalent."""
-    tokenizer = json.loads(tokenizer_path.read_text())
+    tokenizer = json.loads(tokenizer_path.read_text(encoding="utf-8"))
     pre_tokenizers = tokenizer.get("pre_tokenizer", {}).get("pretokenizers", [])
     changed = False
     for pre_tokenizer in pre_tokenizers:
@@ -104,7 +104,7 @@ def fix_tokenizer_regex(tokenizer_path: Path) -> bool:
             pattern["Regex"] = SUPPORTED_PRETOKENIZER_REGEX
             changed = True
     if changed:
-        tokenizer_path.write_text(json.dumps(tokenizer, indent=2, ensure_ascii=False) + "\n")
+        tokenizer_path.write_text(json.dumps(tokenizer, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     return changed
 
 
@@ -119,14 +119,14 @@ def main():
             raise SystemExit(f"{model_dir / filename} not found: run both the decoder and the vision recipe first")
 
     genai_config_path = model_dir / "genai_config.json"
-    genai_config = json.loads(genai_config_path.read_text())
+    genai_config = json.loads(genai_config_path.read_text(encoding="utf-8"))
     model = genai_config["model"]
     if model["type"] != "lfm2_vl":
         raise SystemExit(f'expected model type "lfm2_vl" in {genai_config_path}, got "{model["type"]}"')
 
     # config.json ships inside the package, so it always matches the weights that were built;
     # only the image processor settings still have to come from the Hub.
-    hf_config = json.loads((model_dir / "config.json").read_text())
+    hf_config = json.loads((model_dir / "config.json").read_text(encoding="utf-8"))
     image_processor = load_hf_json("processor_config.json")["image_processor"]
     patch_size = hf_config["encoder_patch_size"]
     merge_size = hf_config["downsample_factor"]
@@ -164,11 +164,11 @@ def main():
         "outputs": {"image_features": "image_features"},
         "session_options": vision_session_options,
     }
-    genai_config_path.write_text(json.dumps(genai_config, indent=4) + "\n")
+    genai_config_path.write_text(json.dumps(genai_config, indent=4) + "\n", encoding="utf-8")
     print(f"Updated {genai_config_path}")
 
     processor_config_path = model_dir / "processor_config.json"
-    processor_config_path.write_text(json.dumps(processor_config, indent=4) + "\n")
+    processor_config_path.write_text(json.dumps(processor_config, indent=4) + "\n", encoding="utf-8")
     print(f"Wrote {processor_config_path}")
 
     tokenizer_path = model_dir / "tokenizer.json"
