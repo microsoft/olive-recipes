@@ -205,6 +205,74 @@ olive run --config cuda/mixed/embedding.json
 K-Quant (Q4_K_M) is significantly faster with GPU acceleration —
 install `cupy-cuda12x` for a 19–51× speedup during quantization.
 
+### NPU (QNN) — chunked text decoder
+
+`npu/text/config.json` targets the Qualcomm Hexagon NPU through the ONNX
+Runtime **QNN execution provider**. It takes an already int4 quantized
+decoder and produces a set of precompiled QNN context binaries plus a
+`genai_config.json` that describes them as an ORT GenAI
+`decoder-pipeline`.
+
+The decoder cannot be compiled as a single QNN graph — 35 transformer
+layers exceed what the HTP can hold at once. The recipe therefore
+**splits** the decoder into 8 pieces (7 transformer chunks and the
+`lm_head`) via `SplitModel`, and compiles each into its own context
+binary. `weight_sharing` lets the prompt processing and token generation
+graphs share one copy of the weights, so the 7 chunks are emitted as 7
+`.bin` files rather than 14.
+
+| Recipe | Pipeline | Output dir |
+|---|---|---|
+| `npu/text/config.json` | `MatMulNBitsToQDQ` → `GraphSurgeries` → fp16 → `OnnxStaticQuantization` (uint16 activations / uint8 weights) → `SplitModel` (8 chunks) → `DynamicToFixedShape` → `StaticLLM` → `EPContextBinaryGenerator` (weight sharing) → `ComposeOnnxModels` | `npu/text/output` |
+
+**Prerequisites**: a Mobius export of Gemma 4 whose decoder has already
+been int4 quantized, placed at `npu/models`, so that
+`npu/models/decoder/model.onnx`, `npu/models/embedding/model.onnx` and
+`npu/models/genai_config.json` all resolve. The recipe reads
+`genai_config.json` from that tree and rewrites it to describe the split
+pipeline.
+
+```bash
+pip install -r npu/requirements.txt
+olive run --config npu/text/config.json
+```
+
+Output:
+
+```
+npu/text/output/
+├── context_0_ctx_qnn.bin … context_6_ctx_qnn.bin   # 7 transformer chunks
+├── context_ctx.onnx                                # prompt processing graph
+├── iterator_ctx.onnx                               # token generation graph
+├── lm_head.onnx                                    # stays on CPU
+└── genai_config.json                               # type: decoder-pipeline
+```
+
+The remaining ORT GenAI components (`embedding/`, `vision_encoder/`,
+`audio_encoder/`, tokenizer files) are not produced by this recipe and
+must be copied alongside the output to form a runnable package.
+
+**Calibration**: static quantization needs representative activation
+ranges, so the recipe streams text through the model and records
+min/max. `npu/text/user_script.py` registers a
+`wikitext_decoder_calibration_dataset` that supplies these samples.
+
+> **Note**: like `customized_weight_config` above, the `nodes_to_exclude`
+> entries in this recipe are exact exported node names and are specific to
+> the export the recipe was developed against. Regenerate them if the
+> export graph changes.
+
+Measured on a Snapdragon X Elite (X1E80100, HTP V73), 64 token decode:
+
+| Metric | Value |
+|---|---|
+| Decode | 1.07 tok/s |
+| Prefill (TTFT) | 1.15 s |
+| Model load | 4.94 s |
+
+> Decode is currently dominated by `lm_head`, which runs on CPU and
+> accounts for roughly 96% of per token latency.
+
 ## Build
 
 For the latest optimized recipes, run the five stages in
