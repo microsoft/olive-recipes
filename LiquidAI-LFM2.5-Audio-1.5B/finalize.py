@@ -15,7 +15,7 @@ from pathlib import Path
 
 import onnx
 from huggingface_hub import hf_hub_download
-from onnx import helper
+from onnx import TensorProto, helper
 
 MODEL_ID = "LiquidAI/LFM2.5-Audio-1.5B"
 
@@ -41,9 +41,21 @@ def match_embeds_type(model_dir: Path) -> bool:
     output = next(o for o in embedding.graph.output if o.name == "inputs_embeds")
     if output.type.tensor_type.elem_type == embeds_type:
         return False
-    for node in embedding.graph.node:
-        node.output[:] = [f"{name}_fp32" if name == output.name else name for name in node.output]
-    embedding.graph.node.append(helper.make_node("Cast", [f"{output.name}_fp32"], [output.name], to=embeds_type))
+    nodes = embedding.graph.node
+    fp32 = f"{output.name}_fp32"
+
+    def rename(old: str, new: str):
+        for node in nodes:
+            node.output[:] = [new if name == old else name for name in node.output]
+
+    # Finalized before for another decoder: drop that Cast to get back the float32 export.
+    cast = next((node for node in nodes if node.op_type == "Cast" and list(node.input) == [fp32]), None)
+    if cast is not None:
+        nodes.remove(cast)
+        rename(fp32, output.name)
+    if embeds_type != TensorProto.FLOAT:
+        rename(output.name, fp32)
+        nodes.append(helper.make_node("Cast", [fp32], [output.name], to=embeds_type))
     output.type.tensor_type.elem_type = embeds_type
     onnx.save(embedding, path)
     return True
@@ -109,7 +121,7 @@ def main():
     print(f"Updated {genai_config_path}")
 
     if match_embeds_type(model_dir):
-        print(f"Cast the output of {model_dir / 'embedding.onnx'} to the decoder's inputs_embeds type")
+        print(f"Matched the output type of {model_dir / 'embedding.onnx'} to the decoder's inputs_embeds")
 
 
 if __name__ == "__main__":
