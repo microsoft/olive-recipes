@@ -2,9 +2,8 @@ import glob
 import os
 
 import numpy as np
-from qai_hub_models.utils.input_spec import make_torch_inputs
-
 from olive.data.registry import Registry
+from qai_hub_models.utils.input_spec import make_torch_inputs
 
 
 def model_loader(model_name):
@@ -29,7 +28,9 @@ def generate_dummy_inputs(model=None):
 
 class DecoderBaseDataLoader:
     def __init__(self, data_path, num_data):
-        self.data_files = sorted(glob.glob(os.path.join(data_path, "**", "*_decoder_input.npy"), recursive=True))[:num_data]
+        self.data_files = sorted(glob.glob(os.path.join(data_path, "**", "*_decoder_input.npy"), recursive=True))[
+            :num_data
+        ]
         print(f"Decoder data loader loaded {len(self.data_files)} samples from {data_path}")
 
     def __len__(self):

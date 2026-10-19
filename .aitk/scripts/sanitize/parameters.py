@@ -269,6 +269,8 @@ def readCheckParameterTemplate(filePath: str):
     for key, parameter in parameters.items():
         if not parameter.Check(True):
             printError(f"{filePath} parameter {key} has error")
-    newContent = json.dumps(adapter.dump_python(parameters, exclude_none=True, mode="json"), indent=4, ensure_ascii=True)
+    newContent = json.dumps(
+        adapter.dump_python(parameters, exclude_none=True, mode="json"), indent=4, ensure_ascii=True
+    )
     BaseModelClass.writeJsonIfChanged(newContent, filePath, fileContent)
     return parameters

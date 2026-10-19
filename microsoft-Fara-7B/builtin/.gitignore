@@ -1,0 +1,16 @@
+# Generated model artifacts
+models/
+
+# Python bytecode
+__pycache__/
+*.pyc
+
+# Olive cache
+.olive-cache/
+
+# Temp and log files
+*.temp
+*.bak
+*.log
+*_log.txt
+optimize_log.txt

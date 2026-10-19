@@ -1,0 +1,20 @@
+{
+    "input_model": {
+        "type": "HfModel",
+        "model_path": "OpenGVLab/VideoChat-Flash-Qwen2_5-7B_InternVideo2-1B",
+        "load_kwargs": {
+            "trust_remote_code": true
+        }
+    },
+    "passes": {
+        "convert": {
+            "type": "ModelBuilder",
+            "precision": "int4",
+            "extra_options": {
+                "filename": "text.onnx"
+            }
+        }
+    },
+    "no_artifacts": true,
+    "output_dir": "cpu_and_mobile/models/text.onnx"
+}

@@ -1,0 +1,14 @@
+{
+    "input_model": {
+        "type": "HfModel",
+        "model_path": "google/gemma-4-E2B-it"
+    },
+    "passes": {
+        "export": {
+            "type": "MobiusBuilder",
+            "precision": "fp32"
+        }
+    },
+    "no_artifacts": true,
+    "output_dir": "cpu/mixed/models"
+}

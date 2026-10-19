@@ -47,9 +47,9 @@
         "mb": {
             "type": "ModelBuilder",
             "precision": "int4",
-            "int4_block_size": 128,
-            "int4_accuracy_level": 4,
-            "int4_op_types_to_quantize": [ "Gather" ]
+            "block_size": 128,
+            "accuracy_level": 4,
+            "op_types_to_quantize": [ "Gather" ]
         },
         "mq": {
             "type": "MatMulNBitsToQDQ",

@@ -15,7 +15,7 @@ Finally, a prepared QAIRT DLC is encapsulated in an ONNX protobuf and exported t
 **Validated host configuration:**
 * Ubuntu 22.04
 * Python 3.10.12
-* qairt-dev 0.5.0
+* qairt-dev 0.8.1
 * QAIRT 2.45.40
 
 **Validated target configuration:**
@@ -35,9 +35,9 @@ huggingface-cli login  # Recommended: stores credentials securely, avoids shell 
 2. Install olive-ai[qairt]
 
 ```bash
-pip install olive-ai[qairt]
+pip install --no-build-isolation git+https://github.com/microsoft/Olive.git@f7efd41ab24a2eb07be7edc6d84d0f6304b46598
 pip list | grep qairt-dev  # Ensure the proper qairt-dev version  was installed
-pip install qairt-dev[onnx]==0.5.0  # Install the proper qairt-dev version, if not installed
+pip install qairt-dev[onnx]==0.8.1  # Install the proper qairt-dev version, if not installed
 ```
 
 3. (Optional) Use qairt-vm to install a non-default version of QAIRT and set QAIRT_SDK_ROOT
@@ -65,6 +65,10 @@ pip install torch==2.1.0
 5. Run Olive recipe
 
 ```bash
+# For X Elite:
+olive run --config htp_sc8380xp.json
+
+# For X2 Elite:
 olive run --config htp_sc8480xp.json
 ```
 

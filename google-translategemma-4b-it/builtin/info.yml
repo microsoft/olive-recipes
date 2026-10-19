@@ -1,0 +1,9 @@
+keywords:
+  - olive-ai
+recipes:
+  - name: translategemma-4b-it
+    file: optimize.py
+    eps:
+      - CPUExecutionProvider
+    devices:
+      - cpu

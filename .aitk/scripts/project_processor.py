@@ -12,16 +12,18 @@ from sanitize.generator_dml import generator_dml
 from sanitize.generator_intel import generator_intel
 from sanitize.generator_qnn import generator_qnn
 from sanitize.generator_trtrtx import generator_trtrtx
+from sanitize.generator_webgpu import generator_webgpu
 from sanitize.model_info import ModelInfo, ModelList
 from sanitize.project_config import ModelInfoProject, ModelProjectConfig, WorkflowItem
 from sanitize.utils import (
-    GlobalVars,
     WINML_COPY_EXEMPT_IDS,
+    GlobalVars,
     isLLM_by_id,
     iter_aitk_info_yml,
     open_ex,
     winml_copy_src_for,
 )
+
 
 def fetch_pipeline_tags(model_link: str) -> Optional[List[str]]:
     """Fetch pipeline_tag from HuggingFace API for a given model link.
@@ -32,7 +34,7 @@ def fetch_pipeline_tags(model_link: str) -> Optional[List[str]]:
     hf_prefix = "https://huggingface.co/"
     if not model_link.startswith(hf_prefix):
         return None
-    model_id = model_link[len(hf_prefix):].rstrip("/")
+    model_id = model_link[len(hf_prefix) :].rstrip("/")
     if not model_id:
         return None
     url = f"https://huggingface.co/api/models/{model_id}"
@@ -93,7 +95,7 @@ class AllModelSummary:
         root_dir: Path,
         md_path: Path,
     ):
-        modelList.sort(key=lambda x: (x.modelName))
+        modelList.sort(key=lambda x: x.modelName)
         f.write(f"## {title}\n\n")
         f.write("| Model Name | Supported Runtimes |\n")
         f.write("|------------|--------------------|\n")
@@ -189,6 +191,8 @@ def convert_yaml_to_project_config(
             generator_trtrtx(id, recipe, yml_file.parent, modelList)
         elif recipe.get("ep") == EPNames.DmlExecutionProvider.value:
             generator_dml(id, recipe, yml_file.parent, modelList)
+        elif recipe.get("ep") == EPNames.WebGpuExecutionProvider.value:
+            generator_webgpu(id, recipe, yml_file.parent, modelList)
         runtimes = get_runtime(recipe)
         for runtime in runtimes:
             modelSummary.recipes.setdefault(runtime, []).append(file)
@@ -222,7 +226,12 @@ def project_processor():
         # model info
         modelInfo = convert_yaml_to_model_info(root_dir, yml_file, yaml_object)
         if GlobalVars.fillPipelineTags:
-            modelInfo.pipeline_tags = fetch_pipeline_tags(modelInfo.modelLink)
+            fetched_tags = fetch_pipeline_tags(modelInfo.modelLink)
+            if fetched_tags is None:
+                modelInfo.pipeline_tags = existing_pipeline_tags.get(modelInfo.id)
+                print(f"Warning: Could not fetch pipeline tags for {modelInfo.id}, using existing")
+            else:
+                modelInfo.pipeline_tags = fetched_tags
         else:
             modelInfo.pipeline_tags = existing_pipeline_tags.get(modelInfo.id)
         if modelInfo.id.lower() in all_ids:
@@ -231,9 +240,7 @@ def project_processor():
         modelList.models.append(modelInfo)
         # copy pre — auto-ensure winml.py copy entry (unless exempt), then run pre-phase copies
         copyConfigFile = yml_file.parent / "_copy.json.config"
-        copyConfig: CopyConfig | None = (
-            CopyConfig.Read(copyConfigFile.as_posix()) if copyConfigFile.exists() else None
-        )
+        copyConfig: CopyConfig | None = CopyConfig.Read(copyConfigFile.as_posix()) if copyConfigFile.exists() else None
         if modelInfo.id not in WINML_COPY_EXEMPT_IDS:
             desired_src = winml_copy_src_for(modelInfo.id)
             if copyConfig is None:
@@ -262,7 +269,7 @@ def project_processor():
         # project config and json configs
         convert_yaml_to_project_config(yml_file, yaml_object, modelList, model_summary)
 
-    modelList.models.sort(key=lambda x: (x.GetSortKey()))
+    modelList.models.sort(key=lambda x: x.GetSortKey())
     modelList.writeIfChanged()
     all_summary.write(root_dir)
 

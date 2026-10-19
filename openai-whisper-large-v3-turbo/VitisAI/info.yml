@@ -1,0 +1,6 @@
+arch: whisper
+recipes:
+  - name: openai-whisper-large-v3-turbo-vitisai
+    file: run_whisper.py
+    devices: npu
+    eps: VitisAIExecutionProvider

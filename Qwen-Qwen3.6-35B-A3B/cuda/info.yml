@@ -1,0 +1,29 @@
+keywords:
+  - olive-ai
+  - mobius
+  - moe
+  - fp16
+  - int4
+  - kquant
+  - rtn
+  - gptq
+  - text-generation
+  - mmlu
+arch: qwen3_5_moe_text
+recipes:
+  - name: Qwen3.6-35B-A3B_Text_Mobius_FP16
+    file: text/fp16/config.json
+    devices: gpu
+    eps: CUDAExecutionProvider
+  - name: Qwen3.6-35B-A3B_Text_KQuant_INT4_MoE_Mobius_FP16
+    file: text/kquant_fp16/config.json
+    devices: gpu
+    eps: CUDAExecutionProvider
+  - name: Qwen3.6-35B-A3B_Text_RTN_INT4_MoE_Mobius_FP16
+    file: text/rtn_fp16/config.json
+    devices: gpu
+    eps: CUDAExecutionProvider
+  - name: Qwen3.6-35B-A3B_Text_GPTQ_INT4_MoE_Mobius_FP16
+    file: text/gptq_fp16/config.json
+    devices: gpu
+    eps: CUDAExecutionProvider

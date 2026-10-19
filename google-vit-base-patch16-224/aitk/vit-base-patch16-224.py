@@ -6,20 +6,21 @@ from logging import getLogger
 from pathlib import Path
 
 import numpy as np
-import torchvision.transforms as transforms
 import transformers
+from olive.data.registry import Registry
 from torch import from_numpy
 from torch.utils.data import Dataset
 
-from olive.data.registry import Registry
-
 logger = getLogger(__name__)
+
 
 def get_imagenet_label_map():
     import json
+
     cache_file = Path(f"./cache/data/imagenet_class_index.json")
     if not cache_file.exists():
         import requests
+
         imagenet_class_index_url = (
             "https://raw.githubusercontent.com/pytorch/vision/main/gallery/assets/imagenet_class_index.json"
         )
@@ -35,9 +36,11 @@ def get_imagenet_label_map():
 
     return {v[0]: int(k) for k, v in content.items()}
 
+
 def adapt_label_for_mini_imagenet(labels: list, label_names: list):
     label_map = get_imagenet_label_map()
     return [label_map[label_names[x]] for x in labels]
+
 
 class ImagenetDataset(Dataset):
     def __init__(self, data):
@@ -59,8 +62,11 @@ def dataset_post_process(output):
         else output.argmax(axis=1)
     )
 
+
 from transformers import AutoImageProcessor
+
 processor = AutoImageProcessor.from_pretrained("google/vit-base-patch16-224", use_fast=True)
+
 
 @Registry.register_pre_process()
 def dataset_pre_process(output_data, **kwargs):
@@ -89,7 +95,7 @@ def dataset_pre_process(output_data, **kwargs):
         images.append(image)
         labels.append(label)
 
-    if(output_data.info.dataset_name == "mini-imagenet"):
+    if output_data.info.dataset_name == "mini-imagenet":
         labels = adapt_label_for_mini_imagenet(labels, output_data.features["label"].names)
     result_data = ImagenetDataset({"images": np.array(images), "labels": np.array(labels)})
 

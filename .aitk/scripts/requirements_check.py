@@ -50,17 +50,15 @@ def requirements_check():
         General_CUDA_lines,
         General_CPU_lines,
         additional={
-            "--extra-index-url https://download.pytorch.org/whl/cu128",
-            "# torch==2.7.0+cu128",
-            "torch==2.7.0+cu128",
-            "# torchvision==0.22.0+cu128",
-            "torchvision==0.22.0+cu128",
+            "# uvpip:install torch==2.7.0+cu128 --extra-index-url https://download.pytorch.org/whl/cu128 --no-deps;pre",
+            "# uvpip:install torchvision==0.22.0+cu128 --extra-index-url https://download.pytorch.org/whl/cu128 --no-deps;pre",
         },
     )
     nvidia_autogptq = get_lines_from_file(requirements_folder / "requirements-NvidiaGPU-AutoGptq.txt")
     general_cuda_autogptq = get_lines_from_file(requirements_folder / "General" / "CUDA_py3.12.9-AutoGptq.txt")
     req_is_subset(nvidia_autogptq, general_cuda_autogptq)
     req_is_subset(general_cuda_autogptq, nvidia_autogptq)
+
 
 if __name__ == "__main__":
     requirements_check()

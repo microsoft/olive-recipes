@@ -1,0 +1,16 @@
+keywords:
+  openvino
+arch: sam
+recipes:
+  - file: "sam21_vision_encoder_ov.json"
+    devices:
+      - npu
+      - cpu
+      - gpu
+    ep: OpenVINOExecutionProvider
+  - file: "sam21_mask_decoder_ov.json"
+    devices:
+      - npu
+      - cpu
+      - gpu
+    ep: OpenVINOExecutionProvider

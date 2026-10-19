@@ -5,9 +5,8 @@
 import datasets
 import numpy as np
 import torch
-from transformers import BertTokenizer
-
 from olive.data.registry import Registry
+from transformers import BertTokenizer
 
 # -------------------------------------------------------------------------
 # Common Dataset
@@ -46,7 +45,9 @@ INPUT_NAMES = list(model_inputs)
 @Registry.register_dataset()
 def bert_base_multilingual_cased_dataset(data_name, split, max_samples):
     # load the raw wikipedia dataset for tuning. Load just 300 examples for speed.
-    raw_dataset = datasets.load_dataset(data_name, "20220301.en", split=f"{split}[:{max_samples}]", trust_remote_code=True)
+    raw_dataset = datasets.load_dataset(
+        data_name, "20220301.en", split=f"{split}[:{max_samples}]", trust_remote_code=True
+    )
 
     def _preprocess_fn(examples):
         return tokenizer(

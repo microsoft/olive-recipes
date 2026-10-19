@@ -22,6 +22,7 @@ def create_model_parameter(aitk, name: str, configFile: Path):
     requirements_patches = aitk.get("requirementsPatches")
     evalRuntime = aitk.get("evalRuntime")
     epMinVersions = aitk.get("epMinVersions")
+    executePatchPy = aitk.get("executePatchPy")
 
     parameter = ModelParameter(
         name=name,
@@ -33,9 +34,21 @@ def create_model_parameter(aitk, name: str, configFile: Path):
         isGPURequired=aitk.get("isGPURequired", None),
         isGPUSuggested=aitk.get("isGPUSuggested", None),
         epMinVersions={EPNames(k): v for k, v in epMinVersions.items()} if epMinVersions else None,
+        executePatchPy=executePatchPy,
     )
     parameter._file = str(configFile) + ".config"
     return parameter
+
+
+def apply_runtime_feature_overrides(aitk: dict, parameter: ModelParameter):
+    """Apply explicit runtime feature overrides from info.yml aitk block.
+
+    When set in info.yml, these replace any auto-generated values.
+    """
+    for field in ("executeRuntimeFeatures", "evaluationRuntimeFeatures", "pyEnvRuntimeFeatures"):
+        value = aitk.get(field)
+        if value is not None:
+            setattr(parameter, field, value)
 
 
 def add_optimization_wa(optimizationPaths: list[OptimizationPath], k: str, v: dict) -> bool:

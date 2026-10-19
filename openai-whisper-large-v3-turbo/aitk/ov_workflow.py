@@ -1,12 +1,13 @@
 import argparse
 import json
+import logging
 import os
 import subprocess
 import sys
-import logging
 
 logger = logging.getLogger(os.path.basename(__file__))
 logging.basicConfig(level=logging.INFO)
+
 
 def parse_arguments():
     parser = argparse.ArgumentParser()
@@ -19,7 +20,7 @@ def parse_arguments():
 def main():
     args = parse_arguments()
 
-    with open(args.config, 'r', encoding='utf-8') as file:
+    with open(args.config, "r", encoding="utf-8") as file:
         oliveJson = json.load(file)
 
     # Get arguments
@@ -39,23 +40,43 @@ def main():
         output_file = os.path.join(os.path.dirname(args.config), "metrics.json")
 
         # Run evaluator
-        subprocess.run([sys.executable, "ov_evaluate.py",
-                        "--execution_provider", execution_provider,
-                        "--device_str", device_str,
-                        "--output_file", output_file,
-                        "--model_path", model_path],
-                       check=True)
+        subprocess.run(
+            [
+                sys.executable,
+                "ov_evaluate.py",
+                "--execution_provider",
+                execution_provider,
+                "--device_str",
+                device_str,
+                "--output_file",
+                output_file,
+                "--model_path",
+                model_path,
+            ],
+            check=True,
+        )
         return
 
     # Generate model
-    subprocess.run([sys.executable, "convert_whisper_to_ovir.py",
-                    "--output_dir", output_dir,
-                    "--cache_dir", cache_dir,
-                    "--model", "openai/whisper-large-v3-turbo",
-                    "--weight-format", weight_format,
-                    "--enable_npu_ws", str(enable_npu_ws),
-                    "--device", oliveJson["systems"]["target_system"]["accelerators"][0]["device"]],
-                   check=True)
+    subprocess.run(
+        [
+            sys.executable,
+            "convert_whisper_to_ovir.py",
+            "--output_dir",
+            output_dir,
+            "--cache_dir",
+            cache_dir,
+            "--model",
+            "openai/whisper-large-v3-turbo",
+            "--weight-format",
+            weight_format,
+            "--enable_npu_ws",
+            str(enable_npu_ws),
+            "--device",
+            oliveJson["systems"]["target_system"]["accelerators"][0]["device"],
+        ],
+        check=True,
+    )
 
 
 if __name__ == "__main__":

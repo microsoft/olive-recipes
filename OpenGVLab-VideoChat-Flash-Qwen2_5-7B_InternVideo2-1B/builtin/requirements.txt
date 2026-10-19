@@ -1,0 +1,16 @@
+accelerate
+av
+decord
+einops
+git+https://github.com/microsoft/Olive.git@main
+huggingface_hub
+imageio
+onnx
+onnxruntime
+onnxruntime-genai
+opencv-python
+Pillow
+safetensors
+timm
+torch>=2.10.0
+transformers==4.57.0

@@ -1,0 +1,75 @@
+# Configuration for lintrunner: https://github.com/suo/lintrunner
+
+merge_base_with = 'origin/main'
+
+[[linter]]
+code = 'SYNTAX'
+include_patterns = [
+  '**/*.json',
+  '**/*.py',
+  '**/*.pyi',
+  '**/*.xml',
+  '**/*.yaml',
+  '**/*.yml'
+]
+command = [
+  'python',
+  'scripts/lintrunner_adapter.py',
+  'syntax',
+  '@{{PATHSFILE}}'
+]
+init_command = [
+  'python',
+  '-m',
+  'lintrunner_adapters',
+  'run',
+  'pip_init',
+  '--dry-run={{DRYRUN}}',
+  '--requirement=requirements-dev.txt'
+]
+
+[[linter]]
+code = 'FILE-HYGIENE'
+include_patterns = [
+  '.gitignore',
+  '**/*.bat',
+  '**/*.cfg',
+  '**/*.config',
+  '**/*.csv',
+  '**/*.gitignore',
+  '**/*.ini',
+  '**/*.json',
+  '**/*.md',
+  '**/*.ps1',
+  '**/*.py',
+  '**/*.pyi',
+  '**/*.sh',
+  '**/*.toml',
+  '**/*.txt',
+  '**/*.xml',
+  '**/*.yaml',
+  '**/*.yml',
+  '**/Dockerfile',
+  '**/Makefile'
+]
+command = [
+  'python',
+  'scripts/lintrunner_adapter.py',
+  'file-hygiene',
+  '@{{PATHSFILE}}'
+]
+is_formatter = true
+
+[[linter]]
+code = 'REQUIREMENTS-TXT'
+include_patterns = ['**/requirements*.txt']
+command = [
+  'python',
+  '-m',
+  'lintrunner_adapters',
+  'run',
+  'requirements_txt_linter',
+  '--',
+  '@{{PATHSFILE}}'
+]
+is_formatter = true

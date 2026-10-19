@@ -1,13 +1,15 @@
 import argparse
 import json
+import logging
 import os
-import olive.workflows
 import subprocess
 import sys
-import logging
+
+import olive.workflows
 
 logger = logging.getLogger(os.path.basename(__file__))
 logging.basicConfig(level=logging.INFO)
+
 
 def parse_arguments():
     parser = argparse.ArgumentParser()
@@ -16,14 +18,16 @@ def parse_arguments():
     parser.add_argument("--runtime", required=True, help="runtime")
     return parser.parse_args()
 
+
 def load_update_config(
-        config_path: str,
-        cache_dir: str,
-        output_dir: str,
-        activation_type: str | None = None,
-        precision: str | None = None,
-        num_data: int | None = None) -> dict:
-    with open(config_path, 'r', encoding='utf-8') as file:
+    config_path: str,
+    cache_dir: str,
+    output_dir: str,
+    activation_type: str | None = None,
+    precision: str | None = None,
+    num_data: int | None = None,
+) -> dict:
+    with open(config_path, "r", encoding="utf-8") as file:
         oliveJson = json.load(file)
 
     oliveJson["cache_dir"] = cache_dir
@@ -41,15 +45,17 @@ def load_update_config(
 
     return oliveJson
 
+
 def generate_model(
-        history_folder: str,
-        config_path: str,
-        cache_dir: str,
-        output_dir: str,
-        skip_existing: bool = True,
-        activation_type: str | None = None,
-        precision: str | None = None,
-        num_data: int | None = None):
+    history_folder: str,
+    config_path: str,
+    cache_dir: str,
+    output_dir: str,
+    skip_existing: bool = True,
+    activation_type: str | None = None,
+    precision: str | None = None,
+    num_data: int | None = None,
+):
     if skip_existing and os.path.exists(os.path.join(output_dir, "model.onnx")):
         logger.info(f"Output model {output_dir} already exists, skipping {config_path}.")
         return
@@ -59,7 +65,7 @@ def generate_model(
     config_name = os.path.basename(config_path)
     os.makedirs(history_folder, exist_ok=True)
     print("write to: ", os.path.join(history_folder, config_name))
-    with open(os.path.join(history_folder, config_name), 'w', encoding='utf-8') as file:
+    with open(os.path.join(history_folder, config_name), "w", encoding="utf-8") as file:
         json.dump(oliveJson, file, indent=4)
     output = olive.workflows.run(oliveJson)
     if output is None or not output.has_output_model():
@@ -70,7 +76,7 @@ def generate_model(
 def main():
     args = parse_arguments()
 
-    with open(args.config, 'r', encoding='utf-8') as file:
+    with open(args.config, "r", encoding="utf-8") as file:
         oliveJson = json.load(file)
 
     if args.model_config:
@@ -83,15 +89,24 @@ def main():
         output_file = os.path.join(os.path.dirname(args.config), "metrics.json")
 
         # Run evaluator
-        subprocess.run([sys.executable, "sam_qnn_evaluation.py",
-                        "--model_ve", encoder_path,
-                        "--model_md", decoder_path,
-                        "--execution_provider", execution_provider,
-                        "--device_str", device_str,
-                        "--output_file", output_file],
-                        check=True)
+        subprocess.run(
+            [
+                sys.executable,
+                "sam_qnn_evaluation.py",
+                "--model_ve",
+                encoder_path,
+                "--model_md",
+                decoder_path,
+                "--execution_provider",
+                execution_provider,
+                "--device_str",
+                device_str,
+                "--output_file",
+                output_file,
+            ],
+            check=True,
+        )
         return
-
 
     # Get arguments
     output_dir: str = oliveJson["output_dir"]
@@ -110,16 +125,33 @@ def main():
     os.makedirs(os.path.join(history_folder, "model"), exist_ok=True)
 
     from config import ModelConfig
+
     ModelConfig.image_dataset = dataset_name
     ModelConfig.image_dataset_split = dataset_split
     ModelConfig.data_dir = "quantization_dataset"
 
     # Generate encoder model
-    generate_model(history_folder, "sam_vision_encoder_qnn.json", cache_dir, os.path.join(output_dir, "encoder"),
-                   False, activation_type, precision, num_data)
+    generate_model(
+        history_folder,
+        "sam_vision_encoder_qnn.json",
+        cache_dir,
+        os.path.join(output_dir, "encoder"),
+        False,
+        activation_type,
+        precision,
+        num_data,
+    )
     # Generate decoder model
-    generate_model(history_folder, "sam_mask_decoder_qnn.json", cache_dir, os.path.join(output_dir, "decoder"),
-                   False, activation_type, precision, num_data)
+    generate_model(
+        history_folder,
+        "sam_mask_decoder_qnn.json",
+        cache_dir,
+        os.path.join(output_dir, "decoder"),
+        False,
+        activation_type,
+        precision,
+        num_data,
+    )
 
 
 if __name__ == "__main__":
