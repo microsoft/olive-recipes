@@ -49,7 +49,7 @@ def main():
 
     model_dir = download_onnx_model()
 
-    inner_path = os.path.join(os.path.dirname(args.config), INNER_CONFIG)
+    inner_path = os.path.join(os.path.dirname(__file__), INNER_CONFIG)
     with open(inner_path, "r", encoding="utf-8") as f:
         innerJson = json.load(f)
 
