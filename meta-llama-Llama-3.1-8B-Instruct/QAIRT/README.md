@@ -18,7 +18,7 @@ Previous versions of this recipe used `QairtPreparation` and `QairtGenAIBuilder`
 * Ubuntu 22.04
 * Python 3.10.12
 * qairt-dev 0.11.0
-* QAIRT 2.45.40
+* QAIRT 2.48.40
 
 **Validated SoCs:**
 
