@@ -48,7 +48,7 @@ networkx==3.6.1
 ninja==1.13.0
 nltk==3.9.4
 numpy==1.26.4
-olive-ai==0.12.1
+olive-ai@git+https://github.com/microsoft/Olive.git@29f6db7b6177ab3f58f53b56e22c8732780a2024#egg=olive-ai
 onnx==1.18.0
 onnx-ir==0.2.1
 onnx-tool==1.0.1

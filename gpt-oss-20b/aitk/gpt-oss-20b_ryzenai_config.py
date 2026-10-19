@@ -8,7 +8,7 @@ import olive.workflows
 logger = logging.getLogger(os.path.basename(__file__))
 logging.basicConfig(level=logging.INFO)
 
-INNER_CONFIG = "gpt-oss-20b_quark_vitisai_llm.json"
+INNER_CONFIG = "gpt-oss-20b_quark_ryzenai_llm.json"
 HF_REPO = "onnxruntime/gpt-oss-20b-onnx"
 HF_SUBDIR = "cpu_and_mobile/cpu-int4-rtn-block-32-acc-level-4"
 LOCAL_DIR = "./models/gpt-oss-20b-onnx"
