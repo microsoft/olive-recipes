@@ -19,7 +19,7 @@
         "aitkpython": {
             "type": "AitkPython",
             "precision": "int4",
-            "user_script": "gpt-oss-20b_ryzen_config.py"
+            "user_script": "gpt-oss-20b_ryzenai_config.py"
         }
     },
     "target": "local_system",
