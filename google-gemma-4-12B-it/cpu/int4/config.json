@@ -1,0 +1,14 @@
+{
+    "input_model": { "type": "HfModel", "model_path": "google/gemma-4-12B-it" },
+    "passes": {
+        "mobius_build": { "type": "MobiusBuilder", "precision": "fp32" },
+        "int4_quantize": {
+            "type": "OnnxKQuantQuantization",
+            "bits": 4,
+            "block_size": 32,
+            "nodes_to_exclude": ["*/projector/*"],
+            "save_as_external_data": true
+        }
+    },
+    "output_dir": "cpu/int4/models"
+}
