@@ -6,7 +6,7 @@
     },
     "passes": {
         "mg": {
-            "type": "VitisGenerateModelLLM",
+            "type": "RyzenGenerateModelLLM",
             "recipe": "eager",
             "extra_options": {
                 "model_type": "gpt-oss"
