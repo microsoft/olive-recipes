@@ -1,5 +1,5 @@
 --extra-index-url=https://download.pytorch.org/whl/cu128
---extra-index-url=https://pypi.amd.com/olive/1.7.1-5D/simple
+--extra-index-url=https://pypi.amd.com/olive/1.7.1-6D/simple
 --extra-index-url=https://pypi.amd.com/simple
 accelerate==1.13.0
 aiohappyeyeballs==2.6.1
