@@ -17,7 +17,7 @@ Previous versions of this recipe used `QairtPreparation` and `QairtGenAIBuilder`
 **Validated host configuration:**
 * Ubuntu 22.04
 * Python 3.10.12
-* qairt-dev 0.11.0
+* qairt-dev 0.12.0
 * QAIRT 2.48.40
 
 **Validated SoCs:**
@@ -43,7 +43,7 @@ huggingface-cli login  # Recommended: stores credentials securely, avoids shell 
 ```bash
 pip install olive-ai[qairt]
 pip list | grep qairt-dev  # Ensure the proper qairt-dev version was installed
-pip install qairt-dev[pipeline,onnx]==0.11.0  # Install the proper qairt-dev version, if not installed
+pip install qairt-dev[pipeline,onnx]==0.12.0  # Install the proper qairt-dev version, if not installed
 ```
 
 3. Install model-specific requirements
