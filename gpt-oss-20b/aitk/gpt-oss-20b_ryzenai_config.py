@@ -47,6 +47,10 @@ def main():
     output_dir = outerJson["output_dir"]
     cache_dir = outerJson["cache_dir"]
 
+    if os.path.basename(cache_dir) == "cache":
+        # TODO "cache" conflicts with ryzenai_onnx_utils\partitioner.py default --dd-files-path
+        cache_dir += "_ryzenai"
+
     model_dir = download_onnx_model()
 
     inner_path = os.path.join(os.path.dirname(__file__), INNER_CONFIG)
