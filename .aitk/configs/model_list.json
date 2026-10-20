@@ -629,7 +629,7 @@
             "modelLink": "https://huggingface.co/openai/gpt-oss-20b",
             "id": "huggingface/openai/gpt-oss-20b",
             "runtimes": [
-                "AMDNPU"
+                "RyzenAILightNPU"
             ],
             "architecture": "Transformer",
             "status": "Ready",
@@ -1129,6 +1129,7 @@
         "Intel GPU": "IntelGPU",
         "AMD NPU": "AMDNPU",
         "AMD GPU": "AMDGPU",
+        "AMD NPU (RyzenAILight)": "RyzenAILightNPU",
         "NVIDIA GPU": "NvidiaGPU",
         "NVIDIA TensorRT for RTX": "NvidiaTRTRTX",
         "DirectML": "DML",
@@ -1144,6 +1145,7 @@
         "IntelGPU": "Intel GPU",
         "AMDNPU": "AMD NPU",
         "AMDGPU": "AMD GPU",
+        "RyzenAILightNPU": "AMD NPU (RyzenAILight)",
         "NvidiaGPU": "NVIDIA GPU",
         "NvidiaTRTRTX": "NVIDIA TensorRT for RTX",
         "DML": "DirectML",
