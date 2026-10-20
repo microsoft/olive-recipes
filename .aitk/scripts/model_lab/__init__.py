@@ -6,6 +6,7 @@ class RuntimeEnum(Enum):
     QNN = "QNN"
     QNNGPU = "QNNGPU"
     AMDNPU = "AMDNPU"
+    RyzenAILightNPU = "RyzenAILightNPU"
     AMDGPU = "AMDGPU"
     NvidiaTRTRTX = "NvidiaTRTRTX"
     IntelAny = "IntelAny"
