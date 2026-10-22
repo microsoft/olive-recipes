@@ -1,0 +1,22 @@
+{
+    "input_model": {
+        "type": "HFModel",
+        "model_path": "meta-llama/Llama-3.2-1B-Instruct"
+    },
+    "passes": {
+        "qp": {
+            "type": "QairtPipelinePass",
+            "recipe": "x_elite_config.yaml",
+            "cache_dir": "cache/qairt"
+        },
+        "qe": {
+            "type": "QairtEncapsulation",
+            "log_level": "ERROR",
+            "run_checker": "true"
+        }
+    },
+    "log_severity_level": 1,
+    "output_dir": "models/llama3_2_1b_instruct_x_elite",
+    "cache_dir": "cache",
+    "no_artifacts": true
+}
