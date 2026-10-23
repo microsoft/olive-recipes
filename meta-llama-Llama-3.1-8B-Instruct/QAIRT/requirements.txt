@@ -1,5 +1,5 @@
 accelerate
-aimet-torch==2.14.0
+aimet-torch==2.41.0
 datasets
 jsonschema
 onnx==1.19.1
