@@ -1,0 +1,12 @@
+keywords:
+    qairt
+    qnn
+recipes:
+    - file: "x_elite_config.json"
+      devices:
+        - npu
+      ep: QNNExecutionProvider
+    - file: "x2_elite_config.json"
+      devices:
+        - npu
+      ep: QNNExecutionProvider
