@@ -76,6 +76,7 @@ class GlobalVars:
         RuntimeEnum.IntelGPU: EPNames.OpenVINOExecutionProvider,
         RuntimeEnum.AMDNPU: EPNames.VitisAIExecutionProvider,
         RuntimeEnum.AMDGPU: EPNames.MIGraphXExecutionProvider,
+        RuntimeEnum.RyzenAILightNPU: EPNames.RyzenAILightExecutionProvider,
         RuntimeEnum.NvidiaGPU: EPNames.CUDAExecutionProvider,
         RuntimeEnum.NvidiaTRTRTX: EPNames.NvTensorRTRTXExecutionProvider,
         RuntimeEnum.DML: EPNames.DmlExecutionProvider,
@@ -91,6 +92,7 @@ class GlobalVars:
         RuntimeEnum.IntelGPU: OliveDeviceTypes.GPU,
         RuntimeEnum.AMDNPU: OliveDeviceTypes.NPU,
         RuntimeEnum.AMDGPU: OliveDeviceTypes.GPU,
+        RuntimeEnum.RyzenAILightNPU: OliveDeviceTypes.NPU,
         RuntimeEnum.NvidiaGPU: OliveDeviceTypes.GPU,
         RuntimeEnum.NvidiaTRTRTX: OliveDeviceTypes.GPU,
         RuntimeEnum.DML: OliveDeviceTypes.GPU,
@@ -106,6 +108,7 @@ class GlobalVars:
         RuntimeEnum.IntelGPU: "Intel GPU",
         RuntimeEnum.AMDNPU: "AMD NPU",
         RuntimeEnum.AMDGPU: "AMD GPU",
+        RuntimeEnum.RyzenAILightNPU: "AMD NPU (RyzenAILight)",
         RuntimeEnum.NvidiaGPU: "NVIDIA GPU",
         RuntimeEnum.NvidiaTRTRTX: "NVIDIA TensorRT for RTX",
         RuntimeEnum.DML: "DirectML",
@@ -235,7 +238,14 @@ def checkPath(path: str, oliveJson: Any, printOnNotExist: bool = True):
 
 
 def isLLM_by_id(id: str) -> bool:
-    check_list = ["deepseek-ai/DeepSeek", "meta-llama/Llama", "microsoft/Phi", "mistralai/Mistral", "Qwen/Qwen"]
+    check_list = [
+        "deepseek-ai/DeepSeek",
+        "meta-llama/Llama",
+        "microsoft/Phi",
+        "mistralai/Mistral",
+        "openai/gpt-oss",
+        "Qwen/Qwen",
+    ]
     return any(check in id for check in check_list)
 
 
