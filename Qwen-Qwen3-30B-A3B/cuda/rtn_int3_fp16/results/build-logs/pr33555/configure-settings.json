@@ -1,0 +1,130 @@
+{
+  "FETCHCONTENT_SOURCE_DIR_ABSEIL_CPP": {
+    "type": "PATH",
+    "value": "/datadisks/disk1/jiafa/accuracy/onnxruntime/build/cuda-wheel-clean-20261002/Release/_deps/abseil_cpp-src"
+  },
+  "FETCHCONTENT_SOURCE_DIR_CPP_CLIENT_TELEMETRY": {
+    "type": "PATH",
+    "value": "/datadisks/disk1/jiafa/accuracy/onnxruntime/build/cuda-wheel-clean-20261002/Release/_deps/cpp_client_telemetry-src"
+  },
+  "FETCHCONTENT_SOURCE_DIR_CUDNN_FRONTEND": {
+    "type": "PATH",
+    "value": "/datadisks/disk1/jiafa/accuracy/onnxruntime/build/cuda-wheel-clean-20261002/Release/_deps/cudnn_frontend-src"
+  },
+  "FETCHCONTENT_SOURCE_DIR_CUTLASS": {
+    "type": "PATH",
+    "value": "/datadisks/disk1/jiafa/accuracy/onnxruntime/build/cuda-wheel-clean-20261002/Release/_deps/cutlass-src"
+  },
+  "FETCHCONTENT_SOURCE_DIR_DATE": {
+    "type": "PATH",
+    "value": "/datadisks/disk1/jiafa/accuracy/onnxruntime/build/cuda-wheel-clean-20261002/Release/_deps/date-src"
+  },
+  "FETCHCONTENT_SOURCE_DIR_DLPACK": {
+    "type": "UNINITIALIZED",
+    "value": "/datadisks/disk1/jiafa/accuracy/onnxruntime/build/cuda-wheel-clean-20261002/Release/_deps/dlpack-src"
+  },
+  "FETCHCONTENT_SOURCE_DIR_EIGEN3": {
+    "type": "PATH",
+    "value": "/datadisks/disk1/jiafa/accuracy/onnxruntime/build/cuda-wheel-clean-20261002/Release/_deps/eigen3-src"
+  },
+  "FETCHCONTENT_SOURCE_DIR_FLATBUFFERS": {
+    "type": "PATH",
+    "value": "/datadisks/disk1/jiafa/accuracy/onnxruntime/build/cuda-wheel-clean-20261002/Release/_deps/flatbuffers-src"
+  },
+  "FETCHCONTENT_SOURCE_DIR_GOOGLETEST": {
+    "type": "PATH",
+    "value": "/datadisks/disk1/jiafa/accuracy/onnxruntime/build/cuda-wheel-clean-20261002/Release/_deps/googletest-src"
+  },
+  "FETCHCONTENT_SOURCE_DIR_GSL": {
+    "type": "PATH",
+    "value": "/datadisks/disk1/jiafa/accuracy/onnxruntime/build/cuda-wheel-clean-20261002/Release/_deps/gsl-src"
+  },
+  "FETCHCONTENT_SOURCE_DIR_MATSDK_CURL": {
+    "type": "PATH",
+    "value": "/datadisks/disk1/jiafa/accuracy/onnxruntime/build/cuda-wheel-clean-20261002/Release/_deps/matsdk_curl-src"
+  },
+  "FETCHCONTENT_SOURCE_DIR_MATSDK_MBEDTLS": {
+    "type": "PATH",
+    "value": "/datadisks/disk1/jiafa/accuracy/onnxruntime/build/cuda-wheel-clean-20261002/Release/_deps/matsdk_mbedtls-src"
+  },
+  "FETCHCONTENT_SOURCE_DIR_MP11": {
+    "type": "PATH",
+    "value": "/datadisks/disk1/jiafa/accuracy/onnxruntime/build/cuda-wheel-clean-20261002/Release/_deps/mp11-src"
+  },
+  "FETCHCONTENT_SOURCE_DIR_NLOHMANN_JSON": {
+    "type": "PATH",
+    "value": "/datadisks/disk1/jiafa/accuracy/onnxruntime/build/cuda-wheel-clean-20261002/Release/_deps/nlohmann_json-src"
+  },
+  "FETCHCONTENT_SOURCE_DIR_ONNX": {
+    "type": "PATH",
+    "value": "/datadisks/disk1/jiafa/accuracy/onnxruntime/cmake/external/onnx"
+  },
+  "FETCHCONTENT_SOURCE_DIR_PROTOBUF": {
+    "type": "PATH",
+    "value": "/datadisks/disk1/jiafa/accuracy/onnxruntime/build/cuda-wheel-clean-20261002/Release/_deps/protobuf-src"
+  },
+  "FETCHCONTENT_SOURCE_DIR_PYBIND11_PROJECT": {
+    "type": "UNINITIALIZED",
+    "value": "/datadisks/disk1/jiafa/accuracy/onnxruntime/build/cuda-wheel-clean-20261002/Release/_deps/pybind11_project-src"
+  },
+  "FETCHCONTENT_SOURCE_DIR_PYTORCH_CPUINFO": {
+    "type": "PATH",
+    "value": "/datadisks/disk1/jiafa/accuracy/onnxruntime/build/cuda-wheel-clean-20261002/Release/_deps/pytorch_cpuinfo-src"
+  },
+  "FETCHCONTENT_SOURCE_DIR_RE2": {
+    "type": "PATH",
+    "value": "/datadisks/disk1/jiafa/accuracy/onnxruntime/build/cuda-wheel-clean-20261002/Release/_deps/re2-src"
+  },
+  "FETCHCONTENT_SOURCE_DIR_SAFEINT": {
+    "type": "PATH",
+    "value": "/datadisks/disk1/jiafa/accuracy/onnxruntime/build/cuda-wheel-clean-20261002/Release/_deps/safeint-src"
+  },
+  "PYBIND11_DISABLE_HANDLE_TYPE_NAME_DEFAULT_IMPLEMENTATION": {
+    "type": "BOOL",
+    "value": "OFF"
+  },
+  "PYBIND11_FINDPYTHON": {
+    "type": "STRING",
+    "value": "COMPAT"
+  },
+  "PYBIND11_INSTALL": {
+    "type": "BOOL",
+    "value": "OFF"
+  },
+  "PYBIND11_INTERNALS_VERSION": {
+    "type": "STRING",
+    "value": ""
+  },
+  "PYBIND11_NOPYTHON": {
+    "type": "BOOL",
+    "value": "ON"
+  },
+  "PYBIND11_SIMPLE_GIL_MANAGEMENT": {
+    "type": "BOOL",
+    "value": "OFF"
+  },
+  "PYBIND11_TEST": {
+    "type": "BOOL",
+    "value": "OFF"
+  },
+  "PYBIND11_USE_CROSSCOMPILING": {
+    "type": "BOOL",
+    "value": "OFF"
+  },
+  "Python_EXECUTABLE": {
+    "type": "UNINITIALIZED",
+    "value": "/tmp/qmoe-validation-venv/bin/python"
+  },
+  "onnxruntime_BUILD_SHARED_LIB": {
+    "type": "BOOL",
+    "value": "ON"
+  },
+  "onnxruntime_ENABLE_PYTHON": {
+    "type": "BOOL",
+    "value": "ON"
+  },
+  "onnxruntime_ENABLE_DLPACK": {
+    "type": "BOOL",
+    "value": "ON"
+  }
+}

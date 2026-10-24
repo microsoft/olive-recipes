@@ -1,0 +1,769 @@
+{
+  "settings_match": true,
+  "dependency_source_overrides": {
+    "FETCHCONTENT_SOURCE_DIR_ABSEIL_CPP": {
+      "type": "PATH",
+      "value": "/datadisks/disk1/jiafa/accuracy/onnxruntime/build/cuda-wheel-clean-20261002/Release/_deps/abseil_cpp-src"
+    },
+    "FETCHCONTENT_SOURCE_DIR_CPP_CLIENT_TELEMETRY": {
+      "type": "PATH",
+      "value": "/datadisks/disk1/jiafa/accuracy/onnxruntime/build/cuda-wheel-clean-20261002/Release/_deps/cpp_client_telemetry-src"
+    },
+    "FETCHCONTENT_SOURCE_DIR_CUDNN_FRONTEND": {
+      "type": "PATH",
+      "value": "/datadisks/disk1/jiafa/accuracy/onnxruntime/build/cuda-wheel-clean-20261002/Release/_deps/cudnn_frontend-src"
+    },
+    "FETCHCONTENT_SOURCE_DIR_CUTLASS": {
+      "type": "PATH",
+      "value": "/datadisks/disk1/jiafa/accuracy/onnxruntime/build/cuda-wheel-clean-20261002/Release/_deps/cutlass-src"
+    },
+    "FETCHCONTENT_SOURCE_DIR_DATE": {
+      "type": "PATH",
+      "value": "/datadisks/disk1/jiafa/accuracy/onnxruntime/build/cuda-wheel-clean-20261002/Release/_deps/date-src"
+    },
+    "FETCHCONTENT_SOURCE_DIR_DLPACK": {
+      "type": "UNINITIALIZED",
+      "value": "/datadisks/disk1/jiafa/accuracy/onnxruntime/build/cuda-wheel-clean-20261002/Release/_deps/dlpack-src"
+    },
+    "FETCHCONTENT_SOURCE_DIR_EIGEN3": {
+      "type": "PATH",
+      "value": "/datadisks/disk1/jiafa/accuracy/onnxruntime/build/cuda-wheel-clean-20261002/Release/_deps/eigen3-src"
+    },
+    "FETCHCONTENT_SOURCE_DIR_FLATBUFFERS": {
+      "type": "PATH",
+      "value": "/datadisks/disk1/jiafa/accuracy/onnxruntime/build/cuda-wheel-clean-20261002/Release/_deps/flatbuffers-src"
+    },
+    "FETCHCONTENT_SOURCE_DIR_GOOGLETEST": {
+      "type": "PATH",
+      "value": "/datadisks/disk1/jiafa/accuracy/onnxruntime/build/cuda-wheel-clean-20261002/Release/_deps/googletest-src"
+    },
+    "FETCHCONTENT_SOURCE_DIR_GSL": {
+      "type": "PATH",
+      "value": "/datadisks/disk1/jiafa/accuracy/onnxruntime/build/cuda-wheel-clean-20261002/Release/_deps/gsl-src"
+    },
+    "FETCHCONTENT_SOURCE_DIR_MATSDK_CURL": {
+      "type": "PATH",
+      "value": "/datadisks/disk1/jiafa/accuracy/onnxruntime/build/cuda-wheel-clean-20261002/Release/_deps/matsdk_curl-src"
+    },
+    "FETCHCONTENT_SOURCE_DIR_MATSDK_MBEDTLS": {
+      "type": "PATH",
+      "value": "/datadisks/disk1/jiafa/accuracy/onnxruntime/build/cuda-wheel-clean-20261002/Release/_deps/matsdk_mbedtls-src"
+    },
+    "FETCHCONTENT_SOURCE_DIR_MP11": {
+      "type": "PATH",
+      "value": "/datadisks/disk1/jiafa/accuracy/onnxruntime/build/cuda-wheel-clean-20261002/Release/_deps/mp11-src"
+    },
+    "FETCHCONTENT_SOURCE_DIR_NLOHMANN_JSON": {
+      "type": "PATH",
+      "value": "/datadisks/disk1/jiafa/accuracy/onnxruntime/build/cuda-wheel-clean-20261002/Release/_deps/nlohmann_json-src"
+    },
+    "FETCHCONTENT_SOURCE_DIR_ONNX": {
+      "type": "PATH",
+      "value": "/datadisks/disk1/jiafa/accuracy/onnxruntime/cmake/external/onnx"
+    },
+    "FETCHCONTENT_SOURCE_DIR_PROTOBUF": {
+      "type": "PATH",
+      "value": "/datadisks/disk1/jiafa/accuracy/onnxruntime/build/cuda-wheel-clean-20261002/Release/_deps/protobuf-src"
+    },
+    "FETCHCONTENT_SOURCE_DIR_PYBIND11_PROJECT": {
+      "type": "UNINITIALIZED",
+      "value": "/datadisks/disk1/jiafa/accuracy/onnxruntime/build/cuda-wheel-clean-20261002/Release/_deps/pybind11_project-src"
+    },
+    "FETCHCONTENT_SOURCE_DIR_PYTORCH_CPUINFO": {
+      "type": "PATH",
+      "value": "/datadisks/disk1/jiafa/accuracy/onnxruntime/build/cuda-wheel-clean-20261002/Release/_deps/pytorch_cpuinfo-src"
+    },
+    "FETCHCONTENT_SOURCE_DIR_RE2": {
+      "type": "PATH",
+      "value": "/datadisks/disk1/jiafa/accuracy/onnxruntime/build/cuda-wheel-clean-20261002/Release/_deps/re2-src"
+    },
+    "FETCHCONTENT_SOURCE_DIR_SAFEINT": {
+      "type": "PATH",
+      "value": "/datadisks/disk1/jiafa/accuracy/onnxruntime/build/cuda-wheel-clean-20261002/Release/_deps/safeint-src"
+    }
+  },
+  "preserved_settings": {
+    "CMAKE_BUILD_TYPE": {
+      "type": "STRING",
+      "value": "Release"
+    },
+    "CMAKE_CUDA_ARCHITECTURES": {
+      "type": "UNINITIALIZED",
+      "value": "80"
+    },
+    "CMAKE_CUDA_COMPILER": {
+      "type": "UNINITIALIZED",
+      "value": "/usr/local/cuda/bin/nvcc"
+    },
+    "CMAKE_CXX_COMPILER": {
+      "type": "FILEPATH",
+      "value": "/usr/bin/c++"
+    },
+    "CMAKE_C_COMPILER": {
+      "type": "FILEPATH",
+      "value": "/usr/bin/cc"
+    },
+    "FETCHCONTENT_BASE_DIR": {
+      "type": "PATH",
+      "value": "/tmp/int3-pr2-pr3-clean/Release/_deps"
+    },
+    "FETCHCONTENT_FULLY_DISCONNECTED": {
+      "type": "BOOL",
+      "value": "ON"
+    },
+    "FETCHCONTENT_QUIET": {
+      "type": "BOOL",
+      "value": "ON"
+    },
+    "FETCHCONTENT_UPDATES_DISCONNECTED": {
+      "type": "BOOL",
+      "value": "OFF"
+    },
+    "onnxruntime_BUILD_APPLE_FRAMEWORK": {
+      "type": "BOOL",
+      "value": "OFF"
+    },
+    "onnxruntime_BUILD_BENCHMARKS": {
+      "type": "BOOL",
+      "value": "OFF"
+    },
+    "onnxruntime_BUILD_CSHARP": {
+      "type": "BOOL",
+      "value": "OFF"
+    },
+    "onnxruntime_BUILD_CUDA_EP_AS_PLUGIN": {
+      "type": "BOOL",
+      "value": "OFF"
+    },
+    "onnxruntime_BUILD_CUDA_QUANT_PREPROCESS": {
+      "type": "BOOL",
+      "value": "OFF"
+    },
+    "onnxruntime_BUILD_CUDA_TESTS": {
+      "type": "UNINITIALIZED",
+      "value": "ON"
+    },
+    "onnxruntime_BUILD_DAWN_SHARED_LIBRARY": {
+      "type": "BOOL",
+      "value": "OFF"
+    },
+    "onnxruntime_BUILD_FOR_NATIVE_MACHINE": {
+      "type": "BOOL",
+      "value": "OFF"
+    },
+    "onnxruntime_BUILD_JAVA": {
+      "type": "UNINITIALIZED",
+      "value": "OFF"
+    },
+    "onnxruntime_BUILD_MS_EXPERIMENTAL_OPS": {
+      "type": "UNINITIALIZED",
+      "value": "OFF"
+    },
+    "onnxruntime_BUILD_NODEJS": {
+      "type": "UNINITIALIZED",
+      "value": "OFF"
+    },
+    "onnxruntime_BUILD_OBJC": {
+      "type": "BOOL",
+      "value": "OFF"
+    },
+    "onnxruntime_BUILD_OPSCHEMA_LIB": {
+      "type": "BOOL",
+      "value": "ON"
+    },
+    "onnxruntime_BUILD_QNN_EP_STATIC_LIB": {
+      "type": "BOOL",
+      "value": "OFF"
+    },
+    "onnxruntime_BUILD_UNIT_TESTS": {
+      "type": "BOOL",
+      "value": "ON"
+    },
+    "onnxruntime_BUILD_WEBASSEMBLY_STATIC_LIB": {
+      "type": "BOOL",
+      "value": "OFF"
+    },
+    "onnxruntime_CLIENT_PACKAGE_BUILD": {
+      "type": "BOOL",
+      "value": "OFF"
+    },
+    "onnxruntime_CMAKE_DEPS_MIRROR_DIR": {
+      "type": "PATH",
+      "value": "/datadisks/disk1/jiafa/accuracy/ort-int3-pr2-pr3/cmake/../mirror"
+    },
+    "onnxruntime_CROSS_COMPILING": {
+      "type": "BOOL",
+      "value": "OFF"
+    },
+    "onnxruntime_CUDA_FATBIN_COMPRESS_SIZE": {
+      "type": "BOOL",
+      "value": "OFF"
+    },
+    "onnxruntime_CUDA_HOME": {
+      "type": "UNINITIALIZED",
+      "value": "/usr/local/cuda"
+    },
+    "onnxruntime_CUDA_MINIMAL": {
+      "type": "BOOL",
+      "value": "OFF"
+    },
+    "onnxruntime_CUDNN_HOME": {
+      "type": "UNINITIALIZED",
+      "value": "/usr/local/lib/python3.12/dist-packages/nvidia/cudnn"
+    },
+    "onnxruntime_CUSTOM_DAWN_SRC_PATH": {
+      "type": "BOOL",
+      "value": "OFF"
+    },
+    "onnxruntime_DAWN_PREBUILT_DIR": {
+      "type": "PATH",
+      "value": ""
+    },
+    "onnxruntime_DEBUG_NODE_INPUTS_OUTPUTS": {
+      "type": "BOOL",
+      "value": "OFF"
+    },
+    "onnxruntime_DISABLE_ABSEIL": {
+      "type": "BOOL",
+      "value": "OFF"
+    },
+    "onnxruntime_DISABLE_CONTRIB_OPS": {
+      "type": "BOOL",
+      "value": "OFF"
+    },
+    "onnxruntime_DISABLE_DEVICE_DISCOVERY": {
+      "type": "BOOL",
+      "value": "OFF"
+    },
+    "onnxruntime_DISABLE_EXCEPTIONS": {
+      "type": "BOOL",
+      "value": "OFF"
+    },
+    "onnxruntime_DISABLE_EXTERNAL_INITIALIZERS": {
+      "type": "BOOL",
+      "value": "OFF"
+    },
+    "onnxruntime_DISABLE_FLOAT4_TYPES": {
+      "type": "BOOL",
+      "value": "OFF"
+    },
+    "onnxruntime_DISABLE_FLOAT8_TYPES": {
+      "type": "BOOL",
+      "value": "OFF"
+    },
+    "onnxruntime_DISABLE_GENERATION_OPS": {
+      "type": "BOOL",
+      "value": "OFF"
+    },
+    "onnxruntime_DISABLE_ML_OPS": {
+      "type": "BOOL",
+      "value": "OFF"
+    },
+    "onnxruntime_DISABLE_OPTIONAL_TYPE": {
+      "type": "BOOL",
+      "value": "OFF"
+    },
+    "onnxruntime_DISABLE_SPARSE_TENSORS": {
+      "type": "BOOL",
+      "value": "OFF"
+    },
+    "onnxruntime_DISABLE_STREAM": {
+      "type": "BOOL",
+      "value": "OFF"
+    },
+    "onnxruntime_DISABLE_STRING_TYPE": {
+      "type": "BOOL",
+      "value": "OFF"
+    },
+    "onnxruntime_DONT_VECTORIZE": {
+      "type": "BOOL",
+      "value": "OFF"
+    },
+    "onnxruntime_DUMP_TENSOR": {
+      "type": "BOOL",
+      "value": "OFF"
+    },
+    "onnxruntime_ENABLE_ATEN": {
+      "type": "BOOL",
+      "value": "OFF"
+    },
+    "onnxruntime_ENABLE_BITCODE": {
+      "type": "BOOL",
+      "value": "OFF"
+    },
+    "onnxruntime_ENABLE_CONVSYMKERNELAVX2_SAT_CHECKER": {
+      "type": "BOOL",
+      "value": "OFF"
+    },
+    "onnxruntime_ENABLE_CPUINFO": {
+      "type": "BOOL",
+      "value": "ON"
+    },
+    "onnxruntime_ENABLE_CPU_FP16_OPS": {
+      "type": "BOOL",
+      "value": "OFF"
+    },
+    "onnxruntime_ENABLE_CUDA_EP_INTERNAL_TESTS": {
+      "type": "BOOL",
+      "value": "OFF"
+    },
+    "onnxruntime_ENABLE_CUDA_LINE_NUMBER_INFO": {
+      "type": "BOOL",
+      "value": "OFF"
+    },
+    "onnxruntime_ENABLE_CUDA_PROFILING": {
+      "type": "BOOL",
+      "value": "OFF"
+    },
+    "onnxruntime_ENABLE_D3D12_FILE_LOADING": {
+      "type": "BOOL",
+      "value": "OFF"
+    },
+    "onnxruntime_ENABLE_DAWN_BACKEND_D3D12": {
+      "type": "BOOL",
+      "value": "ON"
+    },
+    "onnxruntime_ENABLE_DAWN_BACKEND_VULKAN": {
+      "type": "BOOL",
+      "value": "OFF"
+    },
+    "onnxruntime_ENABLE_EXTERNAL_CUSTOM_OP_SCHEMAS": {
+      "type": "BOOL",
+      "value": "OFF"
+    },
+    "onnxruntime_ENABLE_GQA_VALUE_LAYOUT": {
+      "type": "BOOL",
+      "value": "ON"
+    },
+    "onnxruntime_ENABLE_INSTRUMENT": {
+      "type": "BOOL",
+      "value": "OFF"
+    },
+    "onnxruntime_ENABLE_LTO": {
+      "type": "BOOL",
+      "value": "OFF"
+    },
+    "onnxruntime_ENABLE_MEMLEAK_CHECKER": {
+      "type": "BOOL",
+      "value": "OFF"
+    },
+    "onnxruntime_ENABLE_MEMORY_PROFILE": {
+      "type": "BOOL",
+      "value": "OFF"
+    },
+    "onnxruntime_ENABLE_MICROSOFT_INTERNAL": {
+      "type": "BOOL",
+      "value": "OFF"
+    },
+    "onnxruntime_ENABLE_NVTX_PROFILE": {
+      "type": "BOOL",
+      "value": "OFF"
+    },
+    "onnxruntime_ENABLE_PIX_FOR_WEBGPU_EP": {
+      "type": "BOOL",
+      "value": "OFF"
+    },
+    "onnxruntime_ENABLE_SESSION_THREADPOOL_CALLBACKS": {
+      "type": "BOOL",
+      "value": "OFF"
+    },
+    "onnxruntime_ENABLE_STATIC_ANALYSIS": {
+      "type": "BOOL",
+      "value": "OFF"
+    },
+    "onnxruntime_ENABLE_TRAINING": {
+      "type": "BOOL",
+      "value": "OFF"
+    },
+    "onnxruntime_ENABLE_TRAINING_APIS": {
+      "type": "BOOL",
+      "value": "OFF"
+    },
+    "onnxruntime_ENABLE_TRAINING_E2E_TESTS": {
+      "type": "BOOL",
+      "value": "OFF"
+    },
+    "onnxruntime_ENABLE_TRAINING_OPS": {
+      "type": "BOOL",
+      "value": "OFF"
+    },
+    "onnxruntime_ENABLE_WEBASSEMBLY_API_EXCEPTION_CATCHING": {
+      "type": "BOOL",
+      "value": "OFF"
+    },
+    "onnxruntime_ENABLE_WEBASSEMBLY_DEBUG_INFO": {
+      "type": "BOOL",
+      "value": "OFF"
+    },
+    "onnxruntime_ENABLE_WEBASSEMBLY_EXCEPTION_CATCHING": {
+      "type": "BOOL",
+      "value": "ON"
+    },
+    "onnxruntime_ENABLE_WEBASSEMBLY_EXCEPTION_THROWING": {
+      "type": "BOOL",
+      "value": "ON"
+    },
+    "onnxruntime_ENABLE_WEBASSEMBLY_JSPI": {
+      "type": "BOOL",
+      "value": "OFF"
+    },
+    "onnxruntime_ENABLE_WEBASSEMBLY_OUTPUT_OPTIMIZED_MODEL": {
+      "type": "BOOL",
+      "value": "OFF"
+    },
+    "onnxruntime_ENABLE_WEBASSEMBLY_PROFILING": {
+      "type": "BOOL",
+      "value": "OFF"
+    },
+    "onnxruntime_ENABLE_WEBASSEMBLY_RELAXED_SIMD": {
+      "type": "BOOL",
+      "value": "OFF"
+    },
+    "onnxruntime_ENABLE_WEBASSEMBLY_THREADS": {
+      "type": "BOOL",
+      "value": "OFF"
+    },
+    "onnxruntime_EXTENDED_MINIMAL_BUILD": {
+      "type": "BOOL",
+      "value": "OFF"
+    },
+    "onnxruntime_EXTENSIONS_OVERRIDDEN,": {
+      "type": "BOOL",
+      "value": "OFF"
+    },
+    "onnxruntime_EXTERNAL_TRANSFORMER_SRC_PATH": {
+      "type": "BOOL",
+      "value": "OFF"
+    },
+    "onnxruntime_FLASH_NVCC_THREADS": {
+      "type": "STRING",
+      "value": "4"
+    },
+    "onnxruntime_FORCE_GENERIC_ALGORITHMS": {
+      "type": "BOOL",
+      "value": "OFF"
+    },
+    "onnxruntime_FUZZ_TEST": {
+      "type": "BOOL",
+      "value": "OFF"
+    },
+    "onnxruntime_GCOV_COVERAGE": {
+      "type": "BOOL",
+      "value": "OFF"
+    },
+    "onnxruntime_GENERATE_TEST_REPORTS": {
+      "type": "BOOL",
+      "value": "ON"
+    },
+    "onnxruntime_MATERIALIZE_ONNX_NODE_TESTS": {
+      "type": "BOOL",
+      "value": "OFF"
+    },
+    "onnxruntime_MINIMAL_BUILD": {
+      "type": "BOOL",
+      "value": "OFF"
+    },
+    "onnxruntime_MINIMAL_BUILD_CUSTOM_OPS": {
+      "type": "BOOL",
+      "value": "OFF"
+    },
+    "onnxruntime_NVCC_THREADS": {
+      "type": "STRING",
+      "value": "4"
+    },
+    "onnxruntime_PREBUILT_PYTORCH_PATH": {
+      "type": "BOOL",
+      "value": "OFF"
+    },
+    "onnxruntime_QUICK_BUILD": {
+      "type": "BOOL",
+      "value": "OFF"
+    },
+    "onnxruntime_REDIRECT_STATIC_ANALYSIS_OUTPUTS_TO_FILE": {
+      "type": "BOOL",
+      "value": "OFF"
+    },
+    "onnxruntime_REDUCED_OPS_BUILD": {
+      "type": "BOOL",
+      "value": "OFF"
+    },
+    "onnxruntime_RUN_MLAS_TESTS": {
+      "type": "BOOL",
+      "value": "OFF"
+    },
+    "onnxruntime_RUN_MODELTEST_IN_DEBUG_MODE": {
+      "type": "BOOL",
+      "value": "OFF"
+    },
+    "onnxruntime_RUN_ONNX_TESTS": {
+      "type": "BOOL",
+      "value": "OFF"
+    },
+    "onnxruntime_TELEMETRY_BACKEND": {
+      "type": "STRING",
+      "value": "1DS"
+    },
+    "onnxruntime_USE_ACL": {
+      "type": "BOOL",
+      "value": "OFF"
+    },
+    "onnxruntime_USE_ARM_NEON_NCHWC": {
+      "type": "BOOL",
+      "value": "OFF"
+    },
+    "onnxruntime_USE_AVX": {
+      "type": "BOOL",
+      "value": "OFF"
+    },
+    "onnxruntime_USE_AVX2": {
+      "type": "BOOL",
+      "value": "OFF"
+    },
+    "onnxruntime_USE_AVX512": {
+      "type": "BOOL",
+      "value": "OFF"
+    },
+    "onnxruntime_USE_AZURE": {
+      "type": "BOOL",
+      "value": "OFF"
+    },
+    "onnxruntime_USE_CANN": {
+      "type": "BOOL",
+      "value": "OFF"
+    },
+    "onnxruntime_USE_COREML": {
+      "type": "BOOL",
+      "value": "OFF"
+    },
+    "onnxruntime_USE_CUDA": {
+      "type": "BOOL",
+      "value": "ON"
+    },
+    "onnxruntime_USE_CUDA_INTERFACE": {
+      "type": "BOOL",
+      "value": "OFF"
+    },
+    "onnxruntime_USE_CUDA_NHWC_OPS": {
+      "type": "BOOL",
+      "value": "ON"
+    },
+    "onnxruntime_USE_CUSTOM_STATIC_ANALYSIS_RULES": {
+      "type": "BOOL",
+      "value": "OFF"
+    },
+    "onnxruntime_USE_DML": {
+      "type": "BOOL",
+      "value": "OFF"
+    },
+    "onnxruntime_USE_DNNL": {
+      "type": "BOOL",
+      "value": "OFF"
+    },
+    "onnxruntime_USE_DX_INTEROP": {
+      "type": "BOOL",
+      "value": "OFF"
+    },
+    "onnxruntime_USE_EP_API_ADAPTERS": {
+      "type": "BOOL",
+      "value": "OFF"
+    },
+    "onnxruntime_USE_EXTENSIONS": {
+      "type": "BOOL",
+      "value": "OFF"
+    },
+    "onnxruntime_USE_EXTERNAL_DAWN": {
+      "type": "BOOL",
+      "value": "OFF"
+    },
+    "onnxruntime_USE_FLASH_ATTENTION": {
+      "type": "BOOL",
+      "value": "OFF"
+    },
+    "onnxruntime_USE_FP4_QMOE": {
+      "type": "BOOL",
+      "value": "ON"
+    },
+    "onnxruntime_USE_FP8_KV_CACHE": {
+      "type": "BOOL",
+      "value": "ON"
+    },
+    "onnxruntime_USE_FP8_QMOE": {
+      "type": "BOOL",
+      "value": "OFF"
+    },
+    "onnxruntime_USE_FPA_INTB_GEMM": {
+      "type": "BOOL",
+      "value": "ON"
+    },
+    "onnxruntime_USE_FPA_INTB_GEMM_FULL": {
+      "type": "BOOL",
+      "value": "OFF"
+    },
+    "onnxruntime_USE_FULL_PROTOBUF": {
+      "type": "BOOL",
+      "value": "OFF"
+    },
+    "onnxruntime_USE_INT4_KV_CACHE": {
+      "type": "BOOL",
+      "value": "ON"
+    },
+    "onnxruntime_USE_JSEP": {
+      "type": "BOOL",
+      "value": "OFF"
+    },
+    "onnxruntime_USE_KLEIDIAI": {
+      "type": "BOOL",
+      "value": "ON"
+    },
+    "onnxruntime_USE_LEAN_ATTENTION": {
+      "type": "BOOL",
+      "value": "OFF"
+    },
+    "onnxruntime_USE_LOCK_FREE_QUEUE": {
+      "type": "BOOL",
+      "value": "OFF"
+    },
+    "onnxruntime_USE_MEMORY_EFFICIENT_ATTENTION": {
+      "type": "BOOL",
+      "value": "OFF"
+    },
+    "onnxruntime_USE_MIGRAPHX": {
+      "type": "BOOL",
+      "value": "OFF"
+    },
+    "onnxruntime_USE_MIGRAPHX_INTERFACE": {
+      "type": "UNINITIALIZED",
+      "value": "OFF"
+    },
+    "onnxruntime_USE_NCCL": {
+      "type": "BOOL",
+      "value": "OFF"
+    },
+    "onnxruntime_USE_NNAPI_BUILTIN": {
+      "type": "BOOL",
+      "value": "OFF"
+    },
+    "onnxruntime_USE_NV": {
+      "type": "BOOL",
+      "value": "OFF"
+    },
+    "onnxruntime_USE_NV_INTERFACE": {
+      "type": "BOOL",
+      "value": "OFF"
+    },
+    "onnxruntime_USE_OPENVINO": {
+      "type": "BOOL",
+      "value": "OFF"
+    },
+    "onnxruntime_USE_OPENVINO_INTERFACE": {
+      "type": "BOOL",
+      "value": "OFF"
+    },
+    "onnxruntime_USE_PREINSTALLED_EIGEN": {
+      "type": "BOOL",
+      "value": "OFF"
+    },
+    "onnxruntime_USE_QMX_KLEIDIAI_COEXIST": {
+      "type": "BOOL",
+      "value": "OFF"
+    },
+    "onnxruntime_USE_QNN": {
+      "type": "BOOL",
+      "value": "OFF"
+    },
+    "onnxruntime_USE_QNN_INTERFACE": {
+      "type": "BOOL",
+      "value": "OFF"
+    },
+    "onnxruntime_USE_RKNPU": {
+      "type": "BOOL",
+      "value": "OFF"
+    },
+    "onnxruntime_USE_RVV": {
+      "type": "BOOL",
+      "value": "OFF"
+    },
+    "onnxruntime_USE_RVV_ZVFH": {
+      "type": "BOOL",
+      "value": "OFF"
+    },
+    "onnxruntime_USE_SNPE": {
+      "type": "BOOL",
+      "value": "OFF"
+    },
+    "onnxruntime_USE_SVE": {
+      "type": "BOOL",
+      "value": "ON"
+    },
+    "onnxruntime_USE_TELEMETRY": {
+      "type": "BOOL",
+      "value": "ON"
+    },
+    "onnxruntime_USE_TENSORRT": {
+      "type": "BOOL",
+      "value": "OFF"
+    },
+    "onnxruntime_USE_TENSORRT_BUILTIN_PARSER": {
+      "type": "BOOL",
+      "value": "ON"
+    },
+    "onnxruntime_USE_TENSORRT_INTERFACE": {
+      "type": "BOOL",
+      "value": "OFF"
+    },
+    "onnxruntime_USE_TRT_FUSED_ATTENTION": {
+      "type": "BOOL",
+      "value": "ON"
+    },
+    "onnxruntime_USE_VALGRIND": {
+      "type": "BOOL",
+      "value": "OFF"
+    },
+    "onnxruntime_USE_VCPKG": {
+      "type": "BOOL",
+      "value": "OFF"
+    },
+    "onnxruntime_USE_VITISAI": {
+      "type": "BOOL",
+      "value": "OFF"
+    },
+    "onnxruntime_USE_VITISAI_INTERFACE": {
+      "type": "BOOL",
+      "value": "OFF"
+    },
+    "onnxruntime_USE_VSINPU": {
+      "type": "BOOL",
+      "value": "OFF"
+    },
+    "onnxruntime_USE_WEBGPU": {
+      "type": "BOOL",
+      "value": "OFF"
+    },
+    "onnxruntime_USE_WEBNN": {
+      "type": "BOOL",
+      "value": "OFF"
+    },
+    "onnxruntime_USE_WINDOWS_TELEMETRY": {
+      "type": "BOOL",
+      "value": "OFF"
+    },
+    "onnxruntime_USE_WINML": {
+      "type": "BOOL",
+      "value": "OFF"
+    },
+    "onnxruntime_USE_XNNPACK": {
+      "type": "BOOL",
+      "value": "OFF"
+    },
+    "onnxruntime_WEBASSEMBLY_RUN_TESTS_IN_BROWSER": {
+      "type": "BOOL",
+      "value": "OFF"
+    },
+    "onnxruntime_WEBGPU_STATIC_PLUGIN": {
+      "type": "BOOL",
+      "value": "OFF"
+    }
+  },
+  "differences": {},
+  "existing_build_reconfigured_in_place": true
+}

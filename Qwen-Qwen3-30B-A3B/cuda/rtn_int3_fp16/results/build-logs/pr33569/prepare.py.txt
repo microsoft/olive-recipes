@@ -1,0 +1,55 @@
+import json
+import pathlib
+import re
+import shlex
+import subprocess
+import sys
+
+
+reference = pathlib.Path('/tmp/int3-pr2-pr3-clean/Release')
+build = pathlib.Path('/tmp/int3-pr33569-compare/Release')
+source = pathlib.Path('/datadisks/disk1/jiafa/accuracy/ort-int3-pr33569-compare')
+logs = build.parent / 'logs'
+logs.mkdir(parents=True, exist_ok=True)
+cache_text = (reference / 'CMakeCache.txt').read_text()
+(logs / 'reference-CMakeCache.txt').write_text(cache_text)
+entries = {}
+for line in cache_text.splitlines():
+    match = re.fullmatch(r'([^#/:][^:]*):([^=]+)=(.*)', line)
+    if match:
+        key, kind, value = match.groups()
+        entries[key] = {'type': kind, 'value': value}
+
+settings = {}
+for key, entry in entries.items():
+    if entry['type'] in ('INTERNAL', 'STATIC'):
+        continue
+    if key.startswith(('onnxruntime_', 'FETCHCONTENT_', 'CMAKE_')) or key in ('Python_EXECUTABLE', 'Python3_EXECUTABLE'):
+        if key.startswith('CMAKE_') and not re.fullmatch(r'CMAKE_(?:BUILD_TYPE|CUDA_.*|CXX_(?:COMPILER|FLAGS.*)|C_(?:COMPILER|FLAGS.*)|(?:EXE|SHARED|MODULE|STATIC)_LINKER_FLAGS.*|POSITION_INDEPENDENT_CODE|INTERPROCEDURAL_OPTIMIZATION|PREFIX_PATH|INSTALL_PREFIX|MAKE_PROGRAM)', key):
+            continue
+        settings[key] = dict(entry)
+
+for key, entry in settings.items():
+    if key.startswith('FETCHCONTENT_SOURCE_DIR_'):
+        if not pathlib.Path(entry['value']).is_dir():
+            raise RuntimeError(f'Missing dependency source: {key}={entry["value"]}')
+    elif entry['value'].startswith('/datadisks/disk1/jiafa/accuracy/ort-int3-pr2-pr3/'):
+        entry['value'] = entry['value'].replace('/datadisks/disk1/jiafa/accuracy/ort-int3-pr2-pr3/', str(source) + '/', 1)
+settings['FETCHCONTENT_BASE_DIR'] = {'type': 'PATH', 'value': str(build / '_deps')}
+settings['onnxruntime_BUILD_SHARED_LIB'] = {'type': 'BOOL', 'value': 'ON'}
+python = entries.get('Python_EXECUTABLE', {}).get('value', sys.executable)
+probe = subprocess.run([python, '-c', 'import sysconfig,numpy,packaging; from pathlib import Path; assert (Path(sysconfig.get_path("include"))/"Python.h").is_file(); print(numpy.__version__); print(sysconfig.get_path("include"))'], capture_output=True, text=True)
+(logs / 'python-prerequisites.log').write_text(probe.stdout + probe.stderr)
+settings['onnxruntime_ENABLE_PYTHON'] = {'type': 'BOOL', 'value': 'ON' if probe.returncode == 0 else 'OFF'}
+command = ['cmake', '-S', str(source / 'cmake'), '-B', str(build), '-G', 'Ninja']
+command.extend(f'-D{key}:{entry["type"]}={entry["value"]}' for key, entry in sorted(settings.items()))
+(logs / 'configure-command.sh').write_text(shlex.join(command) + '\n')
+(logs / 'configure-settings.json').write_text(json.dumps(settings, indent=2) + '\n')
+print(f'Python enabled: {probe.returncode == 0}', flush=True)
+with (logs / 'configure.log').open('w') as output:
+    result = subprocess.run(command, stdout=output, stderr=subprocess.STDOUT)
+(logs / 'configure-result.json').write_text(json.dumps({'returncode': result.returncode, 'python_enabled': probe.returncode == 0}, indent=2) + '\n')
+print(f'Configure exit: {result.returncode}; logs: {logs}', flush=True)
+if result.returncode:
+    print('\n'.join((logs / 'configure.log').read_text().splitlines()[-100:]))
+raise SystemExit(result.returncode)

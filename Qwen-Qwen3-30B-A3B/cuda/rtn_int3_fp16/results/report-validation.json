@@ -1,0 +1,68 @@
+{
+  "status": "passed",
+  "validated_utc": "2026-10-24T19:32:10.274467+00:00",
+  "checks": {
+    "measurement_rows": 8,
+    "ratio_rows": 4,
+    "initialization_rows": 8
+  },
+  "recomputed_summary": "All aggregate and per-round entries exactly match summarize_runs over the 16 archived raw records.",
+  "timing_processes": 16,
+  "measured_requests": 80,
+  "predictions": 10240,
+  "decode_transitions": 10160,
+  "excluded_warmup_requests": 48,
+  "timing_top1": {
+    "128": {
+      "agreement_count": 1280,
+      "paired_predictions": 1280
+    },
+    "512": {
+      "agreement_count": 1280,
+      "paired_predictions": 1280
+    },
+    "2048": {
+      "agreement_count": 1280,
+      "paired_predictions": 1280
+    },
+    "4096": {
+      "agreement_count": 1280,
+      "paired_predictions": 1280
+    }
+  },
+  "report_sha256": "55688a637f80281b7c0f8702cf44ae6f0d46b600df70086c2878c8d893630daf",
+  "raw_timing_sha256": "e62881a2b03543882a9a667f2e0f66c9b59319f0bedaace66b99a143a39abc88",
+  "recipe_results_total_bytes": 6008931,
+  "recipe_results_file_count": 91,
+  "source_hashes": {
+    "captured_utc": "2026-10-24T19:26:58.398271+00:00",
+    "scope": "Experiment scripts at executed manifest paths, captured after completion and before formatting; formatting afterward changes working-file hashes, not these recorded experiment identities.",
+    "files": [
+      {
+        "path": "/datadisks/disk1/jiafa/accuracy/olive-recipes-int3-compare/Qwen-Qwen3-30B-A3B/cuda/rtn_int3_fp16/benchmark.py",
+        "bytes": 20739,
+        "sha256": "bfe047536bea4750e8ec176916b7197074cdd4e5a54eac4f5a1084bd27f03344"
+      },
+      {
+        "path": "/datadisks/disk1/jiafa/accuracy/olive-recipes-int3-compare/Qwen-Qwen3-30B-A3B/cuda/rtn_int3_fp16/run_comparison.py",
+        "bytes": 15990,
+        "sha256": "6546119cd688c843b98b489f8a0edbf18830898fb6b5a9d59f3187623d2cc7fe"
+      },
+      {
+        "path": "/datadisks/disk1/jiafa/accuracy/olive-recipes-int3-compare/Qwen-Qwen3-30B-A3B/cuda/rtn_int3_fp16/compare_logits.py",
+        "bytes": 5550,
+        "sha256": "667f1c4fd7d2c88a9c691a213352e4192e7342cc27753037eba0cda0a2a70db7"
+      }
+    ]
+  },
+  "scope": "No benchmark, export or accuracy test rerun; validates archived measurements and Markdown tables.",
+  "identity_checked_timing_processes": 16,
+  "verified_local_report_links": 18,
+  "dispatch_preserved_byte_for_byte": true,
+  "small_measurement_jsons_match_sources": true,
+  "experiment_source_hashes_still_match": true,
+  "model_manifest_audit_file_hashes_match": true,
+  "dependency_source_identity_count": 20,
+  "build_settings_sha256": "808deb548b6e91758d0bcaa7027b3344f58c301ab4f6f473d9236268258132d3",
+  "recipe_results_totals_exclude": "report-validation.json itself"
+}

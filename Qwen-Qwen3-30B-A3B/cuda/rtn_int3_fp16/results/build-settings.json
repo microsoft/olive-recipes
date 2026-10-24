@@ -1,0 +1,2794 @@
+{
+  "common_base": "36f07f760dccb74a96d0a3c851163d6448bdfd21",
+  "platform": "Linux-6.6.159.1-1.azl3-x86_64-with-glibc2.39",
+  "tools": {
+    "gcc": "cc (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0\nCopyright (C) 2023 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.",
+    "g++": "c++ (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0\nCopyright (C) 2023 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.",
+    "nvcc": "nvcc: NVIDIA (R) Cuda compiler driver\nCopyright (c) 2005-2025 NVIDIA Corporation\nBuilt on Wed_Aug_20_01:58:59_PM_PDT_2025\nCuda compilation tools, release 13.0, V13.0.88\nBuild cuda_13.0.r13.0/compiler.36424714_0",
+    "cmake": "cmake version 4.3.2\n\nCMake suite maintained and supported by Kitware (kitware.com/cmake).",
+    "ninja": "1.13.0.git.kitware.jobserver-pipe-1",
+    "driver": "580.159.04",
+    "python": "3.12.3",
+    "cudnn": "9.20.0.48"
+  },
+  "gpu_uuid": "GPU-739515b2-62b4-f900-86a2-50f55272a810",
+  "onnx_actual_source_sha": "ee3ccbd2b2344299d3a4506c2954a47b2181a485",
+  "onnx_pinned_submodule_sha": "e1ac8e74b620bbdc7ba07f0440806bd93f651a28",
+  "dependency_source_overrides": {
+    "FETCHCONTENT_SOURCE_DIR_ABSEIL_CPP": "/datadisks/disk1/jiafa/accuracy/onnxruntime/build/cuda-wheel-clean-20261002/Release/_deps/abseil_cpp-src",
+    "FETCHCONTENT_SOURCE_DIR_CPP_CLIENT_TELEMETRY": "/datadisks/disk1/jiafa/accuracy/onnxruntime/build/cuda-wheel-clean-20261002/Release/_deps/cpp_client_telemetry-src",
+    "FETCHCONTENT_SOURCE_DIR_CUDNN_FRONTEND": "/datadisks/disk1/jiafa/accuracy/onnxruntime/build/cuda-wheel-clean-20261002/Release/_deps/cudnn_frontend-src",
+    "FETCHCONTENT_SOURCE_DIR_CUTLASS": "/datadisks/disk1/jiafa/accuracy/onnxruntime/build/cuda-wheel-clean-20261002/Release/_deps/cutlass-src",
+    "FETCHCONTENT_SOURCE_DIR_DATE": "/datadisks/disk1/jiafa/accuracy/onnxruntime/build/cuda-wheel-clean-20261002/Release/_deps/date-src",
+    "FETCHCONTENT_SOURCE_DIR_DLPACK": "/datadisks/disk1/jiafa/accuracy/onnxruntime/build/cuda-wheel-clean-20261002/Release/_deps/dlpack-src",
+    "FETCHCONTENT_SOURCE_DIR_EIGEN3": "/datadisks/disk1/jiafa/accuracy/onnxruntime/build/cuda-wheel-clean-20261002/Release/_deps/eigen3-src",
+    "FETCHCONTENT_SOURCE_DIR_FLATBUFFERS": "/datadisks/disk1/jiafa/accuracy/onnxruntime/build/cuda-wheel-clean-20261002/Release/_deps/flatbuffers-src",
+    "FETCHCONTENT_SOURCE_DIR_GOOGLETEST": "/datadisks/disk1/jiafa/accuracy/onnxruntime/build/cuda-wheel-clean-20261002/Release/_deps/googletest-src",
+    "FETCHCONTENT_SOURCE_DIR_GSL": "/datadisks/disk1/jiafa/accuracy/onnxruntime/build/cuda-wheel-clean-20261002/Release/_deps/gsl-src",
+    "FETCHCONTENT_SOURCE_DIR_MATSDK_CURL": "/datadisks/disk1/jiafa/accuracy/onnxruntime/build/cuda-wheel-clean-20261002/Release/_deps/matsdk_curl-src",
+    "FETCHCONTENT_SOURCE_DIR_MATSDK_MBEDTLS": "/datadisks/disk1/jiafa/accuracy/onnxruntime/build/cuda-wheel-clean-20261002/Release/_deps/matsdk_mbedtls-src",
+    "FETCHCONTENT_SOURCE_DIR_MP11": "/datadisks/disk1/jiafa/accuracy/onnxruntime/build/cuda-wheel-clean-20261002/Release/_deps/mp11-src",
+    "FETCHCONTENT_SOURCE_DIR_NLOHMANN_JSON": "/datadisks/disk1/jiafa/accuracy/onnxruntime/build/cuda-wheel-clean-20261002/Release/_deps/nlohmann_json-src",
+    "FETCHCONTENT_SOURCE_DIR_ONNX": "/datadisks/disk1/jiafa/accuracy/onnxruntime/cmake/external/onnx",
+    "FETCHCONTENT_SOURCE_DIR_PROTOBUF": "/datadisks/disk1/jiafa/accuracy/onnxruntime/build/cuda-wheel-clean-20261002/Release/_deps/protobuf-src",
+    "FETCHCONTENT_SOURCE_DIR_PYBIND11_PROJECT": "/datadisks/disk1/jiafa/accuracy/onnxruntime/build/cuda-wheel-clean-20261002/Release/_deps/pybind11_project-src",
+    "FETCHCONTENT_SOURCE_DIR_PYTORCH_CPUINFO": "/datadisks/disk1/jiafa/accuracy/onnxruntime/build/cuda-wheel-clean-20261002/Release/_deps/pytorch_cpuinfo-src",
+    "FETCHCONTENT_SOURCE_DIR_RE2": "/datadisks/disk1/jiafa/accuracy/onnxruntime/build/cuda-wheel-clean-20261002/Release/_deps/re2-src",
+    "FETCHCONTENT_SOURCE_DIR_SAFEINT": "/datadisks/disk1/jiafa/accuracy/onnxruntime/build/cuda-wheel-clean-20261002/Release/_deps/safeint-src"
+  },
+  "other_dependency_source_count": 19,
+  "dependency_reuse": "Populated dependency source caches, not an ORT binary/provider ABI swap; ORT targets compiled and linked for the pinned source. PR33555 existing clean-build directory was reconfigured in place, not freshly deleted for this run.",
+  "staging": "Source-matched Python source package plus matching core/pybind/shared/CUDA library symlinks; NOT installed wheels; build_and_package_info metadata absent.",
+  "wheel_hashes": null,
+  "clock_power_controls": "No application clock or power lock established by this experiment.",
+  "builds": {
+    "33555": {
+      "source_sha": "d75ac16f377c0c783d289046f5cf2efe6bb5f9bc",
+      "provenance": {
+        "pinned_head": "d75ac16f377c0c783d289046f5cf2efe6bb5f9bc",
+        "source": "/datadisks/disk1/jiafa/accuracy/ort-int3-pr2-pr3",
+        "build": "/tmp/int3-pr2-pr3-clean/Release",
+        "reference": "/tmp/int3-pr33569-compare",
+        "python_runtime": "/tmp/int3-pr33555-compare/python-runtime",
+        "targets": [
+          "onnxruntime",
+          "onnxruntime_pybind11_state",
+          "onnxruntime_providers_cuda"
+        ],
+        "model_benchmark_run": false,
+        "standalone_provider_ctypes_run": false,
+        "cuda_validation": "ORT CUDA OrtValue single float allocation and host round-trip",
+        "staging": "same source-copy and library-symlink layout as PR33569; not a wheel",
+        "source_before": "one pre-existing untracked docs/design/int3-qmoe-pr3-session-smoke.json; no tracked changes"
+      },
+      "effective_cache_settings": {
+        "CMAKE_ADDR2LINE": {
+          "type": "FILEPATH",
+          "value": "/usr/bin/addr2line"
+        },
+        "CMAKE_AR": {
+          "type": "FILEPATH",
+          "value": "/usr/bin/ar"
+        },
+        "CMAKE_ASM_COMPILER": {
+          "type": "FILEPATH",
+          "value": "/usr/bin/cc"
+        },
+        "CMAKE_ASM_COMPILER_AR": {
+          "type": "FILEPATH",
+          "value": "/usr/bin/gcc-ar"
+        },
+        "CMAKE_ASM_COMPILER_RANLIB": {
+          "type": "FILEPATH",
+          "value": "/usr/bin/gcc-ranlib"
+        },
+        "CMAKE_ASM_FLAGS": {
+          "type": "STRING",
+          "value": ""
+        },
+        "CMAKE_ASM_FLAGS_DEBUG": {
+          "type": "STRING",
+          "value": "-g"
+        },
+        "CMAKE_ASM_FLAGS_MINSIZEREL": {
+          "type": "STRING",
+          "value": "-Os -DNDEBUG"
+        },
+        "CMAKE_ASM_FLAGS_RELEASE": {
+          "type": "STRING",
+          "value": "-O3 -DNDEBUG"
+        },
+        "CMAKE_ASM_FLAGS_RELWITHDEBINFO": {
+          "type": "STRING",
+          "value": "-O2 -g -DNDEBUG"
+        },
+        "CMAKE_BUILD_CMAKEDIR": {
+          "type": "STRING",
+          "value": "/tmp/int3-pr2-pr3-clean/Release/_deps/protobuf-build/cmake/protobuf"
+        },
+        "CMAKE_BUILD_TYPE": {
+          "type": "STRING",
+          "value": "Release"
+        },
+        "CMAKE_CUDA_ARCHITECTURES": {
+          "type": "UNINITIALIZED",
+          "value": "80"
+        },
+        "CMAKE_CUDA_COMPILER": {
+          "type": "UNINITIALIZED",
+          "value": "/usr/local/cuda/bin/nvcc"
+        },
+        "CMAKE_CUDA_FLAGS": {
+          "type": "STRING",
+          "value": ""
+        },
+        "CMAKE_CUDA_FLAGS_DEBUG": {
+          "type": "STRING",
+          "value": "-g"
+        },
+        "CMAKE_CUDA_FLAGS_MINSIZEREL": {
+          "type": "STRING",
+          "value": "-O1 -DNDEBUG"
+        },
+        "CMAKE_CUDA_FLAGS_RELEASE": {
+          "type": "STRING",
+          "value": "-O3 -DNDEBUG"
+        },
+        "CMAKE_CUDA_FLAGS_RELWITHDEBINFO": {
+          "type": "STRING",
+          "value": "-O2 -g -DNDEBUG"
+        },
+        "CMAKE_CXX_COMPILER": {
+          "type": "FILEPATH",
+          "value": "/usr/bin/c++"
+        },
+        "CMAKE_CXX_COMPILER_AR": {
+          "type": "FILEPATH",
+          "value": "/usr/bin/gcc-ar-13"
+        },
+        "CMAKE_CXX_COMPILER_RANLIB": {
+          "type": "FILEPATH",
+          "value": "/usr/bin/gcc-ranlib-13"
+        },
+        "CMAKE_CXX_FLAGS": {
+          "type": "STRING",
+          "value": ""
+        },
+        "CMAKE_CXX_FLAGS_DEBUG": {
+          "type": "STRING",
+          "value": "-g"
+        },
+        "CMAKE_CXX_FLAGS_MINSIZEREL": {
+          "type": "STRING",
+          "value": "-Os -DNDEBUG"
+        },
+        "CMAKE_CXX_FLAGS_RELEASE": {
+          "type": "STRING",
+          "value": "-O3 -DNDEBUG"
+        },
+        "CMAKE_CXX_FLAGS_RELWITHDEBINFO": {
+          "type": "STRING",
+          "value": "-O2 -g -DNDEBUG"
+        },
+        "CMAKE_C_COMPILER": {
+          "type": "FILEPATH",
+          "value": "/usr/bin/cc"
+        },
+        "CMAKE_C_COMPILER_AR": {
+          "type": "FILEPATH",
+          "value": "/usr/bin/gcc-ar-13"
+        },
+        "CMAKE_C_COMPILER_RANLIB": {
+          "type": "FILEPATH",
+          "value": "/usr/bin/gcc-ranlib-13"
+        },
+        "CMAKE_C_FLAGS": {
+          "type": "STRING",
+          "value": ""
+        },
+        "CMAKE_C_FLAGS_DEBUG": {
+          "type": "STRING",
+          "value": "-g"
+        },
+        "CMAKE_C_FLAGS_MINSIZEREL": {
+          "type": "STRING",
+          "value": "-Os -DNDEBUG"
+        },
+        "CMAKE_C_FLAGS_RELEASE": {
+          "type": "STRING",
+          "value": "-O3 -DNDEBUG"
+        },
+        "CMAKE_C_FLAGS_RELWITHDEBINFO": {
+          "type": "STRING",
+          "value": "-O2 -g -DNDEBUG"
+        },
+        "CMAKE_DLLTOOL": {
+          "type": "FILEPATH",
+          "value": "CMAKE_DLLTOOL-NOTFOUND"
+        },
+        "CMAKE_EXE_LINKER_FLAGS": {
+          "type": "STRING",
+          "value": ""
+        },
+        "CMAKE_EXE_LINKER_FLAGS_DEBUG": {
+          "type": "STRING",
+          "value": ""
+        },
+        "CMAKE_EXE_LINKER_FLAGS_MINSIZEREL": {
+          "type": "STRING",
+          "value": ""
+        },
+        "CMAKE_EXE_LINKER_FLAGS_RELEASE": {
+          "type": "STRING",
+          "value": ""
+        },
+        "CMAKE_EXE_LINKER_FLAGS_RELWITHDEBINFO": {
+          "type": "STRING",
+          "value": ""
+        },
+        "CMAKE_EXPORT_BUILD_DATABASE": {
+          "type": "BOOL",
+          "value": ""
+        },
+        "CMAKE_EXPORT_COMPILE_COMMANDS": {
+          "type": "BOOL",
+          "value": ""
+        },
+        "CMAKE_FIND_PACKAGE_REDIRECTS_DIR": {
+          "type": "STATIC",
+          "value": "/tmp/int3-pr2-pr3-clean/Release/CMakeFiles/pkgRedirects"
+        },
+        "CMAKE_INSTALL_BINDIR": {
+          "type": "PATH",
+          "value": "bin"
+        },
+        "CMAKE_INSTALL_CMAKEDIR": {
+          "type": "STRING",
+          "value": "lib/cmake/protobuf"
+        },
+        "CMAKE_INSTALL_DATADIR": {
+          "type": "PATH",
+          "value": ""
+        },
+        "CMAKE_INSTALL_DATAROOTDIR": {
+          "type": "PATH",
+          "value": "share"
+        },
+        "CMAKE_INSTALL_DOCDIR": {
+          "type": "PATH",
+          "value": ""
+        },
+        "CMAKE_INSTALL_EXAMPLEDIR": {
+          "type": "STRING",
+          "value": "share/protobuf/examples"
+        },
+        "CMAKE_INSTALL_INCLUDEDIR": {
+          "type": "PATH",
+          "value": "include"
+        },
+        "CMAKE_INSTALL_INFODIR": {
+          "type": "PATH",
+          "value": ""
+        },
+        "CMAKE_INSTALL_LIBDIR": {
+          "type": "PATH",
+          "value": "lib"
+        },
+        "CMAKE_INSTALL_LIBEXECDIR": {
+          "type": "PATH",
+          "value": "libexec"
+        },
+        "CMAKE_INSTALL_LOCALEDIR": {
+          "type": "PATH",
+          "value": ""
+        },
+        "CMAKE_INSTALL_LOCALSTATEDIR": {
+          "type": "PATH",
+          "value": "var"
+        },
+        "CMAKE_INSTALL_MANDIR": {
+          "type": "PATH",
+          "value": ""
+        },
+        "CMAKE_INSTALL_OLDINCLUDEDIR": {
+          "type": "PATH",
+          "value": "/usr/include"
+        },
+        "CMAKE_INSTALL_PREFIX": {
+          "type": "PATH",
+          "value": "/usr/local"
+        },
+        "CMAKE_INSTALL_RUNSTATEDIR": {
+          "type": "PATH",
+          "value": ""
+        },
+        "CMAKE_INSTALL_SBINDIR": {
+          "type": "PATH",
+          "value": "sbin"
+        },
+        "CMAKE_INSTALL_SHAREDSTATEDIR": {
+          "type": "PATH",
+          "value": "com"
+        },
+        "CMAKE_INSTALL_SYSCONFDIR": {
+          "type": "PATH",
+          "value": "etc"
+        },
+        "CMAKE_LINKER": {
+          "type": "FILEPATH",
+          "value": "/usr/bin/ld"
+        },
+        "CMAKE_MAKE_PROGRAM": {
+          "type": "FILEPATH",
+          "value": "/usr/local/bin/ninja"
+        },
+        "CMAKE_MODULE_LINKER_FLAGS": {
+          "type": "STRING",
+          "value": ""
+        },
+        "CMAKE_MODULE_LINKER_FLAGS_DEBUG": {
+          "type": "STRING",
+          "value": ""
+        },
+        "CMAKE_MODULE_LINKER_FLAGS_MINSIZEREL": {
+          "type": "STRING",
+          "value": ""
+        },
+        "CMAKE_MODULE_LINKER_FLAGS_RELEASE": {
+          "type": "STRING",
+          "value": ""
+        },
+        "CMAKE_MODULE_LINKER_FLAGS_RELWITHDEBINFO": {
+          "type": "STRING",
+          "value": ""
+        },
+        "CMAKE_NM": {
+          "type": "FILEPATH",
+          "value": "/usr/bin/nm"
+        },
+        "CMAKE_OBJCOPY": {
+          "type": "FILEPATH",
+          "value": "/usr/bin/objcopy"
+        },
+        "CMAKE_OBJDUMP": {
+          "type": "FILEPATH",
+          "value": "/usr/bin/objdump"
+        },
+        "CMAKE_POLICY_VERSION_MINIMUM": {
+          "type": "UNINITIALIZED",
+          "value": "3.5"
+        },
+        "CMAKE_PROJECT_COMPAT_VERSION": {
+          "type": "STATIC",
+          "value": ""
+        },
+        "CMAKE_PROJECT_DESCRIPTION": {
+          "type": "STATIC",
+          "value": ""
+        },
+        "CMAKE_PROJECT_HOMEPAGE_URL": {
+          "type": "STATIC",
+          "value": ""
+        },
+        "CMAKE_PROJECT_NAME": {
+          "type": "STATIC",
+          "value": "onnxruntime"
+        },
+        "CMAKE_PROJECT_SPDX_LICENSE": {
+          "type": "STATIC",
+          "value": ""
+        },
+        "CMAKE_PROJECT_VERSION": {
+          "type": "STATIC",
+          "value": "20250814"
+        },
+        "CMAKE_PROJECT_VERSION_MAJOR": {
+          "type": "STATIC",
+          "value": "20250814"
+        },
+        "CMAKE_PROJECT_VERSION_MINOR": {
+          "type": "STATIC",
+          "value": ""
+        },
+        "CMAKE_PROJECT_VERSION_PATCH": {
+          "type": "STATIC",
+          "value": ""
+        },
+        "CMAKE_PROJECT_VERSION_TWEAK": {
+          "type": "STATIC",
+          "value": ""
+        },
+        "CMAKE_RANLIB": {
+          "type": "FILEPATH",
+          "value": "/usr/bin/ranlib"
+        },
+        "CMAKE_READELF": {
+          "type": "FILEPATH",
+          "value": "/usr/bin/readelf"
+        },
+        "CMAKE_SHARED_LINKER_FLAGS": {
+          "type": "STRING",
+          "value": ""
+        },
+        "CMAKE_SHARED_LINKER_FLAGS_DEBUG": {
+          "type": "STRING",
+          "value": ""
+        },
+        "CMAKE_SHARED_LINKER_FLAGS_MINSIZEREL": {
+          "type": "STRING",
+          "value": ""
+        },
+        "CMAKE_SHARED_LINKER_FLAGS_RELEASE": {
+          "type": "STRING",
+          "value": ""
+        },
+        "CMAKE_SHARED_LINKER_FLAGS_RELWITHDEBINFO": {
+          "type": "STRING",
+          "value": ""
+        },
+        "CMAKE_SKIP_INSTALL_RPATH": {
+          "type": "BOOL",
+          "value": "NO"
+        },
+        "CMAKE_SKIP_RPATH": {
+          "type": "BOOL",
+          "value": "NO"
+        },
+        "CMAKE_STATIC_LINKER_FLAGS": {
+          "type": "STRING",
+          "value": ""
+        },
+        "CMAKE_STATIC_LINKER_FLAGS_DEBUG": {
+          "type": "STRING",
+          "value": ""
+        },
+        "CMAKE_STATIC_LINKER_FLAGS_MINSIZEREL": {
+          "type": "STRING",
+          "value": ""
+        },
+        "CMAKE_STATIC_LINKER_FLAGS_RELEASE": {
+          "type": "STRING",
+          "value": ""
+        },
+        "CMAKE_STATIC_LINKER_FLAGS_RELWITHDEBINFO": {
+          "type": "STRING",
+          "value": ""
+        },
+        "CMAKE_STRIP": {
+          "type": "FILEPATH",
+          "value": "/usr/bin/strip"
+        },
+        "CMAKE_TAPI": {
+          "type": "FILEPATH",
+          "value": "CMAKE_TAPI-NOTFOUND"
+        },
+        "CMAKE_VERBOSE_MAKEFILE": {
+          "type": "BOOL",
+          "value": "FALSE"
+        },
+        "FETCHCONTENT_BASE_DIR": {
+          "type": "PATH",
+          "value": "/tmp/int3-pr2-pr3-clean/Release/_deps"
+        },
+        "FETCHCONTENT_FULLY_DISCONNECTED": {
+          "type": "BOOL",
+          "value": "ON"
+        },
+        "FETCHCONTENT_QUIET": {
+          "type": "BOOL",
+          "value": "ON"
+        },
+        "FETCHCONTENT_SOURCE_DIR_ABSEIL_CPP": {
+          "type": "PATH",
+          "value": "/datadisks/disk1/jiafa/accuracy/onnxruntime/build/cuda-wheel-clean-20261002/Release/_deps/abseil_cpp-src"
+        },
+        "FETCHCONTENT_SOURCE_DIR_CPP_CLIENT_TELEMETRY": {
+          "type": "PATH",
+          "value": "/datadisks/disk1/jiafa/accuracy/onnxruntime/build/cuda-wheel-clean-20261002/Release/_deps/cpp_client_telemetry-src"
+        },
+        "FETCHCONTENT_SOURCE_DIR_CUDNN_FRONTEND": {
+          "type": "PATH",
+          "value": "/datadisks/disk1/jiafa/accuracy/onnxruntime/build/cuda-wheel-clean-20261002/Release/_deps/cudnn_frontend-src"
+        },
+        "FETCHCONTENT_SOURCE_DIR_CUTLASS": {
+          "type": "PATH",
+          "value": "/datadisks/disk1/jiafa/accuracy/onnxruntime/build/cuda-wheel-clean-20261002/Release/_deps/cutlass-src"
+        },
+        "FETCHCONTENT_SOURCE_DIR_DATE": {
+          "type": "PATH",
+          "value": "/datadisks/disk1/jiafa/accuracy/onnxruntime/build/cuda-wheel-clean-20261002/Release/_deps/date-src"
+        },
+        "FETCHCONTENT_SOURCE_DIR_DLPACK": {
+          "type": "PATH",
+          "value": "/datadisks/disk1/jiafa/accuracy/onnxruntime/build/cuda-wheel-clean-20261002/Release/_deps/dlpack-src"
+        },
+        "FETCHCONTENT_SOURCE_DIR_EIGEN3": {
+          "type": "PATH",
+          "value": "/datadisks/disk1/jiafa/accuracy/onnxruntime/build/cuda-wheel-clean-20261002/Release/_deps/eigen3-src"
+        },
+        "FETCHCONTENT_SOURCE_DIR_FLATBUFFERS": {
+          "type": "PATH",
+          "value": "/datadisks/disk1/jiafa/accuracy/onnxruntime/build/cuda-wheel-clean-20261002/Release/_deps/flatbuffers-src"
+        },
+        "FETCHCONTENT_SOURCE_DIR_GOOGLETEST": {
+          "type": "PATH",
+          "value": "/datadisks/disk1/jiafa/accuracy/onnxruntime/build/cuda-wheel-clean-20261002/Release/_deps/googletest-src"
+        },
+        "FETCHCONTENT_SOURCE_DIR_GSL": {
+          "type": "PATH",
+          "value": "/datadisks/disk1/jiafa/accuracy/onnxruntime/build/cuda-wheel-clean-20261002/Release/_deps/gsl-src"
+        },
+        "FETCHCONTENT_SOURCE_DIR_MATSDK_CURL": {
+          "type": "PATH",
+          "value": "/datadisks/disk1/jiafa/accuracy/onnxruntime/build/cuda-wheel-clean-20261002/Release/_deps/matsdk_curl-src"
+        },
+        "FETCHCONTENT_SOURCE_DIR_MATSDK_MBEDTLS": {
+          "type": "PATH",
+          "value": "/datadisks/disk1/jiafa/accuracy/onnxruntime/build/cuda-wheel-clean-20261002/Release/_deps/matsdk_mbedtls-src"
+        },
+        "FETCHCONTENT_SOURCE_DIR_MP11": {
+          "type": "PATH",
+          "value": "/datadisks/disk1/jiafa/accuracy/onnxruntime/build/cuda-wheel-clean-20261002/Release/_deps/mp11-src"
+        },
+        "FETCHCONTENT_SOURCE_DIR_NLOHMANN_JSON": {
+          "type": "PATH",
+          "value": "/datadisks/disk1/jiafa/accuracy/onnxruntime/build/cuda-wheel-clean-20261002/Release/_deps/nlohmann_json-src"
+        },
+        "FETCHCONTENT_SOURCE_DIR_ONNX": {
+          "type": "PATH",
+          "value": "/datadisks/disk1/jiafa/accuracy/onnxruntime/cmake/external/onnx"
+        },
+        "FETCHCONTENT_SOURCE_DIR_PROTOBUF": {
+          "type": "PATH",
+          "value": "/datadisks/disk1/jiafa/accuracy/onnxruntime/build/cuda-wheel-clean-20261002/Release/_deps/protobuf-src"
+        },
+        "FETCHCONTENT_SOURCE_DIR_PYBIND11_PROJECT": {
+          "type": "PATH",
+          "value": "/datadisks/disk1/jiafa/accuracy/onnxruntime/build/cuda-wheel-clean-20261002/Release/_deps/pybind11_project-src"
+        },
+        "FETCHCONTENT_SOURCE_DIR_PYTORCH_CPUINFO": {
+          "type": "PATH",
+          "value": "/datadisks/disk1/jiafa/accuracy/onnxruntime/build/cuda-wheel-clean-20261002/Release/_deps/pytorch_cpuinfo-src"
+        },
+        "FETCHCONTENT_SOURCE_DIR_RE2": {
+          "type": "PATH",
+          "value": "/datadisks/disk1/jiafa/accuracy/onnxruntime/build/cuda-wheel-clean-20261002/Release/_deps/re2-src"
+        },
+        "FETCHCONTENT_SOURCE_DIR_SAFEINT": {
+          "type": "PATH",
+          "value": "/datadisks/disk1/jiafa/accuracy/onnxruntime/build/cuda-wheel-clean-20261002/Release/_deps/safeint-src"
+        },
+        "FETCHCONTENT_UPDATES_DISCONNECTED": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_BINARY_DIR": {
+          "type": "STATIC",
+          "value": "/tmp/int3-pr2-pr3-clean/Release"
+        },
+        "onnxruntime_BUILD_APPLE_FRAMEWORK": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_BUILD_BENCHMARKS": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_BUILD_CSHARP": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_BUILD_CUDA_EP_AS_PLUGIN": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_BUILD_CUDA_QUANT_PREPROCESS": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_BUILD_CUDA_TESTS": {
+          "type": "UNINITIALIZED",
+          "value": "ON"
+        },
+        "onnxruntime_BUILD_DAWN_SHARED_LIBRARY": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_BUILD_FOR_NATIVE_MACHINE": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_BUILD_JAVA": {
+          "type": "UNINITIALIZED",
+          "value": "OFF"
+        },
+        "onnxruntime_BUILD_MS_EXPERIMENTAL_OPS": {
+          "type": "UNINITIALIZED",
+          "value": "OFF"
+        },
+        "onnxruntime_BUILD_NODEJS": {
+          "type": "UNINITIALIZED",
+          "value": "OFF"
+        },
+        "onnxruntime_BUILD_OBJC": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_BUILD_OPSCHEMA_LIB": {
+          "type": "BOOL",
+          "value": "ON"
+        },
+        "onnxruntime_BUILD_QNN_EP_STATIC_LIB": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_BUILD_SHARED_LIB": {
+          "type": "BOOL",
+          "value": "ON"
+        },
+        "onnxruntime_BUILD_UNIT_TESTS": {
+          "type": "BOOL",
+          "value": "ON"
+        },
+        "onnxruntime_BUILD_WEBASSEMBLY_STATIC_LIB": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_CLIENT_PACKAGE_BUILD": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_CMAKE_DEPS_MIRROR_DIR": {
+          "type": "PATH",
+          "value": "/datadisks/disk1/jiafa/accuracy/ort-int3-pr2-pr3/cmake/../mirror"
+        },
+        "onnxruntime_CROSS_COMPILING": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_CUDA_FATBIN_COMPRESS_SIZE": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_CUDA_HOME": {
+          "type": "UNINITIALIZED",
+          "value": "/usr/local/cuda"
+        },
+        "onnxruntime_CUDA_MINIMAL": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_CUDNN_HOME": {
+          "type": "UNINITIALIZED",
+          "value": "/usr/local/lib/python3.12/dist-packages/nvidia/cudnn"
+        },
+        "onnxruntime_CUSTOM_DAWN_SRC_PATH": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_DAWN_PREBUILT_DIR": {
+          "type": "PATH",
+          "value": ""
+        },
+        "onnxruntime_DEBUG_NODE_INPUTS_OUTPUTS": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_DISABLE_ABSEIL": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_DISABLE_CONTRIB_OPS": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_DISABLE_DEVICE_DISCOVERY": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_DISABLE_EXTERNAL_INITIALIZERS": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_DISABLE_FLOAT4_TYPES": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_DISABLE_FLOAT8_TYPES": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_DISABLE_GENERATION_OPS": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_DISABLE_ML_OPS": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_DISABLE_OPTIONAL_TYPE": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_DISABLE_SPARSE_TENSORS": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_DISABLE_STREAM": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_DISABLE_STRING_TYPE": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_DONT_VECTORIZE": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_DUMP_TENSOR": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_ENABLE_ATEN": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_ENABLE_BITCODE": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_ENABLE_CONVSYMKERNELAVX2_SAT_CHECKER": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_ENABLE_CPUINFO": {
+          "type": "BOOL",
+          "value": "ON"
+        },
+        "onnxruntime_ENABLE_CPU_FP16_OPS": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_ENABLE_CUDA_EP_INTERNAL_TESTS": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_ENABLE_CUDA_LINE_NUMBER_INFO": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_ENABLE_CUDA_PROFILING": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_ENABLE_D3D12_FILE_LOADING": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_ENABLE_DAWN_BACKEND_D3D12": {
+          "type": "BOOL",
+          "value": "ON"
+        },
+        "onnxruntime_ENABLE_DAWN_BACKEND_VULKAN": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_ENABLE_DLPACK": {
+          "type": "BOOL",
+          "value": "ON"
+        },
+        "onnxruntime_ENABLE_EXTERNAL_CUSTOM_OP_SCHEMAS": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_ENABLE_GQA_VALUE_LAYOUT": {
+          "type": "BOOL",
+          "value": "ON"
+        },
+        "onnxruntime_ENABLE_INSTRUMENT": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_ENABLE_LTO": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_ENABLE_MEMLEAK_CHECKER": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_ENABLE_MEMORY_PROFILE": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_ENABLE_MICROSOFT_INTERNAL": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_ENABLE_NVTX_PROFILE": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_ENABLE_PIX_FOR_WEBGPU_EP": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_ENABLE_PYTHON": {
+          "type": "BOOL",
+          "value": "ON"
+        },
+        "onnxruntime_ENABLE_SESSION_THREADPOOL_CALLBACKS": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_ENABLE_STATIC_ANALYSIS": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_ENABLE_TRAINING": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_ENABLE_TRAINING_APIS": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_ENABLE_TRAINING_E2E_TESTS": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_ENABLE_TRAINING_OPS": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_ENABLE_WEBASSEMBLY_API_EXCEPTION_CATCHING": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_ENABLE_WEBASSEMBLY_DEBUG_INFO": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_ENABLE_WEBASSEMBLY_EXCEPTION_CATCHING": {
+          "type": "BOOL",
+          "value": "ON"
+        },
+        "onnxruntime_ENABLE_WEBASSEMBLY_EXCEPTION_THROWING": {
+          "type": "BOOL",
+          "value": "ON"
+        },
+        "onnxruntime_ENABLE_WEBASSEMBLY_JSPI": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_ENABLE_WEBASSEMBLY_OUTPUT_OPTIMIZED_MODEL": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_ENABLE_WEBASSEMBLY_PROFILING": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_ENABLE_WEBASSEMBLY_RELAXED_SIMD": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_ENABLE_WEBASSEMBLY_THREADS": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_EXTENDED_MINIMAL_BUILD": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_EXTENSIONS_OVERRIDDEN,": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_EXTERNAL_TRANSFORMER_SRC_PATH": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_FLASH_NVCC_THREADS": {
+          "type": "STRING",
+          "value": "4"
+        },
+        "onnxruntime_FORCE_GENERIC_ALGORITHMS": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_FUZZ_TEST": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_GCOV_COVERAGE": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_GENERATE_TEST_REPORTS": {
+          "type": "BOOL",
+          "value": "ON"
+        },
+        "onnxruntime_IS_TOP_LEVEL": {
+          "type": "STATIC",
+          "value": "ON"
+        },
+        "onnxruntime_MATERIALIZE_ONNX_NODE_TESTS": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_MINIMAL_BUILD": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_MINIMAL_BUILD_CUSTOM_OPS": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_NVCC_THREADS": {
+          "type": "STRING",
+          "value": "4"
+        },
+        "onnxruntime_PREBUILT_PYTORCH_PATH": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_QUICK_BUILD": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_REDIRECT_STATIC_ANALYSIS_OUTPUTS_TO_FILE": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_REDUCED_OPS_BUILD": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_RUN_MLAS_TESTS": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_RUN_MODELTEST_IN_DEBUG_MODE": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_RUN_ONNX_TESTS": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_SOURCE_DIR": {
+          "type": "STATIC",
+          "value": "/datadisks/disk1/jiafa/accuracy/ort-int3-pr2-pr3/cmake"
+        },
+        "onnxruntime_TELEMETRY_BACKEND": {
+          "type": "STRING",
+          "value": "1DS"
+        },
+        "onnxruntime_USE_ACL": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_USE_ARM_NEON_NCHWC": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_USE_AVX": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_USE_AVX2": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_USE_AVX512": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_USE_AZURE": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_USE_CANN": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_USE_COREML": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_USE_CUDA": {
+          "type": "BOOL",
+          "value": "ON"
+        },
+        "onnxruntime_USE_CUDA_INTERFACE": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_USE_CUDA_NHWC_OPS": {
+          "type": "BOOL",
+          "value": "ON"
+        },
+        "onnxruntime_USE_CUSTOM_STATIC_ANALYSIS_RULES": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_USE_DML": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_USE_DNNL": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_USE_DX_INTEROP": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_USE_EP_API_ADAPTERS": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_USE_EXTENSIONS": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_USE_EXTERNAL_DAWN": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_USE_FLASH_ATTENTION": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_USE_FP4_QMOE": {
+          "type": "BOOL",
+          "value": "ON"
+        },
+        "onnxruntime_USE_FP8_KV_CACHE": {
+          "type": "BOOL",
+          "value": "ON"
+        },
+        "onnxruntime_USE_FP8_QMOE": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_USE_FPA_INTB_GEMM": {
+          "type": "BOOL",
+          "value": "ON"
+        },
+        "onnxruntime_USE_FPA_INTB_GEMM_FULL": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_USE_FULL_PROTOBUF": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_USE_INT4_KV_CACHE": {
+          "type": "BOOL",
+          "value": "ON"
+        },
+        "onnxruntime_USE_JSEP": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_USE_KLEIDIAI": {
+          "type": "BOOL",
+          "value": "ON"
+        },
+        "onnxruntime_USE_LEAN_ATTENTION": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_USE_LOCK_FREE_QUEUE": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_USE_MEMORY_EFFICIENT_ATTENTION": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_USE_MIGRAPHX": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_USE_MIGRAPHX_INTERFACE": {
+          "type": "UNINITIALIZED",
+          "value": "OFF"
+        },
+        "onnxruntime_USE_NCCL": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_USE_NNAPI_BUILTIN": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_USE_NV": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_USE_NV_INTERFACE": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_USE_OPENVINO": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_USE_OPENVINO_INTERFACE": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_USE_PREINSTALLED_EIGEN": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_USE_QMX_KLEIDIAI_COEXIST": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_USE_QNN": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_USE_QNN_INTERFACE": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_USE_RKNPU": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_USE_RVV": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_USE_RVV_ZVFH": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_USE_SNPE": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_USE_SVE": {
+          "type": "BOOL",
+          "value": "ON"
+        },
+        "onnxruntime_USE_TELEMETRY": {
+          "type": "BOOL",
+          "value": "ON"
+        },
+        "onnxruntime_USE_TENSORRT": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_USE_TENSORRT_BUILTIN_PARSER": {
+          "type": "BOOL",
+          "value": "ON"
+        },
+        "onnxruntime_USE_TENSORRT_INTERFACE": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_USE_TRT_FUSED_ATTENTION": {
+          "type": "BOOL",
+          "value": "ON"
+        },
+        "onnxruntime_USE_VALGRIND": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_USE_VCPKG": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_USE_VITISAI": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_USE_VITISAI_INTERFACE": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_USE_VSINPU": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_USE_WEBGPU": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_USE_WEBNN": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_USE_WINDOWS_TELEMETRY": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_USE_WINML": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_USE_XNNPACK": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_WEBASSEMBLY_RUN_TESTS_IN_BROWSER": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_WEBGPU_STATIC_PLUGIN": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "CMAKE_ASM_COMPILER_WORKS": {
+          "type": "INTERNAL",
+          "value": "1"
+        },
+        "CMAKE_CACHEFILE_DIR": {
+          "type": "INTERNAL",
+          "value": "/tmp/int3-pr2-pr3-clean/Release"
+        },
+        "CMAKE_CACHE_MAJOR_VERSION": {
+          "type": "INTERNAL",
+          "value": "4"
+        },
+        "CMAKE_CACHE_MINOR_VERSION": {
+          "type": "INTERNAL",
+          "value": "3"
+        },
+        "CMAKE_CACHE_PATCH_VERSION": {
+          "type": "INTERNAL",
+          "value": "2"
+        },
+        "CMAKE_COMMAND": {
+          "type": "INTERNAL",
+          "value": "/usr/local/lib/python3.12/dist-packages/cmake/data/bin/cmake"
+        },
+        "CMAKE_CPACK_COMMAND": {
+          "type": "INTERNAL",
+          "value": "/usr/local/lib/python3.12/dist-packages/cmake/data/bin/cpack"
+        },
+        "CMAKE_CTEST_COMMAND": {
+          "type": "INTERNAL",
+          "value": "/usr/local/lib/python3.12/dist-packages/cmake/data/bin/ctest"
+        },
+        "CMAKE_EXECUTABLE_FORMAT": {
+          "type": "INTERNAL",
+          "value": "ELF"
+        },
+        "CMAKE_EXTRA_GENERATOR": {
+          "type": "INTERNAL",
+          "value": ""
+        },
+        "CMAKE_GENERATOR": {
+          "type": "INTERNAL",
+          "value": "Ninja"
+        },
+        "CMAKE_GENERATOR_INSTANCE": {
+          "type": "INTERNAL",
+          "value": ""
+        },
+        "CMAKE_GENERATOR_PLATFORM": {
+          "type": "INTERNAL",
+          "value": ""
+        },
+        "CMAKE_GENERATOR_TOOLSET": {
+          "type": "INTERNAL",
+          "value": ""
+        },
+        "CMAKE_HAVE_LIBC_PTHREAD": {
+          "type": "INTERNAL",
+          "value": "1"
+        },
+        "CMAKE_HOME_DIRECTORY": {
+          "type": "INTERNAL",
+          "value": "/datadisks/disk1/jiafa/accuracy/ort-int3-pr2-pr3/cmake"
+        },
+        "CMAKE_INSTALL_SO_NO_EXE": {
+          "type": "INTERNAL",
+          "value": "1"
+        },
+        "CMAKE_LIST_FILE_NAME": {
+          "type": "INTERNAL",
+          "value": "CMakeLists.txt"
+        },
+        "CMAKE_NUMBER_OF_MAKEFILES": {
+          "type": "INTERNAL",
+          "value": "84"
+        },
+        "CMAKE_PLATFORM_INFO_INITIALIZED": {
+          "type": "INTERNAL",
+          "value": "1"
+        },
+        "CMAKE_ROOT": {
+          "type": "INTERNAL",
+          "value": "/usr/local/lib/python3.12/dist-packages/cmake/data/share/cmake-4.3"
+        },
+        "CMAKE_UNAME": {
+          "type": "INTERNAL",
+          "value": "/usr/bin/uname"
+        },
+        "onnxruntime_DISABLE_EXCEPTIONS": {
+          "type": "INTERNAL",
+          "value": "OFF"
+        },
+        "onnxruntime_DISABLE_RTTI": {
+          "type": "INTERNAL",
+          "value": "OFF"
+        },
+        "onnxruntime_ENABLE_LAZY_TENSOR": {
+          "type": "INTERNAL",
+          "value": "OFF"
+        },
+        "onnxruntime_HAVE_BUILTIN_ATOMICS": {
+          "type": "INTERNAL",
+          "value": "1"
+        },
+        "onnxruntime_TELEMETRY_BACKEND-STRINGS": {
+          "type": "INTERNAL",
+          "value": "AUTO;1DS;WINDOWS"
+        },
+        "onnxruntime_USE_MIMALLOC": {
+          "type": "INTERNAL",
+          "value": "OFF"
+        }
+      },
+      "configured_cache_sha256": "b0ceb116a0cff092f32ef15b35ffa0d6e91509a486ef832dfcf8e3dc5fd42743",
+      "loaded_binary_hashes": [
+        {
+          "path": "/tmp/int3-pr2-pr3-clean/Release/libonnxruntime.so.1.32.0",
+          "bytes": 38015648,
+          "sha256": "0245ffe01175114196f6ef821a75b9c424426b484acb8fdfd803c9f9c46deee6"
+        },
+        {
+          "path": "/tmp/int3-pr2-pr3-clean/Release/libonnxruntime_providers_cuda.so",
+          "bytes": 112520728,
+          "sha256": "19c411dd0e5d6b2050698bb9ceebbc4c7b7670d0d8e2ce792aa863f7b7c2f430"
+        },
+        {
+          "path": "/tmp/int3-pr2-pr3-clean/Release/libonnxruntime_providers_shared.so",
+          "bytes": 15384,
+          "sha256": "17f7cf47ad0d7b5ac895ae588fd62c7f85a13842588161b6a24c7d480f062be4"
+        },
+        {
+          "path": "/tmp/int3-pr2-pr3-clean/Release/onnxruntime_pybind11_state.so",
+          "bytes": 40863296,
+          "sha256": "57c9d9fa0cb4f0fc1c57a84dedcb2e6f667f04388ddd11662c8ea7d9cbd6c3cf"
+        }
+      ],
+      "evidence_directory": "results/build-logs/pr33555"
+    },
+    "33569": {
+      "source_sha": "4ba6c38384cf5b12d4aa4570cd15af2461c4d515",
+      "provenance": {
+        "pinned_head": "4ba6c38384cf5b12d4aa4570cd15af2461c4d515",
+        "reference_head": "d75ac16f377c0c783d289046f5cf2efe6bb5f9bc",
+        "onnx_source": "/datadisks/disk1/jiafa/accuracy/onnxruntime/cmake/external/onnx",
+        "onnx_head": "ee3ccbd2b2344299d3a4506c2954a47b2181a485",
+        "onnx_worktree_clean": true,
+        "pinned_worktree_clean": true,
+        "model_benchmark_run": false,
+        "cuda_validation": "single float OrtValue allocation and host round-trip only",
+        "standalone_cuda_dlopen": "SIGSEGV; supported ORT bridge allocation passes",
+        "python_package": "staged source package, not installed wheel; build_and_package_info metadata absent"
+      },
+      "effective_cache_settings": {
+        "CMAKE_ADDR2LINE": {
+          "type": "FILEPATH",
+          "value": "/usr/bin/addr2line"
+        },
+        "CMAKE_AR": {
+          "type": "FILEPATH",
+          "value": "/usr/bin/ar"
+        },
+        "CMAKE_ASM_COMPILER": {
+          "type": "FILEPATH",
+          "value": "/usr/bin/cc"
+        },
+        "CMAKE_ASM_COMPILER_AR": {
+          "type": "FILEPATH",
+          "value": "/usr/bin/gcc-ar"
+        },
+        "CMAKE_ASM_COMPILER_RANLIB": {
+          "type": "FILEPATH",
+          "value": "/usr/bin/gcc-ranlib"
+        },
+        "CMAKE_ASM_FLAGS": {
+          "type": "STRING",
+          "value": ""
+        },
+        "CMAKE_ASM_FLAGS_DEBUG": {
+          "type": "STRING",
+          "value": "-g"
+        },
+        "CMAKE_ASM_FLAGS_MINSIZEREL": {
+          "type": "STRING",
+          "value": "-Os -DNDEBUG"
+        },
+        "CMAKE_ASM_FLAGS_RELEASE": {
+          "type": "STRING",
+          "value": "-O3 -DNDEBUG"
+        },
+        "CMAKE_ASM_FLAGS_RELWITHDEBINFO": {
+          "type": "STRING",
+          "value": "-O2 -g -DNDEBUG"
+        },
+        "CMAKE_BUILD_CMAKEDIR": {
+          "type": "STRING",
+          "value": "/tmp/int3-pr33569-compare/Release/_deps/protobuf-build/cmake/protobuf"
+        },
+        "CMAKE_BUILD_TYPE": {
+          "type": "STRING",
+          "value": "Release"
+        },
+        "CMAKE_CUDA_ARCHITECTURES": {
+          "type": "UNINITIALIZED",
+          "value": "80"
+        },
+        "CMAKE_CUDA_COMPILER": {
+          "type": "STRING",
+          "value": "/usr/local/cuda/bin/nvcc"
+        },
+        "CMAKE_CUDA_FLAGS": {
+          "type": "STRING",
+          "value": ""
+        },
+        "CMAKE_CUDA_FLAGS_DEBUG": {
+          "type": "STRING",
+          "value": "-g"
+        },
+        "CMAKE_CUDA_FLAGS_MINSIZEREL": {
+          "type": "STRING",
+          "value": "-O1 -DNDEBUG"
+        },
+        "CMAKE_CUDA_FLAGS_RELEASE": {
+          "type": "STRING",
+          "value": "-O3 -DNDEBUG"
+        },
+        "CMAKE_CUDA_FLAGS_RELWITHDEBINFO": {
+          "type": "STRING",
+          "value": "-O2 -g -DNDEBUG"
+        },
+        "CMAKE_CXX_COMPILER": {
+          "type": "STRING",
+          "value": "/usr/bin/c++"
+        },
+        "CMAKE_CXX_COMPILER_AR": {
+          "type": "FILEPATH",
+          "value": "/usr/bin/gcc-ar-13"
+        },
+        "CMAKE_CXX_COMPILER_RANLIB": {
+          "type": "FILEPATH",
+          "value": "/usr/bin/gcc-ranlib-13"
+        },
+        "CMAKE_CXX_FLAGS": {
+          "type": "STRING",
+          "value": ""
+        },
+        "CMAKE_CXX_FLAGS_DEBUG": {
+          "type": "STRING",
+          "value": "-g"
+        },
+        "CMAKE_CXX_FLAGS_MINSIZEREL": {
+          "type": "STRING",
+          "value": "-Os -DNDEBUG"
+        },
+        "CMAKE_CXX_FLAGS_RELEASE": {
+          "type": "STRING",
+          "value": "-O3 -DNDEBUG"
+        },
+        "CMAKE_CXX_FLAGS_RELWITHDEBINFO": {
+          "type": "STRING",
+          "value": "-O2 -g -DNDEBUG"
+        },
+        "CMAKE_C_COMPILER": {
+          "type": "STRING",
+          "value": "/usr/bin/cc"
+        },
+        "CMAKE_C_COMPILER_AR": {
+          "type": "FILEPATH",
+          "value": "/usr/bin/gcc-ar-13"
+        },
+        "CMAKE_C_COMPILER_RANLIB": {
+          "type": "FILEPATH",
+          "value": "/usr/bin/gcc-ranlib-13"
+        },
+        "CMAKE_C_FLAGS": {
+          "type": "STRING",
+          "value": ""
+        },
+        "CMAKE_C_FLAGS_DEBUG": {
+          "type": "STRING",
+          "value": "-g"
+        },
+        "CMAKE_C_FLAGS_MINSIZEREL": {
+          "type": "STRING",
+          "value": "-Os -DNDEBUG"
+        },
+        "CMAKE_C_FLAGS_RELEASE": {
+          "type": "STRING",
+          "value": "-O3 -DNDEBUG"
+        },
+        "CMAKE_C_FLAGS_RELWITHDEBINFO": {
+          "type": "STRING",
+          "value": "-O2 -g -DNDEBUG"
+        },
+        "CMAKE_DLLTOOL": {
+          "type": "FILEPATH",
+          "value": "CMAKE_DLLTOOL-NOTFOUND"
+        },
+        "CMAKE_EXE_LINKER_FLAGS": {
+          "type": "STRING",
+          "value": ""
+        },
+        "CMAKE_EXE_LINKER_FLAGS_DEBUG": {
+          "type": "STRING",
+          "value": ""
+        },
+        "CMAKE_EXE_LINKER_FLAGS_MINSIZEREL": {
+          "type": "STRING",
+          "value": ""
+        },
+        "CMAKE_EXE_LINKER_FLAGS_RELEASE": {
+          "type": "STRING",
+          "value": ""
+        },
+        "CMAKE_EXE_LINKER_FLAGS_RELWITHDEBINFO": {
+          "type": "STRING",
+          "value": ""
+        },
+        "CMAKE_EXPORT_BUILD_DATABASE": {
+          "type": "BOOL",
+          "value": ""
+        },
+        "CMAKE_EXPORT_COMPILE_COMMANDS": {
+          "type": "BOOL",
+          "value": ""
+        },
+        "CMAKE_FIND_PACKAGE_REDIRECTS_DIR": {
+          "type": "STATIC",
+          "value": "/tmp/int3-pr33569-compare/Release/CMakeFiles/pkgRedirects"
+        },
+        "CMAKE_INSTALL_BINDIR": {
+          "type": "PATH",
+          "value": "bin"
+        },
+        "CMAKE_INSTALL_CMAKEDIR": {
+          "type": "STRING",
+          "value": "lib/cmake/protobuf"
+        },
+        "CMAKE_INSTALL_DATADIR": {
+          "type": "PATH",
+          "value": ""
+        },
+        "CMAKE_INSTALL_DATAROOTDIR": {
+          "type": "PATH",
+          "value": "share"
+        },
+        "CMAKE_INSTALL_DOCDIR": {
+          "type": "PATH",
+          "value": ""
+        },
+        "CMAKE_INSTALL_EXAMPLEDIR": {
+          "type": "STRING",
+          "value": "share/protobuf/examples"
+        },
+        "CMAKE_INSTALL_INCLUDEDIR": {
+          "type": "PATH",
+          "value": "include"
+        },
+        "CMAKE_INSTALL_INFODIR": {
+          "type": "PATH",
+          "value": ""
+        },
+        "CMAKE_INSTALL_LIBDIR": {
+          "type": "PATH",
+          "value": "lib"
+        },
+        "CMAKE_INSTALL_LIBEXECDIR": {
+          "type": "PATH",
+          "value": "libexec"
+        },
+        "CMAKE_INSTALL_LOCALEDIR": {
+          "type": "PATH",
+          "value": ""
+        },
+        "CMAKE_INSTALL_LOCALSTATEDIR": {
+          "type": "PATH",
+          "value": "var"
+        },
+        "CMAKE_INSTALL_MANDIR": {
+          "type": "PATH",
+          "value": ""
+        },
+        "CMAKE_INSTALL_OLDINCLUDEDIR": {
+          "type": "PATH",
+          "value": "/usr/include"
+        },
+        "CMAKE_INSTALL_PREFIX": {
+          "type": "PATH",
+          "value": "/usr/local"
+        },
+        "CMAKE_INSTALL_RUNSTATEDIR": {
+          "type": "PATH",
+          "value": ""
+        },
+        "CMAKE_INSTALL_SBINDIR": {
+          "type": "PATH",
+          "value": "sbin"
+        },
+        "CMAKE_INSTALL_SHAREDSTATEDIR": {
+          "type": "PATH",
+          "value": "com"
+        },
+        "CMAKE_INSTALL_SYSCONFDIR": {
+          "type": "PATH",
+          "value": "etc"
+        },
+        "CMAKE_LINKER": {
+          "type": "FILEPATH",
+          "value": "/usr/bin/ld"
+        },
+        "CMAKE_MAKE_PROGRAM": {
+          "type": "FILEPATH",
+          "value": "/usr/local/bin/ninja"
+        },
+        "CMAKE_MODULE_LINKER_FLAGS": {
+          "type": "STRING",
+          "value": ""
+        },
+        "CMAKE_MODULE_LINKER_FLAGS_DEBUG": {
+          "type": "STRING",
+          "value": ""
+        },
+        "CMAKE_MODULE_LINKER_FLAGS_MINSIZEREL": {
+          "type": "STRING",
+          "value": ""
+        },
+        "CMAKE_MODULE_LINKER_FLAGS_RELEASE": {
+          "type": "STRING",
+          "value": ""
+        },
+        "CMAKE_MODULE_LINKER_FLAGS_RELWITHDEBINFO": {
+          "type": "STRING",
+          "value": ""
+        },
+        "CMAKE_NM": {
+          "type": "FILEPATH",
+          "value": "/usr/bin/nm"
+        },
+        "CMAKE_OBJCOPY": {
+          "type": "FILEPATH",
+          "value": "/usr/bin/objcopy"
+        },
+        "CMAKE_OBJDUMP": {
+          "type": "FILEPATH",
+          "value": "/usr/bin/objdump"
+        },
+        "CMAKE_PROJECT_COMPAT_VERSION": {
+          "type": "STATIC",
+          "value": ""
+        },
+        "CMAKE_PROJECT_DESCRIPTION": {
+          "type": "STATIC",
+          "value": ""
+        },
+        "CMAKE_PROJECT_HOMEPAGE_URL": {
+          "type": "STATIC",
+          "value": ""
+        },
+        "CMAKE_PROJECT_NAME": {
+          "type": "STATIC",
+          "value": "onnxruntime"
+        },
+        "CMAKE_PROJECT_SPDX_LICENSE": {
+          "type": "STATIC",
+          "value": ""
+        },
+        "CMAKE_PROJECT_VERSION": {
+          "type": "STATIC",
+          "value": "20250814"
+        },
+        "CMAKE_PROJECT_VERSION_MAJOR": {
+          "type": "STATIC",
+          "value": "20250814"
+        },
+        "CMAKE_PROJECT_VERSION_MINOR": {
+          "type": "STATIC",
+          "value": ""
+        },
+        "CMAKE_PROJECT_VERSION_PATCH": {
+          "type": "STATIC",
+          "value": ""
+        },
+        "CMAKE_PROJECT_VERSION_TWEAK": {
+          "type": "STATIC",
+          "value": ""
+        },
+        "CMAKE_RANLIB": {
+          "type": "FILEPATH",
+          "value": "/usr/bin/ranlib"
+        },
+        "CMAKE_READELF": {
+          "type": "FILEPATH",
+          "value": "/usr/bin/readelf"
+        },
+        "CMAKE_SHARED_LINKER_FLAGS": {
+          "type": "STRING",
+          "value": ""
+        },
+        "CMAKE_SHARED_LINKER_FLAGS_DEBUG": {
+          "type": "STRING",
+          "value": ""
+        },
+        "CMAKE_SHARED_LINKER_FLAGS_MINSIZEREL": {
+          "type": "STRING",
+          "value": ""
+        },
+        "CMAKE_SHARED_LINKER_FLAGS_RELEASE": {
+          "type": "STRING",
+          "value": ""
+        },
+        "CMAKE_SHARED_LINKER_FLAGS_RELWITHDEBINFO": {
+          "type": "STRING",
+          "value": ""
+        },
+        "CMAKE_SKIP_INSTALL_RPATH": {
+          "type": "BOOL",
+          "value": "NO"
+        },
+        "CMAKE_SKIP_RPATH": {
+          "type": "BOOL",
+          "value": "NO"
+        },
+        "CMAKE_STATIC_LINKER_FLAGS": {
+          "type": "STRING",
+          "value": ""
+        },
+        "CMAKE_STATIC_LINKER_FLAGS_DEBUG": {
+          "type": "STRING",
+          "value": ""
+        },
+        "CMAKE_STATIC_LINKER_FLAGS_MINSIZEREL": {
+          "type": "STRING",
+          "value": ""
+        },
+        "CMAKE_STATIC_LINKER_FLAGS_RELEASE": {
+          "type": "STRING",
+          "value": ""
+        },
+        "CMAKE_STATIC_LINKER_FLAGS_RELWITHDEBINFO": {
+          "type": "STRING",
+          "value": ""
+        },
+        "CMAKE_STRIP": {
+          "type": "FILEPATH",
+          "value": "/usr/bin/strip"
+        },
+        "CMAKE_TAPI": {
+          "type": "FILEPATH",
+          "value": "CMAKE_TAPI-NOTFOUND"
+        },
+        "CMAKE_VERBOSE_MAKEFILE": {
+          "type": "BOOL",
+          "value": "FALSE"
+        },
+        "FETCHCONTENT_BASE_DIR": {
+          "type": "PATH",
+          "value": "/tmp/int3-pr33569-compare/Release/_deps"
+        },
+        "FETCHCONTENT_FULLY_DISCONNECTED": {
+          "type": "BOOL",
+          "value": "ON"
+        },
+        "FETCHCONTENT_QUIET": {
+          "type": "BOOL",
+          "value": "ON"
+        },
+        "FETCHCONTENT_SOURCE_DIR_ABSEIL_CPP": {
+          "type": "PATH",
+          "value": "/datadisks/disk1/jiafa/accuracy/onnxruntime/build/cuda-wheel-clean-20261002/Release/_deps/abseil_cpp-src"
+        },
+        "FETCHCONTENT_SOURCE_DIR_CPP_CLIENT_TELEMETRY": {
+          "type": "PATH",
+          "value": "/datadisks/disk1/jiafa/accuracy/onnxruntime/build/cuda-wheel-clean-20261002/Release/_deps/cpp_client_telemetry-src"
+        },
+        "FETCHCONTENT_SOURCE_DIR_CUDNN_FRONTEND": {
+          "type": "PATH",
+          "value": "/datadisks/disk1/jiafa/accuracy/onnxruntime/build/cuda-wheel-clean-20261002/Release/_deps/cudnn_frontend-src"
+        },
+        "FETCHCONTENT_SOURCE_DIR_CUTLASS": {
+          "type": "PATH",
+          "value": "/datadisks/disk1/jiafa/accuracy/onnxruntime/build/cuda-wheel-clean-20261002/Release/_deps/cutlass-src"
+        },
+        "FETCHCONTENT_SOURCE_DIR_DATE": {
+          "type": "PATH",
+          "value": "/datadisks/disk1/jiafa/accuracy/onnxruntime/build/cuda-wheel-clean-20261002/Release/_deps/date-src"
+        },
+        "FETCHCONTENT_SOURCE_DIR_DLPACK": {
+          "type": "PATH",
+          "value": "/datadisks/disk1/jiafa/accuracy/onnxruntime/build/cuda-wheel-clean-20261002/Release/_deps/dlpack-src"
+        },
+        "FETCHCONTENT_SOURCE_DIR_EIGEN3": {
+          "type": "PATH",
+          "value": "/datadisks/disk1/jiafa/accuracy/onnxruntime/build/cuda-wheel-clean-20261002/Release/_deps/eigen3-src"
+        },
+        "FETCHCONTENT_SOURCE_DIR_FLATBUFFERS": {
+          "type": "PATH",
+          "value": "/datadisks/disk1/jiafa/accuracy/onnxruntime/build/cuda-wheel-clean-20261002/Release/_deps/flatbuffers-src"
+        },
+        "FETCHCONTENT_SOURCE_DIR_GOOGLETEST": {
+          "type": "PATH",
+          "value": "/datadisks/disk1/jiafa/accuracy/onnxruntime/build/cuda-wheel-clean-20261002/Release/_deps/googletest-src"
+        },
+        "FETCHCONTENT_SOURCE_DIR_GSL": {
+          "type": "PATH",
+          "value": "/datadisks/disk1/jiafa/accuracy/onnxruntime/build/cuda-wheel-clean-20261002/Release/_deps/gsl-src"
+        },
+        "FETCHCONTENT_SOURCE_DIR_MATSDK_CURL": {
+          "type": "PATH",
+          "value": "/datadisks/disk1/jiafa/accuracy/onnxruntime/build/cuda-wheel-clean-20261002/Release/_deps/matsdk_curl-src"
+        },
+        "FETCHCONTENT_SOURCE_DIR_MATSDK_MBEDTLS": {
+          "type": "PATH",
+          "value": "/datadisks/disk1/jiafa/accuracy/onnxruntime/build/cuda-wheel-clean-20261002/Release/_deps/matsdk_mbedtls-src"
+        },
+        "FETCHCONTENT_SOURCE_DIR_MP11": {
+          "type": "PATH",
+          "value": "/datadisks/disk1/jiafa/accuracy/onnxruntime/build/cuda-wheel-clean-20261002/Release/_deps/mp11-src"
+        },
+        "FETCHCONTENT_SOURCE_DIR_NLOHMANN_JSON": {
+          "type": "PATH",
+          "value": "/datadisks/disk1/jiafa/accuracy/onnxruntime/build/cuda-wheel-clean-20261002/Release/_deps/nlohmann_json-src"
+        },
+        "FETCHCONTENT_SOURCE_DIR_ONNX": {
+          "type": "PATH",
+          "value": "/datadisks/disk1/jiafa/accuracy/onnxruntime/cmake/external/onnx"
+        },
+        "FETCHCONTENT_SOURCE_DIR_PROTOBUF": {
+          "type": "PATH",
+          "value": "/datadisks/disk1/jiafa/accuracy/onnxruntime/build/cuda-wheel-clean-20261002/Release/_deps/protobuf-src"
+        },
+        "FETCHCONTENT_SOURCE_DIR_PYBIND11_PROJECT": {
+          "type": "PATH",
+          "value": "/datadisks/disk1/jiafa/accuracy/onnxruntime/build/cuda-wheel-clean-20261002/Release/_deps/pybind11_project-src"
+        },
+        "FETCHCONTENT_SOURCE_DIR_PYTORCH_CPUINFO": {
+          "type": "PATH",
+          "value": "/datadisks/disk1/jiafa/accuracy/onnxruntime/build/cuda-wheel-clean-20261002/Release/_deps/pytorch_cpuinfo-src"
+        },
+        "FETCHCONTENT_SOURCE_DIR_RE2": {
+          "type": "PATH",
+          "value": "/datadisks/disk1/jiafa/accuracy/onnxruntime/build/cuda-wheel-clean-20261002/Release/_deps/re2-src"
+        },
+        "FETCHCONTENT_SOURCE_DIR_SAFEINT": {
+          "type": "PATH",
+          "value": "/datadisks/disk1/jiafa/accuracy/onnxruntime/build/cuda-wheel-clean-20261002/Release/_deps/safeint-src"
+        },
+        "FETCHCONTENT_UPDATES_DISCONNECTED": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_BINARY_DIR": {
+          "type": "STATIC",
+          "value": "/tmp/int3-pr33569-compare/Release"
+        },
+        "onnxruntime_BUILD_APPLE_FRAMEWORK": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_BUILD_BENCHMARKS": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_BUILD_CSHARP": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_BUILD_CUDA_EP_AS_PLUGIN": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_BUILD_CUDA_QUANT_PREPROCESS": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_BUILD_CUDA_TESTS": {
+          "type": "UNINITIALIZED",
+          "value": "ON"
+        },
+        "onnxruntime_BUILD_DAWN_SHARED_LIBRARY": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_BUILD_FOR_NATIVE_MACHINE": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_BUILD_JAVA": {
+          "type": "UNINITIALIZED",
+          "value": "OFF"
+        },
+        "onnxruntime_BUILD_MS_EXPERIMENTAL_OPS": {
+          "type": "UNINITIALIZED",
+          "value": "OFF"
+        },
+        "onnxruntime_BUILD_NODEJS": {
+          "type": "UNINITIALIZED",
+          "value": "OFF"
+        },
+        "onnxruntime_BUILD_OBJC": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_BUILD_OPSCHEMA_LIB": {
+          "type": "BOOL",
+          "value": "ON"
+        },
+        "onnxruntime_BUILD_QNN_EP_STATIC_LIB": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_BUILD_SHARED_LIB": {
+          "type": "BOOL",
+          "value": "ON"
+        },
+        "onnxruntime_BUILD_UNIT_TESTS": {
+          "type": "BOOL",
+          "value": "ON"
+        },
+        "onnxruntime_BUILD_WEBASSEMBLY_STATIC_LIB": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_CLIENT_PACKAGE_BUILD": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_CMAKE_DEPS_MIRROR_DIR": {
+          "type": "PATH",
+          "value": "/datadisks/disk1/jiafa/accuracy/ort-int3-pr33569-compare/cmake/../mirror"
+        },
+        "onnxruntime_CROSS_COMPILING": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_CUDA_FATBIN_COMPRESS_SIZE": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_CUDA_HOME": {
+          "type": "UNINITIALIZED",
+          "value": "/usr/local/cuda"
+        },
+        "onnxruntime_CUDA_MINIMAL": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_CUDNN_HOME": {
+          "type": "UNINITIALIZED",
+          "value": "/usr/local/lib/python3.12/dist-packages/nvidia/cudnn"
+        },
+        "onnxruntime_CUSTOM_DAWN_SRC_PATH": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_DAWN_PREBUILT_DIR": {
+          "type": "PATH",
+          "value": ""
+        },
+        "onnxruntime_DEBUG_NODE_INPUTS_OUTPUTS": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_DISABLE_ABSEIL": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_DISABLE_CONTRIB_OPS": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_DISABLE_DEVICE_DISCOVERY": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_DISABLE_EXTERNAL_INITIALIZERS": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_DISABLE_FLOAT4_TYPES": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_DISABLE_FLOAT8_TYPES": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_DISABLE_GENERATION_OPS": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_DISABLE_ML_OPS": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_DISABLE_OPTIONAL_TYPE": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_DISABLE_SPARSE_TENSORS": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_DISABLE_STREAM": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_DISABLE_STRING_TYPE": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_DONT_VECTORIZE": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_DUMP_TENSOR": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_ENABLE_ATEN": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_ENABLE_BITCODE": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_ENABLE_CONVSYMKERNELAVX2_SAT_CHECKER": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_ENABLE_CPUINFO": {
+          "type": "BOOL",
+          "value": "ON"
+        },
+        "onnxruntime_ENABLE_CPU_FP16_OPS": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_ENABLE_CUDA_EP_INTERNAL_TESTS": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_ENABLE_CUDA_LINE_NUMBER_INFO": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_ENABLE_CUDA_PROFILING": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_ENABLE_D3D12_FILE_LOADING": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_ENABLE_DAWN_BACKEND_D3D12": {
+          "type": "BOOL",
+          "value": "ON"
+        },
+        "onnxruntime_ENABLE_DAWN_BACKEND_VULKAN": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_ENABLE_DLPACK": {
+          "type": "BOOL",
+          "value": "ON"
+        },
+        "onnxruntime_ENABLE_EXTERNAL_CUSTOM_OP_SCHEMAS": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_ENABLE_GQA_VALUE_LAYOUT": {
+          "type": "BOOL",
+          "value": "ON"
+        },
+        "onnxruntime_ENABLE_INSTRUMENT": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_ENABLE_LTO": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_ENABLE_MEMLEAK_CHECKER": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_ENABLE_MEMORY_PROFILE": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_ENABLE_MICROSOFT_INTERNAL": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_ENABLE_NVTX_PROFILE": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_ENABLE_PIX_FOR_WEBGPU_EP": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_ENABLE_PYTHON": {
+          "type": "BOOL",
+          "value": "ON"
+        },
+        "onnxruntime_ENABLE_SESSION_THREADPOOL_CALLBACKS": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_ENABLE_STATIC_ANALYSIS": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_ENABLE_TRAINING": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_ENABLE_TRAINING_APIS": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_ENABLE_TRAINING_E2E_TESTS": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_ENABLE_TRAINING_OPS": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_ENABLE_WEBASSEMBLY_API_EXCEPTION_CATCHING": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_ENABLE_WEBASSEMBLY_DEBUG_INFO": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_ENABLE_WEBASSEMBLY_EXCEPTION_CATCHING": {
+          "type": "BOOL",
+          "value": "ON"
+        },
+        "onnxruntime_ENABLE_WEBASSEMBLY_EXCEPTION_THROWING": {
+          "type": "BOOL",
+          "value": "ON"
+        },
+        "onnxruntime_ENABLE_WEBASSEMBLY_JSPI": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_ENABLE_WEBASSEMBLY_OUTPUT_OPTIMIZED_MODEL": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_ENABLE_WEBASSEMBLY_PROFILING": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_ENABLE_WEBASSEMBLY_RELAXED_SIMD": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_ENABLE_WEBASSEMBLY_THREADS": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_EXTENDED_MINIMAL_BUILD": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_EXTENSIONS_OVERRIDDEN,": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_EXTERNAL_TRANSFORMER_SRC_PATH": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_FLASH_NVCC_THREADS": {
+          "type": "STRING",
+          "value": "4"
+        },
+        "onnxruntime_FORCE_GENERIC_ALGORITHMS": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_FUZZ_TEST": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_GCOV_COVERAGE": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_GENERATE_TEST_REPORTS": {
+          "type": "BOOL",
+          "value": "ON"
+        },
+        "onnxruntime_IS_TOP_LEVEL": {
+          "type": "STATIC",
+          "value": "ON"
+        },
+        "onnxruntime_MATERIALIZE_ONNX_NODE_TESTS": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_MINIMAL_BUILD": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_MINIMAL_BUILD_CUSTOM_OPS": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_NVCC_THREADS": {
+          "type": "STRING",
+          "value": "4"
+        },
+        "onnxruntime_PREBUILT_PYTORCH_PATH": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_QUICK_BUILD": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_REDIRECT_STATIC_ANALYSIS_OUTPUTS_TO_FILE": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_REDUCED_OPS_BUILD": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_RUN_MLAS_TESTS": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_RUN_MODELTEST_IN_DEBUG_MODE": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_RUN_ONNX_TESTS": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_SOURCE_DIR": {
+          "type": "STATIC",
+          "value": "/datadisks/disk1/jiafa/accuracy/ort-int3-pr33569-compare/cmake"
+        },
+        "onnxruntime_TELEMETRY_BACKEND": {
+          "type": "STRING",
+          "value": "1DS"
+        },
+        "onnxruntime_USE_ACL": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_USE_ARM_NEON_NCHWC": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_USE_AVX": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_USE_AVX2": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_USE_AVX512": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_USE_AZURE": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_USE_CANN": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_USE_COREML": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_USE_CUDA": {
+          "type": "BOOL",
+          "value": "ON"
+        },
+        "onnxruntime_USE_CUDA_INTERFACE": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_USE_CUDA_NHWC_OPS": {
+          "type": "BOOL",
+          "value": "ON"
+        },
+        "onnxruntime_USE_CUSTOM_STATIC_ANALYSIS_RULES": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_USE_DML": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_USE_DNNL": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_USE_DX_INTEROP": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_USE_EP_API_ADAPTERS": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_USE_EXTENSIONS": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_USE_EXTERNAL_DAWN": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_USE_FLASH_ATTENTION": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_USE_FP4_QMOE": {
+          "type": "BOOL",
+          "value": "ON"
+        },
+        "onnxruntime_USE_FP8_KV_CACHE": {
+          "type": "BOOL",
+          "value": "ON"
+        },
+        "onnxruntime_USE_FP8_QMOE": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_USE_FPA_INTB_GEMM": {
+          "type": "BOOL",
+          "value": "ON"
+        },
+        "onnxruntime_USE_FPA_INTB_GEMM_FULL": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_USE_FULL_PROTOBUF": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_USE_INT4_KV_CACHE": {
+          "type": "BOOL",
+          "value": "ON"
+        },
+        "onnxruntime_USE_JSEP": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_USE_KLEIDIAI": {
+          "type": "BOOL",
+          "value": "ON"
+        },
+        "onnxruntime_USE_LEAN_ATTENTION": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_USE_LOCK_FREE_QUEUE": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_USE_MEMORY_EFFICIENT_ATTENTION": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_USE_MIGRAPHX": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_USE_MIGRAPHX_INTERFACE": {
+          "type": "UNINITIALIZED",
+          "value": "OFF"
+        },
+        "onnxruntime_USE_NCCL": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_USE_NNAPI_BUILTIN": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_USE_NV": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_USE_NV_INTERFACE": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_USE_OPENVINO": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_USE_OPENVINO_INTERFACE": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_USE_PREINSTALLED_EIGEN": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_USE_QMX_KLEIDIAI_COEXIST": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_USE_QNN": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_USE_QNN_INTERFACE": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_USE_RKNPU": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_USE_RVV": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_USE_RVV_ZVFH": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_USE_SNPE": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_USE_SVE": {
+          "type": "BOOL",
+          "value": "ON"
+        },
+        "onnxruntime_USE_TELEMETRY": {
+          "type": "BOOL",
+          "value": "ON"
+        },
+        "onnxruntime_USE_TENSORRT": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_USE_TENSORRT_BUILTIN_PARSER": {
+          "type": "BOOL",
+          "value": "ON"
+        },
+        "onnxruntime_USE_TENSORRT_INTERFACE": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_USE_TRT_FUSED_ATTENTION": {
+          "type": "BOOL",
+          "value": "ON"
+        },
+        "onnxruntime_USE_VALGRIND": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_USE_VCPKG": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_USE_VITISAI": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_USE_VITISAI_INTERFACE": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_USE_VSINPU": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_USE_WEBGPU": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_USE_WEBNN": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_USE_WINDOWS_TELEMETRY": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_USE_WINML": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_USE_XNNPACK": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_WEBASSEMBLY_RUN_TESTS_IN_BROWSER": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "onnxruntime_WEBGPU_STATIC_PLUGIN": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "CMAKE_ASM_COMPILER_WORKS": {
+          "type": "INTERNAL",
+          "value": "1"
+        },
+        "CMAKE_CACHEFILE_DIR": {
+          "type": "INTERNAL",
+          "value": "/tmp/int3-pr33569-compare/Release"
+        },
+        "CMAKE_CACHE_MAJOR_VERSION": {
+          "type": "INTERNAL",
+          "value": "4"
+        },
+        "CMAKE_CACHE_MINOR_VERSION": {
+          "type": "INTERNAL",
+          "value": "3"
+        },
+        "CMAKE_CACHE_PATCH_VERSION": {
+          "type": "INTERNAL",
+          "value": "2"
+        },
+        "CMAKE_COMMAND": {
+          "type": "INTERNAL",
+          "value": "/usr/local/lib/python3.12/dist-packages/cmake/data/bin/cmake"
+        },
+        "CMAKE_CPACK_COMMAND": {
+          "type": "INTERNAL",
+          "value": "/usr/local/lib/python3.12/dist-packages/cmake/data/bin/cpack"
+        },
+        "CMAKE_CTEST_COMMAND": {
+          "type": "INTERNAL",
+          "value": "/usr/local/lib/python3.12/dist-packages/cmake/data/bin/ctest"
+        },
+        "CMAKE_EXECUTABLE_FORMAT": {
+          "type": "INTERNAL",
+          "value": "ELF"
+        },
+        "CMAKE_EXTRA_GENERATOR": {
+          "type": "INTERNAL",
+          "value": ""
+        },
+        "CMAKE_GENERATOR": {
+          "type": "INTERNAL",
+          "value": "Ninja"
+        },
+        "CMAKE_GENERATOR_INSTANCE": {
+          "type": "INTERNAL",
+          "value": ""
+        },
+        "CMAKE_GENERATOR_PLATFORM": {
+          "type": "INTERNAL",
+          "value": ""
+        },
+        "CMAKE_GENERATOR_TOOLSET": {
+          "type": "INTERNAL",
+          "value": ""
+        },
+        "CMAKE_HAVE_LIBC_PTHREAD": {
+          "type": "INTERNAL",
+          "value": "1"
+        },
+        "CMAKE_HOME_DIRECTORY": {
+          "type": "INTERNAL",
+          "value": "/datadisks/disk1/jiafa/accuracy/ort-int3-pr33569-compare/cmake"
+        },
+        "CMAKE_INSTALL_SO_NO_EXE": {
+          "type": "INTERNAL",
+          "value": "1"
+        },
+        "CMAKE_LIST_FILE_NAME": {
+          "type": "INTERNAL",
+          "value": "CMakeLists.txt"
+        },
+        "CMAKE_NUMBER_OF_MAKEFILES": {
+          "type": "INTERNAL",
+          "value": "84"
+        },
+        "CMAKE_PLATFORM_INFO_INITIALIZED": {
+          "type": "INTERNAL",
+          "value": "1"
+        },
+        "CMAKE_ROOT": {
+          "type": "INTERNAL",
+          "value": "/usr/local/lib/python3.12/dist-packages/cmake/data/share/cmake-4.3"
+        },
+        "CMAKE_UNAME": {
+          "type": "INTERNAL",
+          "value": "/usr/bin/uname"
+        },
+        "onnxruntime_DISABLE_EXCEPTIONS": {
+          "type": "INTERNAL",
+          "value": "OFF"
+        },
+        "onnxruntime_HAVE_BUILTIN_ATOMICS": {
+          "type": "INTERNAL",
+          "value": "1"
+        },
+        "onnxruntime_TELEMETRY_BACKEND-STRINGS": {
+          "type": "INTERNAL",
+          "value": "AUTO;1DS;WINDOWS"
+        }
+      },
+      "configured_cache_sha256": "ab4b04900508e2e1930ae4a845d1fcc98b3e6b37fb24a5519bcf2caa4886a76f",
+      "loaded_binary_hashes": [
+        {
+          "path": "/tmp/int3-pr33569-compare/Release/libonnxruntime.so.1.32.0",
+          "bytes": 38023840,
+          "sha256": "62630dbd579b354e53db7fa9627db9e665fa22ffd0e786595b9190f6446dcb32"
+        },
+        {
+          "path": "/tmp/int3-pr33569-compare/Release/libonnxruntime_providers_cuda.so",
+          "bytes": 112659088,
+          "sha256": "28b5edc7d70e254881320452d8c7bc3bd4c88c9b19f86de0256b9a0a737090ee"
+        },
+        {
+          "path": "/tmp/int3-pr33569-compare/Release/libonnxruntime_providers_shared.so",
+          "bytes": 15384,
+          "sha256": "17f7cf47ad0d7b5ac895ae588fd62c7f85a13842588161b6a24c7d480f062be4"
+        },
+        {
+          "path": "/tmp/int3-pr33569-compare/Release/onnxruntime_pybind11_state.so",
+          "bytes": 40871488,
+          "sha256": "1a3ae4c2fcc9754634b5387138dc3718f056856dc583b3d6bdb433db5971ab65"
+        }
+      ],
+      "evidence_directory": "results/build-logs/pr33569"
+    }
+  },
+  "dependency_source_identities": {
+    "method": "Sorted os.walk directories/files; excludes .git; SHA256 stream of kind + NUL + relative POSIX path + NUL + file-content SHA256 + newline. Symlinks hash their link text. Captured after experiment; identifies retained source directory contents, not historical proof of no changes.",
+    "sources": {
+      "FETCHCONTENT_SOURCE_DIR_ABSEIL_CPP": {
+        "path": "/datadisks/disk1/jiafa/accuracy/onnxruntime/build/cuda-wheel-clean-20261002/Release/_deps/abseil_cpp-src",
+        "file_count": 1541,
+        "content_bytes": 10743438,
+        "tree_sha256": "660e421e51bbf2d4949815f6c810f32cd499efef0b9347cf1bdfc5980545dd19"
+      },
+      "FETCHCONTENT_SOURCE_DIR_CPP_CLIENT_TELEMETRY": {
+        "path": "/datadisks/disk1/jiafa/accuracy/onnxruntime/build/cuda-wheel-clean-20261002/Release/_deps/cpp_client_telemetry-src",
+        "file_count": 968,
+        "content_bytes": 73508713,
+        "tree_sha256": "6f25858dd4a14e17c10e1425fb3962d32e16f8ff30a40e98bcb8612f4d5f81e2"
+      },
+      "FETCHCONTENT_SOURCE_DIR_CUDNN_FRONTEND": {
+        "path": "/datadisks/disk1/jiafa/accuracy/onnxruntime/build/cuda-wheel-clean-20261002/Release/_deps/cudnn_frontend-src",
+        "file_count": 1006,
+        "content_bytes": 27663799,
+        "tree_sha256": "17fd4c47c055959f2c3bf1d1bb70adef1b5716036f1753c7b68ee65c4fec0d5f"
+      },
+      "FETCHCONTENT_SOURCE_DIR_CUTLASS": {
+        "path": "/datadisks/disk1/jiafa/accuracy/onnxruntime/build/cuda-wheel-clean-20261002/Release/_deps/cutlass-src",
+        "file_count": 7789,
+        "content_bytes": 167914604,
+        "tree_sha256": "0c758d1df74d407cd65244554f7d83b1aef916f89c3cf85fec372aacc7a7cf58"
+      },
+      "FETCHCONTENT_SOURCE_DIR_DATE": {
+        "path": "/datadisks/disk1/jiafa/accuracy/onnxruntime/build/cuda-wheel-clean-20261002/Release/_deps/date-src",
+        "file_count": 139,
+        "content_bytes": 1980442,
+        "tree_sha256": "35b6c6e66e31b491adc9e1eaa3947b10c7a0fca39812ef4dd98330fb3231d37a"
+      },
+      "FETCHCONTENT_SOURCE_DIR_DLPACK": {
+        "path": "/datadisks/disk1/jiafa/accuracy/onnxruntime/build/cuda-wheel-clean-20261002/Release/_deps/dlpack-src",
+        "file_count": 37,
+        "content_bytes": 380220,
+        "tree_sha256": "a00ba40faa2f36ba55d2df7bda4be5f2d789622a203eb7fb1966b8c615c249bc"
+      },
+      "FETCHCONTENT_SOURCE_DIR_EIGEN3": {
+        "path": "/datadisks/disk1/jiafa/accuracy/onnxruntime/build/cuda-wheel-clean-20261002/Release/_deps/eigen3-src",
+        "file_count": 1891,
+        "content_bytes": 16887171,
+        "tree_sha256": "05d2148d76734791014d0146edbf57e55d96ee61fd143505c95e6982fae79dac"
+      },
+      "FETCHCONTENT_SOURCE_DIR_FLATBUFFERS": {
+        "path": "/datadisks/disk1/jiafa/accuracy/onnxruntime/build/cuda-wheel-clean-20261002/Release/_deps/flatbuffers-src",
+        "file_count": 1769,
+        "content_bytes": 12465757,
+        "tree_sha256": "7353dded73f065035f8ef403e3ac6fe7ae66f7b68743eab2731c85e1e9835cb5"
+      },
+      "FETCHCONTENT_SOURCE_DIR_GOOGLETEST": {
+        "path": "/datadisks/disk1/jiafa/accuracy/onnxruntime/build/cuda-wheel-clean-20261002/Release/_deps/googletest-src",
+        "file_count": 250,
+        "content_bytes": 4095045,
+        "tree_sha256": "413fac3e8e2e4fd1e07d21800cdec30d301dce314a22d277b852aeb0d8a8604a"
+      },
+      "FETCHCONTENT_SOURCE_DIR_GSL": {
+        "path": "/datadisks/disk1/jiafa/accuracy/onnxruntime/build/cuda-wheel-clean-20261002/Release/_deps/gsl-src",
+        "file_count": 46,
+        "content_bytes": 348064,
+        "tree_sha256": "fc31f8d3ac4bfc0e961c5e41483d0f0612633bda58fe7fe5a8a97e12271da457"
+      },
+      "FETCHCONTENT_SOURCE_DIR_MATSDK_CURL": {
+        "path": "/datadisks/disk1/jiafa/accuracy/onnxruntime/build/cuda-wheel-clean-20261002/Release/_deps/matsdk_curl-src",
+        "file_count": 4310,
+        "content_bytes": 21761201,
+        "tree_sha256": "dd7a6800644e725f5f8f73e16d19ef56d22ced07eb1c969b18938ffce452b4a0"
+      },
+      "FETCHCONTENT_SOURCE_DIR_MATSDK_MBEDTLS": {
+        "path": "/datadisks/disk1/jiafa/accuracy/onnxruntime/build/cuda-wheel-clean-20261002/Release/_deps/matsdk_mbedtls-src",
+        "file_count": 2042,
+        "content_bytes": 47459370,
+        "tree_sha256": "957e38ebd2aed10387ba90b0abe75ea4c2ca724bad04d43531b17f4655a7991d"
+      },
+      "FETCHCONTENT_SOURCE_DIR_MP11": {
+        "path": "/datadisks/disk1/jiafa/accuracy/onnxruntime/build/cuda-wheel-clean-20261002/Release/_deps/mp11-src",
+        "file_count": 255,
+        "content_bytes": 793856,
+        "tree_sha256": "6bbd1685f33f66c697e4c8bec8a246ee9f89872efca0a259bcffbb597c74043f"
+      },
+      "FETCHCONTENT_SOURCE_DIR_NLOHMANN_JSON": {
+        "path": "/datadisks/disk1/jiafa/accuracy/onnxruntime/build/cuda-wheel-clean-20261002/Release/_deps/nlohmann_json-src",
+        "file_count": 1090,
+        "content_bytes": 13968124,
+        "tree_sha256": "0b2910d77c188811925aa099ae77d9fd7cd8a07f640666c976181a4880ccb837"
+      },
+      "FETCHCONTENT_SOURCE_DIR_ONNX": {
+        "path": "/datadisks/disk1/jiafa/accuracy/onnxruntime/cmake/external/onnx",
+        "file_count": 1470,
+        "content_bytes": 24129390,
+        "tree_sha256": "270257bcdddfa23a17ae85611b3e7b872597da566a0af682db5d7c33ad1bd9c4"
+      },
+      "FETCHCONTENT_SOURCE_DIR_PROTOBUF": {
+        "path": "/datadisks/disk1/jiafa/accuracy/onnxruntime/build/cuda-wheel-clean-20261002/Release/_deps/protobuf-src",
+        "file_count": 3256,
+        "content_bytes": 45198408,
+        "tree_sha256": "f573c1236ee6593e5d44011451131cc4230155bb16d923a9d01f365df1a96aff"
+      },
+      "FETCHCONTENT_SOURCE_DIR_PYBIND11_PROJECT": {
+        "path": "/datadisks/disk1/jiafa/accuracy/onnxruntime/build/cuda-wheel-clean-20261002/Release/_deps/pybind11_project-src",
+        "file_count": 366,
+        "content_bytes": 3508781,
+        "tree_sha256": "f39d7ff435687a324ce6f5586980009aa828e005f15acbad10da74e0d58918cb"
+      },
+      "FETCHCONTENT_SOURCE_DIR_PYTORCH_CPUINFO": {
+        "path": "/datadisks/disk1/jiafa/accuracy/onnxruntime/build/cuda-wheel-clean-20261002/Release/_deps/pytorch_cpuinfo-src",
+        "file_count": 566,
+        "content_bytes": 20340511,
+        "tree_sha256": "d9e69e62562d41caf10359fa4e7a2d57d4e8912e79302200e9a53f3c469932c2"
+      },
+      "FETCHCONTENT_SOURCE_DIR_RE2": {
+        "path": "/datadisks/disk1/jiafa/accuracy/onnxruntime/build/cuda-wheel-clean-20261002/Release/_deps/re2-src",
+        "file_count": 136,
+        "content_bytes": 1656440,
+        "tree_sha256": "7a0af3eba23977d45b8ad8177350f11542323e307a275ac102731e1d09d3e707"
+      },
+      "FETCHCONTENT_SOURCE_DIR_SAFEINT": {
+        "path": "/datadisks/disk1/jiafa/accuracy/onnxruntime/build/cuda-wheel-clean-20261002/Release/_deps/safeint-src",
+        "file_count": 127,
+        "content_bytes": 4406495,
+        "tree_sha256": "4b52cce51c1e871728787eca177026290bc3e92f68f188188cd02ee1f2d56db7"
+      }
+    }
+  }
+}

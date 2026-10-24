@@ -1,0 +1,56 @@
+import json
+import pathlib
+import re
+import shlex
+import subprocess
+import sys
+import time
+
+
+root = pathlib.Path('/tmp/int3-pr33569-compare')
+build = root / 'Release'
+logs = root / 'logs'
+
+
+def read_cache(path):
+    entries = {}
+    for line in path.read_text().splitlines():
+        match = re.fullmatch(r'([^#/:][^:]*):([^=]+)=(.*)', line)
+        if match:
+            key, kind, value = match.groups()
+            entries[key] = value
+    return entries
+
+
+reference = read_cache(logs / 'reference-CMakeCache.txt')
+current = read_cache(build / 'CMakeCache.txt')
+settings = json.loads((logs / 'configure-settings.json').read_text())
+differences = []
+for key, entry in settings.items():
+    if current.get(key) != entry['value']:
+        differences.append({'key': key, 'requested': entry['value'], 'actual': current.get(key)})
+overrides = {key: value for key, value in reference.items() if key.startswith('FETCHCONTENT_SOURCE_DIR_')}
+assert all(current.get(key) == value for key, value in overrides.items())
+assert current['CMAKE_CUDA_ARCHITECTURES'] == '80'
+assert current['onnxruntime_BUILD_SHARED_LIB'] == 'ON'
+assert not differences, differences
+(logs / 'cache-validation.json').write_text(json.dumps({'settings_match': True, 'dependency_source_overrides': overrides, 'compiled_objects_reused': False}, indent=2) + '\n')
+(logs / 'configured-CMakeCache.txt').write_text((build / 'CMakeCache.txt').read_text())
+targets = ['onnxruntime']
+if current['onnxruntime_ENABLE_PYTHON'] == 'ON':
+    targets.append('onnxruntime_pybind11_state')
+targets.append('onnxruntime_providers_cuda')
+command = ['ninja', '-C', str(build), '-j8', *targets]
+(logs / 'build-command.sh').write_text(shlex.join(command) + '\n')
+print(f'Cache validation passed: {len(overrides)} identical dependency overrides', flush=True)
+print(shlex.join(command), flush=True)
+started = time.time()
+with (logs / 'build.log').open('w') as output:
+    process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
+    for line in process.stdout:
+        output.write(line)
+        output.flush()
+        print(line, end='', flush=True)
+    result = process.wait()
+(logs / 'build-result.json').write_text(json.dumps({'returncode': result, 'elapsed_seconds': time.time() - started, 'targets': targets}, indent=2) + '\n')
+raise SystemExit(result)

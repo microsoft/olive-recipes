@@ -1,0 +1,13 @@
+import json,pathlib,numpy as np,onnxruntime as ort
+from onnxruntime.capi import onnxruntime_pybind11_state as native
+root=pathlib.Path('/tmp/int3-pr33555-compare/python-runtime')
+assert pathlib.Path(ort.__file__).is_relative_to(root)
+assert pathlib.Path(native.__file__).is_relative_to(root)
+providers=ort.get_available_providers()
+assert 'CUDAExecutionProvider' in providers, providers
+print(json.dumps({'package':ort.__file__,'native':native.__file__,'version':ort.get_version_string(),'providers':providers,'build_info':ort.get_build_info()},indent=2))
+host=np.array([1.25],dtype=np.float32)
+value=ort.OrtValue.ortvalue_from_numpy(host,'cuda',0)
+assert value.device_name()=='cuda',value.device_name()
+np.testing.assert_array_equal(value.numpy(),host)
+print('CUDA OrtValue allocation and host round-trip PASS; no model/inference')

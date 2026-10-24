@@ -1,0 +1,25 @@
+{
+  "status": "PASS",
+  "head": "d75ac16f377c0c783d289046f5cf2efe6bb5f9bc",
+  "artifacts": {
+    "/tmp/int3-pr2-pr3-clean/Release/libonnxruntime.so.1.32.0": {
+      "bytes": 38015648,
+      "sha256": "0245ffe01175114196f6ef821a75b9c424426b484acb8fdfd803c9f9c46deee6"
+    },
+    "/tmp/int3-pr2-pr3-clean/Release/libonnxruntime_providers_cuda.so": {
+      "bytes": 112520728,
+      "sha256": "19c411dd0e5d6b2050698bb9ceebbc4c7b7670d0d8e2ce792aa863f7b7c2f430"
+    },
+    "/tmp/int3-pr2-pr3-clean/Release/libonnxruntime_providers_shared.so": {
+      "bytes": 15384,
+      "sha256": "17f7cf47ad0d7b5ac895ae588fd62c7f85a13842588161b6a24c7d480f062be4"
+    },
+    "/tmp/int3-pr2-pr3-clean/Release/onnxruntime_pybind11_state.so": {
+      "bytes": 40863296,
+      "sha256": "57c9d9fa0cb4f0fc1c57a84dedcb2e6f667f04388ddd11662c8ea7d9cbd6c3cf"
+    }
+  },
+  "python_import_returncode": 0,
+  "cuda_ortvalue_returncode": 0,
+  "python_runtime": "/tmp/int3-pr33555-compare/python-runtime"
+}

@@ -1,0 +1,7 @@
+{
+  "command": [
+    "python3",
+    "/tmp/int3-pr33555-complete.py"
+  ],
+  "wait_for_container_pid": 537291
+}
