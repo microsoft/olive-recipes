@@ -223,6 +223,99 @@ the short capture, and unseparated initialization/prefill/decode prohibit
 attributing the full-model speedup to an isolated kernel or interpreting trace
 timings as the benchmark results.
 
+## Implementation Method Comparison
+
+This comparison describes the **INT3 paths at the pinned revisions**, not every
+feature in either PR. Both consume the same canonical, row-local packed INT3
+model with FP16 scales/activations and perform floating-point dot products after
+unpacking/dequantization. Neither observed path is an INT3 Tensor Core GEMM.
+
+Source references:
+
+- #33555: [INT3 compute and bit-plane kernels](https://github.com/microsoft/onnxruntime/blob/d75ac16f377c0c783d289046f5cf2efe6bb5f9bc/onnxruntime/contrib_ops/cuda/moe/qmoe_int3.cu)
+  and [host prepack/compute](https://github.com/microsoft/onnxruntime/blob/d75ac16f377c0c783d289046f5cf2efe6bb5f9bc/onnxruntime/contrib_ops/cuda/moe/qmoe_int3.cc).
+- #33569: [scalar/fast INT3 kernels and dispatch](https://github.com/microsoft/onnxruntime/blob/4ba6c38384cf5b12d4aa4570cd15af2461c4d515/onnxruntime/contrib_ops/cuda/moe/qmoe_kernels.cu)
+  and [host validation/allocation](https://github.com/microsoft/onnxruntime/blob/4ba6c38384cf5b12d4aa4570cd15af2461c4d515/onnxruntime/contrib_ops/cuda/moe/moe_quantization.cc).
+
+| Aspect | #33555 observed INT3 path | #33569 observed INT3 fast path |
+| --- | --- | --- |
+| Weight representation | Session-time `PrePackInt3` converts constant weights to a private K32 bit-plane layout; model bytes stay unchanged. | Reads canonical packed bytes directly; no INT3 bit-plane prepack. Its separate offline SM80 prepack support for INT2/INT4 is **not** the INT3 method measured here. |
+| Weight decode | `Weight<T, Bits>` reconstructs one code/weight at a time inside the feature loop. | `Unpack8CenteredCodes` / `Unpack8CenteredCodes128` extract eight centered codes at a time; INT3 uses word loads and funnel shifts. |
+| FC1 gate/up + activation | `FusedFc1`: one warp per route/intermediate-column item, four items per 128-thread block. | `FusedFc1FastKernel`: 256-thread CTA per route/output tile, two adjacent intermediate columns per warp (16 per CTA). |
+| Input reuse | Each dot-product loop reads its input elements from global memory; hardware caches may serve those reads. No explicit shared-input staging in these kernels. | Each CTA stages its route input in shared FP32 memory, then reuses it across columns and gate/up dot products with `float4` shared-memory reads. |
+| FC2 and routing | `Fc2AndFinalize`: one warp per token/output column; loops over the top-k routes and performs each route dot product before accumulating its weighted result. | `Fc2RouteFastKernel`: routes are separate grid entries; each half-warp computes two output columns (32 per CTA), using shared activations. `FinalizeRoutesFastKernel` subsequently sums weighted route results. |
+| Intermediate storage | Fused FC2/finalization avoids a separate route-output tensor. | Adds `fc2_partial`, stored in activation dtype, with `rows * top_k * hidden` elements, plus an extra finalization launch. |
+| Specialization | Uses the scalar dot-product organization for this workload. FC1 routes are already parallel; this is not an entirely serial implementation. | Fast path requires aligned dimensions/pointers, absent explicit zero points, bounded grid/shared-memory sizes, and route scratch; otherwise uses scalar fallback. |
+
+For this model, hidden size 2048 is divisible by 256, intermediate size 768 is
+divisible by 128, and block size 64 is divisible by 8. There are no explicit zero
+points. FC1/FC2 shared allocations are respectively 8 KiB and 3 KiB per CTA.
+Prefill has `rows * top_k = input_length * 8` routes, at most 32768 for input
+4096; decode has eight routes. These fit the fast-path grid bounds. The short
+trace confirms fast dispatch at input128 and one decode step; the dimensions
+also satisfy the source predicates at the longer measured lengths, without
+claiming separate traces were captured for every length.
+
+## Why #33569 Is Faster Here
+
+The source provides a plausible architectural explanation for the measured
+advantage, and the trace confirms the relevant kernel families were executed.
+It does **not** quantify the contribution of each optimization:
+
+1. **Amortized unpacking and better input reuse.** Eight-code unpacking and
+  adjacent-column computation let #33569 reuse input values and do less
+  repeated per-weight address/decode work. Cooperative shared-memory staging
+  makes input reuse explicit within each output tile. #33555 instead repeats
+  scalar weight reconstruction and input reads across dot products. This is
+  an instruction/reuse advantage, not proof of eightfold fewer instructions
+  or a measured reduction in DRAM traffic: cache hits and compiler behavior
+  matter, and no instruction/bandwidth counters were collected.
+2. **More parallel FC2 work, especially for decode.** In #33555, the expensive
+  dot products for eight selected experts sit inside each token/column warp's
+  route loop. #33569 exposes those route dot products as independent CTAs and
+  leaves only the inexpensive weighted sum to finalization. At one decode
+  token, the source launches 512 FC2 route CTAs (`2048 / 32 * 8`) instead of
+  512 scalar FC2 CTAs (`2048 / 4`), but they have different work and thread
+  organization: the fast CTAs each handle one route and 32 columns, not all
+  eight routes and four columns. The benefit is the work decomposition and
+  reuse, **not simply more CTAs**. Additional scratch traffic and a third
+  kernel launch are real costs that the measured implementation nevertheless
+  overcomes on this workload.
+3. **A favorable aligned model shape.** This model meets the fast-path
+  constraints throughout the tested lengths. The result should not be
+  extrapolated to shapes or explicit-zero-point configurations that use the
+  fallback, or to other GPUs without measurement. Both paths parallelize
+  FC1 routes; route parallelism is not unique to #33569 in FC1.
+4. **Full-model costs limit the observed ratio.** QMoE improvements are diluted
+  by attention, KV-cache work, other operators, and request overhead. The
+  decode advantage falls from about 2.00x to 1.75x as context grows, consistent
+  with a larger share of context-dependent non-QMoE work. This is a plausible
+  explanation, not a measured per-operator attribution. The approximately
+  5.03-5.19x prefill ratio likewise remains a full-model result, not a claimed
+  speedup for any individual kernel.
+
+**Prepacking and memory need separate interpretation.** #33555's prepacking
+happens during session setup, outside the steady-state timing. Merely avoiding
+that setup work cannot explain #33569's prefill/decode speedup; the representation
+and compute organization used afterward can matter. Its bit-plane allocation
+has the same packed byte size as the input weights, not an FP16-expanded copy.
+#33569 avoids that private conversion but adds route scratch: for FP16 at
+input4096, `4096 * 8 * 2048 * 2` bytes = 128 MiB per FC2 partial tensor, not a
+persistent allocation for every layer. The scratch limit documented above is
+not a cap on all such allocations. Neither observation alone explains the
+9.84-11.07 GiB sampled residency gap. Persistent initializer ownership, graph
+transformations, allocator retention, and workspaces would need an allocation
+breakdown before assigning that gap to one mechanism.
+
+Thus **#33569 is the better-performing implementation for this measured
+workload**, with source-supported reasons to prefer its INT3 compute
+organization. This does not establish numerical superiority: in particular,
+its FP16 route-partial materialization and different reduction order can change
+rounding. They are possible contributors to the logits differences, not a
+diagnosis of their source. Phase-separated profiling, hardware counters,
+allocation tracing, and controlled optimization ablations would be needed for
+causal attribution; quality evaluation remains separate.
+
 ## Archived Evidence
 
 All 16 raw timing JSONs, including sampled-memory vectors, are retained losslessly
