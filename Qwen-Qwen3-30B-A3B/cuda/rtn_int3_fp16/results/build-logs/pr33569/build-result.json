@@ -1,9 +1,0 @@
-{
-  "returncode": 0,
-  "elapsed_seconds": 2200.1684415340424,
-  "targets": [
-    "onnxruntime",
-    "onnxruntime_pybind11_state",
-    "onnxruntime_providers_cuda"
-  ]
-}

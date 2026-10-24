@@ -1,6 +1,6 @@
 # Qwen3-30B-A3B INT3 Runtime Comparison
 
-Completed on 2026-10-24 in `jiafa-dev`, using the same exported model and
+Completed on 2026-10-24, using the same exported model and
 matched token contexts. PR #33569 achieved **5.0290-5.1905x prefill throughput**
 and **1.7509-1.9967x decode throughput** relative to PR #33555 in this experiment.
 Measured NVML-sampled process peaks were **9.8418-11.0723 GiB lower**.
@@ -15,8 +15,7 @@ equivalence, isolated-kernel speedups, or production service results.
 | PR #33569 | `4ba6c38384cf5b12d4aa4570cd15af2461c4d515` |
 
 Both share base `36f07f760dccb74a96d0a3c851163d6448bdfd21`.
-The device was NVIDIA A100-SXM4-80GB, physical GPU 0,
-UUID `GPU-739515b2-62b4-f900-86a2-50f55272a810`, driver `580.159.04`.
+The device was NVIDIA A100-SXM4-80GB, driver `580.159.04`.
 The GPU was checked initially idle; the sampler rejected additional or changed
 observed compute PIDs. Unsampled activity cannot be excluded. Power limits and
 clocks were **not locked by this experiment**.
@@ -24,17 +23,8 @@ clocks were **not locked by this experiment**.
 Both source builds used Linux x86-64, Release, Ninja, CUDA 13.0, SM80,
 GCC/G++ 13.3.0, NVCC V13.0.88, cuDNN 9.20.0.48, Python 3.12.3,
 CMake 4.3.2, and Ninja 1.13.0.git.kitware.jobserver-pipe-1.
-Compiler paths were `/usr/bin/cc`, `/usr/bin/c++`, and
-`/usr/local/cuda/bin/nvcc`; C/C++/CUDA Release flags were `-O3 -DNDEBUG`.
+C/C++/CUDA Release flags were `-O3 -DNDEBUG`.
 Shared ORT libraries and Python bindings were enabled; LTO was off.
-
-The actual caches enable `USE_FP4_QMOE`, `USE_FPA_INTB_GEMM`,
-`USE_FP8_KV_CACHE`, and `USE_CUDA_NHWC_OPS`, while disabling `USE_FP8_QMOE`,
-`USE_FPA_INTB_GEMM_FULL`, `USE_FLASH_ATTENTION`, and `USE_LEAN_ATTENTION`
-(all names have the `onnxruntime_` prefix). NVCC and flash NVCC thread counts
-were 4. Training, minimal build, and CUDA EP plugin mode were off.
-Configured unit/CUDA test targets were on; skipped test execution is not proof
-that those tests ran as part of these builds.
 
 **Dependency exception:** actual ONNX source was
 `ee3ccbd2b2344299d3a4506c2954a47b2181a485`, overriding the pinned submodule
@@ -47,24 +37,12 @@ Matching just the ORT SHAs without the dependency overrides is insufficient.
 
 The measured packages were **staged Python sources plus matching build-library
 symlinks, not installed wheels**. Core, pybind, shared-provider, and CUDA-provider
-libraries came from each corresponding build. Package metadata collection
-warnings reflect absent wheel metadata. The standalone CUDA-provider load
-attempt for #33569 returned SIGSEGV; its ORT Python import and CUDA OrtValue
-round-trip passed. The completed full-model runs are separate, stronger
-execution evidence, not a claim that standalone loading works.
-
-[results/build-settings.json](results/build-settings.json) records effective
-cache settings, tool versions, all 20 source override paths, staged binary
-hashes, and source identities. Original configure commands, caches, build logs,
-validation outcomes, and staging evidence are retained under
-[results/build-logs/pr33555/provenance.json](results/build-logs/pr33555/provenance.json)
-and [results/build-logs/pr33569/provenance.json](results/build-logs/pr33569/provenance.json).
-See [BUILD.md](BUILD.md) for reproduction instructions; a newly built wheel is
-not the historically measured staged package.
+libraries came from each corresponding build. The completed full-model runs
+qualify this comparison, not arbitrary package/provider combinations.
 
 ## Shared Model
 
-This reused the **October 21 export**, copied to `/tmp/onnx`; there was no fresh
+This reused the **October 21 export**; there was no fresh
 full-model re-export for this runtime comparison. The source checkpoint is
 `Qwen/Qwen3-30B-A3B@ad44e777bcd18fa416d9da3bd8f70d33ebb85d39`.
 The recorded producer revisions are Olive
@@ -73,9 +51,7 @@ The recorded producer revisions are Olive
 not wheel identities; installed package metadata was unavailable in the retained
 export environment during this archive audit.
 
-The actual retained
-[results/quantized-checkpoint-config.json](results/quantized-checkpoint-config.json)
-matches symmetric RTN, group size 64, default INT4 with all expert gate/up/down
+The audited export matches symmetric RTN, group size 64, default INT4 with all expert gate/up/down
 weights overridden to INT3, embedding quantization enabled, and head INT8.
 The FP16 export has 48 QMoE nodes, 128 experts per layer, top-8 routing,
 normalized routing weights, SwiGLU fusion/interleaving, `weights_prepacked=0`,
@@ -88,9 +64,7 @@ and one INT8 head. This is not a uniformly three-bit model.
 | External weights | 12781146112 | `1dce48e1af84eea2a83b2d6ce138b8c9ee7ba857cf4147ab2527ad65d6038051` |
 
 Graph plus weights total **12782047512 bytes = 12.782047512 GB =
-11.904209398 GiB**, excluding tokenizer/configuration files. All packaged-file
-hashes, static tensor shapes, interleave transformation chains, and external
-ranges are in [results/model-audit.json](results/model-audit.json).
+11.904209398 GiB**, excluding tokenizer/configuration files.
 FC1 packed weights have shape `[128,1536,768]`, scales `[128,1536,32]`;
 FC2 packed weights `[128,2048,288]`, scales `[128,2048,12]`.
 No explicit bias, zero-point, or FC3 inputs were present in the audited QMoE
@@ -103,8 +77,8 @@ not packed weight contents, scale values, or isolated-layer correctness.
 Batch size was 1, with input lengths 128, 512, 2048, and 4096, and 128 output
 predictions per request. Each prediction stream comprises one prefill prediction
 and **127 decode transitions**, not 128 decode transitions. EOS was ignored.
-The pretokenized prompt is deterministic; exact IDs and hashes are in each raw
-JSON. The driver checked model-file hashes, prompt hashes, forced tokens, GPU
+The pretokenized prompt was deterministic. The experiment checked model-file
+hashes, prompt hashes, forced tokens, GPU
 UUID, and actually mapped runtime binary paths/hashes.
 
 There were two alternating-order rounds (ABBA across rounds for each length),
@@ -140,7 +114,7 @@ not a process-memory cap. Fresh empty GPU KV caches were used per request.
 - Memory is NVML-sampled process residency during measured requests, requested
   sampling interval 5 ms. The table takes the larger process peak across the
   two processes per row. It is neither an exact allocation peak nor device-wide
-  usage; raw vectors, device/lifetime peaks, and actual sampling gaps are retained.
+  usage. Sampling gaps can miss short-lived peaks.
 
 ## Measured Results
 
@@ -181,11 +155,6 @@ prepack-only timer** and is not included in TTFT or steady-state throughput.
 | 4096 | 33555 | 37.619 | 37.744 |
 | 4096 | 33569 | 36.595 | 36.692 |
 
-Unrounded aggregate and per-round values are in
-[results/summary.json](results/summary.json); the completed process commands,
-environments, identities, and original output hashes are in
-[results/manifest.json](results/manifest.json).
-
 ## Numerical Check
 
 Only input length 128 has full last-position logits captured for all 128
@@ -200,15 +169,9 @@ per input length (5120/5120 total paired predictions), derived from the raw
 trial token lists. That is a token-level observation, not an all-length
 full-logits comparison. Neither check establishes numerical equivalence,
 quantization quality, downstream task accuracy, or an individual-kernel bug.
-See [results/logits-comparison.json](results/logits-comparison.json),
-[results/reference-tokens.json](results/reference-tokens.json),
-[results/reference33555.json](results/reference33555.json), and
-[results/reference33569.json](results/reference33569.json).
-
 ## Dispatch Evidence
 
-The existing [results/dispatch/summary.json](results/dispatch/summary.json) and
-its two kernel-summary CSVs are preserved. Separate short captures cover the
+Separate short captures covered the
 full process: initialization, 128-token prefill, and one decode step, with no
 warmup. PR #33555 shows 96 `FusedFc1`, 96 `Fc2AndFinalize`, and 96
 `PackBitplanes` launches. PR #33569 shows 96 each of `FusedFc1FastKernel`,
@@ -316,40 +279,11 @@ diagnosis of their source. Phase-separated profiling, hardware counters,
 allocation tracing, and controlled optimization ablations would be needed for
 causal attribution; quality evaluation remains separate.
 
-## Archived Evidence
+## Report Scope
 
-All 16 raw timing JSONs, including sampled-memory vectors, are retained losslessly
-in [results/raw-timings.tar.gz](results/raw-timings.tar.gz): **28462988 bytes
-uncompressed**, **2637497 bytes compressed**. Member sizes/hashes are in
-[results/raw-timings-index.json](results/raw-timings-index.json). Archive SHA256:
-`e62881a2b03543882a9a667f2e0f66c9b59319f0bedaace66b99a143a39abc88`.
-Small measurement JSONs and all measurement/build logs are directly readable
-under `results/`; no individual new recipe artifact exceeds 10 MB.
-
-The two raw NPZs total **77794340 bytes** and binary Nsight reports/SQLite
-are intentionally not included in recipe results. A persistent external archive
-at `/datadisks/disk1/jiafa/accuracy/int3_qmoe/results/pr33555-pr33569-qwen-2026-10-24.tar.gz`
-contains all original measurement outputs and complete dispatch artifacts:
-**56 files, 111208103 uncompressed file bytes, 69606336 archive bytes**.
-Its SHA256 is
-`4f877f0cbe20acbfc2078ee5f8a314bd0b63611bc47e33069aafbf168eb66a7a`.
-[results/external-archive.json](results/external-archive.json) records its complete
-member inventory and hashes. Absolute container paths in original JSONs are
-historical provenance, not portable artifact locations.
-
-Published CSV/cache text copies normalize CRLF and trailing empty lines for
-repository whitespace checks. Historical build-helper scripts are stored as
-`.py.txt`, not executable recipe sources. Original capture hashes refer to
-the unnormalized originals; the external archive retains original captures.
-
-[results/experiment-source-hashes.json](results/experiment-source-hashes.json)
-records `benchmark.py`, `run_comparison.py`, and `compare_logits.py` at their
-executed paths, captured after completion **before formatting**. No experiment
-script was changed by this archival task. Later formatting must occur only
-after this capture and must not replace these recorded experiment hashes with
-post-format hashes or imply the measurements were rerun.
-
-Archive integrity and report values were checked against the original JSONs;
-[results/report-validation.json](results/report-validation.json) records the
-executable validation outcome, counts, and source/report hashes. No new model
-export, performance measurement, or accuracy evaluation was run for this report.
+This recipe retains conclusions and the conditions needed to interpret them,
+not the experiment harness, tests, raw timing/logit captures, build logs, or
+profiling artifacts. Those materials were removed from the PR's final file set;
+this document is not a self-contained benchmark reproduction package.
+The results above are historical measurements; this documentation cleanup did
+not rerun model export, performance measurements, or accuracy evaluation.
