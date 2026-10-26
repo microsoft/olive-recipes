@@ -7,6 +7,6 @@ onnxruntime==1.23.2
 protobuf==6.31.1
 psutil
 safetensors==0.4.3
-torch==2.8.0
-torchvision==0.23.0
+torch==2.8.0+cu128
+torchvision==0.23.0+cu128
 transformers==4.57.1

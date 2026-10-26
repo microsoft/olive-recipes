@@ -17,8 +17,9 @@ Previous versions of this recipe used `QairtPreparation` and `QairtGenAIBuilder`
 **Validated host configuration:**
 * Ubuntu 22.04
 * Python 3.10.12
-* qairt-dev 0.12.0
+* qairt-dev 0.14.0
 * QAIRT 2.48.40
+* NVIDIA GPU with ≥80 GB VRAM (e.g. H100 80GB) — required for AdaScale and quantization stages
 
 **Validated SoCs:**
 
@@ -38,30 +39,31 @@ huggingface-cli login  # Recommended: stores credentials securely, avoids shell 
 # Alternative: export HF_TOKEN=<your_hugging_face_token>
 ```
 
-2. Install olive-ai[qairt]
+2. Install olive-ai[qairt] and qairt-dev
 
 ```bash
 pip install olive-ai[qairt]
-pip list | grep qairt-dev  # Ensure the proper qairt-dev version was installed
-pip install qairt-dev[pipeline,onnx]==0.12.0  # Install the proper qairt-dev version, if not installed
+pip install qairt-dev[pipeline,onnx]==0.14.0
 ```
 
 3. Install model-specific requirements
 
+PyTorch must be installed with CUDA support. Use the PyTorch index URL matching your CUDA version (the recipe was validated with CUDA 12.8):
+
 ```bash
-pip install -r requirements.txt
+pip install -r requirements.txt --index-url https://download.pytorch.org/whl/cu128 --extra-index-url https://pypi.org/simple
 ```
 
 4. Run Olive recipe
 
 For Snapdragon X2 Elite:
 ```bash
-olive run --config x2_elite_config.json
+QAIRT_SDK_ROOT=<path/to/qairt/sdk> olive run --config x2_elite_config.json
 ```
 
 For Snapdragon X Elite:
 ```bash
-olive run --config x_elite_config.json
+QAIRT_SDK_ROOT=<path/to/qairt/sdk> olive run --config x_elite_config.json
 ```
 
 ## Execution Instructions
@@ -71,7 +73,7 @@ The output of the above olive recipe is a directory validated with the following
 ```bash
 > python --version
 3.12.10
-> pip install onnxruntime==1.24.2 onnxruntime-genai==0.13.0 onnxruntime-qnn==2.1.0
+> pip install onnxruntime==1.24.2 onnxruntime-genai==0.18.0 onnxruntime-qnn==2.4.0
 ```
 
 Please see the following script in the onnxruntime-genai repository for [an example of how to run this model directory](https://github.com/microsoft/onnxruntime-genai/blob/main/examples/python/model-qa.py).

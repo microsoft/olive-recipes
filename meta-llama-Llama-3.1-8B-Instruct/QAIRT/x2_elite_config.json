@@ -12,22 +12,7 @@
         "qe": {
             "type": "QairtEncapsulation",
             "log_level": "ERROR",
-            "run_checker": "true",
-            "engine_config_overrides": {
-                "n_threads": 0,
-                "htp": {
-                    "cpu_mask": "0xe0",
-                    "allow_async_init": false,
-                    "poll": false,
-                    "mmap_budget": 0
-                }
-            },
-            "backend_extensions_overrides": {
-                "context": [{"reused_io_limit_mb": 100}],
-                "graphs": null,
-                "devices": [{"pd_session": "unsigned"}],
-                "groupContext": {"share_resources": false}
-            }
+            "run_checker": "true"
         }
     },
     "log_severity_level": 1,
