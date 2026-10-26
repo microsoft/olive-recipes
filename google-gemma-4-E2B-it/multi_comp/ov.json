@@ -103,6 +103,7 @@
         "gs_vision": {
             "type": "GraphSurgeries",
             "surgeries": [{"surgeon": "RemoveUnusedNodeOutputs"},
+                          {"surgeon": "SimplifiedLayerNormToL2Norm"},
                           {"surgeon": "ReplaceAttentionMaskValue",  "threshold": -1e8}],
             "save_as_external_data": true
         },
@@ -131,6 +132,19 @@
             },
             "save_as_external_data": true
         },
+        "vision_cb": {
+            "type": "EPContextBinaryGenerator",
+            "components": [ "encoder" ],
+            "provider_options": {
+                "device_type": "NPU"
+            },
+            "session_options": {
+                "optimization.disable_specified_optimizers": "QDQPropagationTransformer",
+                "log_severity_level": 1
+            },
+            "update_genai_config": true,
+            "genai_config_role": "vision"
+        },
         "decoder_matmul_nbits_to_qdq": {
             "type": "MatMulNBitsToQDQ",
             "use_signed_int": true,
@@ -151,7 +165,16 @@
         },
         "vision": {
             "components": [ "vision_encoder" ],
-            "pipeline": [ "matmul_nbits_to_qdq", "gs_vision", "dynamic_to_fixed_shape", "split_vision_pooler" ]
+            "pipeline": [ "matmul_nbits_to_qdq", "gs_vision", "dynamic_to_fixed_shape", "split_vision_pooler", "vision_cb" ],
+            "target": {
+                "type": "LocalSystem",
+                "accelerators": [
+                    {
+                        "device": "npu",
+                        "execution_providers": [ "OpenVINOExecutionProvider" ]
+                    }
+                ]
+            }
         },
         "embedding": {
             "components": ["embedding"],
