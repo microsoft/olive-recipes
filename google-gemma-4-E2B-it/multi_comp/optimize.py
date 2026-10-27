@@ -6,10 +6,10 @@ Usage:
 """
 
 import argparse
+import json
 import subprocess
 import sys
 from pathlib import Path
-
 
 RECIPE_DIR = Path(__file__).resolve().parent
 EP_ALIASES = {
@@ -47,6 +47,34 @@ def main() -> None:
     )
     args = parser.parse_args()
 
+    config_path = RECIPE_DIR / f"{args.ep}.json"
+    config = json.loads(config_path.read_text(encoding="utf-8"))
+    model_attributes = config["input_model"]["config"].get("model_attributes")
+    accuracy_level = (
+        model_attributes.get("matmul_nbits_accuracy_level")
+        if model_attributes is not None
+        else None
+    )
+    if accuracy_level is not None and (
+        type(accuracy_level) is not int or not 0 <= accuracy_level <= 4
+    ):
+        parser.error(
+            f"{config_path.name}: input_model.config.model_attributes.matmul_nbits_accuracy_level "
+            "must be an integer from 0 to 4, or null"
+        )
+    capture_args = [
+        "capture-onnx-graph",
+        "--model_name_or_path",
+        "gemma4_quantized_hf",
+        "--use_mobius_builder",
+        "--precision",
+        "fp32",
+        "--output_path",
+        "gemma4_onnx",
+    ]
+    if accuracy_level is not None:
+        capture_args.extend(["--matmul_nbits_accuracy_level", str(accuracy_level)])
+
     total_steps = 3
     run_step(
         1,
@@ -58,16 +86,7 @@ def main() -> None:
         2,
         total_steps,
         "Exporting the quantized model with Mobius",
-        [
-            "capture-onnx-graph",
-            "--model_name_or_path",
-            "gemma4_quantized_hf",
-            "--use_mobius_builder",
-            "--precision",
-            "fp32",
-            "--output_path",
-            "gemma4_onnx",
-        ],
+        capture_args,
     )
 
     run_step(

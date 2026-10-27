@@ -2,7 +2,10 @@
     "input_model": {
         "type": "CompositeModel",
         "config": {
-            "model_path": "gemma4_onnx"
+            "model_path": "gemma4_onnx",
+            "model_attributes": {
+                "matmul_nbits_accuracy_level": 4
+            }
         }
     },
     "data_configs": [
