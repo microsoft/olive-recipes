@@ -207,12 +207,17 @@ def wikitext_decoder_calibration_dataset(
     num_samples=32,
     seq_len=64,
     past_len=64,
+    output_dtype="float16",
     **kwargs,
 ):
-    """Build decoder calibration samples from WikiText 2."""
+    """Build WikiText 2 decoder calibration samples in the requested precision."""
     del kwargs
     if num_samples <= 0 or seq_len <= 0 or past_len <= 0:
         raise ValueError("num_samples, seq_len, and past_len must all be greater than zero.")
+    if output_dtype not in ("float16", "float32"):
+        raise ValueError("output_dtype must be 'float16' or 'float32'.")
+    numpy_dtype = np.dtype(output_dtype)
+    torch_dtype = torch.float32 if output_dtype == "float32" else torch.float16
 
     tokenizer_path = tokenizer_path or Path(embedding_model_path).parents[1] / "tokenizer.json"
     tokenizer = Tokenizer.from_file(str(tokenizer_path))
@@ -240,7 +245,7 @@ def wikitext_decoder_calibration_dataset(
     empty_kv = {
         layer: torch.zeros(
             (1, 1, past_len, GLOBAL_HEAD_DIM if layer in GLOBAL_LAYERS else HEAD_DIM),
-            dtype=torch.float16,
+            dtype=torch_dtype,
         )
         for layer in range(NUM_KV_LAYERS)
     }
@@ -256,8 +261,8 @@ def wikitext_decoder_calibration_dataset(
             },
         )
         sample = {
-            "inputs_embeds": torch.from_numpy(embeds.astype(np.float16)),
-            "per_layer_inputs": torch.from_numpy(per_layer.astype(np.float16)),
+            "inputs_embeds": torch.from_numpy(embeds.astype(numpy_dtype, copy=False)),
+            "per_layer_inputs": torch.from_numpy(per_layer.astype(numpy_dtype, copy=False)),
             # GroupQueryAttention reads this as seqlens_k, which is
             # total_sequence_length - 1, despite the graph input name.
             "past_seq_len": torch.full((1, 1), seq_len - 1, dtype=torch.int32),
