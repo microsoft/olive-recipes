@@ -7,7 +7,7 @@
         "qp": {
             "type": "QairtPipelinePass",
             "recipe": "x_elite_config.yaml",
-            "cache_dir": "cache/qairt"
+            "cache_dir": "cache/llama-3.2-1B-Instruct/qairt"
         },
         "qe": {
             "type": "QairtEncapsulation",
@@ -16,7 +16,7 @@
         }
     },
     "log_severity_level": 1,
-    "output_dir": "models/llama3_2_1b_instruct_x_elite",
+    "output_dir": "models/llama-3.2-1B-Instruct/x_elite",
     "cache_dir": "cache",
     "no_artifacts": true
 }

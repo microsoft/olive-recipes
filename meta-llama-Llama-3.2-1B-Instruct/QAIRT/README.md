@@ -26,40 +26,31 @@ Other configurations may work but have not been validated.
 * Ubuntu 22.04
 * Python 3.10.12
 * qairt-dev 0.11.0
-* QAIRT 2.45.40
+* QAIRT 2.48.40
 
 ## Preparation Instructions
 
-1. Install olive-ai[qairt]
+1. Install model-specific requirements
 
 ```bash
-pip install olive-ai[qairt]
-pip list | grep qairt-dev  # Ensure the proper qairt-dev version was installed
-pip install qairt-dev[pipeline,onnx]==0.11.0  # Install the proper qairt-dev version, if not installed
+pip install -r requirements.txt
 ```
 
-2. (Optional) Use qairt-vm to install a non-default version of QAIRT and set QAIRT_SDK_ROOT
+2. Use qairt-vm to install QAIRT 2.48.40 and set QAIRT_SDK_ROOT
 
 ```bash
 # List available QAIRT SDK versions
 qairt-vm fetch --list
 
 # Download non-default version of QAIRT SDK
-qairt-vm fetch -v <version>
+qairt-vm fetch -v 2.48.40 -d /path/to/qairt/sdk
 
 # Set QAIRT_SDK_ROOT to the download location of the QAIRT SDK
-# By default, /opt/qcom/aistack/qairt/<version>
 # Note: No further QAIRT SDK installation steps are required when using qairt-dev
 export QAIRT_SDK_ROOT=/path/to/qairt/sdk
 ```
 
-3. Install model-specific requirements
-
-```bash
-pip install -r requirements.txt
-```
-
-4. Run Olive recipe
+3. Run Olive recipe
 
 For Snapdragon X2 Elite:
 ```bash

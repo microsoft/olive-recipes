@@ -18,6 +18,7 @@ generator_config:
 stages:
   model_loader:
     model_reauthoring: true
+    execution_environment: gpu
     apply_default_adaptations: true
 
     hf_tokenizer_kwargs:
