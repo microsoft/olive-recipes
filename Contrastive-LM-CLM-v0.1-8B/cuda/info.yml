@@ -1,0 +1,6 @@
+arch: qwen3
+recipes:
+  - name: Contrastive-LM-CLM-v0.1-8B_cuda_mobius_mixed
+    file: CLM-v0.1-8B_cuda_mixed.json
+    devices: gpu
+    eps: CUDAExecutionProvider
