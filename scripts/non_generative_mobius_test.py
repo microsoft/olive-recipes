@@ -85,10 +85,55 @@ def test_recipe_provider_overrides_published_metadata(tmp_path):
     assert metadata["Provider"]["execution_provider"] == "cuda"
 
 
+def test_clm_publication_applies_component_session_options(tmp_path, monkeypatch):
+    staging = tmp_path / "staging"
+    package = staging / exporter.RECIPES["clm"].fp32_directory
+    for component in ("encoder", "state_head", "action_head", "scorer"):
+        (package / component).mkdir(parents=True)
+    (package / "inference_model.json").write_text(
+        json.dumps(
+            {
+                "Name": "clm-v0.1-8b-generic-cpu:1",
+                "Provider": {
+                    "execution_provider": "cpu",
+                    "variant": "fp32",
+                },
+            }
+        )
+    )
+    output = tmp_path / "output"
+    output.mkdir()
+    monkeypatch.setattr(exporter, "run_recipe", lambda *args: None)
+    options = {
+        "intra_op_num_threads": 32,
+        "inter_op_num_threads": 1,
+        "session.intra_op.allow_spinning": "0",
+        "session.inter_op.allow_spinning": "0",
+    }
+
+    exporter.olive_export(
+        model_name="clm",
+        output_dir=output,
+        execution_provider="cpu",
+        exporter_config={
+            "artifact_path": "artifact",
+            "recipe_precision": "fp32",
+            "staging_path": str(staging),
+            "component_session_options": options,
+        },
+    )
+
+    config = json.loads((output / "genai_config.json").read_text())
+    assert config["model"]["decoder"] == {
+        "filename": "encoder/model.onnx",
+        "session_options": options,
+    }
+
+
 @pytest.mark.parametrize(
     ("config_path", "expected_threads"),
     [
-        ("kev-4b/cpu/kev-4b_cpu_fp32.json", 16),
+        ("kev-4b/cpu/kev-4b_cpu_fp32.json", 24),
         ("kev-4b/cuda/kev-4b_cuda_mixed.json", 1),
         ("kev-0.8b/cpu/kev-0.8b_cpu_fp32.json", 16),
         ("kev-0.8b/cuda/kev-0.8b_cuda_fp16.json", 1),
