@@ -2,7 +2,10 @@
     "input_model": {
         "type": "CompositeModel",
         "config": {
-            "model_path": "gemma4_onnx"
+            "model_path": "gemma4_onnx",
+            "model_attributes": {
+                "matmul_nbits_accuracy_level": 4
+            }
         }
     },
     "systems": {
@@ -179,6 +182,13 @@
                 },
                 {
                     "surgeon": "RemoveInitializerValueInfo"
+                },
+                {
+                    "surgeon": "ReblockMatMulNBits",
+                    "node_names": [
+                        "decoder/lm_head/MatMulNBits_node_1264"
+                    ],
+                    "block_size": 128
                 }
             ],
             "save_as_external_data": true
@@ -221,7 +231,6 @@
             "type": "MatMulNBitsToQDQ",
             "use_signed_int": true,
             "add_zero_point": true,
-            "use_int8_per_channel": true,
             "nodes_to_exclude": [
                 "decoder/lm_head/MatMulNBits_node_1264"
             ],

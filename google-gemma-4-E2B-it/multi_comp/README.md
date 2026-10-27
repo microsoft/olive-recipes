@@ -29,10 +29,10 @@ python optimize.py --ep qnn
 For either target, the script runs exactly three steps:
 
 1. Quantize the Hugging Face components with `gemma4_quantize.json`.
-2. Capture the quantized ONNX graphs with Mobius.
+2. Capture the quantized ONNX graphs with Mobius using `olive capture-onnx-graph`.
 3. Run `ov.json` or `qnn.json`.
 
-To run the steps manually:
+To run the steps manually with the currently configured accuracy level of `4`:
 
 ```bash
 # 1. Quantize
@@ -43,6 +43,7 @@ olive capture-onnx-graph \
     --model_name_or_path gemma4_quantized_hf \
     --use_mobius_builder \
     --precision fp32 \
+    --matmul_nbits_accuracy_level 4 \
     --output_path gemma4_onnx
 
 # 3. Optimize for one target
@@ -73,6 +74,34 @@ an Olive build with existing-GenAI-config update support in
 `OpenVINOEncapsulation`; no manual runtime configuration edits are needed.
 Inference requires an ONNX Runtime build with the OpenVINO EP and the matching
 Intel NPU runtime.
+
+## Capture accuracy
+
+Set `input_model.config.model_attributes.matmul_nbits_accuracy_level` in the
+existing target recipe: `qnn.json` for QNN or `ov.json` for OpenVINO. Both are
+configured with `4`:
+
+```json
+"model_attributes": {
+    "matmul_nbits_accuracy_level": 4
+}
+```
+
+`optimize.py` reads the selected recipe before quantization and forwards its value
+as `--matmul_nbits_accuracy_level` to the same `olive capture-onnx-graph` command
+with `--use_mobius_builder`. No separate export JSON is used. If running the
+steps manually, use the selected recipe's value in the capture command above.
+
+This overrides the activation-computation accuracy level
+for all exported `MatMulNBits` operators, including the CPU embedding projection
+and LM head retained after QNN conversion. It does not change weight bit widths
+or `GatherBlockQuantized`, and is not a lossless numerical optimization.
+
+The setting accepts integers `0` through `4`. Remove the setting or set it to
+`null` to omit the capture argument and preserve Mobius's existing EP-specific
+defaults; explicit `0` is forwarded and overrides any nonzero EP default.
+Invalid values fail before quantization starts. This requires Olive and Mobius
+versions that support the capture argument.
 
 ## QNN
 
