@@ -181,7 +181,7 @@
         "sq_decoder": {
             "type": "OnnxStaticQuantization",
             "data_config": "calib",
-            "activation_type": "uint8",
+            "activation_type": "uint16",
             "precision": "uint8",
             "quant_format": "QDQ",
             "calibration_providers": [
@@ -229,7 +229,8 @@
         "cb": {
             "type": "EPContextBinaryGenerator",
             "provider_options": {
-                "device_type": "NPU"
+                "device_type": "NPU",
+                "load_config": "{\"NPU\":{\"NPU_COMPILER_TYPE\":\"DRIVER\"}}"
             },
             "session_options": {
                 "optimization.disable_specified_optimizers": "QDQPropagationTransformer",
@@ -247,8 +248,7 @@
             "components": [ "decoder" ],
             "pipeline": [ "decoder_matmul_nbits_to_qdq", "gs_decoder", "sq_decoder", "sp",
                 "kv",
-                "st",
-                "cb" ],
+                "st", "cb" ],
             "target": {
                 "type": "LocalSystem",
                 "accelerators": [
@@ -277,6 +277,9 @@
             "pipeline": [ "matmul_nbits_to_qdq"]
         }
     },
-    "output_dir": "gemma4_ov",
+    "engine": {
+        "cache_dir": ".olive-cache-ep181-driver-fresh"
+    },
+    "output_dir": "gemma4_ov_latest_ep_fresh",
     "log_severity_level": 1
 }
