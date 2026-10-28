@@ -56,14 +56,16 @@ pip install -r requirements.txt --index-url https://download.pytorch.org/whl/cu1
 
 4. Run Olive recipe
 
+`PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True` is required to prevent CUDA allocator fragmentation during the quantization export phase.
+
 For Snapdragon X2 Elite:
 ```bash
-QAIRT_SDK_ROOT=<path/to/qairt/sdk> olive run --config x2_elite_config.json
+QAIRT_SDK_ROOT=<path/to/qairt/sdk> PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True olive run --config x2_elite_config.json
 ```
 
 For Snapdragon X Elite:
 ```bash
-QAIRT_SDK_ROOT=<path/to/qairt/sdk> olive run --config x_elite_config.json
+QAIRT_SDK_ROOT=<path/to/qairt/sdk> PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True olive run --config x_elite_config.json
 ```
 
 ## Execution Instructions
