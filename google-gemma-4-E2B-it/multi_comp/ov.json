@@ -74,50 +74,6 @@
             ],
             "save_as_external_data": true
         },
-        "ov_conversion": {
-            "type": "OpenVINOConversion",
-            "static": false,
-            "compress_to_fp16": false,
-            "model_name": "model"
-        },
-        "ov_encapsulation": {
-            "type": "OpenVINOEncapsulation",
-            "target_device": "npu",
-            "keep_ov_dynamic_dims": true,
-            "update_genai_config": true,
-            "genai_config_override": {
-                "model": {
-                    "decoder": {
-                        "session_options": {
-                            "graph_optimization_level": "ORT_DISABLE_ALL",
-                            "ep.context_file_path": "decoder/model.onnx",
-                            "provider_options": [
-                                {
-                                    "OpenVINO": {
-                                        "device_type": "NPU",
-                                        "enable_causallm": "True",
-                                        "load_config": "{\"NPU\":{\"MAX_PROMPT_LEN\":\"1024\",\"MIN_RESPONSE_LEN\":\"128\",\"NPUW_DEVICES\":\"NPU\",\"NPUW_FALLBACK_EXEC\":\"NO\"}}"
-                                    }
-                                }
-                            ]
-                        }
-                    },
-                    "embedding": {
-                        "session_options": {
-                            "provider_options": []
-                        }
-                    },
-                    "speech": {
-                        "session_options": {
-                            "provider_options": []
-                        }
-                    }
-                },
-                "search": {
-                    "past_present_share_buffer": false
-                }
-            }
-        },
         "gs_vision": {
             "type": "GraphSurgeries",
             "surgeries": [{"surgeon": "RemoveUnusedNodeOutputs"},
@@ -157,8 +113,7 @@
                 "device_type": "NPU"
             },
             "session_options": {
-                "optimization.disable_specified_optimizers": "QDQPropagationTransformer",
-                "log_severity_level": 1
+                "optimization.disable_specified_optimizers": "QDQPropagationTransformer"
             },
             "update_genai_config": true,
             "genai_config_role": "vision"
@@ -184,6 +139,9 @@
             "activation_type": "uint16",
             "precision": "uint8",
             "quant_format": "QDQ",
+            "op_types_to_quantize": [
+                "MatMul"
+            ],
             "calibration_providers": [
                 "CPUExecutionProvider"
             ],
@@ -195,6 +153,8 @@
                 "ConstantOfShape"
             ],
             "nodes_to_exclude": [
+                "decoder/model/Reshape_node_1",
+                "decoder/model/norm/Mul_node_1263",
                 "decoder/lm_head/MatMulNBits_node_1264",
                 "decoder/lm_head/MatMul_node_1264",
                 "decoder/Div_node_1266",
@@ -233,8 +193,8 @@
                 "load_config": "{\"NPU\":{\"NPU_COMPILER_TYPE\":\"DRIVER\"}}"
             },
             "session_options": {
-                "optimization.disable_specified_optimizers": "QDQPropagationTransformer",
-                "log_severity_level": 1
+                "session.disable_quant_qdq": "1",
+                "session.disable_qdq_constant_folding": "1"
             },
             "weight_sharing": true,
             "compile_flow": "jit",
@@ -271,15 +231,11 @@
                     }
                 ]
             }
-        },
-        "embedding": {
-            "components": ["embedding"],
-            "pipeline": [ "matmul_nbits_to_qdq"]
         }
     },
     "engine": {
-        "cache_dir": ".olive-cache-ep181-driver-fresh"
+        "cache_dir": ".olive-cache"
     },
-    "output_dir": "gemma4_ov_latest_ep_fresh",
+    "output_dir": "gemma4_ov",
     "log_severity_level": 1
 }
