@@ -25,7 +25,7 @@ Other configurations may work but have not been validated.
 **Validated host configuration:**
 * Ubuntu 22.04
 * Python 3.10.12
-* qairt-dev 0.11.0
+* qairt-dev 0.12.0
 * QAIRT 2.48.40
 
 ## Preparation Instructions
