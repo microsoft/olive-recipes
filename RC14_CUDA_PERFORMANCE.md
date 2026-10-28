@@ -1,6 +1,7 @@
 # RC14 INT3 Model: ONNX Runtime CUDA Performance
 
-Measured on 2026-10-27. This is a **single-runtime, single-GPU measurement**
+Short-input measurements were completed on 2026-10-27; the long-input extension
+below was completed on 2026-10-28. This is a **single-runtime, single-GPU measurement**
 of the supplied `mai_coder_bf16_quant_int3` artifact, not a comparison with
 another runtime, implementation, or model.
 
@@ -279,6 +280,145 @@ lengths in descending order.
 | 2 | 4096 | 4 | 8446.352 | 8445.373 | 2198.294 | 10644.646 |
 | 2 | 4096 | 5 | 8447.148 | 8445.784 | 2198.517 | 10645.666 |
 
+## Long-Input Extension: 32K, 64K, 128K, and 256K
+
+Completed on 2026-10-28. Here **K = 1024**: the exact input lengths are
+32768, 65536, 131072, and 262144 tokens.
+
+### Original Single-Prefill Method: Actual Failures
+
+Each length was actually attempted in a fresh process, with no warmup and one
+requested measurement. All four failed before producing a prediction. These
+are failed feasibility attempts, not completed latency/throughput measurements.
+Attempt peaks cover initialization through failure, unlike the measured-request
+peaks in the successful tables.
+
+| Input | Failure stage | Failed allocation bytes | Attempt peak process GiB |
+| ---: | --- | ---: | ---: |
+| 32768 | Prefill, `/lm_head/MatMul` logits allocation | 26357006336 | 76.449 |
+| 65536 | Prefill, first-layer `q_norm/SimplifiedLayerNormalization` | 1610612736 | 77.949 |
+| 131072 | Prefill, first-layer `attn_pre_norm/SimplifiedLayerNormalization` | 1879048192 | 77.443 |
+| 262144 | KV cache allocation/reset | 537131008 | 78.537 |
+
+All errors were ORT BFCArena allocation failures. **TTFT and throughput are
+N/A for this original method at every requested long length.**
+The graph emits full-sequence FP32 logits of width 201088: that tensor alone
+would occupy 24.546875, 49.09375, 98.1875, and 196.375 GiB respectively.
+This size calculation explains a major capacity constraint; it is not a
+substitute for the actual observed failure stages above.
+
+### Separate Chunked-Prefill Method and Environment
+
+The following successful measurements use **2048-token sequential prefill
+chunks**. They are a different invocation/configuration from the original
+single-prefill table and must not be interpreted as the same workload or as
+an ORT implementation speedup.
+
+- No ORT source change, rebuild, or ONNX model modification was made. The
+  installed wheel and all three mapped ORT library hashes match the identities
+  above; both model-file hashes also match.
+- A new `jiafa-dev` container was created on an isolated Docker daemon after
+  the original shared Docker storage failed. It uses
+  `pytorch/pytorch:2.12.1-cuda13.0-cudnn9-devel`, Python 3.12.3, the same CUDA
+  13.0 runtime, and the same mounted cuDNN 9.23.2 libraries. This is an
+  environment change, not a continuation in the original container.
+- Physical **GPU 1**, also an NVIDIA A100-SXM4-80GB, was used instead of GPU 0.
+  Its UUID was `GPU-1d6c259c-3f83-8046-c0b6-cbeb9e062c8d`. All eight formal
+  workers used this UUID. Each worker checked it idle and monitored observed
+  compute-PID exclusivity; clocks and power were not locked.
+- CUDA provider `arena_extend_strategy=kSameAsRequested` replaces the default
+  `kNextPowerOfTwo`, reducing arena growth reservation. The 64 MiB QMoE
+  scratch setting and 8/1 thread counts are unchanged.
+- Chunk boundaries are 2048 tokens, without overlap or truncation. All chunks
+  reuse the same in-place BF16 KV buffers and cumulative position inputs.
+  Local layers retain their exported 511-position sliding windows; global
+  layers retain full context. Global KV capacity remains input length plus
+  output predictions minus one.
+- Every chunk still computes full logits for that chunk; intermediate-chunk
+  logits are discarded on GPU without a CPU copy. Only the final chunk's
+  last-position vector is copied, finite-checked, and argmaxed.
+- TTFT now spans **all** prefill chunks and their Python/binding overhead,
+  through the final CPU argmax. Prefill throughput divides total input tokens
+  by the sum of synchronized ORT run times over all chunks, excluding
+  inter-chunk Python/binding work. Other metric definitions remain unchanged.
+- The deterministic prompt rule and forced continuation are unchanged.
+  Timing has no ORT profiling, CUDA graphs, or logits-file capture.
+
+**256K is prefill-only.** The exported rotary tables have shape `[262145,64]`.
+After 262144 input tokens there are insufficient table positions for the
+original 127 decode transitions. This row makes one prediction and zero decode
+transitions; decode throughput is N/A. No rotary extension or model patch was
+used. The other three rows make 128 predictions and 127 decode transitions.
+
+The formal protocol retains two rounds, ascending then descending lengths,
+three warmups and five measured requests per process: **8 processes, 40
+measured requests, 3850 predictions, and 3810 decode transitions**. The **24
+warmup requests** and all feasibility/numerical probes are excluded. Each row
+pools ten measured requests from two fresh processes. The matrix ran from
+14:37:25 to 19:23:33 UTC on 2026-10-28.
+
+### Pooled Chunked Results
+
+TTFT is in **seconds**, unlike the short-input table's milliseconds.
+Memory is measured-request NVML-sampled process residency, not allocation
+peak or device-wide memory.
+
+| Input tokens | Requests | TTFT p50 s | TTFT p95 s | Prefill tok/s | Decode tok/s | Peak process GiB |
+| ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| 32768 | 10 | 68.207 | 68.213 | 480.522 | 52.281 | 71.928 |
+| 65536 | 10 | 137.493 | 137.511 | 476.727 | 46.926 | 72.928 |
+| 131072 | 10 | 279.105 | 279.206 | 469.679 | 39.709 | 74.928 |
+| 262144 | 10 | 574.845 | 574.912 | 456.092 | N/A | 77.926 |
+
+All eight formal processes and all 40 measured requests completed without OOM
+or non-finite copied last-position logits. At each length, the ten requests
+had one identical predicted-token stream and one identical concatenated-logits
+hash. This is same-configuration repeatability, not numerical equivalence to
+unchunked inference or a quality evaluation.
+
+### Initialization and Sampling by Long-Input Process
+
+| Round | Input | Init s | Peak process GiB | Samples | Interval p50 ms | Interval max ms |
+| ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| 1 | 32768 | 7.366 | 71.928 | 66630 | 5.286 | 7.473 |
+| 2 | 32768 | 7.403 | 71.928 | 66620 | 5.288 | 9.493 |
+| 1 | 65536 | 7.269 | 72.928 | 132304 | 5.284 | 8.060 |
+| 2 | 65536 | 8.823 | 72.928 | 132252 | 5.288 | 6.600 |
+| 1 | 131072 | 7.485 | 74.928 | 266189 | 5.288 | 10.265 |
+| 2 | 131072 | 7.728 | 74.928 | 265809 | 5.296 | 10.697 |
+| 1 | 262144 | 9.416 | 77.926 | 540724 | 5.288 | 55.002 |
+| 2 | 262144 | 9.007 | 77.926 | 541952 | 5.289 | 13.825 |
+
+The requested sampling interval was 5 ms, not a guaranteed maximum. In
+particular, the 55.002 ms observed gap can miss brief peaks; these values
+should not be treated as exact maximum allocation requirements.
+
+### Chunking Numerical Sanity Checks and Limitations
+
+Separate untimed probes on the replacement container compared the final
+prefill logits using the same GPU, model, runtime, prompt, and
+`kSameAsRequested` setting. They found differences:
+
+| Input | Full prefill top-1 | Chunk size | Chunked top-1 | Max absolute logits difference | Logits RMSE |
+| ---: | ---: | ---: | ---: | ---: | ---: |
+| 128 | 126 | 64 | 3218 | 1.455627 | 0.261406 |
+| 4096 | 100 | 2048 | 100 | 1.094495 | 0.245368 |
+
+The full-prefill top-1 margin at input 128 was 0.292189. A separate
+128-prediction forced-continuation probe agreed on 127/128 predictions, with
+the first prediction differing. **Chunking is therefore not claimed
+numerically equivalent to unchunked prefill.** The cause of the differences
+has not been established; these measurements alone cannot distinguish
+floating-point/kernel-selection effects from a chunk/cache implementation
+issue. Long-input full-prefill reference runs could not complete because of
+the OOMs above. These tables report observed performance of this chunked
+invocation, not validated numerical correctness or production readiness.
+
+The long-input prompt hashes, runtime mappings, unrounded per-request timing
+data, failure traces, and numerical probes are retained locally under
+`rc14-cuda-long-results-20261028`, including `formal-summary.json` and eight
+`formal-round*-input*.json` files. They are not added to this PR.
+
 ## Scope and Retained Artifacts
 
 The raw per-process JSON includes unrounded timings, all predicted token
@@ -288,7 +428,7 @@ ORT profiles, and the Nsight capture/CSV are retained locally under
 `rc14-cuda-results-20261027`; they are not added to this PR. The local harness
 and raw captures are not a public self-contained reproduction package.
 
-All four input lengths completed without OOM or non-finite last-position
+All four original short input lengths completed without OOM or non-finite last-position
 logits. Two rounds and ten measured requests per length are a limited
 controlled sample, not confidence intervals or production variability
 coverage. No throughput ratios, memory savings against another runtime,
