@@ -344,11 +344,26 @@ an ORT implementation speedup.
 - The deterministic prompt rule and forced continuation are unchanged.
   Timing has no ORT profiling, CUDA graphs, or logits-file capture.
 
-**256K is prefill-only.** The exported rotary tables have shape `[262145,64]`.
-After 262144 input tokens there are insufficient table positions for the
-original 127 decode transitions. This row makes one prediction and zero decode
-transitions; decode throughput is N/A. No rotary extension or model patch was
-used. The other three rows make 128 predictions and 127 decode transitions.
+**256K is prefill-only because of the exported model's fixed RoPE table
+length, not an ONNX Runtime limitation.** The rotary tables have shape
+`[262145,64]`, covering positions `0-262144`. A 256K (262144-token) prompt
+occupies positions `0-262143`, and prefill produces the first prediction.
+The standard benchmark then requires 127 decode transitions, consuming
+positions `262144-262270`, which exceed the available table. Only one
+additional decode transition fits within the existing table.
+
+Therefore, this row makes one prediction and zero decode transitions;
+decode throughput is N/A. This was a known model constraint, not an observed
+decode failure. No rotary extension or model patch was used. The other three
+rows make 128 predictions and 127 decode transitions.
+
+To measure the full 127-transition decode workload without modifying the
+model, a follow-up could reduce the prompt to **262018 tokens**, so the last
+decode input uses position 262144. That must be labeled with its exact input
+length, not as an exact 256K prompt. Alternatively, exactly 256K input tokens
+plus 127 decode transitions would require a model exported with longer rotary
+tables and confirmation that its positional encoding supports that range.
+Neither alternative was measured in this report.
 
 The formal protocol retains two rounds, ascending then descending lengths,
 three warmups and five measured requests per process: **8 processes, 40
