@@ -101,9 +101,9 @@ for all exported `MatMulNBits` operators, including the CPU embedding projection
 and LM head retained after QNN conversion. It does not change weight bit widths
 or `GatherBlockQuantized`, and is not a lossless numerical optimization.
 
-The setting accepts integers `0` through `4`. Remove the setting or set it to
+The setting accepts integers `1` through `4`. Remove the setting or set it to
 `null` to omit the capture argument and preserve Mobius's existing EP-specific
-defaults; explicit `0` is forwarded and overrides any nonzero EP default.
+defaults. Explicit `0` is not accepted by the shared capture CLI.
 Invalid values fail before quantization starts. This requires Olive and Mobius
 versions that support the capture argument.
 

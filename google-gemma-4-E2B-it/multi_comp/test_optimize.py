@@ -79,7 +79,7 @@ class Gemma4OptimizeTest(unittest.TestCase):
             ("qnn", "QNNExecutionProvider"),
             ("ov", "OpenVINOExecutionProvider"),
         ):
-            for level in (0, 2, 4):
+            for level in (1, 2, 3, 4):
                 with self.subTest(ep=ep, level=level):
                     self.subprocess_run.reset_mock()
                     self.write_config(
@@ -104,7 +104,7 @@ class Gemma4OptimizeTest(unittest.TestCase):
                     self.assert_pipeline(ep, None)
 
     def test_main_rejects_invalid_accuracy_before_quantization(self):
-        for level in (-1, 5, True, False, 4.0, "4", [], {}):
+        for level in (-1, 0, 5, True, False, 4.0, "4", [], {}):
             with self.subTest(level=level):
                 self.subprocess_run.reset_mock()
                 self.write_config(

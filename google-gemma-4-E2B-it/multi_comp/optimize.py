@@ -56,11 +56,11 @@ def main() -> None:
         else None
     )
     if accuracy_level is not None and (
-        type(accuracy_level) is not int or not 0 <= accuracy_level <= 4
+        type(accuracy_level) is not int or not 1 <= accuracy_level <= 4
     ):
         parser.error(
             f"{config_path.name}: input_model.config.model_attributes.matmul_nbits_accuracy_level "
-            "must be an integer from 0 to 4, or null"
+            "must be an integer from 1 to 4, or null"
         )
     capture_args = [
         "capture-onnx-graph",
