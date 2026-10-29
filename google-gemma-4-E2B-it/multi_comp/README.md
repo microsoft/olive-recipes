@@ -119,7 +119,8 @@ pip install -r requirements-qnn.txt
 8-bit, group-size-128 `MatMulNBits`. The exclusion uses the exact exported node
 name; update it if a new ONNX capture changes that name.
 
-`gemma4_quantize.json` sets the decoder's default to per-channel INT4 and
+`gemma4_quantize.json` sets the decoder's default to blockwise INT4 with
+`group_size: 128` and
 overrides `lm_head` with `{"bits": 8, "group_size": 128}`. This quantizes the
 CPU LM head into supported blocks from the start; no post-export reblocking
 is needed. Changing this override changes the LM head's quantization rather
