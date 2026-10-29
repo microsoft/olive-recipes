@@ -73,7 +73,7 @@ def main() -> None:
         "gemma4_onnx",
     ]
     if accuracy_level is not None:
-        capture_args.extend(["--matmul_nbits_accuracy_level", str(accuracy_level)])
+        capture_args.extend(["--int4_accuracy_level", str(accuracy_level)])
 
     total_steps = 3
     run_step(
