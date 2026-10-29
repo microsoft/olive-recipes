@@ -9,3 +9,4 @@ __pycache__/
 
 # Olive cache
 .olive-cache/
+olive_requirements.txt
