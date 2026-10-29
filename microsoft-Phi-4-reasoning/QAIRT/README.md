@@ -8,12 +8,12 @@ This workflow uses the `QairtPipelinePass` to perform quantization, model transf
 
 After the pipeline pass, a `QairtEncapsulation` pass wraps the compiled DLC in an ONNX protobuf and exports a directory compatible with onnxruntime-genai.
 
-### Metrics
+## Metrics
 
-| SoC      | MMLU  | TTFT (s) | Prefill TPS | Decode TPS |
-|----------|-------|----------|-------------|------------|
-| X2 Elite | 74.72 | 0.68     | 966.41      | 13.84      |
-| X Elite  | 74.45 | 1.80     | 367.30      | 4.65       |
+| SoC | MMLU | TTFT (s) | Prefill TPS | Decode TPS |
+|---|---|---|---|---|
+| X2 Elite | 74.72 | 0.68 | 966.41 | 13.84 |
+| X Elite | 74.45 | 1.80 | 367.30 | 4.65 |
 
 ## Previous Versions
 
