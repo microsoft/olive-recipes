@@ -8,6 +8,13 @@ This workflow uses the `QairtPipelinePass` to perform quantization, model transf
 
 After the pipeline pass, a `QairtEncapsulation` pass wraps the compiled DLC in an ONNX protobuf and exports a directory compatible with onnxruntime-genai.
 
+### Metrics
+
+| SoC      | MMLU  | TTFT (s) | Prefill TPS | Decode TPS |
+|----------|-------|----------|-------------|------------|
+| X2 Elite | 74.72 | 0.68     | 966.41      | 13.84      |
+| X Elite  | 74.45 | 1.80     | 367.30      | 4.65       |
+
 ## Previous Versions
 
 Previous versions of this recipe used `QairtPreparationPass` and `QairtGenAIBuilderPass` in a script-based preparation workflow. This previous version of the recipe can be found [here](https://github.com/microsoft/olive-recipes/tree/4454b785c247826df77d5039ca07f1507a2f950a/microsoft-Phi-4-reasoning/QAIRT). Performance and accuracy metrics with this replacement recipe meet or exceed those measured with the original recipe.
@@ -17,6 +24,7 @@ Previous versions of this recipe used `QairtPreparationPass` and `QairtGenAIBuil
 **Validated host configuration:**
 * Ubuntu 22.04
 * Python 3.10.12
+* olive-ai[qairt] 0.13.0
 * qairt-dev 0.11.0
 * QAIRT 2.45.40
 
@@ -34,12 +42,12 @@ Other configurations may work but have not been validated.
 1. Install olive-ai[qairt]
 
 ```bash
-pip install olive-ai[qairt]
+pip install olive-ai[qairt]==0.13.0
 pip list | grep qairt-dev  # Ensure the proper qairt-dev version was installed
 pip install qairt-dev[pipeline,onnx]==0.11.0  # Install the proper qairt-dev version, if not installed
 ```
 
-2. (Optional) Use qairt-vm to install a non-default version of QAIRT and set QAIRT_SDK_ROOT
+2. Use qairt-vm to install a non-default version of QAIRT and set QAIRT_SDK_ROOT
 
 ```bash
 # List available QAIRT SDK versions
@@ -57,7 +65,7 @@ export QAIRT_SDK_ROOT=/path/to/qairt/sdk
 3. Install model-specific requirements
 
 ```bash
-pip install -r requirements.txt
+pip install -r requirements_model.txt
 ```
 
 4. Run Olive recipe
