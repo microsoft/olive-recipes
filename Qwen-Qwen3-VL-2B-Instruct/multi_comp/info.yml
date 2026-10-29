@@ -1,0 +1,15 @@
+keywords:
+  - olive-ai
+recipes:
+  - name: qwen3vl-2B-Instruct-components
+    file: quantize_onnx.json
+    eps:
+      - CPUExecutionProvider
+    devices:
+      - cpu
+  - name: qwen3vl-2B-Instruct-kquant
+    file: quantize_pytorch.json
+    eps:
+      - CUDAExecutionProvider
+    devices:
+      - gpu
