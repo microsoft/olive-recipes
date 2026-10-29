@@ -55,7 +55,7 @@ class Gemma4OptimizeTest(unittest.TestCase):
             "gemma4_onnx",
         ]
         if accuracy_level is not None:
-            capture.extend(["--matmul_nbits_accuracy_level", str(accuracy_level)])
+            capture.extend(["--int4_accuracy_level", str(accuracy_level)])
         self.assertEqual(
             [call.args[0] for call in self.subprocess_run.call_args_list],
             [

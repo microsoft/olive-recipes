@@ -32,7 +32,7 @@
             "desc_act": false,
             "data_config": "wikitext2_train_joined",
             "overrides": {
-                "lm_head": { "bits": 8 }
+                "lm_head": { "bits": 8, "group_size": 128 }
             }
         },
         "vision_rtn": {

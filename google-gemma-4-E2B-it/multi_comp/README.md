@@ -43,7 +43,7 @@ olive capture-onnx-graph \
     --model_name_or_path gemma4_quantized_hf \
     --use_mobius_builder \
     --precision fp32 \
-    --matmul_nbits_accuracy_level 4 \
+    --int4_accuracy_level 4 \
     --output_path gemma4_onnx
 
 # 3. Optimize for one target
@@ -88,9 +88,13 @@ configured with `4`:
 ```
 
 `optimize.py` reads the selected recipe before quantization and forwards its value
-as `--matmul_nbits_accuracy_level` to the same `olive capture-onnx-graph` command
+as `--int4_accuracy_level` to the same `olive capture-onnx-graph` command
 with `--use_mobius_builder`. No separate export JSON is used. If running the
 steps manually, use the selected recipe's value in the capture command above.
+
+The CLI option retains its existing `int4` name and is shared by Model Builder
+and Mobius. With Mobius, it also applies to 8-bit `MatMulNBits`. The recipe
+metadata key remains `matmul_nbits_accuracy_level`.
 
 This overrides the activation-computation accuracy level
 for all exported `MatMulNBits` operators, including the CPU embedding projection
@@ -114,6 +118,12 @@ pip install -r requirements-qnn.txt
 `qnn.json` excludes `lm_head` from MatMulNBits-to-QDQ conversion, preserving its
 8-bit, group-size-128 `MatMulNBits`. The exclusion uses the exact exported node
 name; update it if a new ONNX capture changes that name.
+
+`gemma4_quantize.json` sets the decoder's default to per-channel INT4 and
+overrides `lm_head` with `{"bits": 8, "group_size": 128}`. This quantizes the
+CPU LM head into supported blocks from the start; no post-export reblocking
+is needed. Changing this override changes the LM head's quantization rather
+than losslessly rearranging an existing quantized checkpoint.
 
 ## Inference
 

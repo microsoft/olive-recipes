@@ -182,13 +182,6 @@
                 },
                 {
                     "surgeon": "RemoveInitializerValueInfo"
-                },
-                {
-                    "surgeon": "ReblockMatMulNBits",
-                    "node_names": [
-                        "decoder/lm_head/MatMulNBits_node_1264"
-                    ],
-                    "block_size": 128
                 }
             ],
             "save_as_external_data": true
