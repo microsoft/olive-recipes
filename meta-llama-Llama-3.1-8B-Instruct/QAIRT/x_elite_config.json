@@ -1,0 +1,38 @@
+{
+    "input_model": {
+        "type": "HFModel",
+        "model_path": "meta-llama/Llama-3.1-8B-Instruct"
+    },
+    "passes": {
+        "qp": {
+            "type": "QairtPipelinePass",
+            "recipe": "x_elite_config.yaml",
+            "cache_dir": "cache/qairt"
+        },
+        "qe": {
+            "type": "QairtEncapsulation",
+            "log_level": "ERROR",
+            "run_checker": "true",
+            "engine_config_overrides": {
+                "n_threads": 3,
+                "htp": {
+                    "cpu_mask": "0xe0",
+                    "allow_async_init": false,
+                    "poll": false,
+                    "mmap_budget": 0
+                }
+            },
+            "backend_extensions_overrides": {
+                "context": [{"weight_sharing_enabled": true, "reused_io_limit_mb": 100}],
+                "graphs": null,
+                "devices": [{"pd_session": "unsigned"}],
+                "groupContext": {"share_resources": false},
+                "memory": {"mem_type": "shared_buffer"}
+            }
+        }
+    },
+    "log_severity_level": 1,
+    "output_dir": "models/llama3_1-8b-instruct-qairt-htp-sc8380xp",
+    "cache_dir": "cache",
+    "no_artifacts": true
+}
