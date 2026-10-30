@@ -23,10 +23,13 @@ Previous versions of this recipe used `QairtPreparationPass` and `QairtGenAIBuil
 
 **Validated host configuration:**
 * Ubuntu 22.04
-* Python 3.10.12
-* olive-ai[qairt] 0.13.0
-* qairt-dev 0.11.0
-* QAIRT 2.45.40
+* Python 3.12.10
+* Nvidia H100 80GB GPU, CUDA 12.8+
+* QAIRT 2.48.40
+
+With the preparation-time Python dependencies noted in requirements_host.txt  - other configurations may work but have not been verified.
+
+Other configurations may work but have not been verified.
 
 **Validated SoCs:**
 
@@ -35,40 +38,31 @@ The following SoC recipes were validated using target devices in the [Qualcomm D
 * Snapdragon X2 Elite
 * Snapdragon X Elite
 
-Other configurations may work but have not been validated.
+With the runtime Python dependencies noted in requirements_target.txt - other configurations may work but have not been verified.
 
 ## Preparation Instructions
 
-1. Install olive-ai[qairt]
+1. Install host requirements
 
 ```bash
-pip install olive-ai[qairt]==0.13.0
-pip list | grep qairt-dev  # Ensure the proper qairt-dev version was installed
-pip install qairt-dev[pipeline,onnx]==0.11.0  # Install the proper qairt-dev version, if not installed
+pip install -r requirements_host.txt
 ```
 
 2. Use qairt-vm to install a non-default version of QAIRT and set QAIRT_SDK_ROOT
 
 ```bash
-# List available QAIRT SDK versions
-qairt-vm fetch --list
+# Download QAIRT SDK 2.48.40
+qairt-vm fetch -v 2.48.40 -d <download location>
 
-# Download non-default version of QAIRT SDK
-qairt-vm fetch -v <version>
-
-# Set QAIRT_SDK_ROOT to download location of QAIRT SDK
-# By default, /opt/qcom/aistack/qairt/<version>
+# Set QAIRT_SDK_ROOT to the download location
 # Note: No further QAIRT SDK installation steps are required when using qairt-dev
-export QAIRT_SDK_ROOT=/path/to/qairt/sdk
+export QAIRT_SDK_ROOT=<download location>/qairt/<version>
+
+# If using a non-system Python (e.g. uv, pyenv), expose the Python shared library
+export LD_LIBRARY_PATH=$(python3 -c "import sysconfig; print(sysconfig.get_config_var('LIBDIR'))"):$LD_LIBRARY_PATH
 ```
 
-3. Install model-specific requirements
-
-```bash
-pip install -r requirements_model.txt
-```
-
-4. Run Olive recipe
+3. Run Olive recipe
 
 For Snapdragon X2 Elite:
 ```bash
@@ -82,12 +76,10 @@ olive run --config x_elite_config.json
 
 ## Execution Instructions
 
-The output of the above olive recipe is a directory validated with the following onnxruntime dependency versions on Snapdragon X2 Elite and Snapdragon X Elite.
+The output of the above olive recipe is a directory validated on Snapdragon X2 Elite and Snapdragon X Elite with the following onnxruntime dependency versions (Python 3.12.10):
 
 ```bash
-> python --version
-3.12.10
-> pip install onnxruntime==1.24.2 onnxruntime-genai==0.13.0 onnxruntime-qnn==2.1.0
+pip install -r requirements_target.txt
 ```
 
 Please see the following script in the onnxruntime-genai repository for [an example of how to run this model directory](https://github.com/microsoft/onnxruntime-genai/blob/main/examples/python/model-qa.py).
