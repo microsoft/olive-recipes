@@ -4,6 +4,17 @@ soc_details: "chipset:SC8380XP"
 
 enable_cache: true
 enable_observers: true
+show_progress: true
+
+evaluation_mode: true
+evaluator_config:
+  context_length: 4096
+  metrics:
+    - name: PPL
+      dataset_name: wikitext
+      # Full wikitext-2 test split at context_length 4096 is ~60 batches.
+      # Reduce max_batches for faster iteration during development.
+      max_batches: 60
 
 log_level: info
 
@@ -34,7 +45,23 @@ stages:
     recipe_name: lpbq_seqmse
     technique_kwargs:
       lpbq:
-        exceptions_json: ./mixed_precision_exceptions.json
+        module_precisions:
+          rms_norm:
+            weight_precision: int16
+            mode: asymmetric
+          embedding:
+            weight_precision: int8
+            mode: asymmetric
+          lm_head:
+            weight_precision: int4
+          kv_cache:
+            activation_precision: int8
+            mode: symmetric
+            match_info: [v_proj]
+          custom:
+            "\\w*self_attn_Concat_1":
+              activation_precision: int8
+              mode: symmetric
 
   genai_builder:
     native_kv: true
