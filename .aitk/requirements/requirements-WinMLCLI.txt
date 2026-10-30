@@ -11,7 +11,7 @@ charset-normalizer==3.5.1
 click==8.5.0
 cloudpickle==3.1.2
 colorama==0.4.6
-cryptography==50.0.1
+cryptography==50.0.2
 datasets==5.0.1
 diffusers==0.39.0
 dill==0.4.1
@@ -48,7 +48,7 @@ multiprocess==0.70.19
 narwhals==2.26.0
 networkx==3.6.1
 numpy==2.2.6
-onnx==1.18.0
+onnx==1.21.0rc1
 onnx-ir==1.0.0
 onnxruntime-genai-winml==0.14.1
 onnxruntime-windowsml==1.24.6.202605042033
@@ -103,7 +103,7 @@ torchinfo==1.8.0
 torchmetrics==1.9.0
 torchvision==0.29.0
 tqdm==4.70.0
-transformers==4.57.6
+transformers==5.9.0
 truststore==0.10.4
 typing-extensions==4.16.0
 typing-inspection==0.4.4
