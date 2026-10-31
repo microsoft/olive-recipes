@@ -6,13 +6,13 @@ alembic==1.18.4
 annotated-types==0.7.0
 anyio==4.13.0
 attrs==26.1.0
-certifi==2026.4.22
+certifi==2026.10.18
 charset-normalizer==3.4.7
 colorama==0.4.6
 colorlog==6.10.1
 datasets==4.8.5
 dill==0.4.1
-filelock==3.29.0
+filelock==4.2.1
 flatbuffers==25.12.19
 frozenlist==1.8.0
 fsspec==2026.2.0
@@ -35,7 +35,7 @@ multiprocess==0.70.19
 networkx==3.6.1
 numpy==2.4.4
 olive-ai==0.12.1
-onnx==1.21.0
+onnx==1.22.0rc1
 onnx-ir==0.2.1
 # install it separately with no deps as it will install onnxruntime to overwrite onnxruntime-webgpu
 # uvpip:install onnxruntime-genai==0.12.2 --no-deps;post
