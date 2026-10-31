@@ -1,0 +1,18 @@
+arch: lfm2_audio
+recipes:
+  - name: LiquidAI-LFM2.5-Audio-1.5B-JP_webgpu_int4
+    file: LiquidAI-LFM2.5-Audio-1.5B-JP_webgpu_int4.json
+    devices: gpu
+    eps: WebGpuExecutionProvider
+  - name: LiquidAI-LFM2.5-Audio-1.5B-JP_webgpu_int8
+    file: LiquidAI-LFM2.5-Audio-1.5B-JP_webgpu_int8.json
+    devices: gpu
+    eps: WebGpuExecutionProvider
+  - name: LiquidAI-LFM2.5-Audio-1.5B-JP_webgpu_audio_int4
+    file: LiquidAI-LFM2.5-Audio-1.5B-JP_webgpu_audio_int4.json
+    devices: gpu
+    eps: WebGpuExecutionProvider
+  - name: LiquidAI-LFM2.5-Audio-1.5B-JP_webgpu_audio_int8
+    file: LiquidAI-LFM2.5-Audio-1.5B-JP_webgpu_audio_int8.json
+    devices: gpu
+    eps: WebGpuExecutionProvider
