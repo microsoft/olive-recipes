@@ -10,44 +10,52 @@ the [QAIRT Pipeline API documentation](https://docs.qualcomm.com/doc/80-87189-2/
 
 After the pipeline pass, a `QairtEncapsulation` pass wraps the compiled DLC in an ONNX protobuf and exports a directory compatible with onnxruntime-genai.
 
-## Validated SoCs
+## Metrics
 
-The following SoC recipes were validated using target devices in the
-[Qualcomm Device Cloud](https://qdc.qualcomm.com/):
-
-* Snapdragon X Elite (SC8380XP)
-* Snapdragon X2 Elite (SC8480XP)
-
-Other configurations may work but have not been validated.
+| SoC | MMLU | TTFT (s) | Prefill TPS | Decode TPS |
+|-----|------|----------|-------------|------------|
+| Snapdragon X2 Elite | - |  90 | 7833.51 | 86.67 |
+| Snapdragon X Elite | - |  310 | 2196.13 | 20.00 |
 
 ## Requirements
 
 **Validated host configuration:**
 * Ubuntu 22.04
-* Python 3.10.12
-* qairt-dev 0.12.0
+* Python 3.12.10
+* Nvidia H100 80GB GPU, CUDA 12.8+
 * QAIRT 2.48.40
+
+With the preparation-time Python dependencies noted in `requirements_host.txt` - other configurations may work but have not been verified.
+
+**Validated SoCs:**
+
+The following SoC recipes were validated using target devices in the [Qualcomm Device Cloud](https://qdc.qualcomm.com/):
+
+* Snapdragon X2 Elite
+* Snapdragon X Elite
+
+With the runtime Python dependencies noted in `requirements_target.txt` - other configurations may work but have not been verified.
 
 ## Preparation Instructions
 
-1. Install model-specific requirements
+1. Install host requirements
 
 ```bash
-pip install -r requirements.txt
+pip install -r requirements_host.txt
 ```
 
-2. Use qairt-vm to install QAIRT 2.48.40 and set QAIRT_SDK_ROOT
+2. Use qairt-vm to install a non-default version of QAIRT and set QAIRT_SDK_ROOT
 
 ```bash
-# List available QAIRT SDK versions
-qairt-vm fetch --list
+# Download QAIRT SDK 2.48.40
+qairt-vm fetch -v 2.48.40 -d <download location>
 
-# Download non-default version of QAIRT SDK
-qairt-vm fetch -v 2.48.40 -d /path/to/qairt/sdk
-
-# Set QAIRT_SDK_ROOT to the download location of the QAIRT SDK
+# Set QAIRT_SDK_ROOT to the download location
 # Note: No further QAIRT SDK installation steps are required when using qairt-dev
-export QAIRT_SDK_ROOT=/path/to/qairt/sdk
+export QAIRT_SDK_ROOT=<download location>/qairt/<version>
+
+# If using a non-system Python (e.g. uv, pyenv), expose the Python shared library
+export LD_LIBRARY_PATH=$(python3 -c "import sysconfig; print(sysconfig.get_config_var('LIBDIR'))"):$LD_LIBRARY_PATH
 ```
 
 3. Run Olive recipe
@@ -64,21 +72,10 @@ olive run --config x_elite_config.json
 
 ## Execution Instructions
 
-The output of the above olive recipe is a directory validated with the following onnxruntime
-dependency versions on Snapdragon X2 Elite and Snapdragon X Elite.
+The output of the above olive recipe is a directory validated on Snapdragon X2 Elite and Snapdragon X Elite with the following onnxruntime dependency versions (Python 3.12.10):
 
 ```bash
-> python --version
-3.12.10
-> pip install onnxruntime==1.30.0 onnxruntime-genai==0.17.0 onnxruntime-qnn==2.7.0
+pip install -r requirements_target.txt
 ```
 
-Please see the following script in the onnxruntime-genai repository for
-[an example of how to run this model directory](https://github.com/microsoft/onnxruntime-genai/blob/main/examples/python/model-qa.py).
-
-## Performance
-
-| SoC | PPL (Wiki) | TTFT (ms) | Prompt Processing Rate (tok/s) | Token Generation Rate (tok/s) |
-|-----|------------|-----------|-------------------------------|-------------------------------|
-| Snapdragon X Elite | TBD | TBD | TBD | TBD |
-| Snapdragon X2 Elite | TBD | TBD | TBD | TBD |
+Please see the following script in the onnxruntime-genai repository for [an example of how to run this model directory](https://github.com/microsoft/onnxruntime-genai/blob/main/examples/python/model-qa.py).
