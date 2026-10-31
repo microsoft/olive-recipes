@@ -1,0 +1,16 @@
+--extra-index-url https://download.pytorch.org/whl/cu128
+accelerate==1.15.0
+aimet-torch==2.41.0
+datasets==5.0.1
+jsonschema==4.26.0
+olive-ai[qairt]==0.13.0
+onnx==1.19.1
+onnxruntime==1.23.2
+protobuf==6.31.0
+psutil==7.2.2
+pyarrow==25.0.1
+qairt-dev[genai,onnx]==0.12.0
+safetensors==0.4.3
+torch==2.8.0+cu128
+torchvision==0.23.0+cu128
+transformers==4.57.1
