@@ -663,6 +663,121 @@ probes, final Nsight captures/SQLite, `summary.json`, and the QMoE-only
 `runtime.patch` are retained locally under `rc14-qmoe-20261031`.
 The original installed ORT package and model files are unchanged.
 
+## Latest Upstream Main Comparison (2026-11-01)
+
+Before opening a PR for the local QMoE experiment, upstream was refreshed
+to **`a727d71c6120890b752daf5915749b1f18e180ed`**, whose tip is
+[ORT PR #33689](https://github.com/microsoft/onnxruntime/pull/33689).
+This version already introduces vectorized INT3 BF16x2 dequantization and
+INT3 Tensor Core kernels. The local paired-dot patch is **not applied** in
+this comparison; neither is the dense-layout experiment.
+
+### Controls and Validation
+
+A clean separate checkout was built with CUDA 13, SM80, Release, and the
+previous build's runtime options. The original installed runtime, measured
+candidate packages, model graph, and external weights were preserved.
+The baseline is the same preserved old package used in the local QMoE
+experiment, with its dense experimental path inactive.
+
+Both conditions use the original RC14 model, GPU1, batch 1, the same prompt
+and forced reference continuation, disabled dense GEMM autotuning, and
+the same prefill/decode timing boundaries. Two reversed-order rounds were
+followed by one adjacent A/B round because the old 128-input baseline
+showed appreciable variation. Each process has three warmups and five
+measured requests: **60 measured requests, 7620 decode transitions**.
+All three rounds are retained; no slow baseline samples were discarded.
+Four separate full-logit probes and four decode-only Nsight captures are
+excluded from timing aggregates.
+
+Eight targeted upstream INT3 tests passed without skips, covering fast-path
+parity, per-weight rounding/cancellation, prefill parity, Tensor Core
+session options/parity, extreme scales, tiny activations, and zero weights.
+At both input lengths, the saved **128 x 201088 FP32 logits arrays are
+finite and bitwise identical** between conditions: 128/128 top-1 matches,
+zero maximum difference, zero RMSE, and zero relative L2 difference.
+Timed-request logits hashes also match across conditions and rounds.
+These remain synthetic equivalence checks, not task-quality evaluation
+or validation of every shape/architecture.
+
+### Full-Model Results
+
+| Input | Old baseline decode tok/s | Latest main decode tok/s | Pooled decode gain | Old baseline prefill ms | Latest main prefill ms | Prefill latency reduction |
+| ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| 128 | 57.5159 | 66.3500 | +15.36% | 271.996 | 120.394 | 55.74% |
+| 512 | 58.3588 | 64.6325 | +10.75% | 1059.305 | 459.665 | 56.61% |
+
+Decode throughput is total transitions divided by total decode wall time;
+prefill latency is the mean. Prefill throughput increases
+**2.2592x/2.3045x**, distinct from the latency reductions.
+
+| Input | Round | Old baseline decode tok/s | Latest main decode tok/s |
+| ---: | ---: | ---: | ---: |
+| 128 | 1 | 60.3089 | 66.9193 |
+| 128 | 2 | 55.9478 | 66.8491 |
+| 128 | 3, supplemental | 56.4831 | 65.3068 |
+| 512 | 1 | 57.9118 | 64.7251 |
+| 512 | 2 | 58.9557 | 64.7948 |
+| 512 | 3, supplemental | 58.2188 | 64.3791 |
+
+All rounds favor latest main. However, **the 128-input pooled gain is
+influenced by the slower old-baseline rounds**; it is not a guaranteed
+15.36% improvement. Round 1 alone gives approximately 10.96%. Clocks remain
+unlocked, and this experiment does not isolate the cause of the baseline
+variation or provide a statistical confidence interval.
+
+### Actual RC14 Dispatch
+
+**RC14 does not use the new INT3 Tensor Core path in these captures.**
+Its quantization group size is **32**; this upstream INT3 Tensor Core
+implementation requires **64**. The measured paths are instead:
+
+- Baseline: `FusedFc1FastKernel<BF16,3>` and
+  `Fc2RouteFastKernel<BF16,3>`.
+- Latest main: `FusedFc1FastVecKernel<BF16,3,32>` and
+  `Fc2RouteFastVecKernel<BF16,3,32>`, with packed BF16x2 dequantization.
+- Route finalization changes from `FinalizeRoutesFastKernel` to
+  `FinalizeRoutesVec8Kernel`. Each FC1, FC2, and finalization kernel
+  still launches 21 times per decode token.
+
+| Input | Kernel | Old baseline GPU ms/token | Latest main GPU ms/token |
+| ---: | --- | ---: | ---: |
+| 128 | FC1 | 1.7336 | 0.7232 |
+| 128 | FC2 | 0.9974 | 0.5057 |
+| 512 | FC1 | 1.7394 | 0.7292 |
+| 512 | FC2 | 1.0017 | 0.5102 |
+
+Combined FC1/FC2 GPU duration falls approximately **55%**. Summed GPU
+kernel time changes from **13.8992 -> 12.2763 ms/token** at input 128 and
+**14.3501 -> 12.7508 ms/token** at input 512.
+
+Total launches fall from **1529 to 1508/token**. The traces also replace
+21 `QuickGelu` and 21 elementwise multiply launches with 21 `SwiGLUKernel`
+launches; cast counts remain 336/token. Routing changes from
+`SoftmaxTopKMergeKernel` to `FusedInt3SoftmaxTopKGroupsKernel`.
+These observations demonstrate that the comparison includes **multiple
+upstream changes**, not just the local QMoE dequantization idea. It does
+not attribute the full wall-time gain to one kernel or PR. Hardware
+counters remain unavailable.
+
+### Consequence for the Proposed Optimization PR
+
+The earlier local paired-dot patch remains applicable in principle to
+the older non-vectorized fast path, but that is **not RC14's selected
+path on this latest main**. Its previously reported +1.56%/+0.78% decode
+gains must not be presented as gains over latest main. No redundant
+optimization PR was opened; the recommended next baseline is this
+unmodified upstream runtime.
+
+Local source is clean at the revision above. Latest-main CUDA provider
+SHA256 is
+`0b03955cbec4fee6303cf3d93bf0db98d4bc795e63abad5d9b296e8c72eb27e5`.
+The shared-provider hash matches the baseline; the Python binding changes
+with upstream source. A separate package, `runtime-manifest.json`,
+build/test logs, all three timing rounds, full-logit probes, Nsight
+captures/SQLite, and `summary.json` are retained under
+`rc14-main-20261101`.
+
 ## All Original Measured Request Timings
 
 Each row contains one prefill and 127 decode transitions. Warmups are omitted.
