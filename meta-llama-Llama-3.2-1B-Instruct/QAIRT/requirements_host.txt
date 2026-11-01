@@ -1,6 +1,6 @@
 --extra-index-url https://download.pytorch.org/whl/cu128
 accelerate==1.15.0
-aimet-torch==2.41.0
+aimet-torch==2.38.0
 datasets==5.0.1
 jsonschema==4.26.0
 olive-ai[qairt]==0.13.0

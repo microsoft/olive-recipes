@@ -21,7 +21,7 @@ After the pipeline pass, a `QairtEncapsulation` pass wraps the compiled DLC in a
 
 **Validated host configuration:**
 * Ubuntu 22.04
-* Python 3.12.10
+* Python 3.10.12
 * Nvidia H100 80GB GPU, CUDA 12.8+
 * QAIRT 2.48.40
 
@@ -53,6 +53,10 @@ qairt-vm fetch -v 2.48.40 -d <download location>
 # Set QAIRT_SDK_ROOT to the download location
 # Note: No further QAIRT SDK installation steps are required when using qairt-dev
 export QAIRT_SDK_ROOT=<download location>/qairt/<version>
+
+```bash
+# Install any requirements required by QAIRT VM
+qairt-vm --fix -v
 
 # If using a non-system Python (e.g. uv, pyenv), expose the Python shared library
 export LD_LIBRARY_PATH=$(python3 -c "import sysconfig; print(sysconfig.get_config_var('LIBDIR'))"):$LD_LIBRARY_PATH
