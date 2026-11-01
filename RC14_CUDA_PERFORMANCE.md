@@ -1,10 +1,16 @@
 # RC14 INT3 Model: ONNX Runtime CUDA Performance
 
 Short-input measurements were completed on 2026-10-27; the long-input extension
-below was completed on 2026-10-28, and decode profiling on 2026-10-29.
-This is a **single-runtime, single-GPU measurement**
-of the supplied `mai_coder_bf16_quant_int3` artifact, not a comparison with
-another runtime, implementation, or model.
+below was completed on 2026-10-28, and initial decode profiling on 2026-10-29.
+The original measurements use one ORT build and one GPU. Later sections
+compare ORT revisions and execution experiments on the same supplied
+`mai_coder_bf16_quant_int3` artifact, not another inference engine or model.
+
+**Latest follow-up:** see the
+[upstream main comparison](#latest-upstream-main-comparison-2026-11-01)
+and [refreshed decode profiling](#refreshed-upstream-decode-profiling-2026-11-01).
+The original runtime identity and timing tables below remain historical
+results; they are not measurements of the newer build.
 
 The measurement definitions follow the
 [Qwen3 INT3 performance report at the pinned revision](https://github.com/microsoft/olive-recipes/blob/264f863e6801e6b9ec1807f596515beeba4091ae/Qwen-Qwen3-30B-A3B/cuda/rtn_int3_fp16/PERFORMANCE.md).
@@ -777,6 +783,151 @@ with upstream source. A separate package, `runtime-manifest.json`,
 build/test logs, all three timing rounds, full-logit probes, Nsight
 captures/SQLite, and `summary.json` are retained under
 `rc14-main-20261101`.
+
+## Refreshed Upstream Decode Profiling (2026-11-01)
+
+Fresh captures were taken after the upstream comparison, using its
+unchanged **`a727d71c6120890b752daf5915749b1f18e180ed`** runtime and original
+RC14 model on A100 GPU1. At refresh time, `origin/main` had advanced to
+`7f9a5e846af20a4dc36b9bd6cfc17135dd9647c5`; that intervening commit changes
+only WebGPU files. We retained the explicitly pinned, already validated
+CUDA build rather than relabeling it as a newly built revision.
+
+### Capture Method and Unprofiled Timing
+
+At each input length:
+
+- A fresh **unprofiled** process runs three warmups and five requests,
+  recording decode step timing.
+- A separate Nsight Systems process runs three warmups and one request,
+  with capture restricted to the **127 decode transitions** through
+  `cudaProfilerStart/Stop`; initialization and prefill are excluded.
+- A separate ORT profiling process runs one warmup and one request.
+  Node accounting selects only the final 127 decode `model_run` events.
+
+Each request predicts 128 tokens: one prefill prediction and 127 decode
+transitions. Inputs, forced continuation, original-model graph hash, GPU
+UUID, and all mapped ORT binary hashes agree across the three process
+types. Logits hashes match the preceding upstream comparison at each
+length. Dense GEMM autotuning and local experimental patches remain off.
+NVML checks observed GPU process identity throughout; clocks are unlocked.
+
+| Input | Fresh unprofiled decode tok/s | Decode wall ms/token | Synchronized inference ms/token | Outside synchronized inference ms/token |
+| ---: | ---: | ---: | ---: | ---: |
+| 128 | 66.7912 | 14.972 | 13.758 | 1.214 |
+| 512 | 63.2507 | 15.810 | 14.431 | 1.379 |
+
+These are **new single-process timing samples**, not replacements for the
+three-round A/B aggregates above. The 512 rate is lower than its previous
+64.6325 tok/s aggregate; run-to-run variation remains observable.
+
+Outside synchronized inference, binding takes **0.216/0.248 ms/token**,
+output retrieval/copy **0.306/0.376**, finite-logits checking and CPU argmax
+**0.091/0.119**, and other Python bookkeeping **0.600/0.635**, respectively.
+The synchronized-inference measurement includes host submission and waits;
+it is not GPU kernel time alone. These diagnostic boundaries describe the
+current full-logits validation harness, not an optimized production
+token-selection loop.
+
+### Refreshed GPU Kernel-Time Breakdown
+
+Each decode trace contains **191516 launches = 1508 kernels/token**.
+Rows are disjoint groups of demangled names; percentages use **summed
+GPU kernel durations**, not wall time or hardware utilization.
+
+| Kernel family | Launches/token | Input 128 ms/token | GPU time % | Input 512 ms/token | GPU time % |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| BF16 GEMM and split-K reduction | 462 | 5.571 | 45.31 | 5.695 | 44.69 |
+| FP32 GEMV | 1 | 1.630 | 13.26 | 1.627 | 12.76 |
+| Layer normalization | 253 | 1.334 | 10.84 | 1.327 | 10.41 |
+| Attention, RoPE, and KV-cache preparation | 224 | 1.129 | 9.19 | 1.451 | 11.39 |
+| Cast | 336 | 0.750 | 6.10 | 0.757 | 5.94 |
+| INT3 QMoE FC1 + FC2 + route finalization | 63 | 1.308 | 10.63 | 1.311 | 10.29 |
+| Top-k routing | 21 | 0.142 | 1.15 | 0.150 | 1.17 |
+| Other: add, concat, activation, multiply, gather | 148 | 0.433 | 3.52 | 0.426 | 3.35 |
+| **Total kernels** | **1508** | **12.296** | **100.00** | **12.744** | **100.00** |
+
+FC1/FC2/finalization individually cost **0.724/0.506/0.078 ms/token** at
+input 128 and **0.728/0.508/0.076** at input 512. Each kernel launches
+2667 times per trace. Names confirm `FusedFc1FastVecKernel<BF16,3,32>`,
+`Fc2RouteFastVecKernel<BF16,3,32>`, and `FinalizeRoutesVec8Kernel`;
+no scalar fallback or `PackBitplanes` occurs. Group size 32 keeps RC14
+on the **vectorized SIMT path**, not the upstream group-64 INT3 Tensor
+Core path.
+
+Compared with the earlier 2026-10-29 captures, QMoE core falls from
+**2.820/2.835 to 1.308/1.311 ms/token**, and its share from approximately
+20% to approximately 10%. Dense BF16 remains approximately 5.6 ms/token;
+its share rises because other work became faster. These are separate
+captures with unlocked clocks, not an exact additive wall-time attribution.
+
+### Submission, Output Head, and ORT Evidence
+
+The GPU-active union of kernel/copy/memset intervals is
+**12.538/12.963 ms/token**. First-to-last GPU activity spans
+**18.914/23.578 ms/token** in the instrumented captures, giving timeline
+coverage of **66.3%/55.0%**. These are not SM-utilization measurements or
+directly recoverable idle-time budgets. Nsight decode wall time is
+**18.923/23.588 ms/token**, appreciably above the unprofiled samples.
+Do not subtract profiled GPU spans from unprofiled wall times to infer
+CPU overhead.
+
+CUDA launch APIs execute **1319 `cudaLaunchKernel`, 168
+`cudaLaunchKernelExC`, and 21 `cuLaunchKernel` calls/token**. Their summed
+host durations are approximately **7.69/9.10 ms/token**, overlapping GPU
+execution and including tracing overhead; they must not be added to the
+GPU table. Each token also has 126 GPU memsets, two tiny H2D copies totaling
+12 bytes, and one **804352-byte** last-logits D2H copy.
+
+Separate ORT traces confirm **295 MatMul, 336 Cast, 253
+SimplifiedLayerNormalization, 42 GroupQueryAttention, and 21 QMoE
+node calls/token**. Every QMoE and GroupQueryAttention event uses CUDA.
+CPU-provider nodes still include `Concat`, `Gather`, and `Unsqueeze`.
+ORT node durations represent instrumented host/operator work and are
+**not GPU kernel durations**; for example, the asynchronously submitted
+head can have a short ORT event despite its much longer GPU GEMV.
+
+ORT again records `/lm_head/MatMul` with FP32 inputs `[1,1,3584]` and
+`[3584,201088]`, once per decode token. Its **2.685-GiB FP32 weight** is
+consistent with the single approximately 1.63-ms FP32 GEMV. Separate ORT
+and Nsight captures still do not provide a direct node-to-kernel correlation.
+
+### Remaining Priorities
+
+1. **Dense matrix operations and the vocabulary projection:** dense BF16
+   plus FP32 GEMV account for approximately **57-59%** of summed GPU
+   kernel time. Revisit dispatch/layout tactics on this new baseline.
+   The older dense experiment's gains are not established as additive
+   over this build, and its numerical differences still block adoption.
+   Head precision/quantization would be a separate model/accuracy change.
+2. **Normalization and cast fusion:** 589 launches/token and approximately
+   **16-17%** of GPU kernel time remain. Preserve existing dtype conversions,
+   FP32 normalization arithmetic, and output rounding when testing fusion.
+3. **Submission and output handling:** evaluate binding reuse and GPU-side
+   token selection against the measured 1.2-1.4 ms outside synchronized
+   inference. Keep full-logits numerical probes separate. CUDA-graph
+   feasibility requires validation of CPU shape nodes and evolving cache
+   state; it is not established by launch count alone.
+4. **Attention/cache work and further QMoE changes:** attention scales with
+   context length, while QMoE core is nearly unchanged between these short
+   contexts. New QMoE work should target the selected vectorized path or
+   explicitly validate group-32 Tensor Core support, not resubmit the old
+   paired-dot patch for a path RC14 no longer selects.
+
+Nsight Compute was retried on the current FC1/FC2 vectorized kernels using
+the extracted real QMoE operator, but again failed with
+**`ERR_NVGPUCTRPERM`**. Driver permissions were not changed. The
+counter-attempt operator timing is instrumented and **not a performance
+result**. Occupancy, achieved bandwidth, and instruction bottlenecks
+therefore remain unproven.
+
+Fresh timing JSON, decode-only Nsight captures/SQLite/CSV, separate ORT
+profiles, counter-denial log, copied runtime manifest, and `analysis.json`
+are retained locally under `rc14-decode-profile-20261101`. Analysis checks
+runtime/input/logits identities, QMoE dispatch counts, and node accounting;
+the extended analyzer also reproduces both historical 2026-10-29 results.
+Only this report is submitted; raw captures, weights, and local scripts
+are not included in the PR.
 
 ## All Original Measured Request Timings
 
