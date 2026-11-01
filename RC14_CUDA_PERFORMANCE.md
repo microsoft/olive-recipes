@@ -412,6 +412,257 @@ are retained locally under `rc14-decode-profile-20261029`. The analysis uses
 source of the tables above. The local harness and analysis scripts are not
 added to the PR, and the raw traces contain no public download link.
 
+## Dense MatMul Optimization Experiment (2026-10-31)
+
+**Experimental, opt-in, and not accuracy-qualified.** This follow-up changes
+only dense BF16 matrix execution, not INT3 expert packing/scales, the FP32
+head, attention semantics, or model precision. It is not a production
+recommendation: observed numerical differences are documented below.
+
+### Implementation and Controls
+
+The retained ORT decode trace identifies seven dense BF16 shapes:
+
+| K | N | MatMul calls per decode token |
+| ---: | ---: | ---: |
+| 3584 | 1024 | 84 |
+| 3584 | 3584 | 63 |
+| 3584 | 6144 | 42 |
+| 6144 | 3584 | 42 |
+| 3584 | 512 | 21 |
+| 3584 | 1536 | 21 |
+| 1536 | 3584 | 21 |
+
+First, the existing small-N GEMV/autotuner was tested on the original
+layout. Merely enabling it did not give a stable full-model improvement;
+forcing the small-N kernel was slower for some isolated shapes. It was
+therefore not adopted as the optimization.
+
+The second experiment consists of:
+
+1. A separate model with **294 BF16 constant weights** transposed bitwise
+   from `[K,N]` to `[N,K]`, and their MatMul nodes expressed as
+   `com.microsoft::FusedMatMul(transB=1)`. Every stored transpose was reversed
+   and SHA256-checked against the source bits. This adds a **6473908224-byte**
+   experiment data file on disk; original files are unchanged. No precision
+   reduction or requantization is performed.
+2. A new CUDA BF16 GEMV candidate: one warp computes each contiguous weight
+   row, with shared activation reuse, vectorized weight loads, FP32 FMA
+   accumulation and warp reduction, then BF16 output rounding.
+3. Selection through the existing `ep.cuda.enable_gemm_auto_tune=1` option.
+   The candidate is limited to SM 8.0+, `M=1`, `transB=1`, `alpha=1`,
+   no batch transposes, `N` and `K` in `[128,8192]`, `K` divisible by 8,
+   and supported alignment/layout. The existing tuner requires a measured
+   5% candidate advantage over cuBLAS. Ineligible cases and transposed
+   prefill (`M>1`) retain cuBLAS. Default tuning remains disabled.
+
+The runtime change is a local patch atop ORT
+`55ab2dfff389902bb98e3404276dc44e2c71b2ee`, not an upstream release or merged
+PR. The candidate package still reports 1.32.0; that version string does
+not identify the change. Its CUDA provider SHA256 is
+`da5258e42acb1aa1e1ce14698ce04906c3c861a83c6edd0a948a26ad2b01d7fe`.
+The shared-provider and pybind hashes match the original identity table.
+The installed baseline package was not overwritten.
+
+The new direct-kernel, operator-dispatch/fallback, and existing autotuner
+checks passed: **24 targeted CUDA internal tests**. Isolated shape tests
+also compared BF16 outputs with FP64 references. Their GPU event timings
+used graph replay with an 80 MiB cache-conditioning memset before each
+timed region; those microbenchmarks are not full-model throughput results.
+
+The supplied source graph itself fails the standard ONNX checker because
+`SimplifiedLayerNormalization` is absent from the declared standard-domain
+opset-21 schema. The experiment graph has the same checker failure, not a
+successful standard-ONNX validation. Both load and run in this ORT build;
+the transpose-bit checks and actual ORT execution validate the experiment
+within that runtime, not portability to another ONNX implementation.
+
+### Unprofiled End-to-End A/B
+
+All three conditions use the **same candidate provider build** and physical
+GPU 1 from the profiling section. Clocks/power remain unlocked. Prompts,
+forced continuation, 128 predictions/127 decode transitions, full unchunked
+prefill, thread settings, KV reset, logits validation/hashing and timers
+are otherwise unchanged.
+
+Two rounds reverse condition and input-length order. Each fresh process
+runs 3 warmups and 5 measured requests: **12 processes, 60 measured requests,
+7620 decode transitions**, and 36 excluded warmup requests. Each row pools
+10 requests. Nsight, isolated microbenchmarks, and separate logits probes
+are excluded. All timing processes have identical mapped libraries and
+GPU UUID.
+
+| Input | Condition | Decode tok/s | Gain vs original layout | ORT prefill mean ms |
+| ---: | --- | ---: | ---: | ---: |
+| 128 | Original layout, cuBLAS | 59.998 | baseline | 272.175 |
+| 128 | Transposed layout, cuBLAS | 60.867 | +1.45% | 272.340 |
+| 128 | Transposed layout, GEMV autotune | 62.680 | +4.47% | 272.572 |
+| 512 | Original layout, cuBLAS | 58.592 | baseline | 1058.862 |
+| 512 | Transposed layout, cuBLAS | 59.720 | +1.92% | 1059.244 |
+| 512 | Transposed layout, GEMV autotune | 60.500 | +3.26% | 1059.286 |
+
+The combined condition is faster than baseline in both rounds at both
+lengths, but two rounds are not confidence intervals or production
+variability coverage. Mean prefill time increases approximately
+**0.15%/0.04%**; no substantial prefill slowdown was observed in these
+samples. This does not establish unchanged performance at other lengths.
+
+A separate 128-input decode-only Nsight capture confirms **63 new GEMV
+launches per token**. Total GPU kernel launches fall from 1529 in the
+earlier original trace to **1361 per token** in this candidate trace.
+These are instrumented observations from separate runs, not an additive
+latency decomposition or evidence that every process chooses identical
+tactics.
+
+### Numerical Differences and Adoption Gate
+
+Separate one-request probes save all 128 last-position logits vectors at
+each length, using the same forced inputs. Probe timings are not used in
+the throughput table. Against the original-layout condition:
+
+| Input | Condition | Matching top-1 predictions | Logits RMSE | Max absolute logits difference | Relative L2 difference |
+| ---: | --- | ---: | ---: | ---: | ---: |
+| 128 | Transposed layout, cuBLAS | 128/128 | 0.197533 | 2.728532 | 2.67% |
+| 128 | Transposed layout, GEMV autotune | 128/128 | 0.184135 | 2.330406 | 2.49% |
+| 512 | Transposed layout, cuBLAS | 127/128 | 0.227795 | 2.274748 | 3.39% |
+| 512 | Transposed layout, GEMV autotune | 127/128 | 0.225908 | 2.487927 | 3.37% |
+
+Both 512-input conditions differ at prediction index **1** (the first
+decode transition); their prefill top-1 agrees. All saved logits are finite.
+Even the transposed-cuBLAS condition differs numerically: bitwise-preserved
+weights and mathematically equivalent MatMul do not guarantee identical
+floating-point results after layout/kernel selection changes.
+
+Within each timing process, all five requests have identical token streams
+and logits hashes. Across rounds, the autotuned condition has **two distinct
+logits hashes**, although its predicted-token stream is unchanged at each
+length. Per-process tactic selection is not a bitwise-reproducibility
+guarantee across fresh processes.
+
+**These synthetic forced-continuation probes do not establish generation
+quality or task accuracy.** Free-running generation and task evaluation
+with the source tokenizer/checkpoint are required before adopting the
+layout change or enabling the new path for this model. The measured
+3-4% throughput gain alone is insufficient for production approval.
+
+Local scripts, `runtime.patch`, the candidate Python package, all
+per-request JSON, numerical probes, Nsight capture/SQLite/CSV, and
+`summary.json` are retained under `rc14-dense-20261031`. The separate model
+is `dense-transposed-20261031.onnx` beside the original model data. No
+model weights or raw captures are included in this report.
+
+## INT3 QMoE FC1/FC2 Optimization Experiment (2026-10-31)
+
+This separate follow-up optimizes the existing **BF16 + INT3 fast path** in
+ORT's CUDA QMoE kernels. It uses the **original, unchanged RC14 graph and
+weights**, with dense GEMM autotuning disabled. It does not require an
+Olive/export change and does not combine the dense experiment above.
+
+### Implementation and Numerical Validation
+
+The original dot helper multiplies each unpacked code by its scale in FP32,
+rounds each weight to BF16, and converts it back to FP32 before accumulation.
+The candidate instead retains the scale as BF16 and uses native **BF16x2
+multiplication** to dequantize two weights together. INT3 codes are exactly
+representable, allowing the same per-weight BF16 rounding. The eight-product
+FP32 dot expression and its accumulation order are unchanged.
+
+All six fast FC1/FC2 helper call sites use the typed-scale helper. Other
+bit widths and dtypes retain their previous float-scale computation.
+Unpacking, weight layout, routing, reduction, fused SwiGLU, output rounding,
+and scalar fallback are unchanged. This remains a **SIMT kernel, not a
+Tensor Core implementation**.
+
+Validation completed:
+
+- CUDA internal test covers all **65536 BF16 scale bit patterns**, all
+  **64 INT3 code pairs**, and two activation patterns: **8388608 cases**.
+  Individual dequantized weights and complete dots are compared bitwise
+  for non-NaN results; NaN classification, not payload, is checked.
+- Six existing BF16 SwiGLU and INT4 prepacking regression tests pass.
+- The first real RC14 QMoE operator produces bitwise-identical BF16
+  outputs at 1, 8, and 128 input rows.
+- Separate full-model probes at both input lengths save all
+  **128 x 201088 FP32 last-position logits**. Baseline and optimized arrays
+  are finite and **bitwise identical**, with 128/128 matching top-1
+  predictions. All timed requests also share the same logits hash and
+  predicted-token stream across conditions and rounds at each length.
+
+These checks establish equivalence for the exercised implementation and
+workloads; they are not a separate task-quality evaluation or validation
+on other GPU architectures.
+
+### Unprofiled Original-Model A/B
+
+Same A100 GPU1 and benchmark timing boundaries as above. Two rounds reverse
+condition and length order, with three warmups and five measured requests
+per fresh process: **40 measured requests, 5080 decode transitions**.
+Each request has one prefill and 127 decode transitions, using the same
+forced reference continuation. Four numerical probes and four decode-only
+Nsight captures are excluded from these throughput measurements.
+
+| Input | Baseline decode tok/s | Optimized decode tok/s | Decode throughput gain | Baseline prefill ms | Optimized prefill ms | Prefill throughput gain |
+| ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| 128 | 59.8362 | 60.7666 | +1.56% | 272.699 | 247.935 | +9.99% |
+| 512 | 58.6306 | 59.0879 | +0.78% | 1059.105 | 964.137 | +9.85% |
+
+Decode throughput is pooled as total transitions divided by total decode
+wall time; prefill latency is the mean. The prefill latency reductions are
+**9.08%/8.97%**, distinct from the throughput gains in the table.
+
+Round 1/2 decode rates are baseline **60.2083/59.4687** versus optimized
+**60.7618/60.7714** at input 128, and baseline **58.5542/58.7072** versus
+optimized **59.0543/59.1215** at input 512. Both rounds favor the candidate,
+but the small decode gain must be interpreted with unlocked clocks and
+baseline run-to-run variation; no statistical confidence interval is
+claimed.
+
+### Decode Kernel Evidence and Limits
+
+The final candidate's separate whole-model captures give:
+
+| Input | Kernel | Baseline GPU ms/token | Optimized GPU ms/token |
+| ---: | --- | ---: | ---: |
+| 128 | FC1 | 1.7371 | 1.5744 |
+| 128 | FC2 | 1.0017 | 0.9426 |
+| 512 | FC1 | 1.7431 | 1.5847 |
+| 512 | FC2 | 1.0037 | 0.9492 |
+
+FC1 GPU duration drops approximately **9%**, FC2 **5-6%**, and their
+combined duration **7.8-8.1%**. Each capture still contains 2667 launches
+each of FC1, FC2, and route finalization, with **1529 total kernels/token**
+and no scalar fallback or `PackBitplanes`. This optimization reduces
+arithmetic/conversion work, not launch count. Profiled GPU durations are
+not an additive decomposition of the separate unprofiled wall timings.
+Hardware counters remain unavailable, so bandwidth/occupancy bottlenecks
+are not established.
+
+Isolated first-QMoE wall latency is **0.2457 -> 0.2197 ms** at one row,
+**0.8645 -> 0.8466 ms** at eight rows, and **12.9394 -> 11.4824 ms** at
+128 rows. These limited operator samples use isolated routing/cache
+workloads and must not be substituted for full-model throughput.
+
+**Conclusion:** this is a numerically validated, modest decode improvement
+with a larger prefill benefit. FC1/FC2 are only part of total decode work;
+dense matrix operations, normalization/casts, attention/cache work, and
+submission/output handling remain. It does not turn the approximately
+60 tok/s baseline into a substantially faster decoder.
+
+The baseline package contains the earlier default-off dense experiment,
+but the original model and disabled autotuning leave its experimental
+path inactive. Only the CUDA provider differs in this A/B:
+
+- Baseline CUDA SHA256:
+  `da5258e42acb1aa1e1ce14698ce04906c3c861a83c6edd0a948a26ad2b01d7fe`.
+- Optimized CUDA SHA256:
+  `ef2d221691a5e14276eb7b8aa7a190aed2687d963e1100588a5e9ff958502e6d`.
+- Shared provider and Python binding hashes match between conditions.
+
+Separate runtime packages, test/build logs, per-request JSON, full-logit
+probes, final Nsight captures/SQLite, `summary.json`, and the QMoE-only
+`runtime.patch` are retained locally under `rc14-qmoe-20261031`.
+The original installed ORT package and model files are unchanged.
+
 ## All Original Measured Request Timings
 
 Each row contains one prefill and 127 decode transitions. Warmups are omitted.
