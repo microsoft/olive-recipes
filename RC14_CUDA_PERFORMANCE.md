@@ -8,7 +8,9 @@ compare ORT revisions and execution experiments on the same supplied
 
 **Latest follow-up:** see the
 [upstream main comparison](#latest-upstream-main-comparison-2026-11-01)
-and [refreshed decode profiling](#refreshed-upstream-decode-profiling-2026-11-01).
+and [refreshed decode profiling](#refreshed-upstream-decode-profiling-2026-11-01),
+followed by the
+[equivalent norm/cast experiment](#equivalent-normcast-fusion-experiment-2026-11-01).
 The original runtime identity and timing tables below remain historical
 results; they are not measurements of the newer build.
 
@@ -928,6 +930,240 @@ runtime/input/logits identities, QMoE dispatch counts, and node accounting;
 the extended analyzer also reproduces both historical 2026-10-29 results.
 Only this report is submitted; raw captures, weights, and local scripts
 are not included in the PR.
+
+## Equivalent Norm/Cast Fusion Experiment (2026-11-01)
+
+This local experiment follows the refreshed profiling above. It removes
+standalone dtype-conversion launches around normalization while retaining
+the existing **FP32 normalization arithmetic and BF16 output rounding**.
+It does not replace RMSNorm with a lower-precision approximation.
+
+### Implementation, Model Conditions, and Isolation
+
+The baseline is the preserved `a727d71c6120890b752daf5915749b1f18e180ed`
+runtime above, not a fresh claim about the latest upstream revision. The
+candidate is built in a separate worktree with matched Release/CUDA 13/SM80
+options. Its CUDA source changes only register and instantiate the existing
+normalization implementation for **BF16 input / FP32 scale and output** and
+**FP32 input / BF16 scale and output**. Reduction, epsilon, multiplication
+order, and final conversion are unchanged. The deprecated LayerNormalization
+opsets 1-16 share these registrations; this does not add mixed types to the
+standard opset-17 LayerNormalization schema.
+
+Separate exported graphs test two scopes:
+
+| Condition | Rewritten norms | Removed Cast nodes | Losslessly converted scale tensors |
+| --- | ---: | ---: | ---: |
+| Q/K only | 84 | 168 | 84 |
+| All eligible norms | 252 | 336 | 168 |
+
+Q/K fusion removes both surrounding casts using the already available
+BF16-input/BF16-output kernel. The full candidate also removes the leading
+BF16-to-FP32 cast at 84 post-norms and the trailing FP32-to-BF16 cast at
+84 pre-norms, using the two new mixed-type registrations. FP32 residual
+adds, the final FP32 normalization, and the FP32 vocabulary head remain
+unchanged.
+
+Trailing-cast removal requires the scale values to be **exactly
+BF16-representable**. All rewritten RC14 FP32 scales meet this condition;
+the exporter verifies the low 16 bits are zero and rejects non-finite or
+non-representable values instead of rounding them. This is a model-specific
+lossless conversion, not permission to downcast arbitrary FP32 norm weights.
+The original graph, external weights, installed runtime, and preserved
+baseline package are not overwritten.
+
+Both baseline and candidate explicitly disable
+`GroupQueryAttentionPreNormFusion` through
+`optimization.disable_specified_optimizers`. Otherwise rewriting Q/K to
+BF16 could enable a different attention-normalization fusion and confound
+this equivalence experiment. Original-model logits with this gate match
+the preceding upstream probes bitwise. Dense autotuning remains off.
+In this initial experiment, no automatic ORT graph rewrite was implemented; the graph
+changes are explicit, separately exported experimental models.
+
+| Artifact | SHA256 |
+| --- | --- |
+| Q/K-only graph | `86383e1ad3d35ef6d8da90d2f6b4c3a7729efae95ccb8edac6274eb115c86174` |
+| Full candidate graph | `153e5afe5054b455789b54a43aec88f845ba656064546ccdc0aec785c8445353` |
+| Candidate CUDA provider | `1e1eeed47ec031c0ed8b3d589758a13c198c9e8e6add022510f43d8f20f44063` |
+
+The shared-provider and Python-extension hashes match the preserved baseline.
+The exported graphs have the same experimental
+SimplifiedLayerNormalization checker limitation as the source graph;
+**ONNX checker success is not claimed**. Runtime loading and numerical
+probes below validate the exercised graphs instead.
+
+### Numerical and Existing-Behavior Checks
+
+- **43 LayerNorm regression tests passed**, including the two new CUDA-only
+  mixed-type tests, each exercising both normalization operators.
+- A separate GPU-bound operator matrix passed **240 cases and
+  152,265,648 output elements**: BF16/BF16, BF16/FP32, and FP32/BF16;
+  both operators; ten shapes covering decode and 128/512-token prefill;
+  normal, signed-zero, tiny, and mixed-magnitude inputs. Non-NaN outputs
+  match bitwise and NaN classifications match. Auxiliary statistics are
+  also checked except for the multi-axis simplified-norm case, where the
+  legacy schema's auxiliary-shape inference is inconsistent with runtime.
+- At each input length, both exported candidates produce finite
+  **`[128,201088]` FP32 logits identical bitwise to the baseline**, including
+  all 128 predictions. Maximum absolute difference is zero, not merely
+  agreement of argmax tokens.
+- An additional original-graph/new-runtime control also matches full logits
+  bitwise. Two reversed-order timing rounds of that control show runtime-only
+  decode changes of **-0.15% / -0.48%** at input 128/512, rather than a
+  speedup from replacing the provider library alone.
+
+These checks establish equivalence for the tested synthetic inputs and GPU,
+not a task-accuracy evaluation or a guarantee for other models/architectures.
+
+### Unprofiled Three-Condition Results
+
+The same A100 GPU 1, UUID `GPU-1d6c259c-3f83-8046-c0b6-cbeb9e062c8d`,
+prompt rule, forced continuation, cache settings, and synchronization
+definitions are retained. Two rounds reverse both condition and input-length
+order; each fresh process uses three warmups and five measured requests.
+Each table row pools ten requests and 1270 decode transitions. The primary
+matrix comprises **60 measured requests / 7620 decode transitions**; the
+additional runtime-only control comprises 40 requests and is not pooled
+into this table. Numerical probes and profiler captures are separate.
+Clocks and power are not locked; these are observed gains, not confidence
+intervals or architecture-wide guarantees.
+
+| Input | Condition | Decode tok/s | Decode gain | Prefill ms | Prefill latency reduction |
+| ---: | --- | ---: | ---: | ---: | ---: |
+| 128 | Original baseline | 66.922 | - | 120.434 | - |
+| 128 | Q/K only | 68.198 | +1.91% | 119.915 | 0.43% |
+| 128 | All eligible norms | 69.462 | **+3.79%** | 119.729 | 0.59% |
+| 512 | Original baseline | 64.183 | - | 459.947 | - |
+| 512 | Q/K only | 66.180 | +3.11% | 458.338 | 0.35% |
+| 512 | All eligible norms | 68.375 | **+6.53%** | 459.347 | 0.13% |
+
+| Input | Condition | Round 1 decode tok/s | Round 2 decode tok/s |
+| ---: | --- | ---: | ---: |
+| 128 | Original baseline | 66.871 | 66.973 |
+| 128 | Q/K only | 67.890 | 68.508 |
+| 128 | All eligible norms | 69.494 | 69.430 |
+| 512 | Original baseline | 64.412 | 63.956 |
+| 512 | Q/K only | 66.145 | 66.216 |
+| 512 | All eligible norms | 68.435 | 68.315 |
+
+Both rounds improve decode. Prefill changes remain below 0.6%; a meaningful
+prefill speedup is not established by this experiment.
+
+### Actual Launch Reduction and Remaining Bottleneck
+
+Decode-only Nsight captures contain 127 transitions each. The table reports
+summed GPU kernel durations, **not unprofiled end-to-end latency**.
+
+| Input | Condition | Cast launches/token | Norm launches/token | All kernel launches/token | Norm + cast ms/token | All kernels ms/token |
+| ---: | --- | ---: | ---: | ---: | ---: | ---: |
+| 128 | Original baseline | 336 | 253 | 1508 | 2.098 | 12.388 |
+| 128 | Q/K only | 168 | 253 | 1340 | 1.803 | 12.068 |
+| 128 | All eligible norms | 0 | 253 | 1172 | 1.604 | 11.825 |
+| 512 | Original baseline | 336 | 253 | 1508 | 2.086 | 12.751 |
+| 512 | Q/K only | 168 | 253 | 1340 | 1.786 | 12.414 |
+| 512 | All eligible norms | 0 | 253 | 1172 | 1.631 | 12.380 |
+
+The full candidate removes **336 launches/token (22.3% of all kernel
+launches)**. Normalization itself is slightly slower with the mixed/BF16
+accesses, but eliminating the standalone casts reduces combined norm/cast
+GPU time by about **22-24%**. The earlier 16-17% norm/cast share was not
+an entirely removable latency budget.
+
+Separate ORT profiles confirm 253 normalization, 295 MatMul, 42
+GroupQueryAttention, and 21 QMoE node calls per transition in both graphs;
+only the 336 Cast calls disappear. The 84 Add calls remain. Relevant
+compute nodes stay on CUDA, and Nsight still selects 21 calls/token of
+each QMoE fast-vector FC1, FC2, and finalize kernel. No attention-norm
+fusion or Dense dispatch change is responsible for the launch reduction.
+
+This is a useful, lower-risk decode improvement, not a solution to the
+remaining Dense/head bottleneck. A production ORT change would still need
+a correctly guarded graph transformer or an explicit export integration,
+broader testing, and a decision about the attention-fusion interaction.
+Build logs, source patch, both independent graphs and manifests, runtime
+hashes, operator checks, complete logits, all timings, Nsight captures,
+ORT profiles, `summary.json`, and `controls-summary.json` are retained
+locally under `rc14-norm-cast-20261101`. Raw artifacts and runtime/model
+changes are not added to this report-only worktree.
+
+### Opt-In ORT Integration on Newer Main
+
+The follow-up implementation is published for review in
+[ORT Draft PR #33801](https://github.com/microsoft/onnxruntime/pull/33801).
+It is based on newer main
+`2927f3b3fcd2012394c8a4bb8d2d18f81cc0f768`, rather than the a727 runtime
+used by the independent-export experiment above.
+
+The integration works directly on the **unchanged original model**, without
+an offline graph export. Enable it with:
+
+```python
+session_options.add_session_config_entry(
+    "optimization.enable_bf16_norm_cast_fusion", "1"
+)
+```
+
+It is default-off and runs at optimization level 2 or higher. The transformer
+targets CUDA SimplifiedLayerNormalization with FP32 scale/output and optional
+surrounding BF16 casts. Leading-cast removal retains the FP32 scale;
+trailing-cast removal requires a constant, finite, exactly BF16-representable
+scale and creates a separate initializer. Shared/exposed FP32 intermediates,
+overridable scales, auxiliary-output norms, and non-CUDA providers are guarded.
+The two mixed-type kernel registrations retain the existing arithmetic.
+
+Enabling the option also excludes **CUDA** GroupQueryAttentionPreNormFusion
+from the default optimizer pipeline, avoiding a newly eligible attention
+normalization with different arithmetic. Its WebGPU path is unchanged.
+The disabled/default option preserves the existing pipeline; this deliberate
+opt-in interaction is documented in the public session-option definition.
+
+The new build passed **26 selected optimizer tests** (five new tests,
+including 19 structural guard cases, plus existing attention-pre-norm tests),
+**43 normalization regressions**, and the same **240-case / 152,265,648-element**
+standalone matrix. WebGPU numerical tests were excluded because this build
+does not include that provider. In-memory external initializers have a
+dedicated structural test; original-model probes exercise file-backed scales.
+
+Full `[128,201088]` FP32 logits are finite and identical bitwise with the
+option off/on at both lengths. All timed and profiled last-logits hashes
+match. Default-off logits also match the preserved a727 probes bitwise.
+Both original model-file hashes remain unchanged.
+
+This fresh A/B uses the **same patched runtime and original graph** in both
+conditions; only the option differs. No explicit optimizer-disable override
+or Dense tuning is used. Two reversed-order rounds retain three warmups and
+five measured requests per fresh process: **40 measured requests / 5080
+decode transitions**, with ten requests per row. The A100 GPU, synthetic
+prompts, forced continuation, and metric definitions are unchanged.
+
+| Input | Option off decode tok/s | Option on decode tok/s | Gain | Off/on prefill ms |
+| ---: | ---: | ---: | ---: | ---: |
+| 128 | 66.366 | 69.993 | **+5.47%** | 120.532 / 119.484 |
+| 512 | 64.506 | 68.009 | **+5.43%** | 459.295 / 459.933 |
+
+The per-round decode rates are **66.656/66.078 -> 70.014/69.972**
+at input 128 and **64.917/64.100 -> 67.784/68.236** at input 512.
+Both rounds improve decode. Prefill remains approximately unchanged, with
+no consistent gain. These fresh results do not replace the earlier export
+experiment or imply additive gains over its different baseline.
+
+Separate Nsight/ORT profiles confirm **336 -> 0 Cast calls/launches** and
+**1508 -> 1172 total kernel launches** per transition. Normalization remains
+253 calls, MatMul 295, Add 84, GroupQueryAttention 42, and QMoE 21.
+All non-norm/cast kernel names and counts match. Combined norm/cast GPU time
+falls from **2.095/2.096 to 1.614/1.610 ms/token**, approximately 23%;
+instrumented GPU durations are not substituted for unprofiled throughput.
+
+Candidate CUDA-provider SHA256 is
+`6fc043ef8b0b4a9fcab76e0847a4a18782e50ee462d1123e97471519bdacb04c`;
+Python-extension SHA256 is
+`c19e23cc54659ffb568a3d7c84b83d2508a7474de90f2406c6d4b4fccd21251d`.
+The shared-provider hash is unchanged. Source patch, build/test logs,
+runtime manifest, original-model logits, all timings, traces,
+`summary.json`, and `verification.json` are retained locally under
+`rc14-norm-cast-pr-20261101`. The source implementation is in the separate
+ORT PR; raw artifacts remain private/local.
 
 ## All Original Measured Request Timings
 
