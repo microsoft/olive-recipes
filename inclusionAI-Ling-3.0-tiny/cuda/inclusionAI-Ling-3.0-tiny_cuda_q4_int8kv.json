@@ -1,0 +1,53 @@
+{
+    "input_model": {
+        "type": "HfModel",
+        "model_path": "inclusionAI/Ling-3.0-tiny",
+        "load_kwargs": {
+            "torch_dtype": "bfloat16",
+            "trust_remote_code": true
+        }
+    },
+    "systems": {
+        "local_system": {
+            "type": "LocalSystem",
+            "accelerators": [
+                {
+                    "device": "gpu",
+                    "execution_providers": [
+                        "CUDAExecutionProvider"
+                    ]
+                }
+            ]
+        }
+    },
+    "passes": {
+        "builder_int4_int8kv": {
+            "type": "ModelBuilder",
+            "precision": "int4",
+            "extra_options": {
+                "hf_remote": true,
+                "use_cuda_bf16": true,
+                "use_paged_attention": true,
+                "paged_block_size": 256,
+                "qmoe_block_size": 64,
+                "block_size": 32,
+                "is_symmetric": true,
+                "matmul_mixed_precision": "last_matmul:int8,mixed_layers:int8,linear_attn:int8",
+                "embedding_quant_type": "int8",
+                "op_types_to_quantize": "MatMul/Gather",
+                "kv_cache_quant_scheme": "int8_per_channel",
+                "kv_cache_scale_file": "kv_scales_int8_per_channel.json",
+                "matmulnbits_weights_prepacked": 1,
+                "use_device_allocator_for_initializers": true,
+                "max_batch_size": 1,
+                "max_scheduled_tokens": 2048,
+                "gpu_utilization_factor": 0.5
+            }
+        }
+    },
+    "target": "local_system",
+    "log_severity_level": 0,
+    "output_dir": "ling_3.0_tiny_int4_int8kv_cuda",
+    "cache_dir": "cache_ling_3.0_tiny_int4_int8kv_cuda",
+    "no_artifacts": false
+}

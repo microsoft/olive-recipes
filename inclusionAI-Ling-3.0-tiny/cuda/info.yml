@@ -1,0 +1,25 @@
+keywords:
+  - olive-ai
+  - bf16
+  - fp8
+  - int4
+  - int8
+  - text-generation
+arch: bailing_hybrid
+recipes:
+  - name: Ling-3.0-tiny_CUDA_BF16
+    file: inclusionAI-Ling-3.0-tiny_cuda_bf16.json
+    devices: gpu
+    eps: CUDAExecutionProvider
+  - name: Ling-3.0-tiny_CUDA_FP8
+    file: inclusionAI-Ling-3.0-tiny_cuda_fp8.json
+    devices: gpu
+    eps: CUDAExecutionProvider
+  - name: Ling-3.0-tiny_CUDA_INT4_INT8KV
+    file: inclusionAI-Ling-3.0-tiny_cuda_q4_int8kv.json
+    devices: gpu
+    eps: CUDAExecutionProvider
+  - name: Ling-3.0-tiny_CUDA_INT8_INT8KV
+    file: inclusionAI-Ling-3.0-tiny_cuda_q8_int8kv.json
+    devices: gpu
+    eps: CUDAExecutionProvider
