@@ -29,8 +29,9 @@
                 "use_paged_attention": true,
                 "paged_block_size": 256,
                 "use_device_allocator_for_initializers": true,
+                "enable_cuda_graph": true,
                 "max_batch_size": 1,
-                "max_scheduled_tokens": 2048,
+                "max_scheduled_tokens": 8192,
                 "gpu_utilization_factor": 0.5
             }
         }
