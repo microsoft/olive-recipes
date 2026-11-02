@@ -17,7 +17,8 @@ compare ORT revisions and execution experiments on the same supplied
 [upstream main comparison](#latest-upstream-main-comparison-2026-11-01)
 and [refreshed decode profiling](#refreshed-upstream-decode-profiling-2026-11-01),
 followed by the
-[equivalent norm/cast experiment](#equivalent-normcast-fusion-experiment-2026-11-01).
+[equivalent norm/cast experiment](#equivalent-normcast-fusion-experiment-2026-11-01)
+and the [Python-only Q/K export on unmodified ORT](#python-only-qk-norm-export-on-unmodified-ort-2026-11-02).
 The original runtime identity and timing tables below remain historical
 results; they are not measurements of the newer build.
 
@@ -1171,6 +1172,144 @@ runtime manifest, original-model logits, all timings, traces,
 `summary.json`, and `verification.json` are retained locally under
 `private-model-norm-cast-pr-20261101`. The source implementation is in the separate
 ORT PR; raw artifacts remain private/local.
+
+## Python-Only Q/K Norm Export on Unmodified ORT (2026-11-02)
+
+Following review feedback, this separate experiment removes the Q/K norm
+Casts with [a standalone Python script](scripts/fuse_bf16_norm_cast.py),
+without the C++ transformer, new kernel registrations, or the opt-in flag.
+Both conditions use the **same unmodified upstream ORT build at
+`a727d71c6120890b752daf5915749b1f18e180ed`**. This is a pinned upstream
+build, not a claim about every released ORT package.
+
+### Rewrite and Reproduction
+
+The script recognizes complete chains by topology and tensor types, not
+private model/node names:
+
+```text
+BF16 -> Cast(FP32) -> SimplifiedLayerNormalization -> Cast(BF16)
+```
+
+It replaces them with a BF16-input/BF16-output norm using the existing
+`LayerNorm<BFloat16, float, BFloat16, true>` CUDA implementation. Internal
+accumulation and normalization arithmetic remain FP32. BF16-to-FP32 and
+FP32-to-BF16 conversions still happen inside the kernel; there are no
+separate Cast operators or materialized FP32 intermediate tensors for
+these complete chains.
+
+The supplied graph has **84 eligible Q/K norms**, so this export removes
+**168 Casts** and creates 84 exactly representable BF16 scale initializers.
+The remaining 169 norms are unchanged. In particular, this script does
+**not** remove the other 168 Casts adjacent to mixed-input/output norms:
+those require kernel combinations absent from this pinned upstream build.
+This result is narrower than the 336-Cast integration above.
+
+Dependencies are ONNX and NumPy (tested with 1.22.0 and 2.5.0). Run from
+the recipe repository root; the model filenames below are aliases:
+
+```bash
+python scripts/fuse_bf16_norm_cast.py \
+  --source /path/to/private_int3_model.onnx \
+  --output /path/to/private_int3_model.qk_bf16.onnx \
+  --expected-casts 168
+```
+
+The output must be a **new filename beside the original model** so that
+relative external-weight references remain valid. The script writes a
+separate model protobuf; it never rewrites the original external weights.
+It preserves shared FP32 scales and exposed/shared intermediates, rejects
+inexact or nonfinite scale conversions, and only handles norms with one
+output and FP32 stash type. Unsupported chains are counted and skipped;
+an unexpected removal count or no eligible chains raises an error before
+writing. Graphs with subgraphs are explicitly rejected to avoid unsafe
+implicit-capture rewrites.
+
+If a scale will be replaced through session `AddInitializer`, exclude
+its original name with `--exclude-initializer SCALE_NAME` (repeatable).
+An offline rewrite cannot know future session overrides; overriding the
+old scale name after conversion would not update the new BF16 initializer.
+The expected Cast count must reflect any exclusions.
+
+The numerical comparison explicitly disables
+`GroupQueryAttentionPreNormFusion` in **both** conditions:
+
+```python
+import onnxruntime as ort
+
+options = ort.SessionOptions()
+options.add_session_config_entry(
+    "optimization.disable_specified_optimizers",
+    "GroupQueryAttentionPreNormFusion",
+)
+session = ort.InferenceSession(
+    "/path/to/private_int3_model.qk_bf16.onnx",
+    sess_options=options,
+    providers=["CUDAExecutionProvider"],
+)
+```
+
+This standard session setting requires no ORT source changes. It avoids
+enabling a different attention-normalization fusion after graph rewriting;
+the measured bitwise equivalence below should not be attributed to an
+uncontrolled default optimizer pipeline. Do not set
+`optimization.enable_bf16_norm_cast_fusion` for this Python-only experiment.
+
+### Validation and Fresh A/B
+
+[Twelve synthetic safety/CLI tests](scripts/test_fuse_bf16_norm_cast.py)
+pass, including signed-zero scale preservation, inexact/nonfinite scales,
+FP16/unknown types, shared/exposed intermediates, dynamic/overridable and
+excluded scales, auxiliary outputs, stash type, subgraphs, initializer-name
+collisions, external-data preservation, count checks, and overwrite safety:
+
+```bash
+python -m unittest discover -s scripts -p test_fuse_bf16_norm_cast.py -v
+```
+
+Actual ORT CUDA load/run probes at input lengths 128 and 512 produce finite,
+**bitwise-identical FP32 logits of shape `[128,201088]`**: all vocabulary
+entries for 128 output steps, not all prompt-position logits. Timed
+last-logits hashes also match across conditions. These synthetic-prompt,
+forced-continuation checks are not a task-accuracy benchmark or a proof
+for every input/device. The supplied model uses an experimental norm
+operator not recognized by the standard ONNX checker at its opset; this
+is runtime validation, not a claim that `onnx.checker` passed.
+
+Fresh timing on the same A100 uses two reversed-order rounds, three
+warmups and five measured requests per process, input lengths 128/512,
+and output length 128: **40 measured requests / 5080 decode transitions**.
+No logits-dump or profiler overhead is included in these timings.
+
+| Input | Original decode tok/s | Python-rewritten decode tok/s | Gain | Original/rewritten prefill ms |
+| ---: | ---: | ---: | ---: | ---: |
+| 128 | 66.267 | 68.360 | **+3.16%** | 120.426 / 119.652 |
+| 512 | 65.085 | 66.641 | **+2.39%** | 459.507 / 458.657 |
+
+Per-round rates are **66.186/66.348 -> 68.145/68.577** at input 128
+and **65.239/64.932 -> 66.279/67.008** at input 512. Decode improves
+in both rounds; the small prefill differences are not evidence of a
+substantial prefill improvement. These fresh measurements are not directly
+comparable or additive to the earlier patched-runtime results.
+
+Separate ORT decode profiles confirm **336 -> 168 executed Cast nodes
+per transition**, while normalization remains 253, MatMul 295, Add 84,
+GroupQueryAttention 42, and QMoE 21. No Nsight launch-count claim is made
+for this new experiment. The original graph SHA256 and original weight
+file size/mtime are unchanged.
+
+| Artifact | SHA256 |
+| --- | --- |
+| Rewritten graph | `e345e3a89ecad8dea235a335d19d76518f41b4a6508648271b65fbffa2785dc9` |
+| Unmodified CUDA provider | `0b03955cbec4fee6303cf3d93bf0db98d4bc795e63abad5d9b296e8c72eb27e5` |
+| Unmodified Python extension | `e6f0a54229c90330aed28b280e347c9a31d3e34a0f42b4735c9b9c93c75c16e5` |
+
+The shared-provider hash matches the earlier upstream-main build.
+Complete logits, timing processes, ORT profiles, export/runtime identities,
+and `summary.json` are retained locally under
+`private-model-python-qk-20261102`. Raw model, weights, logits, and profiles
+are not published. Only the reusable script, its tests, and this anonymized
+report are included in this follow-up.
 
 ## All Original Measured Request Timings
 
