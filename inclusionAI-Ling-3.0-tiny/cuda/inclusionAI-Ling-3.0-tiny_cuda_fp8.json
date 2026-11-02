@@ -1,0 +1,44 @@
+{
+    "input_model": {
+        "type": "HfModel",
+        "model_path": "inclusionAI/Ling-3.0-tiny-fp8",
+        "load_kwargs": {
+            "torch_dtype": "bfloat16",
+            "trust_remote_code": true
+        }
+    },
+    "systems": {
+        "local_system": {
+            "type": "LocalSystem",
+            "accelerators": [
+                {
+                    "device": "gpu",
+                    "execution_providers": [
+                        "CUDAExecutionProvider"
+                    ]
+                }
+            ]
+        }
+    },
+    "passes": {
+        "builder_fp8": {
+            "type": "ModelBuilder",
+            "precision": "bf16",
+            "extra_options": {
+                "hf_remote": true,
+                "use_paged_attention": true,
+                "paged_block_size": 256,
+                "use_device_allocator_for_initializers": true,
+                "enable_cuda_graph": true,
+                "max_batch_size": 1,
+                "max_scheduled_tokens": 8192,
+                "gpu_utilization_factor": 0.5
+            }
+        }
+    },
+    "target": "local_system",
+    "log_severity_level": 0,
+    "output_dir": "ling_3.0_tiny_fp8_cuda",
+    "cache_dir": "cache_ling_3.0_tiny_fp8_cuda",
+    "no_artifacts": false
+}
