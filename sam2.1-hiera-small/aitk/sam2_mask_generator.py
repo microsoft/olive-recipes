@@ -90,9 +90,9 @@ def main():
 
     # Loading models into ORT session
     if args.execution_provider != "CPUExecutionProvider":
-        from winml import register_execution_providers
+        from winml import register_execution_providers_to_onnxruntime
 
-        register_execution_providers()
+        register_execution_providers_to_onnxruntime(args.execution_provider)
     sess_options = ort.SessionOptions()
 
     device_map = {

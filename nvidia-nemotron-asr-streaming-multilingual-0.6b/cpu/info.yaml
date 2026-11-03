@@ -1,0 +1,19 @@
+name: nvidia-nemotron-asr-streaming-multilingual-0.6b
+provider: NVIDIA
+model_id: nvidia/NVIDIA-Nemotron-3.5-ASR-Streaming-Multilingual-0.6b
+task: automatic-speech-recognition
+framework: ONNX Runtime
+execution_provider: CPUExecutionProvider
+summary: >
+  CPU recipe for exporting the multilingual NVIDIA Nemotron 3.5 ASR
+  Streaming RNNT model and quantizing the encoder to INT4 or INT8.
+
+artifacts:
+  - cpu/nemotron_encoder_int4_cpu.json
+  - cpu/nemotron_encoder_int8_cpu.json
+  - cpu/nemotron_decoder_fp32_cpu.json
+  - cpu/nemotron_joint_fp32_cpu.json
+  - cpu/optimize.py
+
+scripts:
+  - scripts/export_tokenizer.py

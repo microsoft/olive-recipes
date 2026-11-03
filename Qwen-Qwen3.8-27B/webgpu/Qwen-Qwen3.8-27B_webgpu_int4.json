@@ -1,0 +1,80 @@
+{
+    "input_model": {
+        "type": "HfModel",
+        "model_path": "Qwen/Qwen3.8-27B",
+        "load_kwargs": {
+            "torch_dtype": "float16"
+        }
+    },
+    "systems": {
+        "local_system": {
+            "type": "LocalSystem",
+            "accelerators": [
+                {
+                    "device": "gpu",
+                    "execution_providers": [
+                        "WebGpuExecutionProvider"
+                    ]
+                }
+            ]
+        }
+    },
+    "passes": {
+        "builder_int4_webgpu": {
+            "type": "ModelBuilder",
+            "precision": "int4",
+            "builder_config_version": 2,
+            "extra_options": {
+                "prune_lm_head": true,
+                "hf_token": false,
+                "exclude_mtp": true
+            },
+            "target_options": {
+                "quant_config": {
+                    "io_dtype": "fp16",
+                    "weights": {
+                        "type": "int4",
+                        "block_size": 32,
+                        "method": "default",
+                        "symmetric": true,
+                        "op_types": [
+                            "MatMul"
+                        ]
+                    },
+                    "format": {
+                        "use_qdq": false,
+                        "matmulnbits_weights_prepacked": 1
+                    }
+                },
+                "attention": {
+                    "implementation": "paged",
+                    "paged": {
+                        "block_size": 256
+                    }
+                },
+                "optimizations": {
+                    "fuse_mlp_gate_up": true
+                }
+            },
+            "runtime_config": {
+                "engine": {
+                    "dynamic_batching": {
+                        "block_size": 256,
+                        "num_blocks": 8,
+                        "max_batch_size": 1,
+                        "max_scheduled_tokens": 256
+                    }
+                },
+                "search": {
+                    "chunk_size": 256,
+                    "max_length": 262144
+                }
+            }
+        }
+    },
+    "target": "local_system",
+    "log_severity_level": 0,
+    "output_dir": "qwen_3.8_27b_webgpu_int4_paged",
+    "cache_dir": "cache_webgpu_int4_paged",
+    "no_artifacts": false
+}

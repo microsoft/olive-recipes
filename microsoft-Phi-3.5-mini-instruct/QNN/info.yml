@@ -15,8 +15,4 @@ recipes:
       devices:
         - gpu
       ep: QNNExecutionProvider
-    - file: "config_gpu_ctxbin.json"
-      devices:
-        - gpu
-      ep: QNNExecutionProvider
 name: phi3.5-mini-instruct

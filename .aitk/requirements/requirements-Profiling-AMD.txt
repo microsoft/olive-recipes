@@ -1,2 +1,2 @@
-# TODO temp solution before we update
-onnxruntime-windowsml==1.25.2.202605110140
+# TODO: use a separate file for better flexibility, but version could be same
+onnxruntime-windowsml==1.27.1.202607110137

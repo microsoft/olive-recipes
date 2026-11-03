@@ -62,9 +62,9 @@
         "mb": {
             "type": "ModelBuilder",
             "precision": "int4",
-            "int4_block_size": 32,
-            "int4_accuracy_level": 4,
-            "int4_op_types_to_quantize": [
+            "block_size": 32,
+            "accuracy_level": 4,
+            "op_types_to_quantize": [
                 "MatMul",
                 "Gemm"
             ]
@@ -77,14 +77,27 @@
                 },
                 {
                     "surgeon": "AttentionMaskToSequenceLengths"
+                },
+                {
+                    "surgeon": "SimplifiedLayerNormToRMSNorm"
                 }
             ],
+            "save_as_external_data": true
+        },
+        "fp16": {
+            "type": "OnnxFloatToFloat16",
+            "save_as_external_data": true
+        },
+        "dtfs": {
+            "type": "DynamicToFixedShape",
+            "dim_param": ["past_sequence_length"],
+            "dim_value": [4096],
             "save_as_external_data": true
         },
         "st": {
             "type": "StaticLLM",
             "batch_size": 1,
-            "context_length": 1
+            "context_length": 128
         }
     },
     "target": "target_system",

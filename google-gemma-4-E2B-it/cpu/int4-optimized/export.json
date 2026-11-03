@@ -1,0 +1,54 @@
+{
+    "input_model": {
+        "type": "HfModel",
+        "model_path": "google/gemma-4-E2B-it"
+    },
+    "passes": {
+        "export": {
+            "type": "MobiusBuilder",
+            "precision": "fp32",
+            "genai_config": {
+                "model": {
+                    "decoder": {
+                        "session_options": {
+                            "intra_op_num_threads": 12,
+                            "inter_op_num_threads": 1,
+                            "provider_options": []
+                        }
+                    },
+                    "embedding": {
+                        "session_options": {
+                            "intra_op_num_threads": 12,
+                            "inter_op_num_threads": 1,
+                            "provider_options": []
+                        }
+                    },
+                    "vision": {
+                        "session_options": {
+                            "intra_op_num_threads": 12,
+                            "inter_op_num_threads": 1,
+                            "provider_options": []
+                        }
+                    },
+                    "speech": {
+                        "session_options": {
+                            "intra_op_num_threads": 12,
+                            "inter_op_num_threads": 1,
+                            "provider_options": []
+                        }
+                    }
+                },
+                "search": {
+                    "past_present_share_buffer": true
+                }
+            }
+        }
+    },
+    "target": {
+        "type": "LocalSystem",
+        "accelerators": [
+            {"device": "cpu", "execution_providers": ["CPUExecutionProvider"]}
+        ]
+    },
+    "output_dir": "cpu/int4-optimized/models"
+}

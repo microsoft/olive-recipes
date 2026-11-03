@@ -263,16 +263,6 @@ def add_ep_for_device(session_options, ep_name, device_type, ep_options=None):
 
 
 def get_qdq_pipeline(model_dir, common_args, qdq_args, script_dir):
-    if common_args.provider != "cpu":
-        from winml import register_execution_providers
-
-        register_execution_providers()
-    ort.set_default_logger_severity(3)
-
-    print("Loading models into ORT session...")
-    sess_options = ort.SessionOptions()
-    provider_options = [{}]
-
     provider = common_args.provider
 
     provider_map = {
@@ -281,6 +271,16 @@ def get_qdq_pipeline(model_dir, common_args, qdq_args, script_dir):
         "qnn": "QNNExecutionProvider",
     }
     assert provider in provider_map, f"Unsupported provider: {provider}"
+
+    if provider != "cpu":
+        from winml import register_execution_providers_to_onnxruntime
+
+        register_execution_providers_to_onnxruntime(provider_map[provider])
+    ort.set_default_logger_severity(3)
+
+    print("Loading models into ORT session...")
+    sess_options = ort.SessionOptions()
+    provider_options = [{}]
 
     add_ep_for_device(sess_options, provider_map[provider], ort.OrtHardwareDeviceType.NPU)
 

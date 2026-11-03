@@ -1,2 +1,3 @@
-olive-ai[mobius-ai]>=0.13.0
+mobius-onnx
+olive-ai>=0.13.0
 onnxruntime-genai>=0.15.0

@@ -60,7 +60,6 @@ def generate(
     params = og.GeneratorParams(model)
     params.set_search_options(
         max_length=max_length,
-        past_present_share_buffer=False,
         do_sample=False,
         top_k=1,
     )
@@ -115,7 +114,7 @@ def interactive_mode(model: og.Model, tokenizer: og.Tokenizer, max_length: int):
 def main():
     parser = argparse.ArgumentParser(description="Gemma 4 ORT GenAI Inference")
     parser.add_argument("--device", choices=["cpu", "gpu"], default="cpu")
-    parser.add_argument("--variant", choices=["fp32", "fp16", "int4"], default=None)
+    parser.add_argument("--variant", choices=["fp32", "fp16", "int4", "mixed"], default=None)
     parser.add_argument("--model-path", default=None, help="Override model directory")
     parser.add_argument("--prompt", type=str, default=None, help="Text prompt")
     parser.add_argument("--system-prompt", type=str, default=None, help="System prompt")

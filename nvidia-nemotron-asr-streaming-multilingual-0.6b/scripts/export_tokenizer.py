@@ -35,7 +35,7 @@ def _restore_from_hf(model_name: str):
     if len(nemo_files) > 1:
         raise RuntimeError(f"Multiple .nemo archives in {model_name!r}: {nemo_files}")
     nemo_path = hf_hub_download(repo_id=model_name, filename=nemo_files[0])
-    return nemo_asr.models.ASRModel.restore_from(nemo_path)
+    return nemo_asr.models.ASRModel.restore_from(nemo_path, map_location="cpu")
 
 
 def extract_vocab(model_name: str, output_dir: Path) -> list:
@@ -50,7 +50,7 @@ def extract_vocab(model_name: str, output_dir: Path) -> list:
         sys.exit(1)
 
     asr_model = (
-        nemo_asr.models.ASRModel.restore_from(model_name)
+        nemo_asr.models.ASRModel.restore_from(model_name, map_location="cpu")
         if model_name.endswith(".nemo")
         else _restore_from_hf(model_name)
     )

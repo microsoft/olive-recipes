@@ -20,7 +20,7 @@
     ],
     "passes": {
         "qq": {
-            "type": "QuarkQuantization",
+            "type": "QuarkQuantizationVitisAI",
             "quant_scheme": "w_uint4_per_group_asym",
             "quant_algo": "awq",
             "dataset": "pileval_for_awq_benchmark",

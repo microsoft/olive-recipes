@@ -13,13 +13,11 @@ Finally, a prepared QAIRT DLC is encapsulated in an ONNX protobuf and exported t
 **Validated host configuration:**
 * Ubuntu 22.04
 * Python 3.10.12
-* qairt-dev 0.8.1
-* QAIRT 2.45.40
+* qairt-dev 0.11.0
+* QAIRT 2.48.40
 
 **Validated target configuration:**
-* HTP backend on SC8480XP
-
-Other configurations may work but have not been validated.
+* HTP backend on SC8380XP, SC8480XP
 
 ## Preparation Instructions
 
@@ -34,8 +32,6 @@ huggingface-cli login  # Recommended: stores credentials securely, avoids shell 
 
 ```bash
 pip install --no-deps -r requirements.txt
-pip install --no-build-isolation git+https://github.com/microsoft/Olive.git@f7efd41ab24a2eb07be7edc6d84d0f6304b46598
-pip install --no-deps qairt-dev==0.8.1  # Install the proper qairt-dev version, if not installed
 ```
 
 3. Use qairt-vm to install a non-default version of QAIRT and set QAIRT_SDK_ROOT
@@ -60,13 +56,18 @@ export QAIRT_SDK_ROOT=/path/to/qairt/sdk
 olive run --config htp_sc8380xp.json
 ```
 
+```bash
+# For X2 Elite:
+olive run --config htp_sc8480xp.json
+```
+
 ## Execution Instructions
 
 The output of the above olive recipe is a directory compatible with the following versions of onnxruntime-genai and onnxruntime-qnn.
 
 ```bash
 pip install onnxruntime-genai>=0.13
-pip install onnxruntime-qnn>=2.1.0
+pip install onnxruntime-qnn>=2.4.0
 ```
 
 Please see the following script in the onnxruntime-genai repository for [an example of how to run this model directory](https://github.com/microsoft/onnxruntime-genai/blob/main/examples/python/model-qa.py).

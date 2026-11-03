@@ -201,16 +201,15 @@ def add_ep_for_device(session_options, ep_name, device_type, ep_options=None):
 def get_ov_pipeline(common_args, ov_args, optimized_model_dir):
     if common_args.test_unoptimized:
         return StableDiffusionPipeline.from_pretrained(common_args.model_id)
+    ep_name = "OpenVINOExecutionProvider"
 
-    from winml import register_execution_providers
+    from winml import register_execution_providers_to_onnxruntime
 
-    register_execution_providers()
+    register_execution_providers_to_onnxruntime(ep_name)
 
     print("Loading models into ORT session...")
     sess_options = ort.SessionOptions()
     provider_options = [{}]
-
-    ep_name = "OpenVINOExecutionProvider"
 
     device = ov_args.device
     device_map = {

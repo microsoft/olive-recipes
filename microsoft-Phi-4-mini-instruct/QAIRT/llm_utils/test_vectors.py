@@ -23,8 +23,7 @@
 #
 #  @@-COPYRIGHT-END-@@
 # ==============================================================================
-"""utils to generate test vectors"""
-
+""" utils to generate test vectors """
 from typing import Tuple, Union, List, Dict
 import re
 import os
@@ -49,17 +48,12 @@ from aimet_torch.quantsim import ExportableQuantModule
 MODULE_TYPE_FOR_ATTACHING_HOOK = (ExportableQuantModule,)
 modules_to_treat_as_leaf = []
 
-
 def to_torch_tensor(t):
-    """utilty to move test vectors from DequantizedTensor to torch.Tensor"""
-    return nested_map(
-        t, lambda x: torch.tensor(x) if isinstance(x, QuantizedTensorBase) else x
-    )
-
+    """ utilty to move test vectors from DequantizedTensor to torch.Tensor """
+    return nested_map(t, lambda x: torch.tensor(x) if isinstance(x, QuantizedTensorBase) else x)
 
 def to_cpu(t):
-    return change_tensor_device_placement(t, torch.device("cpu"))
-
+    return change_tensor_device_placement(t, torch.device('cpu'))
 
 def quantizers_state(sim, disabled) -> contextlib.ExitStack:
     exit_stack = contextlib.ExitStack()
@@ -69,16 +63,10 @@ def quantizers_state(sim, disabled) -> contextlib.ExitStack:
                 exit_stack.enter_context(module._remove_all_quantizers())
     return exit_stack
 
-
-def run_hook_for_layers_with_given_input_get_output(
-    model: torch.nn.Module,
-    input_tensor: Union[torch.Tensor, Tuple, Dict],
-    hook,
-    module_type_for_attaching_hook=None,
-    module_regex_to_include=None,
-    leaf_node_only=True,
-    fwd_func=None,
-):
+def run_hook_for_layers_with_given_input_get_output(model: torch.nn.Module,
+                                                    input_tensor: Union[torch.Tensor, Tuple, Dict], hook,
+                                                    module_type_for_attaching_hook=None, module_regex_to_include=None,
+                                                    leaf_node_only=True, fwd_func=None):
     """
     Register the given hook function for all layers in the model
     :param model: Model
@@ -102,11 +90,7 @@ def run_hook_for_layers_with_given_input_get_output(
 
     if module_regex_to_include:
         patterns = [re.compile(pattern) for pattern in module_regex_to_include]
-        name_match_modules = [
-            module
-            for name, module in model.named_modules()
-            if any(re.match(pattern, name) for pattern in patterns)
-        ]
+        name_match_modules = [module for name, module in model.named_modules() if  any (re.match(pattern, name) for pattern in patterns)]
     else:
         name_match_modules = model.modules()
 
@@ -127,11 +111,7 @@ def run_hook_for_layers_with_given_input_get_output(
 
     if module_type_for_attaching_hook:
         # if needed, filter by module types specified by caller
-        modules = [
-            module
-            for module in modules
-            if isinstance(module, module_type_for_attaching_hook)
-        ]
+        modules = [module for module in modules if isinstance(module, module_type_for_attaching_hook)]
 
     try:
         for module in modules:
@@ -162,21 +142,12 @@ def run_hook_for_layers_with_given_input_get_output(
 
 
 class LLMLayerOutput(LayerOutput):
-    def __init__(
-        self,
-        model: torch.nn.Module,
-        dir_path: str,
-        naming_scheme: NamingScheme = NamingScheme.PYTORCH,
-        dummy_input=None,
-        onnx_export_args: Union[OnnxExportApiArgs, Dict] = None,
-        regex_patterns=None,
-    ):
+    def __init__(self, model: torch.nn.Module, dir_path: str, naming_scheme: NamingScheme = NamingScheme.PYTORCH,
+                 dummy_input = None, onnx_export_args: Union[OnnxExportApiArgs, Dict] = None, regex_patterns = None):
         super().__init__(model, dir_path, naming_scheme, dummy_input, onnx_export_args)
         self.regex_patterns = regex_patterns
 
-    def record_outputs(
-        self, module: torch.nn.Module, input: torch.Tensor, output: torch.Tensor
-    ):
+    def record_outputs(self, module: torch.nn.Module, input: torch.Tensor, output: torch.Tensor):
         """
         Hook function to capture output of a layer.
 
@@ -186,61 +157,38 @@ class LLMLayerOutput(LayerOutput):
         :return: None
         """
         layer_name = self.module_to_name_dict[module]
-        self.layer_name_to_layer_output_dict[layer_name] = {
-            "input": to_cpu(input[0]),
-            "output": to_cpu(output),
-        }
+        self.layer_name_to_layer_output_dict[layer_name] = {"input": to_cpu(input[0]), "output": to_cpu(output)}
 
     def get_outputs(self, input_batch) -> Dict[str, torch.Tensor]:
         """
-        This function captures layer-outputs and renames them as per the AIMET exported pytorch/onnx/torchscript model.
+                This function captures layer-outputs and renames them as per the AIMET exported pytorch/onnx/torchscript model.
 
-        :param input_batch: Batch of inputs for which we want to obtain layer-outputs.
-        :return: layer-name to layer-output batch dict
-        """
+                :param input_batch: Batch of inputs for which we want to obtain layer-outputs.
+                :return: layer-name to layer-output batch dict
+                """
 
         # Fetch outputs of all the layers
         self.layer_name_to_layer_output_dict = {}
         if self.is_quantsim_model:
             # Apply record-output hook to QuantizeWrapper modules (one node above leaf node in model graph)
-            model_output = run_hook_for_layers_with_given_input_get_output(
-                self.model,
-                input_batch,
-                self.record_outputs,
-                module_type_for_attaching_hook=MODULE_TYPE_FOR_ATTACHING_HOOK,
-                leaf_node_only=False,
-                module_regex_to_include=self.regex_patterns,
-            )
+            model_output = run_hook_for_layers_with_given_input_get_output(self.model, input_batch, self.record_outputs,
+                                                                    module_type_for_attaching_hook=MODULE_TYPE_FOR_ATTACHING_HOOK,
+                                                                    leaf_node_only=False, module_regex_to_include=self.regex_patterns)
         else:
             # Apply record-output hook to Original modules (leaf node in model graph)
-            model_output = run_hook_for_layers_with_given_input_get_output(
-                self.model,
-                input_batch,
-                self.record_outputs,
-                leaf_node_only=True,
-                module_regex_to_include=self.regex_patterns,
-            )
+            model_output = run_hook_for_layers_with_given_input_get_output(self.model, input_batch, self.record_outputs,
+                                                                    leaf_node_only=True, module_regex_to_include=self.regex_patterns)
 
         # Rename outputs according to pytorch/onnx/torchscript model
-        layer_output_name_to_layer_output_dict = LayerOutput.rename_layer_outputs(
-            self.layer_name_to_layer_output_dict,
-            self.layer_name_to_layer_output_name_dict,
-        )
+        layer_output_name_to_layer_output_dict = LayerOutput.rename_layer_outputs(self.layer_name_to_layer_output_dict,
+                                                                                  self.layer_name_to_layer_output_name_dict)
 
         return layer_output_name_to_layer_output_dict, model_output
 
 
 class LLMLayerOutputUtil(LayerOutputUtil):
-    def __init__(
-        self,
-        model: torch.nn.Module,
-        dir_path: str,
-        file_prefix: str,
-        naming_scheme: NamingScheme = NamingScheme.PYTORCH,
-        dummy_input=None,
-        onnx_export_args: Union[OnnxExportApiArgs, Dict] = None,
-        regex_patterns=None,
-    ):
+    def __init__(self, model: torch.nn.Module, dir_path: str, file_prefix: str,  naming_scheme: NamingScheme = NamingScheme.PYTORCH,
+                 dummy_input = None, onnx_export_args: Union[OnnxExportApiArgs, Dict] = None, regex_patterns = None):
         """
         Constructor for LayerOutputUtil.
 
@@ -258,14 +206,8 @@ class LLMLayerOutputUtil(LayerOutputUtil):
         self.file_prefix = file_prefix
 
         # Utility to capture layer-outputs
-        self.layer_output = LLMLayerOutput(
-            model=model,
-            naming_scheme=naming_scheme,
-            dir_path=dir_path,
-            dummy_input=dummy_input,
-            onnx_export_args=onnx_export_args,
-            regex_patterns=regex_patterns,
-        )
+        self.layer_output = LLMLayerOutput(model=model, naming_scheme=naming_scheme, dir_path=dir_path, dummy_input=dummy_input,
+                                            onnx_export_args=onnx_export_args, regex_patterns=regex_patterns)
 
     def generate_layer_outputs(self, input_batch, batch_idx):
         """
@@ -276,40 +218,21 @@ class LLMLayerOutputUtil(LayerOutputUtil):
         """
 
         # Obtain layer-output name to output dictionary
-        layer_output_batch_dict, model_outputs = self.layer_output.get_outputs(
-            input_batch
-        )
+        layer_output_batch_dict, model_outputs = self.layer_output.get_outputs(input_batch)
 
-        test_vectors = {
-            f"{batch_idx}": {
-                **to_cpu(to_torch_tensor(input_batch)),
-                **to_cpu(to_torch_tensor(layer_output_batch_dict)),
-            }
-        }
+        test_vectors = {f"{batch_idx}": {**to_cpu(to_torch_tensor(input_batch)),
+                                         **to_cpu(to_torch_tensor(layer_output_batch_dict))}}
 
-        assert os.path.exists(self.output_dir), (
-            "output_dir for test vectors doesn't exist"
-        )
+        assert os.path.exists(self.output_dir), "output_dir for test vectors doesn't exist"
 
         for key, value in test_vectors.items():
-            filename = os.path.join(
-                self.output_dir, self.file_prefix + f"_{batch_idx}.pkl"
-            )
-            with open(filename, "wb") as file:
+            filename = os.path.join(self.output_dir, self.file_prefix + f"_{batch_idx}.pkl")
+            with open(filename, 'wb') as file:
                 pickle.dump({key: value}, file)
 
         return model_outputs
 
-
-def generate_test_vectors(
-    sim,
-    forward_pass_manager,
-    data_loader,
-    output_dir,
-    num_batches,
-    test_vector_layers,
-    input_names,
-):
+def generate_test_vectors(sim, forward_pass_manager, data_loader, output_dir, num_batches, test_vector_layers, input_names):
     vector_output_dir = os.path.join(output_dir, "test_vectors")
     os.makedirs(vector_output_dir, exist_ok=True)
 
@@ -329,32 +252,19 @@ def generate_test_vectors(
             past_key_values.append([past_key, past_val])
         test_vectors["past_key_values"] = past_key_values
 
-    for idx, batch in enumerate(
-        tqdm(data_loader, total=num_batches, desc="Test vector generation")
-    ):
+    for idx, batch in enumerate(tqdm(data_loader, total=num_batches, desc="Test vector generation")):
         if idx >= num_batches:
             break
-        for vector_type in ["fp", "qt"]:
-            recorder = LLMLayerOutputUtil(
-                forward_pass_manager.model,
-                dir_path=vector_output_dir,
-                file_prefix=vector_type,
-                regex_patterns=test_vector_layers,
-            )
+        for vector_type in ['fp', 'qt']:
 
-            with quantizers_state(sim, disabled=(vector_type == "fp")):
-                prepared_inputs, kvcache_info_bundle = (
-                    forward_pass_manager.prepare_inputs(
-                        input_ids=batch["input_ids"][
-                            ..., : forward_pass_manager.num_tokens
-                        ],
-                        input_names=input_names,
-                    )
-                )
+            recorder = LLMLayerOutputUtil(forward_pass_manager.model, dir_path=vector_output_dir,
+                                                           file_prefix=vector_type, regex_patterns=test_vector_layers)
+
+            with quantizers_state(sim, disabled=(vector_type == 'fp')):
+                prepared_inputs, kvcache_info_bundle = forward_pass_manager.prepare_inputs(
+                    input_ids=batch['input_ids'][..., :forward_pass_manager.num_tokens], input_names= input_names)
                 outputs = recorder.generate_layer_outputs(prepared_inputs, idx)
-                outputs = forward_pass_manager.prepare_outputs(
-                    outputs, prepared_inputs, kvcache_info_bundle
-                )
+                outputs = forward_pass_manager.prepare_outputs(outputs, prepared_inputs, kvcache_info_bundle)
 
             filename = os.path.join(vector_output_dir, f"{vector_type}_{idx}.pkl")
             test_vector_dict = np.load(filename, allow_pickle=True)
@@ -362,5 +272,5 @@ def generate_test_vectors(
             _sanitize_and_update_test_vectors(test_vector_dict[f"{idx}"], outputs)
             test_vector_dict = to_cpu(to_torch_tensor(test_vector_dict))
 
-            with open(filename, "wb") as file:
+            with open(filename, 'wb') as file:
                 pickle.dump(test_vector_dict, file)

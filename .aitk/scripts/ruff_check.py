@@ -60,7 +60,7 @@ def ruff_check(fix: bool = False):
     target_args = [str(t) for t in targets]
     printTip(f"Running ruff on {len(targets)} folder(s)...")
 
-    exclude_ipynb = ["--config", 'extend-exclude=["*.ipynb"]']
+    exclude_ipynb = []  # ["--config", 'extend-exclude=["*.ipynb"]']
     check_cmd = ["ruff", "check", "--select", SELECT_RULES, "--line-length", LINE_LENGTH, *exclude_ipynb]
     format_cmd = ["ruff", "format", "--line-length", LINE_LENGTH, *exclude_ipynb]
     if fix:

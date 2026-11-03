@@ -130,7 +130,7 @@ def main():
                 if not model.extension:
                     # although filename and templateName are same here, use fileName to align with Skylight implementation
                     ipynbFile = os.path.join(modelVerDir, f"{fileName}_inference_sample.ipynb")
-                    hasSpecialIpynb = readCheckIpynb(ipynbFile, {modelItem.file: modelParameter})
+                    hasSpecialIpynb = readCheckIpynb(ipynbFile, {modelItem.file: modelParameter}, model.id)
                     if not hasSpecialIpynb:
                         if not hasSharedIpynb:
                             printError(f"{ipynbFile} nor {sharedIpynbFile} not exists.")
@@ -138,7 +138,7 @@ def main():
                             workflowsAgainstShared[modelItem.file] = modelParameter
 
             if not model.extension:
-                readCheckIpynb(sharedIpynbFile, workflowsAgainstShared)
+                readCheckIpynb(sharedIpynbFile, workflowsAgainstShared, model.id)
 
             if model.extension:
                 GlobalVars.extensionCheck += 1

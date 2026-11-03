@@ -26,8 +26,11 @@ recipes:
     - file: "vit-base-patch16-224_qnn_gpu.json"
       device: gpu
       ep: QNNExecutionProvider
+    - file: "vit_webgpu.json"
+      device: gpu
+      ep: WebGpuExecutionProvider
 aitk:
     modelInfo:
         id: "huggingface/google/vit-base-patch16-224"
-        version: 5
+        version: 6
         p0: true

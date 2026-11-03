@@ -8,4 +8,4 @@ recipes:
 aitk:
   modelInfo:
     id: "huggingface/facebook/sam-vit-base"
-    version: 2
+    version: 3
