@@ -4,9 +4,13 @@ This folder contains sample Olive configuration to optimize Phi-4 models for AMD
 
 ## ✅ Supported Models and Configs
 
-| Model Name (Hugging Face)                          | Config File Name                  |
-|:---------------------------------------------------|:----------------------------------|
-| `microsoft/Phi-4-mini-reasoning`                   | `Phi-4-mini-reasoning_quark_ryzenai_llm.json`  |
+| Model Name (Hugging Face)        | Config File Name                                            | Device                |
+| :------------------------------- | :--------------------------------------------------------- | :-------------------- |
+| `microsoft/Phi-4-mini-instruct`  | `Phi-4-mini-instruct_quark_ryzenai_llm.json`               | npu                   |
+| `microsoft/Phi-4-mini-instruct`  | `Phi-4-mini-instruct_quark_ryzenai_llm_full_fusion.json` * | npu (higher throughput)|
+| `microsoft/Phi-4-mini-instruct`  | `Phi-4-mini-instruct_quark_ryzenai_llm_hybrid.json` *      | npu + gpu hybrid       |
+
+> \* Same as the MLPerf submission recipe.
 
 ## **Run the Quantization Config**
 
@@ -74,14 +78,19 @@ pip install torch==2.7.0 torchvision torchaudio --index-url https://download.pyt
 python -c "import torch; print(torch.__version__)"  # Should print 2.7.0+cpu
 ```
 
-
 #### **Generate optimized LLM model for RyzenAI NPU**
 Follow the above setup instructions, then run the below command to generate the optimized LLM model for RyzenAI EP
 
 ```bash
-# Phi-4-mini-instruct
+# Phi-4-mini-instruct (token_fusion)
 olive run --config Phi-4-mini-instruct_quark_ryzenai_llm.json
+
+# Phi-4-mini-instruct (full_fusion) *MLPerf
+olive run --config Phi-4-mini-instruct_quark_ryzenai_llm_full_fusion.json
+
+# Phi-4-mini-instruct (hybrid) *MLPerf
+olive run --config Phi-4-mini-instruct_quark_ryzenai_llm_hybrid.json
 ```
 
-✅ Optimized model saved in: `models/Phi-4-mini-instruct-rai/`
+✅ Optimized model saved in: `models/Phi-4-mini-instruct-rai/` (and `-full_fusion-rai` / `-hybrid-rai` for the MLPerf recipes)
 > **Note:** Output model is saved in `output_dir` mentioned in the json files.

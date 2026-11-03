@@ -16,7 +16,10 @@
         },
         "mg": {
             "type": "RyzenGenerateModelLLM",
-            "recipe": "token_fusion"
+            "recipe": "token_fusion",
+            "extra_options": {
+                "max_seq_len": "16384"
+            }
         }
     },
     "log_severity_level": 1,

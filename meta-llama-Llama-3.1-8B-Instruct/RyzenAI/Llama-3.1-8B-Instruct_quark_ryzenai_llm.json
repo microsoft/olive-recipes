@@ -13,7 +13,10 @@
         },
         "mg": {
             "type": "RyzenGenerateModelLLM",
-            "recipe": "token_fusion"
+            "recipe": "token_fusion",
+            "extra_options": {
+                "model_type": "llama3-8b"
+            }
         }
     },
     "log_severity_level": 1,

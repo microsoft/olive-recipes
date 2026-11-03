@@ -1,0 +1,47 @@
+{
+    "input_model": {
+        "type": "HFModel",
+        "model_path": "Qwen/Qwen3-8B"
+    },
+    "passes": {
+        "qq": {
+            "type": "QuarkQuantization",
+            "quant_scheme": "uint4_wo_128",
+            "quant_algo": "awq",
+            "dataset": "pileval_for_awq_benchmark",
+            "data_type": "bfloat16",
+            "num_calib_data": 128,
+            "model_export": [
+                "hf_format"
+            ],
+            "exclude_layers": [],
+            "layer_quant_scheme": [
+                [
+                    "lm_head",
+                    "uint4_wo_32"
+                ]
+            ],
+            "algo_configs": {
+                "awq": {
+                    "scaling_layers": [],
+                    "model_decoder_layers": "model.layers"
+                }
+            }
+        },
+        "mg": {
+            "type": "RyzenGenerateModelLLM",
+            "mode": "npu",
+            "recipe": "full_fusion",
+            "extra_options": {
+                "model_type": "qwen3-8b",
+                "max_seq_len": "16384",
+                "flash_mha": "true",
+                "attributes": "enable_flat_kv=true enable_flatmlp=true"
+            }
+        }
+    },
+    "log_severity_level": 1,
+    "output_dir": "models/Qwen3-8B-full_fusion-rai",
+    "cache_dir": "olive_cache",
+    "no_artifacts": true
+}
