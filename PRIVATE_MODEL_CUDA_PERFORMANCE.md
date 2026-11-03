@@ -14,6 +14,15 @@ compare ORT revisions and execution experiments on the same supplied
 `private_int3_model` artifact, not another inference engine or model.
 
 **Latest measured performance (2026-11-03):** the
+[residual Add + RMSNorm fusion](#residual-add--rmsnorm-fusion-on-latest-main-2026-11-03)
+reaches **87.028 / 83.366 decode tok/s** at input lengths 128/512,
+**+4.29% / +3.36%** versus the mixed-quantized baseline in a fresh A/B
+using the same clean latest-main build. Prefill is essentially unchanged.
+**This fusion is not lossless:** relative logit L2 differences are
+**3.66% / 3.62%** versus the mixed-quantized baseline; task accuracy remains
+unvalidated. The original and baseline artifacts are retained unchanged.
+
+**Earlier mixed-quantization measurements:** the
 [mixed INT4/INT8 export](#mixed-int4int8-weight-only-export-2026-11-03)
 reaches **84.045 / 81.225 decode tok/s** at input lengths 128/512,
 **+22.03% / +22.22%** versus the Q/K-export baseline in the same fresh A/B.
@@ -1335,7 +1344,9 @@ per-block symmetric rounding with unsigned byte storage offset by 128.
 It preserves the original graph and weights. The measured graph stores
 new quantized tensors separately and references unchanged external INT3
 expert tensors. The timings below precede the subsequent byte-preserving
-sidecar compaction; no separate post-compaction performance result is claimed.
+sidecar compaction; the table in this section is not a post-compaction
+measurement. The later residual-fusion experiment below measures the
+compacted mixed-quantized baseline separately on a newer runtime.
 Session `AddInitializer` overrides must not be reused under old weight
 names after quantization.
 
@@ -1396,6 +1407,118 @@ numerical probes, runtime hashes, weight-level error records, and CUDA ORT
 profiles are retained locally under `private-model-mixed-quant-20261103`.
 The original model, weights, quantized artifacts, and raw logits remain
 private/local.
+
+## Residual Add + RMSNorm Fusion on Latest Main (2026-11-03)
+
+This follow-up uses a clean, separate build of unmodified upstream ORT
+`a043a5fd70d01971b9953b738078e1ac6dec2153` for **both** conditions.
+There are no local runtime-source changes. The baseline is the compacted
+mixed INT4/INT8 graph from the previous experiment, including the earlier
+Q/K Cast removal. The candidate is an offline Python graph rewrite:
+
+- Replace 84 FP32 `Add` + `SimplifiedLayerNormalization` pairs with 84
+  `com.microsoft::SkipSimplifiedLayerNormalization` nodes.
+- Preserve residual sums needed elsewhere through optional output 3 of
+  the fused operator; 83 of the 84 pairs need this output.
+- Preserve all initializers byte-for-byte, all quantization parameters,
+  295 MatMulNBits nodes, the INT8 embedding, 42 GQA nodes, and 21 INT3 QMoE
+  nodes. Graph node count decreases from 1326 to 1242.
+- Retain the original and baseline graphs. The candidate references the
+  baseline's compacted external-data sidecar rather than duplicating weights.
+
+Six structural rewrite tests and 16 synthetic CUDA cases pass. The CUDA
+cases cover 1/3/128/512 rows at hidden size 3584 with normal, zero, tiny,
+and wide-magnitude inputs. Residual sums match bitwise; normalized outputs
+pass `rtol=2e-5, atol=2e-6`. These small-operator checks do not establish
+full-model numerical equivalence.
+
+### Runtime Identity and Controlled Performance
+
+The clean Release build uses CUDA 13.0, SM80, and cuDNN 9.23.2. Both
+conditions import the same staged Python package on A100-SXM4-80GB,
+physical GPU 1, UUID `GPU-1d6c259c-3f83-8046-c0b6-cbeb9e062c8d`.
+Mapped runtime-library hashes are verified in every worker:
+
+| Library | SHA256 |
+| --- | --- |
+| `onnxruntime_pybind11_state.so` | `8cca92b96ca519dad4a80b1c0099bab27bfa60e6baaf43f66f25caf861cb0854` |
+| `libonnxruntime_providers_cuda.so` | `b1b6409c4cf37c343cd2d9b3b42c95c6c753119ee3ab96bb9e008f2c04490c0e` |
+| `libonnxruntime_providers_shared.so` | `17f7cf47ad0d7b5ac895ae588fd62c7f85a13842588161b6a24c7d480f062be4` |
+
+Baseline graph SHA256:
+`3da900dfd9a03a914d079ae8324a3fc86f0e8f5bc592a68023448c27a4259d84`.
+Candidate graph SHA256:
+`641106981bf0a8c4888c18f9aff131f4cd82cb58cd0d40b62d4004041bb78403`.
+
+The protocol uses the same batch-1 synthetic prompts and forced continuation,
+128 predictions per request, two reversed-order rounds, and three warmups
+plus five measured requests per fresh process. Eight timing processes give
+40 measured requests and 5080 decode transitions, excluding warmups,
+numerical probes, and profiling. `GroupQueryAttentionPreNormFusion` is
+explicitly disabled in both conditions; dense auto-tuning, the C++ norm/Cast
+opt-in, CUDA graphs, and ORT profiling are disabled for timing.
+
+Two preliminary attempts were rejected by the additional-GPU-process guard;
+they contribute no timing results. The completed timing processes pass the
+same idle-before-start and sampled compute-process isolation checks.
+Sampling cannot exclude unsampled activity, and clocks are not locked.
+
+| Input | Mixed-quantized baseline tok/s | Residual-fused tok/s | Decode gain | Baseline prefill ms | Fused prefill ms | Prefill latency change |
+| ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| 128 | 83.449 | 87.028 | **+4.29%** | 128.828 | 128.434 | -0.31% |
+| 512 | 80.653 | 83.366 | **+3.36%** | 466.088 | 465.778 | -0.07% |
+
+Per-round decode rates are 83.656/83.242 -> 86.862/87.194 at input 128
+and 81.120/80.190 -> 83.177/83.556 at input 512. Both rounds improve
+decode. Prefill differences are small and should be treated as essentially
+unchanged, not a demonstrated prefill optimization. These ratios use only
+the fresh latest-main baseline, not the historical 84.045/81.225 tok/s
+measurement or the original model.
+
+Separate ORT profiles confirm, per decode transition:
+
+| CUDA operator | Baseline | Residual-fused |
+| --- | ---: | ---: |
+| Add | 84 | 0 |
+| SimplifiedLayerNormalization | 253 | 169 |
+| SkipSimplifiedLayerNormalization | 0 | 84 |
+| Cast | 168 | 168 |
+| MatMulNBits | 295 | 295 |
+| GatherBlockQuantized | 1 | 1 |
+| GroupQueryAttention | 42 | 42 |
+| QMoE | 21 | 21 |
+
+This confirms 84 fewer executed ORT CUDA nodes per transition, not a
+Nsight-verified count of GPU kernel launches. This rewrite removes no
+additional Casts.
+
+### Full-Model Numerical Differences and Adoption Gate
+
+Full-vocabulary FP32 logits `[128,201088]` are finite at both input lengths.
+The new-runtime baseline matches the previous-runtime mixed-quantized
+logits **bitwise**, but the residual-fused candidate does not:
+
+| Input | Relative logit L2 error vs mixed baseline | Maximum absolute error | Matching top-1 steps |
+| ---: | ---: | ---: | ---: |
+| 128 | 3.6596% | 2.7367 | 128/128 |
+| 512 | 3.6244% | 2.1494 | 128/128 |
+
+The fused FP32 kernel has different reduction/arithmetic ordering.
+Full-model differences can be amplified by subsequent BF16 rounding and
+MoE routing; this experiment does not isolate the amplification mechanism.
+**This is not the earlier lossless Q/K Cast removal.** Top-1 agreement is
+only over the matched synthetic/forced-continuation states, not
+free-running generations or a task-accuracy benchmark. These differences
+are relative to the already lossy mixed-quantized baseline, not the original
+model, and must not be added to the earlier error percentages.
+
+Representative task/perplexity evaluation with the correct tokenizer
+remains an adoption gate. The candidate does not replace the baseline.
+The local graph rewrite, tests, raw per-process timings, numerical probes,
+runtime manifest, and ORT profiles are retained locally under the report
+alias `private-model-skipnorm-20261103`; model artifacts and raw logits
+remain private. This update publishes results only, not the local exporter
+or a public self-contained reproduction package.
 
 ## All Original Measured Request Timings
 
