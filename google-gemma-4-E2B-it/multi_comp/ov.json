@@ -2,7 +2,7 @@
     "input_model": {
         "type": "CompositeModel",
         "config": {
-            "model_path": "gemma4_onnx",
+            "model_path": "gemma4_fixed_capacity_onnx",
             "model_attributes": {
                 "matmul_nbits_accuracy_level": 4
             }
@@ -14,7 +14,7 @@
             "user_script": "user_script.py",
             "load_dataset_config": {
                 "type": "wikitext_decoder_calibration_dataset",
-                "embedding_model_path": "gemma4_onnx/embedding/model.onnx",
+                "embedding_model_path": "gemma4_fixed_capacity_onnx/embedding/model.onnx",
                 "num_samples": 32,
                 "seq_len": 64,
                 "past_len": 64,
@@ -84,34 +84,8 @@
                           {"surgeon": "ReplaceAttentionMaskValue",  "threshold": -1e8}],
             "save_as_external_data": true
         },
-        "dynamic_to_fixed_shape": {
-            "type": "DynamicToFixedShape",
-            "dim_param": [
-                "component.vision_encoder.num_patches"
-            ],
-            "dim_value": [
-                2520
-            ],
-            "save_as_external_data": true
-        },
-        "split_vision_pooler": {
-            "type": "SplitVisionPooler",
-            "stage_session_options": {
-                "vision_encoder": {
-                    "provider_options": [
-                        { "OpenVINO": { "device_type": "NPU" } }
-                    ]
-                },
-                "vision_pooler_projector": {
-                    "log_id": "onnxruntime-genai",
-                    "provider_options": []
-                }
-            },
-            "save_as_external_data": true
-        },
         "vision_cb": {
             "type": "EPContextBinaryGenerator",
-            "components": [ "encoder" ],
             "provider_options": {
                 "device_type": "NPU"
             },
@@ -209,9 +183,7 @@
     "builds": {
         "decoder": {
             "components": [ "decoder" ],
-            "pipeline": [ "decoder_matmul_nbits_to_qdq", "gs_decoder", "sq_decoder", "sp",
-                "kv",
-                "st", "cb" ],
+            "pipeline": [ "decoder_matmul_nbits_to_qdq", "gs_decoder", "sq_decoder", "sp", "kv", "st", "cb"],
             "target": {
                 "type": "LocalSystem",
                 "accelerators": [
@@ -224,7 +196,7 @@
         },
         "vision": {
             "components": [ "vision_encoder" ],
-            "pipeline": [ "matmul_nbits_to_qdq", "gs_vision", "dynamic_to_fixed_shape", "split_vision_pooler", "vision_cb" ],
+            "pipeline": [ "matmul_nbits_to_qdq", "gs_vision", "vision_cb"],
             "target": {
                 "type": "LocalSystem",
                 "accelerators": [
@@ -235,9 +207,6 @@
                 ]
             }
         }
-    },
-    "engine": {
-        "cache_dir": ".olive-cache"
     },
     "output_dir": "gemma4_ov",
     "log_severity_level": 1

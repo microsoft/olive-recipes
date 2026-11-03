@@ -29,21 +29,30 @@ python optimize.py --ep qnn
 For either target, the script runs exactly three steps:
 
 1. Quantize the Hugging Face components with `gemma4_quantize.json`.
-2. Capture the quantized ONNX graphs with Mobius using `olive capture-onnx-graph`.
+2. Capture ONNX graphs with Olive's Mobius builder: fixed-capacity vision for OpenVINO, dynamic vision for QNN.
 3. Run `ov.json` or `qnn.json`.
 
 To run the steps manually with the currently configured accuracy level of `4`:
 
-```bash
+```powershell
 # 1. Quantize
 olive run --config gemma4_quantize.json
 
-# 2. Capture ONNX graphs
-olive capture-onnx-graph \
-    --model_name_or_path gemma4_quantized_hf \
-    --use_mobius_builder \
-    --precision fp32 \
-    --int4_accuracy_level 4 \
+# 2. Export for OpenVINO only
+olive capture-onnx-graph `
+    --model_name_or_path gemma4_quantized_hf `
+    --use_mobius_builder `
+    --precision fp32 `
+    --int4_accuracy_level 4 `
+    --extra_mb_options "vision_patch_capacity=2520,vision_batch_size=1" `
+    --output_path gemma4_fixed_capacity_onnx
+
+# Or: export for QNN (dynamic vision)
+olive capture-onnx-graph `
+    --model_name_or_path gemma4_quantized_hf `
+    --use_mobius_builder `
+    --precision fp32 `
+    --int4_accuracy_level 4 `
     --output_path gemma4_onnx
 
 # 3. Optimize for one target
@@ -60,20 +69,26 @@ Install OpenVINO in the optimization environment:
 pip install openvino
 ```
 
-The decoder pipeline keeps the Mobius ONNX export, applies QDQ conversion and
-graph surgeries, then runs `OpenVINOConversion` and `OpenVINOEncapsulation`.
-Conversion preserves dynamic shapes and the existing weight precision.
-Encapsulation produces an ONNX `EPContext` targeting NPU, with the OpenVINO
-IR (`.xml`/`.bin`) alongside it. The vision and embedding pipelines are unchanged.
+The export writes `gemma4_fixed_capacity_onnx` with fixed vision inputs
+`pixel_values: [1, 2520, 768]`, `pixel_position_ids: [1, 2520, 2]`, and output
+`image_features: [280, 1536]`. Valid image features precede padded rows.
+Decoder, embedding, and audio export behavior is unchanged. The fixed-capacity
+option is not applied during quantization or QNN export.
 
-Encapsulation uses `update_genai_config: true` to preserve the Mobius GenAI
-configuration and automatically merge the decoder filename and NPU session
-options into `gemma4_ov/genai_config.json`. It also disables
-`search.past_present_share_buffer` for the encapsulated decoder. This requires
-an Olive build with existing-GenAI-config update support in
-`OpenVINOEncapsulation`; no manual runtime configuration edits are needed.
-Inference requires an ONNX Runtime build with the OpenVINO EP and the matching
-Intel NPU runtime.
+Olive writes the GenAI configuration, processor/tokenizer assets, and package
+metadata automatically during capture.
+
+`ov.json` consumes this package directly; no vision `DynamicToFixedShape` or
+pooler-splitting pass is needed. It converts quantized vision weights to QDQ,
+applies graph surgeries, and runs `EPContextBinaryGenerator` for NPU. The
+decoder pipeline also fixes KV-cache shapes and uses `StaticLLM` before
+generating OpenVINO context binaries with shared weights.
+
+The output is `gemma4_ov`, including the updated GenAI
+configuration. Image inference requires a GenAI build supporting fixed-capacity
+Gemma4 vision outputs with pipelined decoders, a matching OpenVINO EP plugin,
+and the Intel NPU runtime. A non-pipelined decoder cannot use padded vision
+outputs without additional runtime support.
 
 ## Capture accuracy
 

@@ -51,9 +51,17 @@ class Gemma4OptimizeTest(unittest.TestCase):
             "--use_mobius_builder",
             "--precision",
             "fp32",
-            "--output_path",
-            "gemma4_onnx",
         ]
+        if ep == "ov":
+            capture.extend(
+                ["--extra_mb_options", "vision_patch_capacity=2520,vision_batch_size=1"]
+            )
+        capture.extend(
+            [
+                "--output_path",
+                "gemma4_fixed_capacity_onnx" if ep == "ov" else "gemma4_onnx",
+            ]
+        )
         if accuracy_level is not None:
             capture.extend(["--int4_accuracy_level", str(accuracy_level)])
         self.assertEqual(
@@ -74,7 +82,7 @@ class Gemma4OptimizeTest(unittest.TestCase):
         for call in self.subprocess_run.call_args_list:
             self.assertEqual(call.kwargs, {"cwd": self.recipe_dir, "check": True})
 
-    def test_main_forwards_selected_recipe_accuracy_to_original_capture_command(self):
+    def test_main_forwards_selected_recipe_accuracy_to_capture_command(self):
         for ep, alias in (
             ("qnn", "QNNExecutionProvider"),
             ("ov", "OpenVINOExecutionProvider"),
