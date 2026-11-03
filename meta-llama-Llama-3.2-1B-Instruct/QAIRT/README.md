@@ -12,10 +12,10 @@ After the pipeline pass, a `QairtEncapsulation` pass wraps the compiled DLC in a
 
 ## Metrics
 
-| SoC | MMLU | TTFT (s) | Prefill TPS | Decode TPS |
+| SoC | PPL | TTFT (s) | Prefill TPS | Decode TPS |
 |-----|------|----------|-------------|------------|
-| Snapdragon X2 Elite | - |  90 | 7833.51 | 86.67 |
-| Snapdragon X Elite | - |  310 | 2196.13 | 20.00 |
+| Snapdragon X2 Elite | 17.3973 |  90 | 7833.51 | 86.67 |
+| Snapdragon X Elite | 17.3973 |  310 | 2196.13 | 20.00 |
 
 ## Requirements
 
