@@ -624,6 +624,22 @@
             ]
         },
         {
+            "displayName": "openai/gpt-oss-20b",
+            "icon": "OpenAI",
+            "modelLink": "https://huggingface.co/openai/gpt-oss-20b",
+            "id": "huggingface/openai/gpt-oss-20b",
+            "runtimes": [
+                "RyzenAILightNPU"
+            ],
+            "architecture": "Transformer",
+            "status": "Ready",
+            "relativePath": "gpt-oss-20b/aitk",
+            "version": 1,
+            "pipeline_tags": [
+                "text-generation"
+            ]
+        },
+        {
             "displayName": "openai/whisper-large-v3-turbo",
             "icon": "OpenAI",
             "modelLink": "https://huggingface.co/openai/whisper-large-v3-turbo",
@@ -1113,6 +1129,7 @@
         "Intel GPU": "IntelGPU",
         "AMD NPU": "AMDNPU",
         "AMD GPU": "AMDGPU",
+        "AMD NPU (RyzenAILight)": "RyzenAILightNPU",
         "NVIDIA GPU": "NvidiaGPU",
         "NVIDIA TensorRT for RTX": "NvidiaTRTRTX",
         "DirectML": "DML",
@@ -1128,6 +1145,7 @@
         "IntelGPU": "Intel GPU",
         "AMDNPU": "AMD NPU",
         "AMDGPU": "AMD GPU",
+        "RyzenAILightNPU": "AMD NPU (RyzenAILight)",
         "NvidiaGPU": "NVIDIA GPU",
         "NvidiaTRTRTX": "NVIDIA TensorRT for RTX",
         "DML": "DirectML",

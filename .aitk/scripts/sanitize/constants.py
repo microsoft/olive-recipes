@@ -95,6 +95,7 @@ class EPNames(Enum):
     NvTensorRTRTXExecutionProvider = "NvTensorRTRTXExecutionProvider"
     DmlExecutionProvider = "DmlExecutionProvider"
     WebGpuExecutionProvider = "WebGpuExecutionProvider"
+    RyzenAILightExecutionProvider = "RyzenAILightExecutionProvider"
 
 
 class OliveDeviceTypes(Enum):
