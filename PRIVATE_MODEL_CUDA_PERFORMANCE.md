@@ -13,7 +13,15 @@ The original measurements use one ORT build and one GPU. Later sections
 compare ORT revisions and execution experiments on the same supplied
 `private_int3_model` artifact, not another inference engine or model.
 
-**Latest follow-up:** see the
+**Latest measured performance (2026-11-03):** the
+[mixed INT4/INT8 export](#mixed-int4int8-weight-only-export-2026-11-03)
+reaches **84.045 / 81.225 decode tok/s** at input lengths 128/512,
+**+22.03% / +22.22%** versus the Q/K-export baseline in the same fresh A/B.
+Prefill latency increases **7.66% / 1.66%**. This is lossy quantization,
+not the earlier lossless norm/Cast optimization; numerical changes and
+validation limits are reported with the results.
+
+**Earlier follow-ups:** see the
 [upstream main comparison](#latest-upstream-main-comparison-2026-11-01)
 and [refreshed decode profiling](#refreshed-upstream-decode-profiling-2026-11-01),
 followed by the
@@ -1310,6 +1318,84 @@ and `summary.json` are retained locally under
 `private-model-python-qk-20261102`. Raw model, weights, logits, and profiles
 are not published. Only the reusable script, its tests, and this anonymized
 report are included in this follow-up.
+
+## Mixed INT4/INT8 Weight-Only Export (2026-11-03)
+
+This local follow-up starts from the Python-only Q/K export above, rather
+than the original graph. It quantizes 273 ordinary projection MatMuls to
+INT4 `MatMulNBits`, 21 router MatMuls and one FP32 output-head MatMul to
+INT8 `MatMulNBits`, and one FP32 embedding to INT8
+`GatherBlockQuantized`. All 21 INT3 QMoE nodes and their retained source
+weight tensors are unchanged. Activations and output interfaces remain
+BF16/FP32; this is weight-only quantization, not integer-only inference.
+
+The local exporter uses ORT's existing
+INT4/INT8 symmetric RTN packers with block size 32. The embedding uses
+per-block symmetric rounding with unsigned byte storage offset by 128.
+It preserves the original graph and weights. The measured graph stores
+new quantized tensors separately and references unchanged external INT3
+expert tensors. The timings below precede the subsequent byte-preserving
+sidecar compaction; no separate post-compaction performance result is claimed.
+Session `AddInitializer` overrides must not be reused under old weight
+names after quantization.
+
+Four local CUDA and storage tests pass, covering
+INT4/INT8 MatMulNBits with FP32/BF16 inputs, decode/prefill-sized batches,
+INT8 embedding with negative indices, zero weights, invalid dimensions,
+and byte-preserving external-data compaction.
+
+### Fresh Performance Comparison
+
+Both conditions use the same unmodified upstream ORT binaries at
+`a727d71c6120890b752daf5915749b1f18e180ed`, the same A100, synthetic prompts,
+forced continuations, and explicit `GroupQueryAttentionPreNormFusion`
+exclusion. Dense auto-tuning and the C++ norm/cast opt-in are disabled.
+The baseline already includes the 168-Cast Q/K removal; these gains are
+not gains relative to the original unmodified graph.
+
+Two reversed-order rounds, three warmups and five measured requests per
+fresh process give 40 measured requests and 5080 decode transitions.
+Output length is 128 (127 timed decode transitions per request).
+Separate numerical/profiling workers are excluded from throughput.
+
+| Input | Q/K-export baseline tok/s | Mixed INT4/INT8 tok/s | Decode gain | Baseline prefill ms | Quantized prefill ms | Prefill latency change |
+| ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| 128 | 68.875 | 84.045 | **+22.03%** | 119.849 | 129.026 | **+7.66% slower** |
+| 512 | 66.456 | 81.225 | **+22.22%** | 459.896 | 467.534 | **+1.66% slower** |
+
+Per-round decode rates are 68.875/68.875 -> 84.426/83.668 at input 128
+and 66.132/66.784 -> 80.666/81.791 at input 512. Both rounds improve
+decode; the export is not a universal prefill speedup.
+
+Separate ORT profiling confirms 295 MatMulNBits, one GatherBlockQuantized,
+and 21 QMoE calls per decode transition, all on CUDA. Normalization remains
+253 calls and Cast remains 168 calls. CPU placement is limited to observed
+shape-related Gather/Unsqueeze/Concat nodes, not quantized weight operators.
+This is ORT-node dispatch evidence, not a new Nsight kernel-time analysis.
+
+### Numerical Changes and Adoption Gate
+
+This is **lossy** quantization. Fresh full-vocabulary FP32 logits
+`[128,201088]` are finite at both input lengths, but are not bitwise equal:
+
+| Input | Relative logit L2 error | Logit RMSE | Maximum absolute error | Matching top-1 steps |
+| ---: | ---: | ---: | ---: | ---: |
+| 128 | 14.38% | 1.0631 | 9.2698 | 127/128 |
+| 512 | 15.80% | 1.0607 | 8.4289 | 126/128 |
+
+The top-1 comparison is over matched synthetic/forced-continuation states,
+not independent free-running generations. It is not a claim of 98–99%
+task accuracy, nor evidence that routing decisions or downstream quality
+are preserved. Representative task/perplexity evaluation with the correct
+tokenizer remains necessary before adoption. No calibration corpus or
+original source checkpoint was supplied for this RTN experiment.
+
+Measured-process last-logits hashes are repeatable within each condition;
+they intentionally differ across conditions. Complete per-process timings,
+numerical probes, runtime hashes, weight-level error records, and CUDA ORT
+profiles are retained locally under `private-model-mixed-quant-20261103`.
+The original model, weights, quantized artifacts, and raw logits remain
+private/local.
 
 ## All Original Measured Request Timings
 
