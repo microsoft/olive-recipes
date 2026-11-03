@@ -4,7 +4,7 @@ aiosignal==1.4.0
 alembic==1.16.5
 annotated-types==0.7.0
 attrs==25.3.0
-certifi==2025.8.3
+certifi==2026.10.18
 charset-normalizer==3.4.3
 colorama==0.4.6
 coloredlogs==15.0.1
@@ -14,7 +14,7 @@ datasets==3.5.0
 dill==0.3.8
 # evaluate==0.4.3
 evaluate==0.4.3
-filelock==3.20.3
+filelock==4.2.1
 flatbuffers==25.2.10
 frozenlist==1.7.0
 fsspec==2024.12.0
@@ -38,8 +38,8 @@ networkx==3.5
 numpy==2.2.4
 # olive-ai==0.10.1
 olive-ai==0.10.1
-# onnx==1.17.0
-onnx==1.17.0
+# onnx==1.22.0rc1
+onnx==1.22.0rc1
 onnx-ir==0.1.10
 onnxruntime-genai-winml==0.12.1
 onnxruntime-windowsml==1.23.2.202512041916
