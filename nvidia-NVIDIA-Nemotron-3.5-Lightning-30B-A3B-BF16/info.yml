@@ -1,0 +1,13 @@
+arch: nemotron_h
+keywords:
+  - mobius
+  - cuda
+  - bf16
+  - mtp
+  - experimental
+status: experimental_full_model_parity_blocked
+recipes:
+  - name: Nemotron-3.5-Lightning-30B-A3B-BF16_Target_and_MTP_CUDA_Experimental
+    file: cuda/config.json
+    devices: gpu
+    eps: CUDAExecutionProvider
