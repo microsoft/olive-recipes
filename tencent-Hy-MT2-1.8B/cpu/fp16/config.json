@@ -1,0 +1,7 @@
+{
+    "input_model": { "type": "HfModel", "model_path": "tencent/Hy-MT2-1.8B" },
+    "passes": {
+        "mobius_build": { "type": "MobiusBuilder", "precision": "fp16" }
+    },
+    "output_dir": "cpu/fp16/models"
+}

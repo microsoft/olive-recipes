@@ -1,0 +1,13 @@
+{
+    "input_model": { "type": "HfModel", "model_path": "tencent/Hy-MT2-1.8B" },
+    "passes": {
+        "mobius_build": { "type": "MobiusBuilder", "precision": "fp32" },
+        "int4_quantize": {
+            "type": "OnnxKQuantQuantization",
+            "bits": 4,
+            "block_size": 32,
+            "save_as_external_data": true
+        }
+    },
+    "output_dir": "cpu/int4/models"
+}

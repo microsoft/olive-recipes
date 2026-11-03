@@ -1,0 +1,71 @@
+keywords:
+  - hunyuan
+  - hunyuan-v1-dense
+  - hy-mt2
+  - translation
+  - multilingual
+  - int4
+  - kquant
+  - rtn
+  - gptq
+  - mobius
+arch: hunyuan
+ep:
+  - CPUExecutionProvider
+  - CUDAExecutionProvider
+  - WebGpuExecutionProvider
+device:
+  - cpu
+  - gpu
+name: hy_mt2_1_8b
+recipes:
+  - name: hy-mt2-1_8b-fp32-cpu
+    file: cpu/fp32/config.json
+    devices:
+      - cpu
+    eps: CPUExecutionProvider
+  - name: hy-mt2-1_8b-fp16-cpu
+    file: cpu/fp16/config.json
+    devices:
+      - cpu
+    eps: CPUExecutionProvider
+  - name: hy-mt2-1_8b-bf16-cpu
+    file: cpu/bf16/config.json
+    devices:
+      - cpu
+    eps: CPUExecutionProvider
+  - name: hy-mt2-1_8b-int4-kquant-cpu
+    file: cpu/int4/config.json
+    devices:
+      - cpu
+    eps: CPUExecutionProvider
+  - name: hy-mt2-1_8b-int4-kquant-tie-cpu
+    file: cpu/int4_tie/config.json
+    devices:
+      - cpu
+    eps: CPUExecutionProvider
+  - name: hy-mt2-1_8b-fp16-cuda
+    file: cuda/fp16/config.json
+    devices:
+      - gpu
+    eps: CUDAExecutionProvider
+  - name: hy-mt2-1_8b-bf16-cuda
+    file: cuda/bf16/config.json
+    devices:
+      - gpu
+    eps: CUDAExecutionProvider
+  - name: hy-mt2-1_8b-int4-kquant-cuda
+    file: cuda/int4/config.json
+    devices:
+      - gpu
+    eps: CUDAExecutionProvider
+  - name: hy-mt2-1_8b-int4-gptq-cuda
+    file: cuda/int4_gptq/config.json
+    devices:
+      - gpu
+    eps: CUDAExecutionProvider
+  - name: hy-mt2-1_8b-int4-kquant-tie-webgpu
+    file: webgpu/int4_tie/config.json
+    devices:
+      - gpu
+    eps: WebGpuExecutionProvider
