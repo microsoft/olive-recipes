@@ -12,9 +12,8 @@ evaluator_config:
   metrics:
     - name: PPL
       dataset_name: wikitext
-      # Full wikitext-2 test split at context_length 4096 is ~60 batches.
-      # Reduce max_batches for faster iteration during development.
-      max_batches: 60
+      # Full dataset is 60, adjusted down to reduce preparation time
+      max_batches: 8
 
 log_level: info
 

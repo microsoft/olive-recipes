@@ -24,7 +24,7 @@ Previous versions of this recipe used `QairtPreparationPass` and `QairtGenAIBuil
 **Validated host configuration:**
 * Ubuntu 22.04
 * Python 3.12.10
-* Nvidia H100 80GB GPU, CUDA 12.8+
+* Nvidia H100 80GB GPU, CUDA 13.2+
 * QAIRT 2.48.40
 
 With the preparation-time Python dependencies noted in requirements_host.txt  - other configurations may work but have not been verified.
