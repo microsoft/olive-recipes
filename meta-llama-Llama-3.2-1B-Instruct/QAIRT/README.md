@@ -12,12 +12,21 @@ After the pipeline pass, a `QairtEncapsulation` pass wraps the compiled DLC in a
 
 ## Metrics
 
-| SoC | PPL | TTFT (s) | Prefill TPS | Decode TPS |
-|-----|------|----------|-------------|------------|
-| Snapdragon X2 Elite | 17.3973 | 0.09 | 7506.50 | 88.58 |
-| Snapdragon X Elite | 17.3973 | 0.73 | 1150.71 | 7.17 |
+### Accuracy
 
-Perplexity evaluated on the [wikitext2](https://huggingface.co/datasets/Salesforce/wikitext) test set using the post-quantization model (after LPBQ SeqMSE calibration, prior to DLC compilation).
+Perplexity evaluated on the [wikitext2](https://huggingface.co/datasets/Salesforce/wikitext) test set.
+
+| Stage | PPL |
+|-------|-----|
+| FP32 baseline | 12.1660 |
+| Post-quantization (LPBQ SeqMSE) | 17.3973 |
+
+### Performance
+
+| SoC | TTFT (s) | Prefill TPS | Decode TPS |
+|-----|----------|-------------|------------|
+| Snapdragon X2 Elite | 90 | 7833.51 | 86.67 |
+| Snapdragon X Elite | 310 | 2196.13 | 20.00 |
 
 ## Requirements
 
