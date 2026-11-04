@@ -1,0 +1,4 @@
+liquid-audio
+onnxruntime-ep-webgpu>=0.4.0
+onnxruntime-genai>=0.16.0
+transformers>=5.0.0
