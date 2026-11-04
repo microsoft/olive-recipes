@@ -1,0 +1,5 @@
+onnxruntime>=1.31.0
+onnxruntime-genai>=0.17.0
+# Olive imports requests without declaring it; drop once microsoft/Olive#2676 is fixed
+requests
+transformers>=5.0.0
