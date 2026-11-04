@@ -8,7 +8,6 @@ soc_details: "chipset:SC8380XP"
 
 enable_cache: true
 enable_observers: true
-
 show_progress: true
 
 evaluation_mode: true

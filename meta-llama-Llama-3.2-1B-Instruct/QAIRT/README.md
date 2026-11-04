@@ -14,15 +14,17 @@ After the pipeline pass, a `QairtEncapsulation` pass wraps the compiled DLC in a
 
 | SoC | PPL | TTFT (s) | Prefill TPS | Decode TPS |
 |-----|------|----------|-------------|------------|
-| Snapdragon X2 Elite | 17.3973 |  90 | 7833.51 | 86.67 |
-| Snapdragon X Elite | 17.3973 |  310 | 2196.13 | 20.00 |
+| Snapdragon X2 Elite | 17.3973 | 0.09 | 7506.50 | 88.58 |
+| Snapdragon X Elite | 17.3973 | 0.73 | 1150.71 | 7.17 |
+
+Perplexity evaluated on the [wikitext2](https://huggingface.co/datasets/Salesforce/wikitext) test set using the post-quantization model (after LPBQ SeqMSE calibration, prior to DLC compilation).
 
 ## Requirements
 
 **Validated host configuration:**
 * Ubuntu 22.04
-* Python 3.10.12
-* Nvidia H100 80GB GPU, CUDA 12.8+
+* Python 3.12.10
+* Nvidia H100 80GB GPU, CUDA 13.2+
 * QAIRT 2.48.40
 
 With the preparation-time Python dependencies noted in `requirements_host.txt` - other configurations may work but have not been verified.
