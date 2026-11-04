@@ -51,8 +51,9 @@
     ],
     "passes": {
         "quantization": {
-            "type": "NVModelOptQuantization",
-            "precision": "nvfp4",
+            "type": "ModelOptQuantization",
+            "quantization_config": "nvfp4",
+            "export_format": "hf",
             "data_config": "calibration_data"
         }
     },

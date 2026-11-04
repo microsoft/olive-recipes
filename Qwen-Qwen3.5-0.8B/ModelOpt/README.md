@@ -2,17 +2,16 @@
 
 This recipe quantizes the **text-only** component of
 [`Qwen/Qwen3.5-0.8B`](https://huggingface.co/Qwen/Qwen3.5-0.8B) using Olive's
-`NVModelOptQuantization` pass. The output is a **packed Hugging Face checkpoint**,
+dedicated PyTorch `ModelOptQuantization` pass. The output is a **packed Hugging Face checkpoint**,
 not an ONNX model or an ONNX Runtime GenAI package. The vision encoder is not loaded
 by the `text-generation` task.
 
-## Why this recipe does not use ModelBuilder
+## Hugging Face quantization workflow
 
-ModelOpt supports NVFP4 in its **PyTorch-first** workflow. Its ONNX quantizer does
-not currently implement NVFP4, so `ModelBuilder` followed by ONNX NVFP4 quantization
-is not a supported pipeline. This recipe instead loads the Hugging Face PyTorch
-model, calibrates native ModelOpt NVFP4 quantizers, and exports with
-`modelopt.torch.export.export_hf_checkpoint`.
+The recipe loads the Hugging Face PyTorch model, selects ModelOpt's native `nvfp4`
+preset through `quantization_config`, calibrates it, and exports with
+`modelopt.torch.export.export_hf_checkpoint` (`export_format: "hf"`).
+It does not use `ModelBuilder` or modify the existing ONNX quantization pass.
 
 The pass uses `NVFP4_DEFAULT_CFG`: W4A4 E2M1 quantization with FP8 block scales,
 block size 16, and ModelOpt's default calibration algorithm and module exclusions.
@@ -63,7 +62,7 @@ for current checkpoint and hardware compatibility.
 Run from this directory in the calibration environment:
 
 ```bash
-olive run --config Qwen3.5-0.8B_nvmo_nvfp4.json
+olive run --config Qwen3.5-0.8B_modelopt_nvfp4.json
 ```
 
 Olive saves its final model descriptor to `models/nvfp4/model_config.json` and the
@@ -86,12 +85,38 @@ The script applies the checkpoint's chat template through `vllm.LLM.chat` and pr
 the generated response. vLLM reads the quantization format from checkpoint metadata.
 Generation is text-only; image/video inputs are not supported by this recipe.
 
+## Other ModelOpt precisions and restorable checkpoints
+
+The new pass accepts every model preset in the installed ModelOpt version, not
+only NVFP4. Change `quantization_config` to a native preset such as `fp8`,
+`int8_smoothquant`, `int4_awq`, `mxfp4`, `mxfp6`, `mxfp8`, or `mxint8`; a complete
+native ModelOpt quantization config dictionary is also accepted. Use a distinct
+`output_dir` for each variant and verify its hardware/runtime requirements.
+
+Packed HF export is not implemented for every ModelOpt quantizer. To preserve
+any native precision for further PyTorch use, set `export_format` to `modelopt`.
+That saves high-precision backing weights plus quantizer state in a restorable
+HF checkpoint, not a compressed deployment checkpoint. The vLLM inference script
+above is intended only for compatible **packed** output. Restore ModelOpt-format
+output in Python instead:
+
+```python
+import modelopt.torch.opt as mto
+from transformers import AutoModelForCausalLM
+
+mto.enable_huggingface_checkpointing()
+model = AutoModelForCausalLM.from_pretrained("models/nvfp4/model")
+```
+
 ## Validation status
 
 This is an experimental recipe. Configuration validation, mocked inference-script
 checks, and Olive unit tests use no model-weight downloads or GPU execution. A
-native ModelOpt smoke test uses a tiny, randomly initialized Qwen3.5 model on CPU;
-this is not validation of the pretrained model's accuracy or GPU kernels. Full Qwen3.5
+native ModelOpt smoke test uses a tiny, randomly initialized Qwen3.5 model on CPU.
+Additional CPU tests save and restore quantizer settings and weights for FP8,
+INT8 SmoothQuant, INT4 AWQ, NVFP4, MXFP4, MXFP6, MXFP8, and MXINT8 using tiny Llama
+models; CPU inference is checked only for FP8/INT8/INT4. These checks do not validate
+the pretrained model's accuracy or GPU kernels. Full Qwen3.5
 NVFP4 calibration, packed checkpoint loading, generation quality, and native
 Blackwell inference have **not** been validated. ModelOpt's support matrix does not
 currently list Qwen3.5 NVFP4 as validated; do not interpret this recipe as an

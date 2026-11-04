@@ -1,6 +1,6 @@
 arch: qwen3_5_text
 recipes:
   - name: Qwen3.5-0.8B_ModelOpt_NVFP4
-    file: Qwen3.5-0.8B_nvmo_nvfp4.json
+    file: Qwen3.5-0.8B_modelopt_nvfp4.json
     devices: gpu
     eps: CUDAExecutionProvider
