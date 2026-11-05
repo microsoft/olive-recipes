@@ -61,6 +61,17 @@ def test_recipe_session_options_override_generated_config(tmp_path):
     assert config["model"]["decoder"]["session_options"] == options
 
 
+def test_recipe_cuda_provider_options_override_generated_config(tmp_path):
+    config_path = tmp_path / "genai_config.json"
+    _write_kev_config(config_path)
+    options = {"provider_options": [{"cuda": {}}]}
+
+    exporter.apply_component_session_options(tmp_path, options)
+
+    config = json.loads(config_path.read_text())
+    assert config["model"]["decoder"]["session_options"] == options
+
+
 def test_recipe_provider_overrides_published_metadata(tmp_path):
     (tmp_path / "inference_model.json").write_text(
         json.dumps(

@@ -257,18 +257,23 @@ def apply_component_session_options(
     options: dict,
 ) -> None:
     """Apply recipe-owned ORT session options to a generated component config."""
-    expected = {
+    thread_options = {
         "intra_op_num_threads",
         "inter_op_num_threads",
         "session.intra_op.allow_spinning",
         "session.inter_op.allow_spinning",
     }
-    if set(options) != expected:
+    allowed = thread_options | {"provider_options"}
+    unknown = set(options) - allowed
+    present_threads = set(options) & thread_options
+    if unknown or (present_threads and present_threads != thread_options):
         raise ValueError(
-            "component_session_options must contain exactly "
-            f"{sorted(expected)}, got {sorted(options)}"
+            "component_session_options must contain provider_options and/or "
+            f"all thread options {sorted(thread_options)}; got {sorted(options)}"
         )
     for name in ("intra_op_num_threads", "inter_op_num_threads"):
+        if name not in options:
+            continue
         value = options[name]
         if not isinstance(value, int) or isinstance(value, bool) or value <= 0:
             raise ValueError(
@@ -278,8 +283,26 @@ def apply_component_session_options(
         "session.intra_op.allow_spinning",
         "session.inter_op.allow_spinning",
     ):
+        if name not in options:
+            continue
         if options[name] not in {"0", "1"}:
             raise ValueError(f"component_session_options.{name} must be '0' or '1'")
+    if "provider_options" in options:
+        providers = options["provider_options"]
+        if (
+            not isinstance(providers, list)
+            or not providers
+            or any(
+                not isinstance(provider, dict)
+                or len(provider) != 1
+                or not isinstance(next(iter(provider.values())), dict)
+                for provider in providers
+            )
+        ):
+            raise ValueError(
+                "component_session_options.provider_options must be a non-empty "
+                "list of single-provider option objects"
+            )
 
     config_path = package / "genai_config.json"
     config = json.loads(config_path.read_text(encoding="utf-8"))
