@@ -24,10 +24,7 @@ from peft import PeftModel
 from transformers import AutoConfig, AutoModelForCausalLM, AutoTokenizer
 
 from mobius import ArchitectureConfig, build_clm_package, build_kev_package
-from scripts.non_generative_runtime_optimizations import (
-    build_fused_clm,
-    finalize_clm_package,
-)
+from scripts.non_generative_runtime_optimizations import finalize_clm_package
 
 ModelName = Literal["clm", "kev", "kev08"]
 Precision = Literal["fp32", "fp16", "mixed", "both"]
@@ -311,18 +308,6 @@ def apply_component_session_options(
     config = json.loads(config_path.read_text(encoding="utf-8"))
     config["model"]["decoder"]["session_options"] = dict(options)
     write_json(config_path, config)
-
-
-def add_fused_clm_component(package: Path) -> None:
-    """Build and declare the fused state-ranking component supported by ORT GenAI."""
-    build_fused_clm(package)
-    manifest_path = package / "component_manifest.json"
-    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
-    manifest["components"]["fused_state_ranking"] = {
-        "role": "fused",
-        "filename": "fused_state_ranking.onnx",
-    }
-    write_json(manifest_path, manifest)
 
 
 def apply_execution_provider_metadata(package: Path, execution_provider: str) -> None:
@@ -742,12 +727,6 @@ def olive_export(
         assert isinstance(component_options, dict)
         apply_component_session_options(selected, component_options)
     apply_execution_provider_metadata(selected, execution_provider)
-    if (
-        recipe.name == "clm"
-        and execution_provider == "cuda"
-        and exporter_config.get("runtime_optimizations") is None
-    ):
-        add_fused_clm_component(selected)
     component_runtime = exporter_config.get("component_runtime")
     if component_runtime is not None:
         if not isinstance(component_runtime, dict):
