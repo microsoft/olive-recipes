@@ -13,7 +13,16 @@ The original measurements use one ORT build and one GPU. Later sections
 compare ORT revisions and execution experiments on the same supplied
 `private_int3_model` artifact, not another inference engine or model.
 
-**Latest measured performance (2026-11-03):** the
+**Latest measured performance (2026-11-05):** the
+[merged INT4 QKV projections](#merged-int4-qkv-projections-2026-11-05)
+reach **90.649 / 87.600 decode tok/s** at input lengths 128/512,
+**+5.14% / +5.04%** versus the residual-fused mixed-quantized baseline
+in a fresh same-runtime A/B. Prefill is essentially unchanged.
+The input-512 full-logit probe matches bitwise, but input 128 has a
+**3.99% relative logit L2 difference** versus that baseline. This is
+an experimental candidate, not a lossless or task-accuracy-qualified upgrade.
+
+**Earlier residual-fusion measurements (2026-11-03):** the
 [residual Add + RMSNorm fusion](#residual-add--rmsnorm-fusion-on-latest-main-2026-11-03)
 reaches **87.028 / 83.366 decode tok/s** at input lengths 128/512,
 **+4.29% / +3.36%** versus the mixed-quantized baseline in a fresh A/B
@@ -1519,6 +1528,103 @@ runtime manifest, and ORT profiles are retained locally under the report
 alias `private-model-skipnorm-20261103`; model artifacts and raw logits
 remain private. This update publishes results only, not the local exporter
 or a public self-contained reproduction package.
+
+## Merged INT4 QKV Projections (2026-11-05)
+
+This local experiment starts from the residual-fused mixed-quantized
+candidate above. In each of 42 attention layers, three adjacent
+shared-input INT4 `MatMulNBits` projections with
+`K=3584, N=[6144,1024,1024]` become one `N=8192` projection followed by
+an axis-last `Split` that preserves the original Q/K/V output names.
+
+Packed UINT8 weights `[N,112,16]` and BF16 scales `[N,112]` are concatenated
+along their output-channel axis in original projection order. There is
+**no unpack/repack, recalibration, rounding of scales, or requantization**.
+Stored concatenated bytes are verified against their source bytes.
+The exporter requires compatible attributes, constant weights, adjacent
+projections, and supported packed layouts; explicit zero points/biases and
+overridable weights are excluded.
+
+MatMulNBits count decreases from 295 to 211, with 42 new Split nodes:
+graph node count falls from 1242 to 1200, a **net reduction of 42**.
+All retained initializers and all non-MatMul source nodes are unchanged,
+including Q/K norms, 168 executed Casts, 84 residual norm fusions, 42 GQA
+nodes, the INT8 embedding/head/router configuration, and 21 INT3 QMoEs.
+The candidate adds a 693633024-byte sidecar for merged projection tensors
+and still references the baseline's compacted sidecar for remaining weights.
+It is not self-contained in just its graph and new same-stem sidecar.
+Original and baseline artifacts are not overwritten.
+
+Six structural/storage/guard tests and eight actual-dimension CUDA
+operator cases pass. The operator matrix uses FP32/BF16 activations and
+scales with 1/3/128/512 rows. Decode-sized outputs match bitwise;
+some prefill cases differ, consistent with shape-dependent GEMM execution.
+Exact packed-weight preservation does not guarantee identical
+floating-point outputs.
+
+### Same-Runtime Performance and Dispatch
+
+Both conditions use the preserved unmodified ORT build at
+`a043a5fd70d01971b9953b738078e1ac6dec2153`, not a newly fetched
+2026-11-05 main. Runtime-library hashes and A100 GPU identity match the
+preceding residual-fusion experiment and are verified in every worker.
+Baseline graph SHA256 is
+`641106981bf0a8c4888c18f9aff131f4cd82cb58cd0d40b62d4004041bb78403`;
+merged graph SHA256 is
+`0fdc491a6a0411a427701ec5539dccc33c01ea3a3238b8c96d238cff9a6bff6d`.
+
+The same batch-1 synthetic prompts, forced continuation, 128 predictions,
+optimizer exclusions, scratch settings, and I/O timing definitions are
+retained. Two reversed-order rounds use three warmups and five measured
+requests per fresh process: **40 measured requests / 5080 decode
+transitions**. Numerical and profiling workers are separate. Timing has
+no CUDA graphs, ORT profiling, dense auto-tuning, or C++ norm/Cast opt-in.
+GPU-idle and sampled compute-process isolation checks pass; clocks are
+not locked and unsampled activity cannot be excluded.
+
+| Input | Residual-fused baseline tok/s | Merged QKV tok/s | Decode gain | Baseline prefill ms | Merged prefill ms | Prefill latency change |
+| ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| 128 | 86.220 | 90.649 | **+5.14%** | 128.553 | 127.678 | -0.68% |
+| 512 | 83.398 | 87.600 | **+5.04%** | 465.647 | 467.007 | +0.29% |
+
+Per-round decode rates are 86.533/85.909 -> 91.048/90.253 at input 128
+and 83.510/83.287 -> 87.435/87.766 at input 512. Both rounds improve.
+Prefill changes are below 1%, not evidence of a meaningful prefill
+speedup. Ratios use only this experiment's fresh baseline, not historical
+rates or a sum of the earlier optimization percentages.
+
+Separate ORT profiles confirm 295 -> 211 MatMulNBits and 0 -> 42 Split
+calls per decode transition, all on CUDA. Other observed CUDA operator
+counts are unchanged. This is a 42-node dispatch reduction, not a
+Nsight-verified GPU kernel-launch reduction.
+
+### Numerical Differences and Adoption Gate
+
+Full FP32 logits `[128,201088]` are finite in both conditions. Fresh
+baseline probes match the preceding residual-fused logits bitwise.
+
+| Input | Relative logit L2 error vs residual-fused baseline | Logit RMSE | Maximum absolute error | Matching top-1 steps | Bitwise equal |
+| ---: | ---: | ---: | ---: | ---: | --- |
+| 128 | 3.9929% | 0.2979 | 3.7205 | 128/128 | No |
+| 512 | 0% | 0 | 0 | 128/128 | Yes |
+
+The input-128 difference prevents a general lossless claim despite exact
+weight-byte preservation. The operator probes show that changing GEMM
+output width can change prefill results; their downstream amplification
+has not been isolated. Input-512 equality applies only to the tested
+synthetic/forced-continuation workload.
+
+Top-1 agreement is not free-running generation equivalence or task
+accuracy. These errors are relative to the already quantized and
+residual-fused baseline, not the original graph; they cannot be added to
+earlier error percentages. Representative task/perplexity validation
+remains necessary before adoption.
+
+The local exporter, tests, graph/data files, full-logit probes, per-process
+timings, runtime manifest, and ORT profiles are retained under the report
+alias `private-model-qkv-20261105`. This is a report-only update; local
+exporters, private model artifacts, weights, and raw logits are not
+included in this PR.
 
 ## All Original Measured Request Timings
 
