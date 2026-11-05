@@ -26,7 +26,14 @@
       "exporter_config": {
         "artifact_path": "artifacts/clm",
         "recipe_precision": "mixed",
-        "staging_path": "cache/mobius-export"
+        "staging_path": "cache/mobius-export",
+        "component_session_options": {
+          "provider_options": [
+            {
+              "cuda": {}
+            }
+          ]
+        }
       },
       "user_script": "../user_script.py",
       "script_dir": "../.."
