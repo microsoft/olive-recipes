@@ -12,8 +12,7 @@ evaluator_config:
   metrics:
     - name: PPL
       dataset_name: wikitext
-      # Full dataset is 60, adjusted down to reduce preparation time
-      max_batches: 8
+      max_batches: 60
 
 log_level: info
 
@@ -25,6 +24,7 @@ stages:
   model_loader:
     model_reauthoring: true
     apply_default_adaptations: true
+    execution_environment: gpu
 
     hf_tokenizer_kwargs:
       trust_remote_code: true
