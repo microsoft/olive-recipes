@@ -24,7 +24,7 @@ from peft import PeftModel
 from transformers import AutoConfig, AutoModelForCausalLM, AutoTokenizer
 
 from mobius import ArchitectureConfig, build_clm_package, build_kev_package
-from non_generative_runtime_optimizations import finalize_clm_package
+from scripts.non_generative_runtime_optimizations import finalize_clm_package
 
 ModelName = Literal["clm", "kev", "kev08"]
 Precision = Literal["fp32", "fp16", "mixed", "both"]
