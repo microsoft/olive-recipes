@@ -13,7 +13,16 @@ The original measurements use one ORT build and one GPU. Later sections
 compare ORT revisions and execution experiments on the same supplied
 `private_int3_model` artifact, not another inference engine or model.
 
-**Latest measured performance (2026-11-05):** the
+**Latest experiment (2026-11-05):** the
+[gate/up projection merge on the layout-only baseline](#gateup-projection-merge-on-the-layout-only-baseline-2026-11-05)
+shows modest decode gains. Packed SwiGLU gives **+1.67% / +0.43%** at
+input 128/512 in the initial three-condition matrix and **+1.19% / +1.06%**
+in a separate, closer-order A/B confirmation. One input-512 confirmation
+round slightly regresses, so this is not a robust large speedup. Input-128
+full logits match bitwise; input 512 has a **3.85% relative L2 difference**
+versus the selected layout-only baseline. Baseline artifacts are retained.
+
+**Earlier Q/K norm fusion measurements (2026-11-05):** the
 [Q/K RMSNorm inside CUDA GQA](#qk-rmsnorm-inside-cuda-gqa-2026-11-05)
 candidate reaches **91.450 / 88.179 decode tok/s** at input lengths
 128/512, **+6.22% / +5.08%** versus the 2026-11-03 residual-fused
@@ -1774,6 +1783,147 @@ Raw timings, logits, manifests, operator comparisons, profiles, and the
 local exporter/tests remain private/local under the report alias
 `private-model-gqa-norm-20261105`. Representative task/perplexity
 evaluation remains necessary before adopting the fused candidate.
+
+## Gate/Up Projection Merge on the Layout-Only Baseline (2026-11-05)
+
+The selected baseline is the preceding **layout-only GQA control**:
+INT4/INT8 quantization and residual norm fusion are retained, Q/K norms
+remain standalone, and GQA consumes separate normalized Q/K/V inputs.
+This is not the QKV-projection-merged or GQA-internal-norm candidate.
+All conditions use the same preserved clean ORT build
+`a043a5fd70d01971b9953b738078e1ac6dec2153` on the same A100 GPU 1.
+Runtime-library hashes and GPU identity are verified in every worker.
+
+There are 21 pairs of adjacent shared-input INT4 gate/up MatMulNBits
+nodes, each with `K=3584, N=3584, block_size=32`. Their packed weight and
+BF16-scale rows are concatenated byte-for-byte into one `N=7168`
+projection, with no requantization or scale rounding. The activation
+role follows the actual Sigmoid/Mul topology rather than the projection
+filename: the first stored half is the SiLU-activated branch.
+
+Two candidates isolate the implementation choices:
+
+- **Split:** one merged MatMulNBits plus Split, keeping the existing
+  activation graph. Fewer MatMul nodes alone do not reduce total dispatch:
+  the 21 removed MatMulNBits calls are replaced by 21 Split calls.
+- **Packed SwiGLU:** the same merged MatMulNBits feeds the existing
+  single-input CUDA SwiGLU directly. No Split is needed. Use
+  `activation_alpha=1` and `round_activation=1`, matching the baseline
+  runtime's existing QuickGelu/SwiGLU fusion and intermediate activation
+  rounding; no extra clamp or bias is introduced.
+
+The shared exporter is extended to equal-width pairs while retaining its
+original QKV behavior. Fourteen structural/storage/guard tests pass,
+including the QKV regressions, role ordering, shared/exposed intermediates,
+shape/type guards, exact packed-row storage, and no-overwrite checks.
+Sixteen CUDA comparisons use actual first-layer quantized weights, FP32
+and BF16 activations/scales, and 1/3/128/512 rows. Packed activation
+matches Split bitwise in every case. Some prefill outputs differ from
+the original two-projection block; weight-byte preservation is not
+computational bitwise equivalence.
+
+Raw graph node counts are 1158 / 1158 / 1095 for baseline / Split /
+packed. The packed candidate removes 63 raw nodes, but the baseline
+runtime already fuses the activation chain, so the executed reduction is
+only 21 CUDA nodes per decode transition. Separate ORT profiles confirm:
+
+| CUDA operator | Baseline | Split | Packed SwiGLU |
+| --- | ---: | ---: | ---: |
+| MatMulNBits | 295 | 274 | 274 |
+| Split | 0 | 21 | 0 |
+| SwiGLU | 21 | 21 | 21 |
+| SimplifiedLayerNormalization | 169 | 169 | 169 |
+| Cast | 168 | 168 | 168 |
+| GroupQueryAttention | 42 | 42 | 42 |
+| SkipSimplifiedLayerNormalization | 84 | 84 | 84 |
+| QMoE | 21 | 21 | 21 |
+
+Attention, cache interfaces, INT8 routing/head/embedding, INT3 experts,
+and retained initializers remain unchanged. The new merged-weight sidecar
+is **303464448 bytes**; both candidates also require the original compacted
+sidecar for remaining tensors. The packed graph references the Split
+candidate's new sidecar rather than duplicating it. These are isolated
+artifacts, not replacements of the selected baseline.
+
+### Initial Three-Condition Matrix
+
+The same batch-1 synthetic prompt/forced-continuation protocol is retained:
+128 predictions, two reversed-order rounds, three warmups and five measured
+requests per fresh process. Twelve processes give **60 measured requests /
+7620 decode transitions**. Numerical/profiling workers are excluded.
+GQA prenorm optimization, dense auto-tuning, the C++ norm/Cast opt-in,
+CUDA graphs, and ORT profiling are disabled for timing.
+
+| Input | Condition | Decode tok/s | Gain vs fresh baseline | Prefill ms |
+| ---: | --- | ---: | ---: | ---: |
+| 128 | Layout-only baseline | 88.278 | - | 128.260 |
+| 128 | Merged + Split | 89.070 | +0.90% | 128.132 |
+| 128 | Merged + packed SwiGLU | 89.752 | +1.67% | 127.959 |
+| 512 | Layout-only baseline | 86.094 | - | 465.006 |
+| 512 | Merged + Split | 86.056 | -0.04% | 465.395 |
+| 512 | Merged + packed SwiGLU | 86.462 | +0.43% | 465.675 |
+
+Packed versus Split improves 0.77% / 0.47%. Split alone does not establish
+a useful input-512 improvement.
+
+### Separate Confirmation of the Small Gains
+
+Because the initial gains are small, two additional reversed-order A/B
+rounds compare only baseline and packed, with the two conditions adjacent
+within each input length. Settings and request counts per process are
+unchanged. This adds **40 measured requests / 5080 decode transitions**.
+Confirmation results are reported separately, not pooled into the initial
+three-condition matrix:
+
+| Input | Baseline decode tok/s | Packed decode tok/s | Decode gain | Baseline prefill ms | Packed prefill ms |
+| ---: | ---: | ---: | ---: | ---: | ---: |
+| 128 | 88.031 | 89.083 | +1.19% | 128.129 | 128.115 |
+| 512 | 85.573 | 86.478 | +1.06% | 465.019 | 465.261 |
+
+Confirmation per-round baseline -> packed rates are
+88.430 -> 89.787 and 87.637 -> 88.390 at input 128;
+84.942 -> 86.871 and **86.212 -> 86.088** at input 512.
+The last pair slightly regresses. The result is a small observed pooled
+gain with variability, not a guaranteed speedup or a strong adoption
+argument. Prefill changes are below 0.25% in both matrices and are
+essentially unchanged. GPU isolation checks pass; clocks are not locked
+and unsampled contention cannot be excluded. There are 100 measured
+requests / 12700 decode transitions across both distinct protocols.
+
+### Numerical Controls and Adoption Limits
+
+Full FP32 logits `[128,201088]` are finite. The fresh selected baseline
+matches its earlier layout-control logits bitwise. Split and packed
+outputs match each other bitwise at both lengths:
+
+| Input | Split and packed vs baseline | Relative logit L2 error | RMSE | Maximum absolute error | Matching top-1 steps |
+| ---: | --- | ---: | ---: | ---: | ---: |
+| 128 | Bitwise equal | 0% | 0 | 0 | 128/128 |
+| 512 | Not bitwise equal | 3.8453% | 0.2676 | 2.3291 | 128/128 |
+
+Thus, the input-512 difference is already present after projection
+merging, before eliminating Split. The packed activation introduces
+no additional observed difference versus Split in these probes.
+Shape-dependent GEMM execution can change floating-point results even
+when packed weight bytes are unchanged; downstream amplification has
+not been isolated.
+
+Top-1 agreement is over matched synthetic/forced-continuation states,
+not independent generation or task accuracy. The error is relative to
+the already quantized, residual-fused layout-only baseline, not the
+original model, and cannot be added to earlier percentages. Given the
+small variable performance benefit and input-512 numerical change,
+this is not a prioritized replacement without representative quality
+validation.
+
+Baseline / Split / packed graph SHA256 values:
+`4ab3da4fc75f87b891c8516400e6f9e7a76ed0752691c2c08ec1b34c0149ad30`,
+`01487e948477f025ac0bba2ca079b358254c854507e980c3beeb7f0559b132ba`,
+`05ac1031a9f7250d5558ace9c84e86f10f50c544605bd22ec429c13e1a8d9fe2`.
+Raw timings, `summary.json`, `confirmation-summary.json`, full-logit
+probes, profiles, operator cases, and local exporters/tests are retained
+under the report alias `private-model-gate-up-20261105`. Private artifacts
+and raw logits are not included in this report.
 
 ## All Original Measured Request Timings
 
