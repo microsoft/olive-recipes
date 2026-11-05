@@ -14,6 +14,17 @@ compare ORT revisions and execution experiments on the same supplied
 `private_int3_model` artifact, not another inference engine or model.
 
 **Latest measured performance (2026-11-05):** the
+[Q/K RMSNorm inside CUDA GQA](#qk-rmsnorm-inside-cuda-gqa-2026-11-05)
+candidate reaches **91.450 / 88.179 decode tok/s** at input lengths
+128/512, **+6.22% / +5.08%** versus the 2026-11-03 residual-fused
+mixed-quantized baseline in a fresh three-condition comparison.
+It does **not** include the merged QKV projections below.
+Full-logit relative L2 differences are **3.68% / 3.64%** versus that
+baseline; task accuracy remains unvalidated. A layout-only control
+preserving standalone norms improves **2.27% / 1.51%** and matches
+full logits bitwise in both tested workloads.
+
+**Earlier QKV projection-merge measurements (2026-11-05):** the
 [merged INT4 QKV projections](#merged-int4-qkv-projections-2026-11-05)
 reach **90.649 / 87.600 decode tok/s** at input lengths 128/512,
 **+5.14% / +5.04%** versus the residual-fused mixed-quantized baseline
@@ -1625,6 +1636,144 @@ timings, runtime manifest, and ORT profiles are retained under the report
 alias `private-model-qkv-20261105`. This is a report-only update; local
 exporters, private model artifacts, weights, and raw logits are not
 included in this PR.
+
+## Q/K RMSNorm Inside CUDA GQA (2026-11-05)
+
+This experiment explicitly starts from the **2026-11-03 residual-fused
+mixed INT4/INT8 graph**, not the merged-QKV candidate. The runtime is also
+the preserved clean, unmodified 2026-11-03 ORT build at
+`a043a5fd70d01971b9953b738078e1ac6dec2153`. No runtime-source modifications
+or new quantization are introduced.
+
+The CUDA implementation supports Q/K norm weights at GQA inputs 14/15.
+Its QKV-preparation kernel applies per-head RMS normalization before
+RoPE and before storing K in the cache. This CUDA support includes the
+non-rotary path; restrictions in the automatic prenorm matcher do not
+describe all supported CUDA kernel configurations.
+
+Three separately exported conditions isolate the changes:
+
+1. **Baseline:** original packed-QKV GQA with standalone Q/K norms.
+2. **Layout control:** feed existing normalized Q, normalized K, and V
+   directly into GQA inputs 0/1/2, removing 42 Concat nodes and their
+   42 identity Casts. All standalone norms and their reshapes remain.
+3. **Fused:** feed raw Q/K/V projections into GQA inputs 0/1/2 and the
+   unchanged BF16 norm scales into inputs 14/15. Preserve the original
+   epsilon through `qk_norm_epsilon` (1e-5 in this model). Remove the
+   control's packing nodes plus 84 standalone norms and 168 reshapes.
+
+All 42 attention layers are eligible: **35 rotary and 7 non-rotary**.
+The fused graph has 906 nodes versus 1242 in the baseline (336 removed);
+the control has 1158 nodes (84 removed). Initializers, quantization
+parameters, all 295 MatMulNBits nodes, INT8 embedding, 21 INT3 QMoEs,
+and 84 residual norm fusions are unchanged. Cache interfaces, sliding
+windows, RoPE tables, attention attributes, and outputs are retained.
+Both new graphs reference the existing compacted sidecar; no new weight
+file is needed and no source artifact is overwritten.
+
+The guarded exporter checks exclusive intermediates, identity casts,
+batch/sequence-preserving reshapes, matching activation/scale types,
+head dimensions, constant non-overridable scales, and positive finite
+epsilons. Separate Q/K epsilons and trailing optional GQA inputs are
+preserved when present.
+
+Six structural tests pass. Twelve actual-head-dimension CUDA scenarios
+produce 24 baseline/control and baseline/fused comparisons, covering
+rotary/non-rotary, 1/128/512-row prefill, decode with existing past, and
+in-place 511-position sliding-window caches across wraparound. Outputs
+and caches are finite and pass local numerical tolerances; V-cache bytes
+match exactly. Some fused Q/K/output cases differ. These operator checks
+are not a guarantee of full-model bitwise equivalence.
+
+### Controlled Three-Condition Performance
+
+The same A100 GPU 1 and runtime-library hashes from the 2026-11-03
+residual-fusion experiment are verified in every worker. All conditions
+explicitly disable `GroupQueryAttentionPreNormFusion`; the offline fused
+graph uses the kernel's optional inputs directly. Dense auto-tuning, the
+C++ norm/Cast opt-in, CUDA graphs, and ORT profiling are off for timing.
+
+Batch size is 1 with the same synthetic prompts and forced continuation.
+Two rounds reverse condition and length order; three warmups and five
+measured requests per fresh process give **12 timing processes, 60
+measured requests, and 7620 decode transitions**. Numerical and profile
+workers are excluded. GPU isolation sampling passes, but unsampled
+activity and unlocked-clock variability remain limitations.
+
+| Input | Condition | Decode tok/s | Gain vs fresh baseline | Prefill ms | Prefill latency change |
+| ---: | --- | ---: | ---: | ---: | ---: |
+| 128 | 11/3 baseline | 86.091 | - | 128.553 | - |
+| 128 | Layout control, norms retained | 88.045 | **+2.27%** | 128.140 | -0.32% |
+| 128 | Q/K norm inside GQA | 91.450 | **+6.22%** | 127.558 | -0.77% |
+| 512 | 11/3 baseline | 83.917 | - | 465.298 | - |
+| 512 | Layout control, norms retained | 85.186 | **+1.51%** | 465.135 | -0.04% |
+| 512 | Q/K norm inside GQA | 88.179 | **+5.08%** | 464.250 | -0.23% |
+
+The fused candidate improves decode **3.87% / 3.51%** relative to the
+layout control. This separates the incremental norm-fusion benefit from
+the packing-removal benefit without adding percentages.
+
+Per-round decode rates (round 1/2):
+
+| Input | Baseline | Layout control | Fused |
+| ---: | ---: | ---: | ---: |
+| 128 | 86.336 / 85.848 | 87.840 / 88.250 | 91.342 / 91.559 |
+| 512 | 84.373 / 83.466 | 85.662 / 84.715 | 88.403 / 87.956 |
+
+Both rounds improve for both candidates. Prefill changes remain below
+1%, not evidence of a meaningful prefill speedup. These results are not
+additive with the earlier projection-merging experiment.
+
+Separate CUDA ORT profiles confirm per decode transition:
+
+| Operator | Baseline | Layout control | Fused |
+| --- | ---: | ---: | ---: |
+| SimplifiedLayerNormalization | 169 | 169 | 85 |
+| Reshape | 189 | 189 | 21 |
+| Concat | 42 | 0 | 0 |
+| Cast | 168 | 168 | 168 |
+| GroupQueryAttention | 42 | 42 | 42 |
+| MatMulNBits | 295 | 295 | 295 |
+| SkipSimplifiedLayerNormalization | 84 | 84 | 84 |
+| QMoE | 21 | 21 | 21 |
+
+The removed packing Casts were already runtime-eliminated identities;
+they do not reduce the executed Cast count. Node counts are ORT dispatch
+evidence, not a Nsight GPU-kernel-launch count.
+
+### Full-Model Numerical Controls and Adoption Gate
+
+All full-vocabulary FP32 logits `[128,201088]` are finite. Fresh baseline
+probes match the preceding 2026-11-03 residual-fused logits bitwise.
+
+| Input | Comparison vs baseline | Relative logit L2 error | RMSE | Maximum absolute error | Matching top-1 steps | Bitwise equal |
+| ---: | --- | ---: | ---: | ---: | ---: | --- |
+| 128 | Layout control | 0% | 0 | 0 | 128/128 | Yes |
+| 128 | Fused Q/K norm | 3.6847% | 0.2749 | 3.1015 | 128/128 | No |
+| 512 | Layout control | 0% | 0 | 0 | 128/128 | Yes |
+| 512 | Fused Q/K norm | 3.6428% | 0.2535 | 2.6278 | 128/128 | No |
+
+The bitwise layout control separates the observed full-model differences
+from packing removal in these workloads. The fused norm uses a different
+reduction/arithmetic implementation, and small operator differences can
+amplify downstream. The specific amplification mechanism has not been
+isolated. This is not additional weight-quantization error.
+
+Top-1 agreement covers matched synthetic/forced-continuation states,
+not task accuracy or independent generation. Differences are relative
+to the already quantized and residual-fused baseline, not the original
+model, and cannot be added to earlier error percentages. The layout
+control is a more conservative candidate in the tested workloads;
+neither graph replaces the baseline automatically.
+
+Baseline/control/fused graph SHA256 values are respectively
+`641106981bf0a8c4888c18f9aff131f4cd82cb58cd0d40b62d4004041bb78403`,
+`4ab3da4fc75f87b891c8516400e6f9e7a76ed0752691c2c08ec1b34c0149ad30`,
+and `4fdcaf231cb26f66815f746a8b3c56bd8fd299c7e956d88fefa8d76cafc98f4d`.
+Raw timings, logits, manifests, operator comparisons, profiles, and the
+local exporter/tests remain private/local under the report alias
+`private-model-gqa-norm-20261105`. Representative task/perplexity
+evaluation remains necessary before adopting the fused candidate.
 
 ## All Original Measured Request Timings
 
