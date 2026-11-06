@@ -25,7 +25,7 @@ Perplexity evaluated on the [wikitext2](https://huggingface.co/datasets/Salesfor
 
 | SoC | TTFT (ms) | Prefill TPS | Decode TPS |
 |-----|----------|-------------|------------|
-| Snapdragon X2 Elite | 90 | 7833.51 | 86.67 |
+| Snapdragon X2 Elite | 80 | 9063.31 | 103.43 |
 | Snapdragon X Elite | 310 | 2196.13 | 20.00 |
 
 ## Requirements
