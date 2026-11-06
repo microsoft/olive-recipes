@@ -1,0 +1,6 @@
+arch: qwen3_5_text
+recipes:
+  - name: kev-0.8b_cpu_mobius_fp32
+    file: kev-0.8b_cpu_fp32.json
+    devices: cpu
+    eps: CPUExecutionProvider
