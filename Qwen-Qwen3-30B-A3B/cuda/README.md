@@ -11,6 +11,11 @@ GenAI configuration.
 
 ## Quantization
 
+An experimental [all-expert INT3 RTN/block64 recipe](rtn_int3_fp16/README.md)
+provides a separate configuration and a same-model comparison of two INT3 CUDA
+implementations. It keeps attention/embeddings INT4 and the head INT8; its
+precision settings and runtime requirements differ from the baseline recipes below.
+
 All three quantized recipes use symmetric 4-bit weights with group size 128:
 
 ```json
