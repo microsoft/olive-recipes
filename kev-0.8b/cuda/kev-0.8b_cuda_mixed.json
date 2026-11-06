@@ -28,6 +28,11 @@
         "recipe_precision": "mixed",
         "staging_path": "cache/mobius-export",
         "component_session_options": {
+          "provider_options": [
+            {
+              "cuda": {}
+            }
+          ],
           "intra_op_num_threads": 1,
           "inter_op_num_threads": 1,
           "session.intra_op.allow_spinning": "0",
