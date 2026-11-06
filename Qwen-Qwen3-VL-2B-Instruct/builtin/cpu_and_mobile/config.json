@@ -1,0 +1,97 @@
+{
+    "input_model": {
+        "type": "HfModel",
+        "model_path": "Qwen/Qwen3-VL-2B-Instruct",
+        "load_kwargs": {
+            "revision": "89644892e4d85e24eaac8bacfd4f463576704203"
+        }
+    },
+    "passes": {
+        "export": {
+            "type": "MobiusBuilder",
+            "precision": "fp32",
+            "prune_prefill_prefix": true,
+            "runtime_last_token_indices": true,
+            "disable_deepstack": true,
+            "genai_config": {
+                "model": {
+                    "type": "qwen3_vl",
+                    "image_token_id": 151655,
+                    "video_token_id": 151656,
+                    "vision_start_token_id": 151652,
+                    "vision": {
+                        "config_filename": "processor_config.json",
+                        "session_options": {
+                            "log_id": "onnxruntime-genai",
+                            "provider_options": []
+                        }
+                    },
+                    "embedding": {
+                        "session_options": {
+                            "log_id": "onnxruntime-genai",
+                            "provider_options": []
+                        }
+                    }
+                },
+                "search": {
+                    "top_k": 50,
+                    "top_p": 1.0
+                }
+            },
+            "processor_config": {
+                "processor": {
+                    "name": "qwen3_vl_image_processor",
+                    "transforms": [
+                        {"operation": {"name": "decode_image", "type": "DecodeImage", "attrs": {"color_space": "RGB"}}},
+                        {"operation": {"name": "convert_to_rgb", "type": "ConvertRGB"}},
+                        {"operation": {"name": "resize", "type": "Resize", "attrs": {
+                            "width": 540, "height": 360, "smart_resize": 1,
+                            "min_pixels": 3136, "max_pixels": 12845056, "patch_size": 16, "merge_size": 2
+                        }}},
+                        {"operation": {"name": "rescale", "type": "Rescale", "attrs": {
+                            "rescale_factor": 0.00392156862745098
+                        }}},
+                        {"operation": {"name": "normalize", "type": "Normalize", "attrs": {
+                            "mean": [0.5, 0.5, 0.5], "std": [0.5, 0.5, 0.5], "qwen3_vl": 1
+                        }}},
+                        {"operation": {"name": "patch_image", "type": "PatchImage", "attrs": {
+                            "patch_size": 16, "temporal_patch_size": 2, "merge_size": 2
+                        }}}
+                    ]
+                }
+            }
+        },
+        "decoder_int4": {
+            "type": "OnnxBlockWiseRtnQuantization",
+            "bits": 4,
+            "block_size": 32,
+            "is_symmetric": true,
+            "accuracy_level": 4,
+            "nodes_to_include": ["decoder/*/MatMul*"],
+            "save_as_external_data": true,
+            "external_data_name": "model.onnx.data"
+        },
+        "vision_embedding_int4": {
+            "type": "OnnxBlockWiseRtnQuantization",
+            "bits": 4,
+            "block_size": 128,
+            "is_symmetric": true,
+            "accuracy_level": 4,
+            "nodes_to_include": [
+                "vision_encoder/*/MatMul*",
+                "posemb_body_Gather*",
+                "embedding/embed_tokens/Gather*"
+            ],
+            "save_as_external_data": true,
+            "external_data_name": "model.onnx.data"
+        }
+    },
+    "target": {
+        "type": "LocalSystem",
+        "accelerators": [
+            {"device": "cpu", "execution_providers": ["CPUExecutionProvider"]}
+        ]
+    },
+    "no_artifacts": true,
+    "output_dir": "cpu_and_mobile/models"
+}
