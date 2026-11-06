@@ -3,7 +3,7 @@
 @@ -6,6 +6,10 @@
    - "reasoning_effort": A string that describes the reasoning effort, defaults to "medium".
   #}
-
+ 
 +{%- macro render_json(value, serialized=none) -%}
 +    {{- serialized if serialized is not none else value|tojson -}}
 +{%- endmacro -%}
@@ -32,7 +32,18 @@
          {%- else -%}
              {{- "string" }}
              {%- if param_spec.nullable %}
-@@ -125,13 +132,7 @@
+@@ -112,7 +119,9 @@
+         {%- set tool = tool.function %}
+         {{- "// " + tool.description + "\n" }}
+         {{- "type "+ tool.name + " = " }}
+-        {%- if tool.parameters and tool.parameters.properties %}
++        {%- if tool.native_freeform %}
++            {{- "(_: FREEFORM) => any;\n\n" }}
++        {%- elif tool.parameters and tool.parameters.properties %}
+             {{- "(_: {\n" }}
+             {%- for param_name, param_spec in tool.parameters.properties.items() %}
+                 {%- if param_spec.description %}
+@@ -125,13 +134,7 @@
                  {{- ": " }}
                  {{- render_typescript_type(param_spec, tool.parameters.required or []) }}
                  {%- if param_spec.default is defined -%}
@@ -47,16 +58,16 @@
                  {%- endif -%}
                  {%- if not loop.last %}
                      {{- ",\n" }}
-@@ -255,7 +256,7 @@
+@@ -255,7 +258,7 @@
  {%- endif %}
-
+ 
  {#- Render messages #}
 -{%- set last_tool_call = namespace(name=none) %}
 +{%- set last_tool_call = namespace(name=none, count=0) %}
  {%- for message in loop_messages -%}
      {#- At this point only assistant/user/tool messages should remain #}
      {%- if message.role == 'assistant' -%}
-@@ -270,7 +271,7 @@
+@@ -270,35 +273,37 @@
                  {{- raise_exception("You have passed a message containing <|channel|> tags in the thinking field. Instead of doing this, you should pass analysis messages (the string between '<|message|>' and '<|end|>') in the 'thinking' field, and final messages (the string between '<|message|>' and '<|end|>') in the 'content' field.") }}
              {%- endif %}
          {%- endif %}
@@ -65,7 +76,10 @@
              {#- We need very careful handling here - we want to drop the tool call analysis message if the model #}
              {#- has output a later <|final|> message, but otherwise we want to retain it. This is the only case #}
              {#- when we render CoT/analysis messages in inference. #}
-@@ -280,25 +281,24 @@
+             {%- set future_final_message = namespace(found=false) %}
+             {%- for future_message in loop_messages[loop.index:] %}
+-                {%- if future_message.role == 'assistant' and "tool_calls" not in future_message %}
++                {%- if future_message.role == 'assistant' and not future_message.tool_calls %}
                      {%- set future_final_message.found = true %}
                  {%- endif %}
              {%- endfor %}
@@ -98,8 +112,11 @@
 +                    {%- set tool_call = tool_call.function %}
 +                {%- endif %}
 +                {{- "<|start|>assistant to=" }}
-+                {{- "functions." + tool_call.name + "<|channel|>commentary " }}
-+                {{- (tool_call.content_type if tool_call.content_type is defined else "json") + "<|message|>" }}
++                {{- "functions." + tool_call.name + "<|channel|>commentary" }}
++                {%- if not tool_call.native_freeform %}
++                    {{- " " + (tool_call.content_type if tool_call.content_type is defined else "json") }}
++                {%- endif %}
++                {{- "<|message|>" }}
 +                {{- render_json(tool_call.arguments, tool_call.arguments_json if tool_call.arguments_json is defined else none) }}
 +                {{- "<|call|>" if loop.last else "<|end|>" }}
 +                {%- set last_tool_call.name = tool_call.name %}
@@ -107,7 +124,7 @@
          {%- elif loop.last and not add_generation_prompt %}
              {#- Only render the CoT if the final turn is an assistant turn and add_generation_prompt is false #}
              {#- This is a situation that should only occur in training, never in inference. #}
-@@ -313,13 +313,23 @@
+@@ -313,13 +318,23 @@
              {#- CoT is dropped during all previous turns, so we never render it for inference #}
              {{- "<|start|>assistant<|channel|>final<|message|>" + message.content + "<|end|>" }}
              {%- set last_tool_call.name = none %}
