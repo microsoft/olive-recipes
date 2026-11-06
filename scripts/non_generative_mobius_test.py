@@ -117,6 +117,21 @@ def test_kev_recipe_json_declares_component_session_options(
     assert options == expected
 
 
+def test_clm_cpu_mixed_recipe_declares_bounded_session_options():
+    config = json.loads(
+        (
+            Path(__file__).parents[1]
+            / "Contrastive-LM-CLM-v0.1-8B/cpu/CLM-v0.1-8B_cpu_mixed.json"
+        ).read_text()
+    )
+    assert config["passes"]["m"]["exporter_config"]["component_session_options"] == {
+        "intra_op_num_threads": 24,
+        "inter_op_num_threads": 1,
+        "session.intra_op.allow_spinning": "0",
+        "session.inter_op.allow_spinning": "0",
+    }
+
+
 @pytest.mark.parametrize(
     "config_path",
     [
@@ -252,7 +267,7 @@ def test_olive_export_rejects_provider_precision_mismatch(tmp_path):
             execution_provider="cpu",
             exporter_config={
                 "artifact_path": "artifact",
-                "recipe_precision": "mixed",
+                "recipe_precision": "fp16",
                 "staging_path": "staging",
             },
         )

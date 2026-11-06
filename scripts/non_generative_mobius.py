@@ -581,7 +581,7 @@ def olive_export(
         "fp16": {"cuda", "webgpu"},
         "mixed": {"cuda", "webgpu"},
     }[precision]
-    if recipe.name == "kev08" and precision == "mixed":
+    if precision == "mixed":
         allowed_providers = allowed_providers | {"cpu"}
     if execution_provider not in allowed_providers:
         raise ValueError(

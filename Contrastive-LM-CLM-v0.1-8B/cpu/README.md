@@ -30,6 +30,16 @@ From this recipe directory:
 olive run --config CLM-v0.1-8B_cpu_fp32.json
 ```
 
+The smaller mixed FP16/INT4 package used for CPU CI lifecycle coverage can be
+exported with:
+
+```bash
+olive run --config CLM-v0.1-8B_cpu_mixed.json
+```
+
+It publishes to `build-mixed/` and preserves the same ranking contract while
+reducing the package from approximately 29 GB to 8.4 GB.
+
 Download the artifact under `artifacts/clm/` in this directory. The package is
 staged under `cache/mobius-export/`, so a complete FP32 export is reused on a
 rerun. Olive atomically publishes the selected package to its `build/` output.
