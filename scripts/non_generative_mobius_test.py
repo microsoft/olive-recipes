@@ -84,6 +84,11 @@ def test_recipe_provider_overrides_published_metadata(tmp_path):
     assert metadata["Name"] == "kev-0.8b-fp16-cuda:1"
     assert metadata["Provider"]["execution_provider"] == "cuda"
 
+    exporter.apply_execution_provider_metadata(tmp_path, "cpu")
+    metadata = json.loads((tmp_path / "inference_model.json").read_text())
+    assert metadata["Name"] == "kev-0.8b-fp16-generic-cpu:1"
+    assert metadata["Provider"]["execution_provider"] == "cpu"
+
 
 @pytest.mark.parametrize(
     ("config_path", "expected_threads"),

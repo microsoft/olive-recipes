@@ -297,6 +297,7 @@ def apply_execution_provider_metadata(package: Path, execution_provider: str) ->
         name = name.replace("-cuda:", "-webgpu:")
     elif execution_provider == "cpu":
         name = name.replace("-generic-webgpu:", "-generic-cpu:")
+        name = name.replace("-cuda:", "-generic-cpu:")
     elif execution_provider == "cuda":
         name = name.replace("-webgpu:", "-cuda:")
     metadata["Name"] = name
