@@ -1,0 +1,14 @@
+keywords:
+    qairt
+    qnn
+arch: llama3
+name: Llama-3.2-1B-Instruct
+recipes:
+    - file: "x_elite_config.json"
+      devices:
+        - npu
+      ep: QNNExecutionProvider
+    - file: "x2_elite_config.json"
+      devices:
+        - npu
+      ep: QNNExecutionProvider
