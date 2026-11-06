@@ -91,6 +91,7 @@ def test_recipe_provider_overrides_published_metadata(tmp_path):
         ("kev-4b/cpu/kev-4b_cpu_fp32.json", 16),
         ("kev-4b/cuda/kev-4b_cuda_mixed.json", 1),
         ("kev-0.8b/cpu/kev-0.8b_cpu_fp32.json", 16),
+        ("kev-0.8b/cpu/kev-0.8b_cpu_mixed.json", 16),
         ("kev-0.8b/cuda/kev-0.8b_cuda_fp16.json", 1),
         ("kev-0.8b/cuda/kev-0.8b_cuda_mixed.json", 1),
     ],

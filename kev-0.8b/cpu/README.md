@@ -32,6 +32,17 @@ From this recipe directory:
 olive run --config kev-0.8b_cpu_fp32.json
 ```
 
+The smaller mixed FP16/INT4 package used for CPU CI lifecycle coverage can be
+exported with:
+
+```bash
+olive run --config kev-0.8b_cpu_mixed.json
+```
+
+It publishes to `build-mixed/`. This is an experimental CI artifact, not the
+recommended release package: full-suite qualification found NLL and Brier
+regressions for the mixed policy even though task decisions remained usable.
+
 The package is staged under `cache/mobius-export/` and atomically published to
 `build/`. The recipe JSON writes 16 intra-op threads, one inter-op thread, and
 non-spinning idle pools into `genai_config.json`.
