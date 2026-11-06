@@ -255,8 +255,7 @@ miss instantaneous peaks; these are not worst-case vision-memory measurements.
 The gate used ORT 1.32.0 / GenAI 0.18.0-dev, `ORT_FPA_INTB_GEMM=1`,
 `ORT_ENABLE_SINGLE_WARP_INT4_GEMV=1`, a frozen load-only A100 tactic cache, and
 `session.use_device_allocator_for_initializers=1`. The generic GEMV control
-takes precedence over the legacy `ORT_ENABLE_QWEN2B_GEMV_SPECIALIZATION` alias.
-It selects FP16, symmetric group32 INT4, one input row, no explicit zero points
+selects FP16, symmetric group32 INT4, one input row, no explicit zero points
 or fused bias, and `(N, K)` of `(1024, 2048)`, `(2048, 2048)`, or `(2048, 6144)`.
 Other shapes keep existing dispatch.
 
