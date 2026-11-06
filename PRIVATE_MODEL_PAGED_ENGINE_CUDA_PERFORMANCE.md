@@ -174,6 +174,133 @@ GPU token selection, and chunked prefill. Performance ratios between these
 reports would confound those changes and must not be treated as controlled
 speedups. Two rounds provide a limited sample without confidence intervals.
 
+## All-Methods Combined Experiment (2026-11-06)
+
+This follow-up combines all five requested optimization ideas in one separate
+experimental graph. The original graph and weights are not overwritten.
+Logit differences are not an acceptance gate for this performance experiment;
+the candidate is not accuracy-qualified or recommended for production.
+The historical baseline tables above remain unchanged.
+
+### Combined Graph
+
+- Remove 168 standalone Q/K norm Cast nodes using the existing BF16 norm
+  export, before quantization and attention-internal norm fusion.
+- Apply symmetric block-32 weight-only quantization: 273 ordinary projection
+  MatMuls to INT4, 21 router MatMuls and the FP32 head to INT8, and the FP32
+  embedding to INT8 GatherBlockQuantized. Activations remain BF16/FP32.
+- Fuse 84 FP32 residual Add + RMSNorm pairs into
+  SkipSimplifiedLayerNormalization, retaining residual sums through output 3.
+- Merge Q/K/V INT4 projection weights in each of 42 layers, producing widths
+  8192 from 6144/1024/1024, with packed weights and BF16 scales concatenated
+  byte-for-byte along output channels.
+- Move 84 per-head Q/K RMSNorms into PagedAttention inputs 12/13 with the
+  original epsilon, approximately 1e-5. Feed merged raw QKV directly through
+  the existing packed-input reshape: no intermediate Split/Concat is required
+  in this combined graph. Both rotary and non-rotary layers are included.
+- Merge 21 equal-width dense gate/up projection pairs into width 7168 and
+  feed single-input SwiGLU with activation_alpha=1 and round_activation=1.
+  Stored half ordering follows the actual Sigmoid/Mul topology, not names.
+
+All 21 INT3 QMoE nodes and their protected initializers match the original
+serialized metadata. The retained source weight file has the original SHA256.
+All 126 newly merged weight/scale tensors were independently byte-verified
+against their sources; no additional requantization is done during merging.
+All 42 paged-cache and metadata input/output interfaces and existing attention
+attributes are preserved, with only optional Q/K scale inputs and epsilon added.
+
+The combined graph SHA256 is
+`116e601080a171a21b1e9c9f6553bd68efca0766b3c70cb15085ae092252cf56`.
+Its added merged-weight sidecar is 997097472 bytes. It also requires the mixed
+quantization sidecar and retained original weights; it is not self-contained
+in just the graph and newly merged sidecar. Original unused initializers have
+not been compacted out of the retained sidecars.
+
+| Raw Graph Operator | Original | Combined |
+| --- | ---: | ---: |
+| MatMul | 295 | 0 |
+| MatMulNBits | 0 | 190 |
+| GatherBlockQuantized | 0 | 1 |
+| Add | 84 | 0 |
+| SimplifiedLayerNormalization | 253 | 85 |
+| SkipSimplifiedLayerNormalization | 0 | 84 |
+| Cast | 420 | 210 |
+| Reshape | 273 | 105 |
+| Sigmoid | 21 | 0 |
+| Mul | 42 | 0 |
+| SwiGLU | 0 | 21 |
+| PagedAttention | 42 | 42 |
+| QMoE | 21 | 21 |
+
+These are exported graph counts, not profiler-verified executed operators or
+CUDA kernel launches. Some original identity Casts may already be runtime-eliminated.
+
+### Fresh Original-versus-Combined A/B
+
+Both conditions use the same supplied runtime libraries, H200, synthetic
+prompts, natural greedy generation, CUDA-graph setting, 8/1 threads, 64 MiB
+QMoE scratch, and synchronization/timing definitions from this report.
+The original Engine cache-pool configuration and 256-token prefill chunks are
+retained. Two reversed-order rounds compare adjacent conditions at each input
+length, with 3 warmups and 5 measured requests per fresh process. Sixteen
+processes give 80 measured requests and 10160 decode transitions, excluding
+48 warmups, all export tests, and separate preflight requests.
+
+Every worker passed GPU idle/sampled compute-PID isolation, library identity,
+output count/range, and configuration checks. Aggregates were independently
+recomputed from all worker JSON. Clocks/power remain unlocked.
+
+| Input | Original Decode tok/s | Combined Decode tok/s | Gain | Original TTFT p50 ms | Combined TTFT p50 ms | TTFT Change |
+| ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| 128 | 110.625 | 151.473 | +36.93% | 71.630 | 73.329 | +2.37% |
+| 512 | 103.453 | 137.454 | +32.87% | 272.405 | 275.402 | +1.10% |
+| 2048 | 102.524 | 138.734 | +35.32% | 1137.697 | 1146.273 | +0.75% |
+| 4096 | 104.296 | 137.233 | +31.58% | 2277.858 | 2303.947 | +1.15% |
+
+| Input | Original / Combined Request p50 ms | Original / Combined Peak Process GiB | Original / Combined E2E Prefill tok/s |
+| ---: | --- | --- | --- |
+| 128 | 1221.039 / 911.898 | 122.914 / 115.285 | 1786.874 / 1744.567 |
+| 512 | 1499.736 / 1199.071 | 123.072 / 115.482 | 1880.476 / 1860.475 |
+| 2048 | 2374.872 / 2061.489 | 123.072 / 115.482 | 1800.229 / 1785.896 |
+| 4096 | 3495.602 / 3230.862 | 123.072 / 115.482 | 1798.168 / 1777.166 |
+
+| Input | Round 1 Original / Combined Decode tok/s | Round 2 Original / Combined Decode tok/s |
+| ---: | --- | --- |
+| 128 | 111.173 / 151.681 | 110.081 / 151.266 |
+| 512 | 104.542 / 137.222 | 102.387 / 137.687 |
+| 2048 | 102.889 / 138.325 | 102.161 / 139.145 |
+| 4096 | 103.789 / 136.136 | 104.808 / 138.349 |
+
+Both rounds improve decode at all lengths, with slightly worse TTFT.
+Process residency drops approximately 7.59-7.63 GiB, still including the
+preallocated KV pool. These gains are measured for the whole combination,
+not sums of historical percentages or attribution to individual fusions.
+
+### Numerical Limits
+
+Small CUDA checks passed for INT4/INT8 MatMul with FP32/BF16 inputs,
+INT8 embedding, FP32 residual fusion, and packed SwiGLU. Packed versus
+two-input SwiGLU outputs matched bitwise for FP32/BF16 at 1/128/256 rows;
+checked outputs were finite. The full combined model completed a separate
+128-token CUDA preflight and all formal requests, but no independent
+PagedAttention Q/K norm numerical matrix or full-vocabulary logits probe
+was collected for this combination.
+
+Each condition has one repeatable output stream across all ten requests at
+each length. A first-request natural greedy comparison has 127/128,
+26/128, 128/128, and 128/128 position-wise token matches at inputs
+128/512/2048/4096 respectively. These are independent continuations, not
+matched teacher-forced states, so divergence changes subsequent tokens and
+potential MoE routing. Position matches are not accuracy or logits-error
+metrics. Even identical tokens do not establish identical logits.
+
+No full-logits finite/allclose result, quantization-quality metric, perplexity,
+or task accuracy is claimed. This experiment establishes observed performance
+of a lossy combined candidate, not equivalent arithmetic or production
+readiness. The local alias `private-model-paged-combined-20261106` covers the
+combined exporter/tests, candidate manifests, weight-byte verification,
+preflight, all 16 worker records, and validated summary; these remain private.
+
 ## Retained Artifacts
 
 The local report alias `private-model-paged-engine-20261106` covers the
