@@ -1,9 +1,9 @@
+datasets
+evaluate>=0.4
 git+https://github.com/microsoft/Olive.git@main
+lm-eval>=0.4.12,<0.5
 mobius-onnx>=0.1.0
 onnx-ir>=1.1.0
 torch>=2.10.0
-transformers>=4.57.0,<6.0
 torchvision
-datasets
-evaluate>=0.4
-lm-eval>=0.4.12,<0.5
+transformers>=4.57.0,<6.0
