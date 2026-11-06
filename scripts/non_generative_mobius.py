@@ -175,7 +175,7 @@ def manifest(recipe: Recipe) -> dict:
                 "filename": "pointer_head/model.onnx",
             },
         }
-        model_type = "kev-4b"
+        model_type = "kev-0.8b" if recipe.name == "kev08" else "kev-4b"
     return {
         "schema_version": 1,
         "model_type": model_type,

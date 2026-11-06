@@ -100,12 +100,15 @@ def test_kev_recipe_json_declares_component_session_options(
 ):
     config = json.loads((Path(__file__).parents[1] / config_path).read_text())
     options = config["passes"]["m"]["exporter_config"]["component_session_options"]
-    assert options == {
+    expected = {
         "intra_op_num_threads": expected_threads,
         "inter_op_num_threads": 1,
         "session.intra_op.allow_spinning": "0",
         "session.inter_op.allow_spinning": "0",
     }
+    if "mixed.json" in config_path and "/cuda/" in config_path:
+        expected["provider_options"] = [{"cuda": {}}]
+    assert options == expected
 
 
 @pytest.mark.parametrize(
@@ -232,6 +235,7 @@ def test_kev_08_recipe_uses_immutable_model_contract():
     assert recipe.artifact_revision == "bf75a6a8848ea6960ff2ed108d9ed44c2941174f"
     assert recipe.fp32_directory == "kev-0.8b-fp32"
     assert recipe.mixed_directory == "kev-0.8b-mixed-middle-mlp"
+    assert exporter.manifest(recipe)["model_type"] == "kev-0.8b"
 
 
 def test_olive_export_rejects_provider_precision_mismatch(tmp_path):
