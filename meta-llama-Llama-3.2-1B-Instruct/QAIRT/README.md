@@ -65,7 +65,6 @@ qairt-vm fetch -v 2.48.40 -d <download location>
 # Note: No further QAIRT SDK installation steps are required when using qairt-dev
 export QAIRT_SDK_ROOT=<download location>/qairt/<version>
 
-```bash
 # Install any requirements required by QAIRT VM
 qairt-vm --fix -v
 
