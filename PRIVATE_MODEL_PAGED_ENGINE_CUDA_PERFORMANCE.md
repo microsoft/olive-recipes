@@ -119,12 +119,17 @@ INT3 describes expert quantization, not uniform three-bit model precision.
 Memory is NVML-sampled process residency, including the preallocated KV pool,
 not minimum model footprint or exact allocation peak.
 
-| Input Tokens | Requests | TTFT p50 ms | TTFT p95 ms | E2E Prefill tok/s | Engine-Run Prefill tok/s | Decode tok/s | Peak Process GiB |
-| ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| 128 | 10 | 71.825 | 71.900 | 1781.917 | 1786.686 | 108.863 | 122.914 |
-| 512 | 10 | 272.566 | 273.124 | 1878.886 | 1880.561 | 102.439 | 123.072 |
-| 2048 | 10 | 1136.165 | 1138.652 | 1802.794 | 1803.751 | 104.484 | 123.072 |
-| 4096 | 10 | 2275.747 | 2279.797 | 1799.196 | 1799.997 | 103.385 | 123.072 |
+| Input tokens | Measured requests | TTFT p50 ms | TTFT p95 ms | Prefill tok/s | Decode tok/s | Peak process GiB |
+| ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| 128 | 10 | 71.825 | 71.900 | 1786.686 | 108.863 | 122.914 |
+| 512 | 10 | 272.566 | 273.124 | 1880.561 | 102.439 | 123.072 |
+| 2048 | 10 | 1136.165 | 1138.652 | 1803.751 | 104.484 | 123.072 |
+| 4096 | 10 | 2275.747 | 2279.797 | 1799.997 | 103.385 | 123.072 |
+
+In performance tables throughout this report, **Prefill tok/s** denotes
+synchronized Engine-run prefill throughput, including Engine scheduling and
+other internal work. It is not the pure ORT-run prefill metric in the historical
+GQA report. End-to-end prefill rates remain available in the local summaries.
 
 | Input Tokens | Request p50 ms | Request p95 ms | Engine Calls to First Token | Distinct Output Streams / 10 |
 | ---: | ---: | ---: | ---: | ---: |
@@ -250,12 +255,25 @@ Every worker passed GPU idle/sampled compute-PID isolation, library identity,
 output count/range, and configuration checks. Aggregates were independently
 recomputed from all worker JSON. Clocks/power remain unlocked.
 
-| Input | Original Decode tok/s | Combined Decode tok/s | Gain | Original TTFT p50 ms | Combined TTFT p50 ms | TTFT Change |
-| ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| 128 | 110.625 | 151.473 | +36.93% | 71.630 | 73.329 | +2.37% |
-| 512 | 103.453 | 137.454 | +32.87% | 272.405 | 275.402 | +1.10% |
-| 2048 | 102.524 | 138.734 | +35.32% | 1137.697 | 1146.273 | +0.75% |
-| 4096 | 104.296 | 137.233 | +31.58% | 2277.858 | 2303.947 | +1.15% |
+| Input tokens | Condition | Measured requests | TTFT p50 ms | TTFT p95 ms | Prefill tok/s | Decode tok/s | Peak process GiB |
+| ---: | --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| 128 | Original | 10 | 71.630 | 71.754 | 1792.127 | 110.625 | 122.914 |
+| 128 | All combined | 10 | 73.329 | 73.616 | 1749.030 | 151.473 | 115.285 |
+| 512 | Original | 10 | 272.405 | 272.934 | 1882.479 | 103.453 | 123.072 |
+| 512 | All combined | 10 | 275.402 | 275.794 | 1862.497 | 137.454 | 115.482 |
+| 2048 | Original | 10 | 1137.697 | 1139.875 | 1801.357 | 102.524 | 123.072 |
+| 2048 | All combined | 10 | 1146.273 | 1149.887 | 1786.726 | 138.734 | 115.482 |
+| 4096 | Original | 10 | 2277.858 | 2282.553 | 1798.994 | 104.296 | 123.072 |
+| 4096 | All combined | 10 | 2303.947 | 2311.194 | 1777.982 | 137.233 | 115.482 |
+| 8192 | Original | 10 | 4579.749 | 4588.279 | 1789.414 | 101.712 | 123.072 |
+| 8192 | All combined | 10 | 4621.970 | 4629.872 | 1772.230 | 137.110 | 115.482 |
+| 32768 | Original | 10 | 18706.210 | 18739.094 | 1752.808 | 99.536 | 123.072 |
+| 32768 | All combined | 10 | 18860.198 | 18880.439 | 1738.162 | 133.184 | 115.482 |
+
+Prefill uses the synchronized Engine-run definition above. The pooled decode
+gains over Original are 36.93%, 32.87%, 35.32%, 31.58%, 34.80%, and 33.80%
+in ascending input-length order; TTFT p50 increases 2.37%, 1.10%, 0.75%,
+1.15%, 0.92%, and 0.82% respectively.
 
 | Input | Original / Combined Request p50 ms | Original / Combined Peak Process GiB | Original / Combined E2E Prefill tok/s |
 | ---: | --- | --- | --- |
@@ -263,6 +281,8 @@ recomputed from all worker JSON. Clocks/power remain unlocked.
 | 512 | 1499.736 / 1199.071 | 123.072 / 115.482 | 1880.476 / 1860.475 |
 | 2048 | 2374.872 / 2061.489 | 123.072 / 115.482 | 1800.229 / 1785.896 |
 | 4096 | 3495.602 / 3230.862 | 123.072 / 115.482 | 1798.168 / 1777.166 |
+| 8192 | 5828.075 / 5549.209 | 123.072 / 115.482 | 1788.681 / 1771.602 |
+| 32768 | 19980.947 / 19811.469 | 123.072 / 115.482 | 1752.078 / 1737.504 |
 
 | Input | Round 1 Original / Combined Decode tok/s | Round 2 Original / Combined Decode tok/s |
 | ---: | --- | --- |
@@ -270,6 +290,14 @@ recomputed from all worker JSON. Clocks/power remain unlocked.
 | 512 | 104.542 / 137.222 | 102.387 / 137.687 |
 | 2048 | 102.889 / 138.325 | 102.161 / 139.145 |
 | 4096 | 103.789 / 136.136 | 104.808 / 138.349 |
+| 8192 | 101.723 / 137.994 | 101.701 / 136.237 |
+| 32768 | 99.361 / 131.689 | 99.712 / 134.714 |
+
+The 8192/32768 rows were collected in the subsequent long-input batch
+described below, with the same conditions and ten requests per condition
+and length. They are shown together for scanning; samples at different
+lengths or from separate batches are not pooled together. All latency
+columns above use milliseconds.
 
 Both rounds improve decode at all lengths, with slightly worse TTFT.
 Process residency drops approximately 7.59-7.63 GiB, still including the
@@ -300,6 +328,36 @@ of a lossy combined candidate, not equivalent arithmetic or production
 readiness. The local alias `private-model-paged-combined-20261106` covers the
 combined exporter/tests, candidate manifests, weight-byte verification,
 preflight, all 16 worker records, and validated summary; these remain private.
+
+### Long-Input Extension: 8K and 32K
+
+Completed on 2026-11-06, from 18:59:04 to 19:14:46 UTC. Exact input lengths
+are 8192 and 32768 tokens. This is a separate extension of the same
+original-versus-combined A/B, not a replacement for the preceding samples.
+Both graph hashes, runtime identities, GPU, cache configuration, and timing
+definitions remain unchanged. Prefill retains 256-token chunks, requiring
+32 and 128 Engine calls respectively to the first prediction.
+
+Two reversed-order rounds use three warmups and five measured requests per
+fresh process: eight workers, 40 measured requests, 5120 predictions, and
+5080 decode transitions. The 24 warmup requests are excluded. Each condition
+and length pools ten measured requests. All workers passed runtime, graph,
+configuration, prediction-count/range, and sampled GPU isolation checks;
+the pooled results were independently recomputed from the worker JSON.
+
+Results are included as 8192/32768 rows in the existing combined A/B tables
+above. Unrounded p95 latencies and synchronized Engine-run prefill throughput
+are retained in the local summary and worker records.
+
+Both rounds favor the combined candidate for decode. Prefill remains slightly
+slower, so the overall request improvement is smaller as prompt length grows.
+Process residency includes the preallocated KV pool, not minimum model memory.
+Each condition and length has one repeatable token stream over ten requests;
+this is not full-logits equivalence or quality validation. The lossy-candidate,
+natural-greedy routing, unlocked-clock, sampling, and numerical limitations
+above apply equally to these longer inputs. No long-input full-logits or task
+evaluation was collected. Long-extension worker JSON, logs, and validated
+summary remain private/local under the same combined-experiment report alias.
 
 ## Retained Artifacts
 
