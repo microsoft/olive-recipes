@@ -4,3 +4,7 @@ recipes:
     file: DeepSeek-R1-Distill-Qwen-1.5B_model_builder_fp16.json
     devices: gpu
     eps: NvTensorRTRTXExecutionProvider
+  - name: DeepSeek-R1-Distill-Qwen-1.5B_NVMO_PTQ_Mixed_Precision_AWQ_Lite
+    file: DeepSeek-R1-Distill-Qwen_1.5B_nvmo_ptq_mixed_precision_awq_lite.json
+    devices: gpu
+    eps: NvTensorRTRTXExecutionProvider
