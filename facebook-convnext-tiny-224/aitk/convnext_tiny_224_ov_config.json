@@ -1,0 +1,29 @@
+{
+    "input_model": { "type": "HfModel", "model_path": "facebook/detr-resnet-50" },
+    "systems": {
+        "local_system": {
+            "type": "LocalSystem",
+            "accelerators": [ { "device":"npu","execution_providers": [ "OpenVINOExecutionProvider" ] } ]
+        }
+    },
+    "passes": {
+        "optimum_convert": {
+            "type": "OpenVINOOptimumConversion",
+            "extra_args": { "device": "npu", "task": "object-detection" },
+            "ov_quant_config": { "weight_format": "int8", "group_size": -1, "ratio": 1 }
+        },
+        "io_update": { "type": "OpenVINOIoUpdate", "input_shapes": [ [ 1, 3, 224, 224 ] ], "static": true, "reuse_cache": true },
+        "encapsulation": {
+            "type": "OpenVINOEncapsulation",
+            "target_device": "npu",
+            "keep_ov_dynamic_dims": true,
+            "ov_version": "2025.1",
+            "reuse_cache": true
+        }
+    },
+    "search_strategy": false,
+    "target": "local_system",
+    "cache_dir": "cache",
+    "evaluate_input_model": false,
+    "output_dir": "model/convnext_tiny_224"
+}
