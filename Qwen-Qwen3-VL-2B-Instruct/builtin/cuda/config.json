@@ -21,6 +21,7 @@
                     "vision_start_token_id": 151652,
                     "decoder": {
                         "session_options": {
+                            "ep.cuda.fpa_intb_gemm": "1",
                             "provider_options": [
                                 {"cuda": {"enable_cuda_graph": "1"}}
                             ]

@@ -95,6 +95,14 @@ or GPTQ. Recalibrate when changing the checkpoint or precision budget.
 Decoder CUDA graph capture is enabled; embedding and vision capture are
 disabled. Re-export to apply recipe changes.
 
+The decoder enables the fpA_intB weight-only CUDA path through the session
+configuration entry `ep.cuda.fpa_intb_gemm: "1"`, equivalent to
+`ORT_FPA_INTB_GEMM=1`; no environment variable is required. The entry overrides
+the environment variable. Set it to `"0"` to disable the opt-in.
+This requires an ONNX Runtime build with fpA_intB support and kernels for the
+target GPU architecture. Ineligible nodes with standard weights retain their
+regular CUDA paths.
+
 ### Prefill runtime compatibility
 
 CPU and CUDA exports use last-token-only prefill, returning `[batch, 1, vocab]`
