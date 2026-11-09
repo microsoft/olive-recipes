@@ -359,6 +359,126 @@ above apply equally to these longer inputs. No long-input full-logits or task
 evaluation was collected. Long-extension worker JSON, logs, and validated
 summary remain private/local under the same combined-experiment report alias.
 
+## CUDA 13.3 Release and DFlash2 Follow-Up (2026-11-08/09)
+
+These are two new measurement batches, not replacements for the historical
+tables above. The main-model-only batch completed on November 8; the
+DFlash2-enabled experimental batch completed on November 9. Each used one
+isolated H200, but they ran on different physical devices at different times.
+They are **not a controlled DFlash2-on/off A/B**, and no speedup ratio is
+claimed between them or against the historical runtime.
+
+### Runtime and Conditions
+
+Both batches use Python 3.12.15, driver 580.159.04, local ORT 1.32.0 and
+GenAI 0.20.0.dev0, with both runtimes built CUDA 13.3, SM90, Release.
+The GenAI build links the CUDA Release extensions library built from
+[onnxruntime-extensions PR #1147](https://github.com/microsoft/onnxruntime-extensions/pull/1147).
+Unlike the historical CUDA 13.0 ORT Release/GenAI Debug measurements, these
+use newly built local libraries. Runtime identities are retained locally;
+matching version strings alone do not establish matching binaries.
+
+The main-model-only condition selects the supplied non-auxiliary-output
+target graph and disables the drafter in a staged configuration. The
+DFlash2 condition selects the supplied auxiliary-hidden-state target graph
+and five-layer drafter, with seven configured draft tokens per proposal
+and an eight-token draft block. Graphs and weight bytes are not rewritten.
+The exported drafter configuration's `sliding_window` was changed from 0
+to 8192 because this GenAI revision rejects a nonpositive value.
+
+Both retain target sliding-window size 512, paged block size 256, prefill
+chunk size 256, max scheduled tokens 2048, GPU utilization factor 0.6,
+and disabled prefix caching. Engine max batch size is overridden to 1.
+Threads are 8/1, QMoE scratch is 64 MiB per operation, CUDA graphs and
+timing-time profiling are off, dense GEMM auto-tuning is disabled, and
+GroupQueryAttentionPreNormFusion is excluded.
+
+Each batch has twelve fresh sequential workers: lengths ascending in
+round 1 and descending in round 2. Each worker performs three warmups and
+five measured requests. Each condition/length pools ten requests; each
+batch totals 60 measured requests, 7680 predictions and 7620 generated
+decode transitions. Its 36 warmups and separate preflight are excluded.
+Prompts use the same synthetic INT64 pattern and greedy min/max generation
+length 128 as above. Initialization and request creation are outside TTFT.
+
+Every Engine.run is followed by CUDA synchronization. TTFT spans
+begin_turn to first-token event handling; decode spans first to last token
+event. DFlash2 may emit several tokens per Engine.run, so its decode metric
+counts generated transitions, not Engine calls. Throughputs are ratios of
+pooled totals; p50/p95 use NumPy linear interpolation. Prefill below is
+synchronized Engine-run throughput, not pure ORT-run throughput.
+
+### Measured Results
+
+The two condition labels identify separate batches, not paired samples.
+Memory is sampled process residency including the preallocated KV pool.
+
+| Input tokens | Condition | Measured requests | TTFT p50 ms | TTFT p95 ms | Prefill tok/s | Decode tok/s | Peak process GiB |
+| ---: | --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| 128 | Release main-only | 10 | 70.953 | 71.043 | 1807.256 | 120.812 | 122.826 |
+| 128 | Release DFlash2 experimental | 10 | 73.731 | 74.360 | 1737.868 | 129.979 | 129.900 |
+| 512 | Release main-only | 10 | 270.100 | 270.530 | 1896.098 | 113.679 | 122.984 |
+| 512 | Release DFlash2 experimental | 10 | 275.632 | 276.140 | 1858.596 | 273.853 | 130.090 |
+| 2048 | Release main-only | 10 | 1121.891 | 1124.943 | 1826.849 | 113.012 | 122.984 |
+| 2048 | Release DFlash2 experimental | 10 | 1131.756 | 1137.226 | 1809.597 | 400.910 | 130.090 |
+| 4096 | Release main-only | 10 | 2250.021 | 2253.300 | 1821.382 | 112.051 | 122.984 |
+| 4096 | Release DFlash2 experimental | 10 | 2276.321 | 2279.948 | 1800.206 | 381.688 | 130.090 |
+| 8192 | Release main-only | 10 | 4519.294 | 4529.441 | 1812.794 | 111.370 | 122.984 |
+| 8192 | Release DFlash2 experimental | 10 | 4583.042 | 4588.217 | 1788.225 | 343.993 | 130.090 |
+| 32768 | Release main-only | 10 | 18461.926 | 18487.236 | 1775.221 | 109.335 | 122.984 |
+| 32768 | Release DFlash2 experimental | 10 | 18771.606 | 18820.573 | 1745.473 | 79.516 | 130.090 |
+
+### Draft Execution and Validation Limits
+
+All 60 measured DFlash2 requests recorded actual draft forward passes;
+failure and disable counters remained zero. The following are pooled
+counter totals, not per-request means. Accepted/evaluated is distinct from
+accepted/proposed; not every proposed candidate is evaluated.
+
+| Input tokens | Draft forwards | Proposed tokens | Evaluated tokens | Accepted tokens | DFlash2 failures | DFlash2 disables |
+| ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| 128 | 730 | 4950 | 1260 | 550 | 0 | 0 |
+| 512 | 350 | 2200 | 1250 | 940 | 0 | 0 |
+| 2048 | 300 | 1500 | 1170 | 1050 | 0 | 0 |
+| 4096 | 380 | 1540 | 1160 | 1050 | 0 | 0 |
+| 8192 | 550 | 1590 | 1180 | 1040 | 0 | 0 |
+| 32768 | 2070 | 5470 | 1230 | 480 | 0 | 0 |
+
+The 32K DFlash2 decode rate drops to 79.516 tok/s. Its accepted/evaluated
+ratio is 480/1230, approximately 39.0%, but these counters do not isolate
+the cause of the slowdown. No kernel-level attribution is claimed.
+
+Crucially, the drafter export specifies four 8192-window attention layers
+and one full-attention layer. This runtime uses the configured positive
+window to bound drafter cache history. Preservation of the fifth layer's
+full-history semantics is **not verified**; the 8K/32K rows in particular
+are performance-only experimental observations, not a correctness-qualified
+configuration or production recommendation. No independent full-history
+reference, full-logits comparison, or task-accuracy evaluation was run.
+
+Within each batch and input length, all ten outputs have identical token
+hashes and the expected 128 tokens in vocabulary range. This repeatability
+does not establish cross-condition token equality, logits equivalence or
+quality. Raw records independently reproduce all six rows in each batch.
+Mapped-library and graph/configuration identities were checked across
+workers within each batch; artifact sizes and nanosecond modification times
+were unchanged after measurement.
+
+NVML requested a 5 ms sample interval during measurement and rejected
+additional compute PIDs. The maximum observed sample gap was 21.693 ms for
+main-only and 32.165 ms for DFlash2; transient peaks or unsampled interference
+cannot be excluded. Initialization ranged from 3.879 to 4.325 seconds for
+main-only and 4.359 to 4.564 seconds for DFlash2, including Model/Engine
+construction and final synchronization, not isolated prepacking. Clocks
+and power were unlocked, and other GPUs hosted unrelated work.
+
+The report aliases `private-model-paged-release-20261108` and
+`private-model-paged-dflash2-20261109` cover the respective local manifests,
+worker timings, speculative counters, mapped-library hashes, scripts and
+validated summaries. Only this anonymized report is published; no model,
+weights, configuration files, tokenizer, raw outputs, local paths or
+machine identifiers are included.
+
 ## Retained Artifacts
 
 The local report alias `private-model-paged-engine-20261106` covers the
