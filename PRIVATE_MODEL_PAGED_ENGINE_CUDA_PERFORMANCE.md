@@ -479,6 +479,95 @@ validated summaries. Only this anonymized report is published; no model,
 weights, configuration files, tokenizer, raw outputs, local paths or
 machine identifiers are included.
 
+## All-Combined Target with DFlash2 (2026-11-09)
+
+This separate follow-up applies the earlier all-combined target graph to
+DFlash2 decoding. The combined target retains mixed INT4/INT8 weight-only
+quantization, residual RMSNorm fusion, merged QKV projections, attention-internal
+Q/K normalization and merged gate/up projections with packed SwiGLU. The two
+auxiliary-output nodes from the supplied DFlash2 target are restored using
+intermediate tensors retained by the combined graph. The drafter graph and
+weights are unchanged. INT3 expert operators are preserved. Shared weight
+files use hardlinks locally, with no additional weight-data copy.
+
+The batch uses the same physical H200 and mapped CUDA 13.3 Release runtime
+libraries as the preceding DFlash2 batch, but was collected later rather
+than interleaved. It is not a controlled A/B or per-optimization attribution.
+The lossy target changes may affect selected tokens, auxiliary features,
+expert routing and draft acceptance; no quality equivalence is established.
+
+The six lengths, synthetic prompts, batch 1, fixed 128 predictions,
+seven configured draft tokens, target window 512, drafter window 8192,
+cache/scheduler settings and synchronized timing definitions are unchanged.
+Twelve fresh workers run ascending then descending lengths, each with three
+warmups and five measured requests. Totals are 60 measured requests, 7680
+predictions and 7620 generated decode transitions; 36 warmups and separate
+preflights are excluded. Ratios use pooled totals and percentiles use linear
+interpolation. Prefill is synchronized Engine-run throughput, not pure ORT.
+
+### Measured Results
+
+| Input tokens | Measured requests | TTFT p50 ms | TTFT p95 ms | Prefill tok/s | Decode tok/s | Peak process GiB |
+| ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| 128 | 10 | 75.241 | 76.817 | 1697.410 | 126.916 | 122.303 |
+| 512 | 10 | 278.415 | 279.084 | 1839.980 | 116.886 | 122.438 |
+| 2048 | 10 | 1143.781 | 1155.332 | 1787.220 | 374.668 | 122.438 |
+| 4096 | 10 | 2301.602 | 2304.609 | 1780.553 | 352.244 | 122.438 |
+| 8192 | 10 | 4621.412 | 4627.515 | 1773.091 | 329.381 | 122.438 |
+| 32768 | 10 | 18952.320 | 18970.804 | 1729.115 | 86.972 | 122.438 |
+
+### Draft Execution and Interpretation
+
+All 60 measured requests execute the drafter; failure and disable counters
+are zero. Counters below are pooled totals, not per-request means.
+
+| Input tokens | Draft forwards | Proposed tokens | Evaluated tokens | Accepted tokens | DFlash2 failures | DFlash2 disables |
+| ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| 128 | 720 | 4880 | 1260 | 560 | 0 | 0 |
+| 512 | 750 | 5010 | 1260 | 540 | 0 | 0 |
+| 2048 | 300 | 1540 | 1160 | 1050 | 0 | 0 |
+| 4096 | 390 | 1570 | 1170 | 1040 | 0 | 0 |
+| 8192 | 550 | 1590 | 1170 | 1040 | 0 | 0 |
+| 32768 | 1980 | 4870 | 1260 | 570 | 0 | 0 |
+
+The combined target is not uniformly faster with DFlash2. Observed decode
+rates are lower at inputs 128 through 8192 than in the earlier uncombined
+DFlash2 batch, and higher at 32768. In particular, input 512 records
+116.886 tok/s rather than the earlier 273.853 tok/s; accepted/evaluated
+tokens change from 940/1250 (75.2%) to 540/1260 (42.9%). Independent greedy
+output streams also differ at this length. These are different continuation
+states, not matched teacher-forced steps, so acceptance changes do not
+isolate a causal explanation or establish an accuracy difference.
+
+Sampled process residency is approximately 7.6 GiB below the earlier
+DFlash2 batch, still including the preallocated KV pool rather than minimum
+model footprint. Combining target optimizations does not guarantee better
+end-to-end speculative performance; this experiment does not justify
+replacing the original target without representative quality validation.
+
+All measured requests return 128 tokens in vocabulary range, with one
+repeatable output stream per length. Six result rows were independently
+recomputed from worker records. Model/graph/configuration and mapped-library
+identities were checked, and artifact sizes and nanosecond modification
+times were unchanged after the batch. GPU compute-PID isolation checks
+passed. NVML requested 5 ms sampling; the maximum observed gap was 34.749 ms,
+so transient peaks or unsampled interference cannot be excluded. Initialization
+ranged from 4.002 to 4.394 seconds including Model/Engine construction and
+final synchronization. Clocks/power remained unlocked.
+
+The earlier fifth-layer full-attention history caveat remains: this runtime
+bounds drafter cache history using window 8192, and full-history semantics
+are not verified, especially for 8K/32K. No full-logits equivalence,
+perplexity or task-accuracy evaluation is claimed. Standard ONNX checker
+schema coverage does not validate these runtime-specific operators; actual
+CUDA Release loading and generation passed before the formal matrix.
+
+The local alias `private-model-paged-combined-dflash2-20261109` covers the
+model manifest, hardlink checks, preflights, worker records, scripts and
+validated summary. Only anonymized results are published; model files,
+weights, configuration files, raw outputs, local paths and machine
+identifiers remain private. Earlier report tables are unchanged.
+
 ## Retained Artifacts
 
 The local report alias `private-model-paged-engine-20261106` covers the
