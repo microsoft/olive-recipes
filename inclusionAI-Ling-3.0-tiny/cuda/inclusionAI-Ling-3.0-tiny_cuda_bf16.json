@@ -22,10 +22,11 @@
     },
     "passes": {
         "builder_bf16": {
-            "type": "ModelBuilder",
-            "precision": "bf16",
+            "type": "LingModelBuilder",
+            "precision": "fp16",
             "extra_options": {
                 "hf_remote": true,
+                "use_cuda_bf16": true,
                 "use_paged_attention": true,
                 "paged_block_size": 256,
                 "use_device_allocator_for_initializers": true,

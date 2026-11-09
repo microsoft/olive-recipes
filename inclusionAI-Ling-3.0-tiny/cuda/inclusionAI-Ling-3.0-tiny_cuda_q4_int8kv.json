@@ -22,7 +22,7 @@
     },
     "passes": {
         "builder_int4_int8kv": {
-            "type": "ModelBuilder",
+            "type": "LingModelBuilder",
             "precision": "int4",
             "extra_options": {
                 "hf_remote": true,

@@ -21,8 +21,78 @@ as ONNX Runtime GenAI packages for the CUDA execution provider using:
 
 ## Export
 
-Run from this directory so that `kv_scales_int8_per_channel.json` is resolved:
+### Source prerequisites
+
+These recipes require the source capabilities below, not just released `onnxruntime`, `onnxruntime-genai`, and Olive packages. The dependency pins are:
+
+| Project | Revision | Required capability |
+| --- | --- | --- |
+| ONNX Runtime | `d93f5446f362d9c70bea81de953f32a26aa26d25` (merged [PR #33817](https://github.com/microsoft/onnxruntime/pull/33817)) or a descendant | Per-key KDA decay, `MoEGroupRouter`, paged INT8 KV, and FP8 operators |
+| ONNX Runtime GenAI | `cb850edf6520fef6fa193e38fc1173ef1b889734` ([PR #2843](https://github.com/microsoft/onnxruntime-genai/pull/2843)) or a descendant | Bailing streaming loader, native INT8 embeddings, KDA/MLA/MoE export, configuration fixes, and CUDA plugin registration |
+| Olive | `ea6ae28111df93a82a0b04197751a57adba9d258` | ModelBuilder pre-checks and typed extra-option forwarding |
+
+Olive at this revision still replaces GenAI's embedding exporter in its generic `ModelBuilder` pass. All four recipes therefore explicitly use the local `LingModelBuilder` registered in `package_config.json`. This subclass retains the native GenAI checkpoint, MatMul, and embedding exporters instead of applying patches for Olive-quantized checkpoints. Omitting the package configuration fails explicitly rather than silently exporting INT4 or floating-point embeddings. The BF16 and FP8 recipes use Olive's supported `precision="fp16"` plus `use_cuda_bf16=true`; the resulting activations and dense weights are BF16, not FP16.
+
+On Linux, install a C++20 toolchain, CMake, CUDA 12.8 or newer and cuDNN 9, then build in a dedicated environment. FP8 QMoE requires a Hopper/SM90 GPU such as H100/H200 and **`onnxruntime_USE_FP8_QMOE=ON`**; a default ORT CUDA build is insufficient.
 
 ```bash
-olive run --config inclusionAI-Ling-3.0-tiny_cuda_q4_int8kv.json
+export SOURCE_ROOT="$PWD/ling-source"
+export CUDA_HOME=/usr/local/cuda-12.8
+export CUDNN_HOME=/path/to/cudnn
+mkdir -p "$SOURCE_ROOT"
+python3 -m venv "$SOURCE_ROOT/venv"
+source "$SOURCE_ROOT/venv/bin/activate"
+python -m pip install numpy torch transformers onnx onnx-ir safetensors huggingface-hub setuptools wheel packaging pytest
+
+git clone https://github.com/microsoft/Olive.git "$SOURCE_ROOT/Olive"
+git -C "$SOURCE_ROOT/Olive" checkout ea6ae28111df93a82a0b04197751a57adba9d258
+python -m pip install -e "$SOURCE_ROOT/Olive"
+
+git clone --recursive https://github.com/microsoft/onnxruntime.git "$SOURCE_ROOT/onnxruntime"
+git -C "$SOURCE_ROOT/onnxruntime" checkout d93f5446f362d9c70bea81de953f32a26aa26d25
+git -C "$SOURCE_ROOT/onnxruntime" submodule update --init --recursive
+(
+  cd "$SOURCE_ROOT/onnxruntime"
+  ./build.sh --config Release --parallel --build_shared_lib --build_wheel \
+    --use_cuda --cuda_home "$CUDA_HOME" --cudnn_home "$CUDNN_HOME" --skip_tests \
+    --cmake_extra_defines onnxruntime_USE_FP8_QMOE=ON CMAKE_CUDA_ARCHITECTURES=90
+)
+export ORT_HOME="$SOURCE_ROOT/ort-install"
+cmake --install "$SOURCE_ROOT/onnxruntime/build/Linux/Release" --config Release --prefix "$ORT_HOME"
+# Keep only the custom CUDA ORT distribution in this dedicated environment.
+python -m pip uninstall -y onnxruntime onnxruntime-gpu
+python -m pip install "$SOURCE_ROOT"/onnxruntime/build/Linux/Release/dist/*.whl
+
+git clone --recursive https://github.com/microsoft/onnxruntime-genai.git "$SOURCE_ROOT/onnxruntime-genai"
+git -C "$SOURCE_ROOT/onnxruntime-genai" fetch origin pull/2843/head:ling-2843
+git -C "$SOURCE_ROOT/onnxruntime-genai" switch --detach cb850edf6520fef6fa193e38fc1173ef1b889734
+git -C "$SOURCE_ROOT/onnxruntime-genai" submodule update --init --recursive
+python -m pip install -r "$SOURCE_ROOT/onnxruntime-genai/tools/python/requirements-core-packaging.txt"
+(
+  cd "$SOURCE_ROOT/onnxruntime-genai"
+  python build.py --config Release --use_cuda --cuda_home "$CUDA_HOME" \
+    --ort_home "$ORT_HOME" --parallel --update --build --package --skip_tests
+)
+python -m pip install "$SOURCE_ROOT"/onnxruntime-genai/build/Linux/Release/wheel/*.whl
+export LD_LIBRARY_PATH="$ORT_HOME/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
 ```
+
+For BF16/INT4/INT8 on an A100, use `CMAKE_CUDA_ARCHITECTURES=80`; that does not enable FP8 QMoE execution on Ampere. Record `git rev-parse HEAD` in all three source directories alongside any validation results.
+
+Run from this directory so that the custom pass and calibration file are resolved:
+
+```bash
+PYTHONPATH="$PWD${PYTHONPATH:+:$PYTHONPATH}" olive run \
+  --config inclusionAI-Ling-3.0-tiny_cuda_q4_int8kv.json \
+  --package-config package_config.json --disable_telemetry
+```
+
+Use the same `--package-config` option for the other three recipes. Quantized exports must contain `/model/embed_tokens/GatherBlockQuantized` with `bits=8`, `gather_axis=0`, and `quantize_axis=1`; do not infer embedding precision from the recipe options alone.
+
+### Validation status
+
+`python -m pytest -q test_ling_model_builder.py` runs both quantized recipes through the actual Olive CLI with a tiny local dense checkpoint and checks the saved INT8 embedding nodes and INT4/INT8 MatMul bit widths. It does not download Ling weights or measure Ling accuracy. GenAI's `test/python/models/test_bailing_builder.py` separately covers Bailing scheduling, grouped router weights, KDA outputs/state, and both RoPE layouts against small numerical references.
+
+The offline checks were run against the GenAI builder at `cb850edf6520fef6fa193e38fc1173ef1b889734`, Olive at `ea6ae28111df93a82a0b04197751a57adba9d258`, and an ORT 1.32 CUDA build at `2d9d48d489` (a descendant of the KDA merge), using an A100. They validate the builder and operators, not a freshly source-built GenAI runtime.
+
+Full Ling BF16/FP8/INT4/INT8 exports, generation accuracy versus SGLang/HF, and H200 latency/throughput validation are still required before approving these recipes. Include the dependency SHAs, GPU/CUDA versions, export commands, generation prompts/tokens, error tolerances, and performance measurements in that validation report. PR #689 should not be treated as ready merely because the offline checks pass.
