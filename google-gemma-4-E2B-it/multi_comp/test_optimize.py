@@ -51,17 +51,9 @@ class Gemma4OptimizeTest(unittest.TestCase):
             "--use_mobius_builder",
             "--precision",
             "fp32",
+            "--output_path",
+            "gemma4_onnx",
         ]
-        if ep == "ov":
-            capture.extend(
-                ["--extra_mb_options", "vision_patch_capacity=2520,vision_batch_size=1"]
-            )
-        capture.extend(
-            [
-                "--output_path",
-                "gemma4_fixed_capacity_onnx" if ep == "ov" else "gemma4_onnx",
-            ]
-        )
         if accuracy_level is not None:
             capture.extend(["--int4_accuracy_level", str(accuracy_level)])
         self.assertEqual(

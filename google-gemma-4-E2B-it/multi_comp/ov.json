@@ -2,7 +2,7 @@
     "input_model": {
         "type": "CompositeModel",
         "config": {
-            "model_path": "gemma4_fixed_capacity_onnx",
+            "model_path": "gemma4_onnx",
             "model_attributes": {
                 "matmul_nbits_accuracy_level": 4
             }
@@ -14,7 +14,7 @@
             "user_script": "user_script.py",
             "load_dataset_config": {
                 "type": "wikitext_decoder_calibration_dataset",
-                "embedding_model_path": "gemma4_fixed_capacity_onnx/embedding/model.onnx",
+                "embedding_model_path": "gemma4_onnx/embedding/model.onnx",
                 "num_samples": 32,
                 "seq_len": 64,
                 "past_len": 64,
@@ -73,6 +73,30 @@
                 },
                 {
                     "surgeon": "SimplifiedLayerNormToL2Norm"
+                }
+            ],
+            "save_as_external_data": true
+        },
+        "fix_vision_shape": {
+            "type": "DynamicToFixedShape",
+            "dim_param": [
+                "component.vision_encoder.num_patches",
+                "component.vision_encoder._d0"
+            ],
+            "dim_value": [2520, 280],
+            "save_as_external_data": true
+        },
+        "fix_vision_pool_depth": {
+            "type": "GraphSurgeries",
+            "surgeries": [
+                {
+                    "surgeon": "ReplaceTensorsWithConstants",
+                    "replacements": {
+                        "v_vision_encoder.pooler.Squeeze_2499": 280
+                    }
+                },
+                {
+                    "surgeon": "InferShapes"
                 }
             ],
             "save_as_external_data": true
@@ -196,7 +220,7 @@
         },
         "vision": {
             "components": [ "vision_encoder" ],
-            "pipeline": [ "matmul_nbits_to_qdq", "gs_vision", "vision_cb"],
+            "pipeline": [ "fix_vision_shape", "fix_vision_pool_depth", "matmul_nbits_to_qdq", "gs_vision", "vision_cb"],
             "target": {
                 "type": "LocalSystem",
                 "accelerators": [

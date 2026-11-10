@@ -29,8 +29,8 @@ python optimize.py --ep qnn
 For either target, the script runs exactly three steps:
 
 1. Quantize the Hugging Face components with `gemma4_quantize.json`.
-2. Capture ONNX graphs with Olive's Mobius builder: fixed-capacity vision for OpenVINO, dynamic vision for QNN.
-3. Run `ov.json` or `qnn.json`.
+2. Capture ONNX graphs with Olive's Mobius builder.
+3. Run `ov.json` (which fixes the OpenVINO vision capacity) or `qnn.json`.
 
 To run the steps manually with the currently configured accuracy level of `4`:
 
@@ -38,16 +38,7 @@ To run the steps manually with the currently configured accuracy level of `4`:
 # 1. Quantize
 olive run --config gemma4_quantize.json
 
-# 2. Export for OpenVINO only
-olive capture-onnx-graph `
-    --model_name_or_path gemma4_quantized_hf `
-    --use_mobius_builder `
-    --precision fp32 `
-    --int4_accuracy_level 4 `
-    --extra_mb_options "vision_patch_capacity=2520,vision_batch_size=1" `
-    --output_path gemma4_fixed_capacity_onnx
-
-# Or: export for QNN (dynamic vision)
+# 2. Export for either target
 olive capture-onnx-graph `
     --model_name_or_path gemma4_quantized_hf `
     --use_mobius_builder `
@@ -69,18 +60,20 @@ Install OpenVINO in the optimization environment:
 pip install openvino
 ```
 
-The export writes `gemma4_fixed_capacity_onnx` with fixed vision inputs
+`ov.json` starts from the `gemma4_onnx` export, fixes its patch
+dimension and pooler depth, and produces fixed vision inputs
 `pixel_values: [1, 2520, 768]`, `pixel_position_ids: [1, 2520, 2]`, and output
 `image_features: [280, 1536]`. Valid image features precede padded rows.
 Decoder, embedding, and audio export behavior is unchanged. The fixed-capacity
-option is not applied during quantization or QNN export.
+transformation is not applied during quantization or QNN optimization.
 
 Olive writes the GenAI configuration, processor/tokenizer assets, and package
 metadata automatically during capture.
 
-`ov.json` consumes this package directly; no vision `DynamicToFixedShape` or
-pooler-splitting pass is needed. It converts quantized vision weights to QDQ,
-applies graph surgeries, and runs `EPContextBinaryGenerator` for NPU. The
+`ov.json` applies `DynamicToFixedShape` to the vision input and output symbols,
+replaces the vision pooler's dynamic `OneHot` depth with 280, and infers shapes
+before converting quantized vision weights to QDQ. It then applies the existing
+graph surgeries and runs `EPContextBinaryGenerator` for NPU. The
 decoder pipeline also fixes KV-cache shapes and uses `StaticLLM` before
 generating OpenVINO context binaries with shared weights.
 
