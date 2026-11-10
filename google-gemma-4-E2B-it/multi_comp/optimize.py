@@ -69,17 +69,9 @@ def main() -> None:
         "--use_mobius_builder",
         "--precision",
         "fp32",
+        "--output_path",
+        "gemma4_onnx",
     ]
-    if args.ep == "ov":
-        capture_args.extend(
-            ["--extra_mb_options", "vision_patch_capacity=2520,vision_batch_size=1"]
-        )
-    capture_args.extend(
-        [
-            "--output_path",
-            "gemma4_fixed_capacity_onnx" if args.ep == "ov" else "gemma4_onnx",
-        ]
-    )
     if accuracy_level is not None:
         capture_args.extend(["--int4_accuracy_level", str(accuracy_level)])
 
@@ -93,7 +85,7 @@ def main() -> None:
     run_step(
         2,
         total_steps,
-        "Exporting the quantized model with fixed-capacity vision"
+        "Exporting the quantized model with dynamic vision"
         if args.ep == "ov"
         else "Exporting the quantized model with Mobius",
         capture_args,
