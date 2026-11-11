@@ -167,6 +167,12 @@ def main():
     genai_config_path.write_text(json.dumps(genai_config, indent=4) + "\n", encoding="utf-8")
     print(f"Updated {genai_config_path}")
 
+    # The onnxruntime-genai 0.19+ builder also writes vision and embedding models; the package uses the Mobius ones.
+    for filename in ("vision.onnx", "vision.onnx.data", "embeddings.onnx", "embeddings.onnx.data"):
+        if (model_dir / filename).exists():
+            (model_dir / filename).unlink()
+            print(f"Removed {model_dir / filename}")
+
     processor_config_path = model_dir / "processor_config.json"
     processor_config_path.write_text(json.dumps(processor_config, indent=4) + "\n", encoding="utf-8")
     print(f"Wrote {processor_config_path}")
