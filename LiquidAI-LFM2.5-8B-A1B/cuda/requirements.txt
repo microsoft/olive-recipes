@@ -1,0 +1,2 @@
+onnxruntime-genai-cuda>=0.16.0
+transformers>=5.0.0
