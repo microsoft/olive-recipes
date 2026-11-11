@@ -25,10 +25,9 @@ The review changes use `sunghcho/qwen-vl-cuda-pr-20261106` in the Mobius,
 Olive, ONNX Runtime, and GenAI repositories. Install the matching source
 checkouts when reviewing this branch.
 The published `mobius-onnx==0.1.0` alone does not provide these options.
-The RTN node-glob support is tracked separately in
-[Olive #2531](https://github.com/microsoft/Olive/pull/2531) and must also be
-available before running this recipe. That existing feature is intentionally
-not duplicated by the MobiusBuilder integration changes.
+The matching [Olive #2794](https://github.com/microsoft/Olive/pull/2794)
+source checkout already includes the RTN node-glob matching required by this
+recipe. No separate glob-support patch is needed.
 The recipe requires ONNX IR 1.1.0 or newer; older 0.2.1 releases do not support
 the `max_shard_size_bytes` argument used by the Mobius package writer.
 
