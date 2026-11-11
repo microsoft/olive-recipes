@@ -1,0 +1,32 @@
+{
+    "input_model": { "type": "CompositeModel", "model_path": "audio_fp32" },
+    "systems": {
+        "local_system": {
+            "type": "LocalSystem",
+            "accelerators": [{ "device": "gpu", "execution_providers": ["WebGpuExecutionProvider"] }]
+        }
+    },
+    "passes": {
+        "embed_tokens": {
+            "type": "OnnxBlockWiseRtnQuantization",
+            "bits": 8,
+            "block_size": 32,
+            "is_symmetric": true,
+            "nodes_to_include": ["/embed_tokens/Gather"],
+            "save_as_external_data": true
+        },
+        "int4": {
+            "type": "OnnxBlockWiseRtnQuantization",
+            "bits": 4,
+            "block_size": 32,
+            "is_symmetric": true,
+            "nodes_to_exclude": ["/prev_embed/table", "/logits/norm_w", "/logits/logits_w"],
+            "save_as_external_data": true
+        }
+    },
+    "target": "local_system",
+    "log_severity_level": 0,
+    "output_dir": "model",
+    "cache_dir": "cache",
+    "no_artifacts": true
+}
