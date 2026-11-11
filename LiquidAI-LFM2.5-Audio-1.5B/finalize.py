@@ -50,7 +50,7 @@ def match_embeds_type(model_dir: Path) -> bool:
 
 
 def check_token_ids(tokenizer_path: Path):
-    ids = {token["content"]: token["id"] for token in json.loads(tokenizer_path.read_text())["added_tokens"]}
+    ids = {token["content"]: token["id"] for token in json.loads(tokenizer_path.read_text(encoding="utf-8"))["added_tokens"]}
     for content, expected in (AUDIO_TOKEN, AUDIO_START, TEXT_END):
         if ids.get(content) != expected:
             raise SystemExit(f"{tokenizer_path}: expected {content} to be {expected}, got {ids.get(content)}")
@@ -66,12 +66,12 @@ def main():
             raise SystemExit(f"{model_dir / filename} not found: run both the decoder and the audio recipe first")
 
     genai_config_path = model_dir / "genai_config.json"
-    genai_config = json.loads(genai_config_path.read_text())
+    genai_config = json.loads(genai_config_path.read_text(encoding="utf-8"))
     model = genai_config["model"]
     if model["type"] != "lfm2_audio":
         raise SystemExit(f'expected model type "lfm2_audio" in {genai_config_path}, got "{model["type"]}"')
     check_token_ids(model_dir / "tokenizer.json")
-    hf_config = json.loads(Path(hf_hub_download(MODEL_ID, "config.json")).read_text())
+    hf_config = json.loads(Path(hf_hub_download(MODEL_ID, "config.json")).read_text(encoding="utf-8"))
 
     # Without their own session_options the speech graphs run on the decoder's execution provider.
     # On WebGPU the encoder and the audio head stay on CPU: the WebGPU EP does not always grow the
@@ -105,7 +105,7 @@ def main():
         "interleaved_n_text": hf_config["interleaved_n_text"],
         "interleaved_n_audio": hf_config["interleaved_n_audio"],
     }
-    genai_config_path.write_text(json.dumps(genai_config, indent=4) + "\n")
+    genai_config_path.write_text(json.dumps(genai_config, indent=4) + "\n", encoding="utf-8")
     print(f"Updated {genai_config_path}")
 
     if match_embeds_type(model_dir):
