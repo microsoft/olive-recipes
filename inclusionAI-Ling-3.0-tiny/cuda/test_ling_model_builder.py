@@ -19,10 +19,10 @@ from transformers import LlamaConfig, LlamaForCausalLM, PreTrainedTokenizerFast
 from ling_model_builder import LingModelBuilder
 
 
-@pytest.mark.parametrize("precision", ["q4", "q8"])
-def test_olive_cli_exports_native_int8_embeddings(tmp_path, precision):
+@pytest.mark.parametrize("precision", ["bf16", "q4_int8kv", "q8_int8kv"])
+def test_olive_cli_exports_native_precisions(tmp_path, precision):
     recipe_dir = Path(__file__).parent
-    config = json.loads((recipe_dir / f"inclusionAI-Ling-3.0-tiny_cuda_{precision}_int8kv.json").read_text())
+    config = json.loads((recipe_dir / f"inclusionAI-Ling-3.0-tiny_cuda_{precision}.json").read_text())
     checkpoint = tmp_path / "checkpoint"
     torch.manual_seed(7)
     hf_config = LlamaConfig(
@@ -95,6 +95,15 @@ def test_olive_cli_exports_native_int8_embeddings(tmp_path, precision):
     models = list(output.rglob("*.onnx"))
     assert len(models) == 1
     graph = onnx.load(models[0], load_external_data=False).graph
+    floating_types = {
+        tensor.data_type
+        for tensor in graph.initializer
+        if tensor.data_type in {onnx.TensorProto.FLOAT16, onnx.TensorProto.BFLOAT16}
+    }
+    assert floating_types == {onnx.TensorProto.BFLOAT16}
+    if precision == "bf16":
+        assert not any(node.op_type == "MatMulNBits" for node in graph.node)
+        return
     gathers = [
         node for node in graph.node
         if node.name == "/model/embed_tokens/GatherBlockQuantized"
@@ -110,7 +119,7 @@ def test_olive_cli_exports_native_int8_embeddings(tmp_path, precision):
         for node in graph.node if node.op_type == "MatMulNBits"
         for attr in node.attribute if attr.name == "bits"
     }
-    assert matmul_bits == ({4, 8} if precision == "q4" else {8})
+    assert matmul_bits == ({4, 8} if precision == "q4_int8kv" else {8})
 
 
 def test_native_pass_rejects_an_already_patched_embedding_exporter(monkeypatch):

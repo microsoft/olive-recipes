@@ -24,9 +24,13 @@
         "builder_int8_int8kv": {
             "type": "LingModelBuilder",
             "precision": "int8",
+            "target_options": {
+                "quant_config": {
+                    "io_dtype": "bf16"
+                }
+            },
             "extra_options": {
                 "hf_remote": true,
-                "use_cuda_bf16": true,
                 "use_8bits_moe": true,
                 "use_paged_attention": true,
                 "paged_block_size": 256,
