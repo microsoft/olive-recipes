@@ -1,11 +1,15 @@
 keywords:
   - olive-ai
 recipes:
-  - name: qwen3vl-2B-Instruct
-    file: optimize.py
+  - name: qwen3vl-2B-Instruct-cpu
+    file: cpu_and_mobile/config.json
     eps:
       - CPUExecutionProvider
-      - CUDAExecutionProvider
     devices:
       - cpu
+  - name: qwen3vl-2B-Instruct-cuda
+    file: cuda/config.json
+    eps:
+      - CUDAExecutionProvider
+    devices:
       - gpu
