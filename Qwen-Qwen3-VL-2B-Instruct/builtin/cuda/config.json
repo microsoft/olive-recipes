@@ -1,0 +1,170 @@
+{
+    "input_model": {
+        "type": "HfModel",
+        "model_path": "Qwen/Qwen3-VL-2B-Instruct",
+        "load_kwargs": {
+            "revision": "89644892e4d85e24eaac8bacfd4f463576704203"
+        }
+    },
+    "passes": {
+        "export": {
+            "type": "MobiusBuilder",
+            "precision": "fp16",
+            "prune_prefill_prefix": true,
+            "runtime_last_token_indices": true,
+            "disable_deepstack": true,
+            "genai_config": {
+                "model": {
+                    "type": "qwen3_vl",
+                    "image_token_id": 151655,
+                    "video_token_id": 151656,
+                    "vision_start_token_id": 151652,
+                    "decoder": {
+                        "session_options": {
+                            "ep.cuda.fpa_intb_gemm": "1",
+                            "provider_options": [
+                                {"cuda": {"enable_cuda_graph": "1"}}
+                            ]
+                        }
+                    },
+                    "vision": {
+                        "config_filename": "processor_config.json",
+                        "session_options": {
+                            "log_id": "onnxruntime-genai",
+                            "provider_options": [
+                                {"cuda": {"enable_cuda_graph": "0", "enable_skip_layer_norm_strict_mode": "1"}}
+                            ]
+                        }
+                    },
+                    "embedding": {
+                        "session_options": {
+                            "log_id": "onnxruntime-genai",
+                            "provider_options": [
+                                {"cuda": {"enable_cuda_graph": "0", "enable_skip_layer_norm_strict_mode": "1"}}
+                            ]
+                        }
+                    }
+                },
+                "search": {
+                    "top_k": 50,
+                    "top_p": 1.0
+                }
+            },
+            "processor_config": {
+                "processor": {
+                    "name": "qwen3_vl_image_processor",
+                    "transforms": [
+                        {"operation": {"name": "decode_image", "type": "DecodeImage", "attrs": {"color_space": "RGB"}}},
+                        {"operation": {"name": "convert_to_rgb", "type": "ConvertRGB"}},
+                        {"operation": {"name": "resize", "type": "Resize", "attrs": {
+                            "width": 540, "height": 360, "smart_resize": 1,
+                            "min_pixels": 3136, "max_pixels": 12845056, "patch_size": 16, "merge_size": 2
+                        }}},
+                        {"operation": {"name": "rescale", "type": "Rescale", "attrs": {
+                            "rescale_factor": 0.00392156862745098
+                        }}},
+                        {"operation": {"name": "normalize", "type": "Normalize", "attrs": {
+                            "mean": [0.5, 0.5, 0.5], "std": [0.5, 0.5, 0.5], "qwen3_vl": 1
+                        }}},
+                        {"operation": {"name": "patch_image", "type": "PatchImage", "attrs": {
+                            "patch_size": 16, "temporal_patch_size": 2, "merge_size": 2
+                        }}}
+                    ]
+                }
+            }
+        },
+        "int8": {
+            "type": "OnnxBlockWiseRtnQuantization",
+            "bits": 8,
+            "block_size": 32,
+            "is_symmetric": true,
+            "nodes_to_include": [
+                "decoder/model/layers.0/self_attn/o_proj/MatMul*",
+                "decoder/model/layers.2/mlp/up_proj/MatMul*",
+                "decoder/model/layers.2/mlp/down_proj/MatMul*",
+                "decoder/model/layers.3/self_attn/q_proj/MatMul*",
+                "decoder/model/layers.3/self_attn/k_proj/MatMul*",
+                "decoder/model/layers.3/self_attn/v_proj/MatMul*",
+                "decoder/model/layers.4/self_attn/q_proj/MatMul*",
+                "decoder/model/layers.4/self_attn/k_proj/MatMul*",
+                "decoder/model/layers.4/self_attn/v_proj/MatMul*",
+                "decoder/model/layers.7/self_attn/o_proj/MatMul*",
+                "decoder/model/layers.7/mlp/up_proj/MatMul*",
+                "decoder/model/layers.8/self_attn/q_proj/MatMul*",
+                "decoder/model/layers.8/self_attn/k_proj/MatMul*",
+                "decoder/model/layers.8/self_attn/v_proj/MatMul*",
+                "decoder/model/layers.9/self_attn/q_proj/MatMul*",
+                "decoder/model/layers.9/self_attn/k_proj/MatMul*",
+                "decoder/model/layers.9/self_attn/v_proj/MatMul*",
+                "decoder/model/layers.9/self_attn/o_proj/MatMul*",
+                "decoder/model/layers.10/self_attn/q_proj/MatMul*",
+                "decoder/model/layers.10/self_attn/k_proj/MatMul*",
+                "decoder/model/layers.10/self_attn/v_proj/MatMul*",
+                "decoder/model/layers.11/self_attn/q_proj/MatMul*",
+                "decoder/model/layers.11/self_attn/k_proj/MatMul*",
+                "decoder/model/layers.11/self_attn/v_proj/MatMul*",
+                "decoder/model/layers.12/self_attn/q_proj/MatMul*",
+                "decoder/model/layers.12/self_attn/k_proj/MatMul*",
+                "decoder/model/layers.12/self_attn/v_proj/MatMul*",
+                "decoder/model/layers.12/self_attn/o_proj/MatMul*",
+                "decoder/model/layers.12/mlp/up_proj/MatMul*",
+                "decoder/model/layers.13/self_attn/q_proj/MatMul*",
+                "decoder/model/layers.13/self_attn/k_proj/MatMul*",
+                "decoder/model/layers.13/self_attn/v_proj/MatMul*",
+                "decoder/model/layers.13/self_attn/o_proj/MatMul*",
+                "decoder/model/layers.14/self_attn/q_proj/MatMul*",
+                "decoder/model/layers.14/self_attn/k_proj/MatMul*",
+                "decoder/model/layers.14/self_attn/v_proj/MatMul*",
+                "decoder/model/layers.15/self_attn/q_proj/MatMul*",
+                "decoder/model/layers.15/self_attn/k_proj/MatMul*",
+                "decoder/model/layers.15/self_attn/v_proj/MatMul*",
+                "decoder/model/layers.16/self_attn/q_proj/MatMul*",
+                "decoder/model/layers.16/self_attn/k_proj/MatMul*",
+                "decoder/model/layers.16/self_attn/v_proj/MatMul*",
+                "decoder/model/layers.17/self_attn/q_proj/MatMul*",
+                "decoder/model/layers.17/self_attn/k_proj/MatMul*",
+                "decoder/model/layers.17/self_attn/v_proj/MatMul*",
+                "decoder/model/layers.17/self_attn/o_proj/MatMul*",
+                "decoder/model/layers.18/self_attn/q_proj/MatMul*",
+                "decoder/model/layers.18/self_attn/k_proj/MatMul*",
+                "decoder/model/layers.18/self_attn/v_proj/MatMul*",
+                "decoder/model/layers.18/self_attn/o_proj/MatMul*",
+                "decoder/model/layers.19/self_attn/o_proj/MatMul*",
+                "decoder/model/layers.20/self_attn/q_proj/MatMul*",
+                "decoder/model/layers.20/self_attn/k_proj/MatMul*",
+                "decoder/model/layers.20/self_attn/v_proj/MatMul*",
+                "decoder/model/layers.20/self_attn/o_proj/MatMul*",
+                "decoder/model/layers.21/self_attn/q_proj/MatMul*",
+                "decoder/model/layers.21/self_attn/k_proj/MatMul*",
+                "decoder/model/layers.21/self_attn/v_proj/MatMul*",
+                "decoder/model/layers.23/self_attn/q_proj/MatMul*",
+                "decoder/model/layers.23/self_attn/k_proj/MatMul*",
+                "decoder/model/layers.23/self_attn/v_proj/MatMul*",
+                "decoder/model/layers.24/self_attn/q_proj/MatMul*",
+                "decoder/model/layers.24/self_attn/k_proj/MatMul*",
+                "decoder/model/layers.24/self_attn/v_proj/MatMul*",
+                "decoder/model/layers.27/mlp/gate_proj/MatMul*",
+                "decoder/model/layers.27/mlp/down_proj/MatMul*"
+            ],
+            "save_as_external_data": true,
+            "external_data_name": "model.onnx.data"
+        },
+        "int4": {
+            "type": "OnnxBlockWiseRtnQuantization",
+            "bits": 4,
+            "block_size": 32,
+            "is_symmetric": true,
+            "nodes_to_include": ["decoder/*/MatMul*"],
+            "save_as_external_data": true,
+            "external_data_name": "model.onnx.data"
+        }
+    },
+    "target": {
+        "type": "LocalSystem",
+        "accelerators": [
+            {"device": "gpu", "execution_providers": ["CUDAExecutionProvider"]}
+        ]
+    },
+    "no_artifacts": true,
+    "output_dir": "cuda/models"
+}

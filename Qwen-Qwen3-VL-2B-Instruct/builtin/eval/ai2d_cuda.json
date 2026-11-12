@@ -2,7 +2,7 @@
     "input_model": {
         "type": "OnnxModel",
         "model_path": "../cuda/models",
-        "onnx_file_name": "text.onnx"
+        "onnx_file_name": "decoder/model.onnx"
     },
     "data_configs": [
         {
@@ -24,7 +24,8 @@
                     "answer_col": "answer",
                     "options_col": "options",
                     "system_prompt": "You are a concise multiple-choice answering assistant. When given a question with numbered options, respond with ONLY a single digit (1, 2, 3, or 4). Do not include any explanation, reasoning, or other text \u2014 just the digit.",
-                    "limit": 100
+                    "limit": 100,
+                    "max_length": 4096
                 }
             }
         }
@@ -35,6 +36,8 @@
                 {
                     "name": "vision_accuracy",
                     "type": "accuracy",
+                    "sample_log_num": 100,
+                    "sample_log_dir": "results/ai2d_cuda/samples",
                     "data_config": "ai2d_test",
                     "sub_types": [
                         {
@@ -63,5 +66,6 @@
                 }
             ]
         }
-    }
+    },
+    "output_dir": "results/ai2d_cuda"
 }
