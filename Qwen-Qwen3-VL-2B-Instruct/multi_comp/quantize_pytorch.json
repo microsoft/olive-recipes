@@ -1,0 +1,25 @@
+{
+    "input_model": {
+        "type": "HfModel",
+        "model_path": "Qwen/Qwen3-VL-2B-Instruct",
+        "task": "image-text-to-text",
+        "load_kwargs": { "trust_remote_code": true }
+    },
+    "passes": {
+        "decoder_kquant": {
+            "type": "KQuant",
+            "bits": 4,
+            "group_size": 128,
+            "sym": true,
+            "lm_head": true
+        }
+    },
+    "evaluate_input_model": false,
+    "output_dir": "quantized_pytorch",
+    "builds": {
+        "decoder_kquant": {
+            "components": [ "decoder" ],
+            "pipeline": [ "decoder_kquant" ]
+        }
+    }
+}
