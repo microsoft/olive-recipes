@@ -8,13 +8,27 @@ Used by Olive's OnnxConversion pass via the ``model_script`` / ``model_loader``
 mechanism. Each component (encoder, decoder, joint) has its own loader and
 dummy inputs function, referenced from separate Olive JSON configs.
 
-Streaming defaults (chunk_size=0.56s, left_chunks=10) are defined as constants
-below and are the single source of truth for the export shapes.
+Streaming defaults (chunk_size=0.56s, left_chunks=10) match the values in
+the Olive JSON configs.
 """
 
+import numpy as np
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
+
+from olive.common.quant.state_dict import install_quant_tensor_param
+from olive.common.quant.tensor import QuantTensor
+
+try:
+    from transformers import AutoConfig, AutoModelForSpeechSeq2Seq, PreTrainedModel, PretrainedConfig
+    from transformers.models.auto import configuration_auto, modeling_auto
+except Exception:  # pragma: no cover
+    AutoConfig = None
+    AutoModelForSpeechSeq2Seq = None
+    PreTrainedModel = None
+    PretrainedConfig = None
+    configuration_auto = None
+    modeling_auto = None
 
 # ---------------------------------------------------------------------------
 # Shared streaming constants
@@ -27,31 +41,22 @@ import torch.nn.functional as F
 # not available from a HuggingFace config — it lives inside the .nemo archive
 # as encoder.att_context_size and requires loading the full model to read.
 CHUNK_SIZE = 0.56  # seconds
+LEFT_CHUNKS = 10
 MEL_FEATURES = 128
 SUBSAMPLING_FACTOR = 8
 
-# Model architecture constants (0.6B multilingual model)
+# Model architecture constants (0.6B model)
 N_LAYERS = 24
 D_MODEL = 1024
 CONV_CONTEXT = 8  # conv_kernel_size(9) - 1
 DECODER_HIDDEN = 640
 DECODER_LSTM_LAYERS = 2
-NUM_PROMPTS = 128  # one-hot language-ID size
 
-# Streaming config — single source of truth.
-# chunk_encoded_frames = int(CHUNK_SIZE * 100) // SUBSAMPLING_FACTOR = 7
-# last_channel_cache_size = LEFT_CHUNKS * chunk_encoded_frames = 70
-LEFT_CHUNKS = 10
-
-MODEL_NAME = "nvidia/NVIDIA-Nemotron-3.5-ASR-Streaming-Multilingual-0.6b"
+MODEL_NAME = "nvidia/nemotron-speech-streaming-en-0.6b"
 
 
 def get_att_context_size(chunk_size: float = CHUNK_SIZE, left_chunks: int = LEFT_CHUNKS):
-    """Compute attention context size for the streaming encoder.
-
-    left_context = left_chunks * chunk_encoded_frames;
-    right_context is indexed by chunk_size.
-    """
+    """Get attention context size based on chunk size and left chunks."""
     right_context = {0.08: 0, 0.16: 1, 0.56: 6, 1.12: 13}.get(chunk_size, 13)
     chunk_encoded_frames = int(chunk_size * 100) // SUBSAMPLING_FACTOR
     left_context = left_chunks * chunk_encoded_frames
@@ -60,58 +65,195 @@ def get_att_context_size(chunk_size: float = CHUNK_SIZE, left_chunks: int = LEFT
 
 def _get_streaming_shapes():
     """Compute static streaming tensor shapes from the shared constants."""
+    chunk_encoded_frames = int(CHUNK_SIZE * 100) // SUBSAMPLING_FACTOR
+    left_context = LEFT_CHUNKS * chunk_encoded_frames
     pre_encode_cache = 9
     chunk_mel_frames = int(CHUNK_SIZE * 100)  # 56 for 0.56s
     static_mel_frames = chunk_mel_frames + pre_encode_cache  # 65
-    chunk_encoded_frames = chunk_mel_frames // SUBSAMPLING_FACTOR  # 7
-    last_channel_cache_size = LEFT_CHUNKS * chunk_encoded_frames  # 70
 
     return {
-        "last_channel_cache_size": last_channel_cache_size,
+        "last_channel_cache_size": left_context,
         "static_mel_frames": static_mel_frames,
-        "chunk_encoded_frames": chunk_encoded_frames,
     }
 
-def configure_encoder_for_sdpa(encoder):
-    for layer in getattr(encoder, "layers", []) or []:
-        attention = getattr(layer, "self_attn", None)
-        if attention is not None and hasattr(attention, "use_pytorch_sdpa"):
-            attention.use_pytorch_sdpa = True
+
+def _restore_quantized_state_dict(model, state_dict):
+    """Rebind QuantTensor checkpoint entries into the model's live Parameters."""
+    if not isinstance(state_dict, dict):
+        return False
+
+    quantized_entries = {}
+    for name, value in state_dict.items():
+        if isinstance(value, QuantTensor):
+            quantized_entries[name] = value
+        elif isinstance(value, torch.nn.Parameter) and isinstance(getattr(value, "data", None), QuantTensor):
+            quantized_entries[name] = value.data
+
+    if not quantized_entries:
+        return False
+
+    filtered_state = {k: v for k, v in state_dict.items() if k not in quantized_entries}
+    for name, qt in quantized_entries.items():
+        module_name, _, pname = name.rpartition(".")
+        if not module_name or not pname:
+            continue
+        module = model
+        if module_name:
+            try:
+                module = model.get_submodule(module_name)
+            except AttributeError:
+                module = None
+        if module is None:
+            continue
+        if pname not in module._parameters:
+            continue
+        install_quant_tensor_param(module, pname, qt)
+
+    if filtered_state:
+        model.load_state_dict(filtered_state, strict=False)
+    return True
+
 
 def _load_nemo_model(model_name=MODEL_NAME):
     """Load the NeMo ASR model (shared across loaders).
 
-    For HF repo IDs we download the ``.nemo`` archive via ``hf_hub_download``
-    and feed it to ``restore_from``. This avoids a bug in NeMo 2.6.2's
-    ``from_pretrained`` HF-cache integration where the cache directory is
-    incorrectly treated as already-extracted (because the repo also ships
-    README/safety markdown files alongside the archive), causing
-    ``model_config.yaml`` lookup to fail.
+    Local paths can point at saved checkpoint files or model directories, which are not HF repo IDs.
+    In that case we detect them explicitly and overlay the checkpoint weights on a fresh base NeMo model.
     """
     import nemo.collections.asr as nemo_asr
 
+    local_model_path = None
+    if isinstance(model_name, str):
+        candidate = model_name.strip()
+        if candidate and candidate.endswith((".pt", ".pth", ".ckpt")):
+            local_model_path = candidate
+        else:
+            local_path = __import__("pathlib").Path(candidate)
+            if local_path.exists():
+                if local_path.is_dir():
+                    for suffix in ("model.pt", "model.pth", "model.ckpt"):
+                        check = local_path / suffix
+                        if check.exists():
+                            local_model_path = str(check)
+                            break
+                    if local_model_path is None:
+                        for candidate_file in sorted(local_path.iterdir()):
+                            if candidate_file.is_file() and candidate_file.suffix.lower() in {".pt", ".pth", ".ckpt"}:
+                                local_model_path = str(candidate_file)
+                                break
+                elif local_path.is_file() and local_path.suffix.lower() in {".pt", ".pth", ".ckpt"}:
+                    local_model_path = str(local_path)
+
+    if local_model_path is not None:
+        base_model = nemo_asr.models.ASRModel.from_pretrained(model_name=MODEL_NAME)
+        state_dict = torch.load(local_model_path, map_location="cpu", weights_only=False)
+        if isinstance(state_dict, dict):
+            if not _restore_quantized_state_dict(base_model, state_dict):
+                base_model.load_state_dict(state_dict, strict=False)
+        else:
+            raise TypeError(f"Unsupported NeMo checkpoint format at {local_model_path!r}: expected state_dict")
+        base_model = base_model.cpu()
+        base_model.eval()
+        return base_model
+
     if model_name.endswith(".nemo"):
-        nemo_path = model_name
+        asr_model = nemo_asr.models.ASRModel.restore_from(model_name)
     else:
-        from huggingface_hub import hf_hub_download, list_repo_files
+        asr_model = nemo_asr.models.ASRModel.from_pretrained(model_name=model_name)
 
-        # Find the .nemo file in the repo (filename is not standardised).
-        files = list_repo_files(model_name)
-        nemo_files = [f for f in files if f.endswith(".nemo")]
-        if not nemo_files:
-            raise RuntimeError(
-                f"No .nemo archive found in HuggingFace repo {model_name!r}"
-            )
-        if len(nemo_files) > 1:
-            raise RuntimeError(
-                f"Multiple .nemo archives found in {model_name!r}: {nemo_files}"
-            )
-        nemo_path = hf_hub_download(repo_id=model_name, filename=nemo_files[0])
-
-    asr_model = nemo_asr.models.ASRModel.restore_from(nemo_path, map_location="cpu")
     asr_model = asr_model.cpu()
     asr_model.eval()
     return asr_model
+
+
+def register_nemotron_hf_bridge():
+    """Register the real Transformers Nemotron ASR classes when available."""
+    if AutoConfig is None or AutoModelForSpeechSeq2Seq is None:
+        return None
+
+    try:
+        from transformers.models.nemotron_asr_streaming import NemotronAsrStreamingConfig, NemotronAsrStreamingModel
+
+        try:
+            AutoConfig.register("nemotron_asr_streaming", NemotronAsrStreamingConfig, exist_ok=True)
+            AutoModelForSpeechSeq2Seq.register(NemotronAsrStreamingConfig, NemotronAsrStreamingModel, exist_ok=True)
+        except ValueError:
+            pass
+        if configuration_auto is not None:
+            mapping = getattr(configuration_auto, "CONFIG_MAPPING", None)
+            if mapping is not None:
+                mapping["nemotron_asr_streaming"] = NemotronAsrStreamingConfig
+        if modeling_auto is not None:
+            seq2seq_mapping = getattr(modeling_auto, "MODEL_FOR_SPEECH_SEQ_TO_SEQ_MAPPING", None)
+            if seq2seq_mapping is not None:
+                seq2seq_mapping["nemotron_asr_streaming"] = NemotronAsrStreamingModel
+            model_mapping = getattr(modeling_auto, "MODEL_MAPPING_NAMES", None)
+            if model_mapping is not None:
+                model_mapping["nemotron_asr_streaming"] = "NemotronAsrStreamingModel"
+        return NemotronAsrStreamingModel
+    except Exception:
+        pass
+
+    if PretrainedConfig is None or PreTrainedModel is None:
+        return None
+
+    class NemotronAsrStreamingConfig(PretrainedConfig):
+        model_type = "nemotron_asr_streaming"
+
+        def __init__(self, vocab_size=1024, hidden_size=1024, encoder_hidden_size=1024, decoder_hidden_size=640,
+                     num_hidden_layers=24, **kwargs):
+            super().__init__(**kwargs)
+            self.vocab_size = vocab_size
+            self.hidden_size = hidden_size
+            self.encoder_hidden_size = encoder_hidden_size
+            self.decoder_hidden_size = decoder_hidden_size
+            self.num_hidden_layers = num_hidden_layers
+            self.architectures = ["NemotronAsrStreamingModel"]
+
+    class NemotronAsrStreamingModel(PreTrainedModel):
+        config_class = NemotronAsrStreamingConfig
+
+        def __init__(self, config):
+            super().__init__(config)
+            self.model = None
+            self.config = config
+
+        @classmethod
+        def from_pretrained(cls, pretrained_model_name_or_path, *model_args, **kwargs):
+            asr_model = _load_nemo_model(pretrained_model_name_or_path)
+            instance = cls(NemotronAsrStreamingConfig())
+            instance.model = asr_model
+            instance.eval()
+            return instance
+
+        def forward(self, *args, **kwargs):
+            if self.model is None:
+                raise ValueError("Nemotron ASR model is not loaded.")
+            return self.model(*args, **kwargs)
+
+    try:
+        AutoConfig.register("nemotron_asr_streaming", NemotronAsrStreamingConfig, exist_ok=True)
+        AutoModelForSpeechSeq2Seq.register(NemotronAsrStreamingConfig, NemotronAsrStreamingModel, exist_ok=True)
+    except ValueError:
+        pass
+
+    if configuration_auto is not None:
+        mapping = getattr(configuration_auto, "CONFIG_MAPPING", None)
+        if mapping is not None:
+            mapping["nemotron_asr_streaming"] = NemotronAsrStreamingConfig
+
+    if modeling_auto is not None:
+        seq2seq_mapping = getattr(modeling_auto, "MODEL_FOR_SPEECH_SEQ_TO_SEQ_MAPPING", None)
+        if seq2seq_mapping is not None:
+            seq2seq_mapping["nemotron_asr_streaming"] = NemotronAsrStreamingModel
+        model_mapping = getattr(modeling_auto, "MODEL_MAPPING_NAMES", None)
+        if model_mapping is not None:
+            model_mapping["nemotron_asr_streaming"] = "NemotronAsrStreamingModel"
+
+    return NemotronAsrStreamingModel
+
+
+register_nemotron_hf_bridge()
 
 
 # ---------------------------------------------------------------------------
@@ -119,22 +261,18 @@ def _load_nemo_model(model_name=MODEL_NAME):
 # ---------------------------------------------------------------------------
 
 class StreamingEncoderWrapper(nn.Module):
-    """Wrap the NeMo CacheAware encoder + prompt_kernel for streaming ONNX export.
+    """Wrap the NeMo CacheAware encoder for streaming ONNX export.
 
-    Takes a `lang_id` int64 input of shape [B]. The one-hot prompt tensor of
-    shape [B, T_out, NUM_PROMPTS] is built inside the graph, then concatenated
-    to the encoded features along the channel dim and projected back to
-    D_MODEL via `prompt_kernel` (Linear -> ReLU -> Linear).
+    Provides an untyped forward() that torch.onnx.export can trace.
+    Cache tensors use [B, n_layers, ...] layout for ONNX I/O consistency.
     """
 
-    def __init__(self, enc, prompt_kernel):
+    def __init__(self, enc):
         super().__init__()
         self.enc = enc
-        self.prompt_kernel = prompt_kernel
 
     def forward(self, audio_signal, length,
-                cache_last_channel, cache_last_time, cache_last_channel_len,
-                lang_id):
+                cache_last_channel, cache_last_time, cache_last_channel_len):
         audio_signal = audio_signal.transpose(1, 2)  # [B, T, mel] -> [B, mel, T]
         encoded, encoded_len, cache_ch_next, cache_tm_next, cache_len_next = \
             self.enc.forward_for_export(
@@ -145,11 +283,6 @@ class StreamingEncoderWrapper(nn.Module):
                 cache_last_channel_len=cache_last_channel_len,
             )
         encoded = encoded.transpose(1, 2)  # [B, D, T] -> [B, T, D]
-        # Build one-hot prompt [B, T, NUM_PROMPTS] from lang_id [B].
-        onehot = F.one_hot(lang_id, num_classes=NUM_PROMPTS).to(encoded.dtype)  # [B, 128]
-        prompt = onehot.unsqueeze(1).expand(-1, encoded.shape[1], -1)            # [B, T, 128]
-        concat = torch.cat([encoded, prompt], dim=-1)
-        encoded = self.prompt_kernel(concat).to(encoded.dtype)
         return encoded, encoded_len, cache_ch_next, cache_tm_next, cache_len_next
 
 
@@ -158,14 +291,12 @@ def encoder_model_loader(model_name):
     asr_model = _load_nemo_model(model_name)
     encoder = asr_model.encoder
     encoder.eval()
-    prompt_kernel = asr_model.prompt_kernel
-    prompt_kernel.eval()
 
     att_context_size = get_att_context_size()
     if hasattr(encoder, "set_default_att_context_size"):
         encoder.set_default_att_context_size(att_context_size)
 
-    wrapper = StreamingEncoderWrapper(encoder, prompt_kernel)
+    wrapper = StreamingEncoderWrapper(encoder)
     wrapper.eval()
     return wrapper
 
@@ -183,16 +314,7 @@ def encoder_dummy_inputs(model):
         torch.zeros(batch, N_LAYERS, last_channel_cache_size, D_MODEL),
         torch.zeros(batch, N_LAYERS, D_MODEL, CONV_CONTEXT),
         torch.zeros(batch, dtype=torch.int64),
-        torch.zeros(batch, dtype=torch.int64),  # lang_id [B]
     )
-
-
-def encoder_fp16_dummy_inputs(model):
-    """Generate FP16 floating-point inputs for the TRT-RTX encoder export."""
-    inputs = list(encoder_dummy_inputs(model))
-    for index in (0, 2, 3):
-        inputs[index] = inputs[index].to(dtype=torch.float16)
-    return tuple(inputs)
 
 
 # ---------------------------------------------------------------------------
@@ -227,23 +349,6 @@ def decoder_model_loader(model_name):
     return wrapper
 
 
-def encoder_fp16_model_loader(model_name):
-    """Load the streaming encoder wrapper in FP16 for NvTensorRtRtx export."""
-    wrapper = encoder_model_loader(model_name)
-    configure_encoder_for_sdpa(wrapper.enc)
-    wrapper.to(dtype=torch.float16)
-    wrapper.eval()
-    return wrapper
-
-
-def decoder_fp16_model_loader(model_name):
-    """Load the stateful decoder wrapper in FP16 for NvTensorRtRtx export."""
-    wrapper = decoder_model_loader(model_name)
-    wrapper.to(dtype=torch.float16)
-    wrapper.eval()
-    return wrapper
-
-
 def decoder_dummy_inputs(model):
     """Generate dummy inputs for ONNX export of the stateful decoder."""
     batch = 1
@@ -252,14 +357,6 @@ def decoder_dummy_inputs(model):
         torch.zeros(DECODER_LSTM_LAYERS, batch, DECODER_HIDDEN, dtype=torch.float32),
         torch.zeros(DECODER_LSTM_LAYERS, batch, DECODER_HIDDEN, dtype=torch.float32),
     )
-
-
-def decoder_fp16_dummy_inputs(model):
-    """Generate INT64 targets and FP16 LSTM states for NvTensorRtRtx export."""
-    inputs = list(decoder_dummy_inputs(model))
-    inputs[1] = inputs[1].to(dtype=torch.float16)
-    inputs[2] = inputs[2].to(dtype=torch.float16)
-    return tuple(inputs)
 
 
 # ---------------------------------------------------------------------------
@@ -288,14 +385,6 @@ def joint_model_loader(model_name):
     return wrapper
 
 
-def joint_fp16_model_loader(model_name):
-    """Load the joint wrapper in FP16 for NvTensorRtRtx export."""
-    wrapper = joint_model_loader(model_name)
-    wrapper.to(dtype=torch.float16)
-    wrapper.eval()
-    return wrapper
-
-
 def joint_dummy_inputs(model):
     """Generate dummy inputs for ONNX export of the joint network."""
     batch = 1
@@ -303,8 +392,3 @@ def joint_dummy_inputs(model):
         torch.randn(batch, 1, D_MODEL),
         torch.randn(batch, 1, DECODER_HIDDEN),
     )
-
-
-def joint_fp16_dummy_inputs(model):
-    """Generate FP16 encoder and decoder inputs for NvTensorRtRtx export."""
-    return tuple(value.to(dtype=torch.float16) for value in joint_dummy_inputs(model))
