@@ -25,7 +25,7 @@ Previous versions of this recipe used `QairtPreparationPass` and `QairtGenAIBuil
 * Ubuntu 22.04
 * Python 3.12.10
 * Nvidia H100 80GB GPU, CUDA 13.2+
-* QAIRT 2.48.40
+* QAIRT 2.51.40
 
 With the preparation-time Python dependencies noted in requirements_host.txt  - other configurations may work but have not been verified.
 
@@ -51,8 +51,8 @@ pip install -r requirements_host.txt
 2. Use qairt-vm to install a non-default version of QAIRT and set QAIRT_SDK_ROOT
 
 ```bash
-# Download QAIRT SDK 2.48.40
-qairt-vm fetch -v 2.48.40 -d <download location>
+# Download QAIRT SDK 2.51.40
+qairt-vm fetch -v 2.51.40 -d <download location>
 
 # Set QAIRT_SDK_ROOT to the download location
 # Note: No further QAIRT SDK installation steps are required when using qairt-dev
@@ -63,6 +63,11 @@ export LD_LIBRARY_PATH=$(python3 -c "import sysconfig; print(sysconfig.get_confi
 ```
 
 3. Run Olive recipe
+
+> **Note:** Set the following environment variable to avoid CUDA memory fragmentation:
+> ```bash
+> export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
+> ```
 
 For Snapdragon X2 Elite:
 ```bash

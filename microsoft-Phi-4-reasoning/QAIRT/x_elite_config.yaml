@@ -69,7 +69,6 @@ stages:
     transform_options:
       arn: [32, 128]
       context_length: [512, 1024, 2048, 3072, 4096]
-      split.num_splits: 9
       split.split_embedding: true
       split.split_lm_head: true
     calibration_options:
