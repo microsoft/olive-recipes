@@ -1,0 +1,22 @@
+{
+    "passes": {
+        "LingModelBuilder": {
+            "module_path": "ling_model_builder.LingModelBuilder",
+            "supported_providers": [
+                "CUDAExecutionProvider"
+            ],
+            "supported_accelerators": [
+                "gpu"
+            ],
+            "supported_precisions": [
+                "fp32",
+                "fp16",
+                "int4",
+                "int8"
+            ],
+            "module_dependencies": [
+                "onnxruntime-genai-cuda"
+            ]
+        }
+    }
+}
