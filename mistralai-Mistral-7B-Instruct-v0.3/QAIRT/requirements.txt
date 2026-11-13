@@ -12,7 +12,7 @@ attrs==25.4.0
 bcrypt==5.0.0
 bleach==6.3.0
 bokeh==3.6.3
-certifi==2026.1.4
+certifi==2026.10.18
 cffi==2.0.0
 charset-normalizer==3.4.4
 clarabel==0.11.1
@@ -33,7 +33,7 @@ decorator==5.2.1
 dill==0.3.8
 exceptiongroup==1.3.1
 executing==2.2.1
-filelock==3.20.3
+filelock==4.2.1
 flatbuffers==25.12.19
 fonttools==4.61.1
 frozenlist==1.8.0
@@ -90,7 +90,7 @@ nvidia-nvjitlink-cu12==12.6.85
 nvidia-nvshmem-cu12==3.4.5
 nvidia-nvtx-cu12==12.6.77
 olive-ai @ git+https://github.com/microsoft/Olive.git@f7efd41ab24a2eb07be7edc6d84d0f6304b46598
-onnx==1.22.0
+onnx==1.23.2
 onnx-ir==0.1.15
 onnx_graphsurgeon==0.5.8
 onnxruntime==1.23.2
@@ -153,7 +153,7 @@ tomli==2.4.1
 torch==2.1.0+cu121
 torchmetrics==1.9.0
 torchvision==0.16.0+cu121
-tornado==6.5.5
+tornado==6.6
 tqdm==4.67.2
 traitlets==5.14.3
 transformers==4.44.0
