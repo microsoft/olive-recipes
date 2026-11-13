@@ -36,8 +36,14 @@ Download the artifact under `artifacts/kev/` in this directory. The package is
 staged under `cache/mobius-export/`, so a complete FP32 export is reused on a
 rerun. Olive atomically publishes the selected package to its `build/` output.
 The recipe JSON declares `component_session_options`; the `olive run` callback
-copies them into `genai_config.json`. The checked-in CPU policy uses 16 intra-op
+copies them into `genai_config.json`. The checked-in CPU policy uses 24 intra-op
 threads, one inter-op thread, and non-spinning idle pools.
+
+The optimized profile uses 24 intra-op threads, matching one physical EPYC
+NUMA node. Together with automatic CPU question grouping in ONNX Runtime GenAI,
+the five-question router policy improved from 4,409 ms to 3,405 ms p50 and from
+4,686 ms to 3,647 ms p95 with unchanged 32/40 policy checks. Use the physical
+core count of one local NUMA domain on other systems.
 
 ```text
 build/
