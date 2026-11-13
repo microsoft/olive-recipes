@@ -1,0 +1,14 @@
+arch: qwen3_5_text
+recipes:
+  - name: kev-0.8b_webgpu_mobius_fp32
+    file: kev-0.8b_webgpu_fp32.json
+    devices: gpu
+    eps: WebGpuExecutionProvider
+  - name: kev-0.8b_webgpu_mobius_fp16
+    file: kev-0.8b_webgpu_fp16.json
+    devices: gpu
+    eps: WebGpuExecutionProvider
+  - name: kev-0.8b_webgpu_mobius_mixed_experimental
+    file: kev-0.8b_webgpu_mixed.json
+    devices: gpu
+    eps: WebGpuExecutionProvider

@@ -1,0 +1,45 @@
+{
+  "input_model": {
+    "type": "HfModel",
+    "model_path": "Qwen/Qwen3-8B",
+    "load_kwargs": {
+      "revision": "b968826d9c46dd6066d109eabc6255188de91218",
+      "torch_dtype": "float16"
+    }
+  },
+  "systems": {
+    "local_system": {
+      "type": "LocalSystem",
+      "accelerators": [
+        {
+          "device": "cpu",
+          "execution_providers": ["CPUExecutionProvider"]
+        }
+      ]
+    }
+  },
+  "passes": {
+    "m": {
+      "type": "MobiusBuilder",
+      "precision": "fp16",
+      "exporter_func": "export_clm_package",
+      "exporter_config": {
+        "artifact_path": "artifacts/clm",
+        "recipe_precision": "mixed",
+        "staging_path": "cache/mobius-export-cpu-mixed",
+        "component_session_options": {
+          "intra_op_num_threads": 24,
+          "inter_op_num_threads": 1,
+          "session.intra_op.allow_spinning": "0",
+          "session.inter_op.allow_spinning": "0"
+        }
+      },
+      "user_script": "../user_script.py",
+      "script_dir": "../.."
+    }
+  },
+  "target": "local_system",
+  "output_dir": "build-mixed",
+  "cache_dir": "cache-mixed",
+  "no_artifacts": true
+}
