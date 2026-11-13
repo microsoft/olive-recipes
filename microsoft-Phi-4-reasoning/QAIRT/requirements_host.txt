@@ -1,0 +1,8 @@
+--extra-index-url https://download.pytorch.org/whl/cu132
+numpy<2.0
+olive-ai[qairt] @ git+https://github.com/CodeLinaro/Olive.git@3cc3578228ae0e623a76d84dd019628396ce8b8d
+qairt-dev[genai,onnx] @ git+https://github.qualcomm.com/MLG/qairt-tools.git@ddd2f54e4f08537aaa557955624447ca8edba47c#subdirectory=core
+pyarrow==25.0.1
+torch==2.12.1+cu132
+torchvision==0.27.1+cu132
+transformers==5.16.0
